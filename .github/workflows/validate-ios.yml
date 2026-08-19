@@ -13,12 +13,17 @@ concurrency:
   group: pressbench-ios-validate-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  SOURCE_ZIP: PressBench-TestFlight-Source-v0.21.4.zip
+  SCHEME: PressBench
+
 jobs:
   validate:
     runs-on: macos-26
     timeout-minutes: 45
+
     steps:
-      - name: Check out source
+      - name: Check out repository
         uses: actions/checkout@v4
 
       - name: Select Xcode
@@ -31,27 +36,74 @@ jobs:
           xcodebuild -version
 
       - name: Install XcodeGen
-        run: brew install xcodegen
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v xcodegen >/dev/null || brew install xcodegen
+          xcodegen --version
+
+      - name: Bootstrap reviewed production source
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f "$GITHUB_WORKSPACE/project.yml" && -f "$GITHUB_WORKSPACE/PressBench/Resources/PressBenchLogic.js" ]]; then
+            source_root="$GITHUB_WORKSPACE"
+          elif [[ -f "$GITHUB_WORKSPACE/$SOURCE_ZIP" ]]; then
+            unpack="$RUNNER_TEMP/pressbench-source"
+            rm -rf "$unpack"
+            mkdir -p "$unpack"
+            ditto -x -k "$GITHUB_WORKSPACE/$SOURCE_ZIP" "$unpack"
+            project="$(find "$unpack" -maxdepth 4 -type f -name project.yml -print -quit)"
+            [[ -n "$project" ]] || { echo "$SOURCE_ZIP did not contain project.yml" >&2; exit 1; }
+            source_root="$(dirname "$project")"
+          else
+            echo "Production source missing. Commit the unpacked source tree or upload $SOURCE_ZIP at repository root." >&2
+            exit 1
+          fi
+          [[ -f "$source_root/PressBench/Resources/PressBenchLogic.js" ]] || { echo 'PressBench deterministic engine missing.' >&2; exit 1; }
+          [[ -f "$source_root/scripts/release_integrity.py" ]] || { echo 'Release integrity gate missing.' >&2; exit 1; }
+          [[ -f "$source_root/scripts/verify_localization.py" ]] || { echo 'Localization gate missing.' >&2; exit 1; }
+          [[ -f "$source_root/scripts/engine_smoke.js" ]] || { echo 'Engine smoke gate missing.' >&2; exit 1; }
+          echo "PB_SOURCE_ROOT=$source_root" >> "$GITHUB_ENV"
 
       - name: Release integrity
-        run: python3 scripts/release_integrity.py
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PB_SOURCE_ROOT"
+          python3 scripts/release_integrity.py
 
       - name: Localization integrity
-        run: python3 scripts/verify_localization.py
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PB_SOURCE_ROOT"
+          python3 scripts/verify_localization.py
 
       - name: Deterministic engine smoke tests
-        run: node scripts/engine_smoke.js
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PB_SOURCE_ROOT"
+          node scripts/engine_smoke.js
 
       - name: Generate Xcode project
-        run: xcodegen generate
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PB_SOURCE_ROOT"
+          rm -rf PressBench.xcodeproj
+          xcodegen generate
+          test -d PressBench.xcodeproj
 
       - name: Release simulator build
         shell: bash
         run: |
           set -euo pipefail
+          cd "$PB_SOURCE_ROOT"
           xcodebuild \
             -project PressBench.xcodeproj \
-            -scheme PressBench \
+            -scheme "$SCHEME" \
             -configuration Release \
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
@@ -62,14 +114,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          cd "$PB_SOURCE_ROOT"
           UDID="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; ids=[x["udid"] for runtime in d.values() for x in runtime if x.get("isAvailable") and "iPhone" in x.get("name","")]; print(ids[0] if ids else "")')"
-          if [[ -z "$UDID" ]]; then
-            echo 'No available iPhone simulator found.' >&2
-            exit 1
-          fi
+          [[ -n "$UDID" ]] || { echo 'No available iPhone simulator found.' >&2; exit 1; }
           xcodebuild \
             -project PressBench.xcodeproj \
-            -scheme PressBench \
+            -scheme "$SCHEME" \
             -configuration Debug \
             -destination "platform=iOS Simulator,id=$UDID" \
             CODE_SIGNING_ALLOWED=NO \
