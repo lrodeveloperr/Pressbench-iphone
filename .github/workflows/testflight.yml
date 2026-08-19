@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       build_number:
-        description: Optional integer build number; blank uses GitHub run number
+        description: Optional unused positive integer; blank uses GitHub run number
         required: false
         type: string
 
@@ -20,6 +20,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
+  SOURCE_ZIP: PressBench-TestFlight-Source-v0.21.4.zip
   IOS_BUNDLE_ID: com.goodusestudios.pressbench
   APPLE_TEAM_ID: 49SQ3XQ68Q
   MARKETING_VERSION: 0.21.4
@@ -29,12 +30,13 @@ env:
 
 jobs:
   upload:
+    name: Signed PressBench build to TestFlight
     if: github.ref == 'refs/heads/main'
     runs-on: macos-26
-    timeout-minutes: 75
+    timeout-minutes: 90
 
     steps:
-      - name: Check out reviewed source
+      - name: Check out reviewed repository
         uses: actions/checkout@v4
 
       - name: Confirm manual upload
@@ -53,7 +55,109 @@ jobs:
           fi
           echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
 
-      - name: Verify Apple credentials
+      - name: Select Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -d /Applications/Xcode_26.6.app ]]; then
+            sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
+          fi
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v xcodegen >/dev/null || brew install xcodegen
+          xcodegen --version
+
+      - name: Bootstrap reviewed production source
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f "$GITHUB_WORKSPACE/project.yml" && -f "$GITHUB_WORKSPACE/PressBench/Resources/PressBenchLogic.js" ]]; then
+            source_root="$GITHUB_WORKSPACE"
+          elif [[ -f "$GITHUB_WORKSPACE/$SOURCE_ZIP" ]]; then
+            unpack="$RUNNER_TEMP/pressbench-source"
+            rm -rf "$unpack"
+            mkdir -p "$unpack"
+            ditto -x -k "$GITHUB_WORKSPACE/$SOURCE_ZIP" "$unpack"
+            project="$(find "$unpack" -maxdepth 4 -type f -name project.yml -print -quit)"
+            [[ -n "$project" ]] || { echo "$SOURCE_ZIP did not contain project.yml" >&2; exit 1; }
+            source_root="$(dirname "$project")"
+          else
+            echo "Production source missing. Commit the unpacked source tree or upload $SOURCE_ZIP at repository root." >&2
+            exit 1
+          fi
+          [[ -f "$source_root/PressBench/Resources/PressBenchLogic.js" ]] || { echo 'PressBench deterministic engine missing.' >&2; exit 1; }
+          [[ -f "$source_root/scripts/release_integrity.py" ]] || { echo 'Release integrity gate missing.' >&2; exit 1; }
+          [[ -f "$source_root/scripts/verify_localization.py" ]] || { echo 'Localization gate missing.' >&2; exit 1; }
+          [[ -f "$source_root/scripts/engine_smoke.js" ]] || { echo 'Engine smoke gate missing.' >&2; exit 1; }
+          [[ -f "$source_root/scripts/app-store-connect-jwt.rb" ]] || { echo 'App Store Connect JWT helper missing.' >&2; exit 1; }
+          echo "PB_SOURCE_ROOT=$source_root" >> "$GITHUB_ENV"
+
+      - name: Release integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PB_SOURCE_ROOT"
+          python3 scripts/release_integrity.py
+
+      - name: Localization integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PB_SOURCE_ROOT"
+          python3 scripts/verify_localization.py
+
+      - name: Deterministic engine smoke tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PB_SOURCE_ROOT"
+          node scripts/engine_smoke.js
+
+      - name: Generate Xcode project
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PB_SOURCE_ROOT"
+          rm -rf PressBench.xcodeproj
+          xcodegen generate
+          test -d PressBench.xcodeproj
+
+      - name: Release simulator build
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PB_SOURCE_ROOT"
+          xcodebuild \
+            -project PressBench.xcodeproj \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            MARKETING_VERSION="$MARKETING_VERSION" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+            build
+
+      - name: Unit tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PB_SOURCE_ROOT"
+          UDID="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; ids=[x["udid"] for runtime in d.values() for x in runtime if x.get("isAvailable") and "iPhone" in x.get("name","")]; print(ids[0] if ids else "")')"
+          [[ -n "$UDID" ]] || { echo 'No available iPhone simulator found.' >&2; exit 1; }
+          xcodebuild \
+            -project PressBench.xcodeproj \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,id=$UDID" \
+            CODE_SIGNING_ALLOWED=NO \
+            test
+
+      - name: Verify Apple credentials and app record
         shell: bash
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
@@ -65,100 +169,64 @@ jobs:
           [[ -n "$ASC_KEY_ID" ]] || missing+=(ASC_KEY_ID)
           [[ -n "$ASC_ISSUER_ID" ]] || missing+=(ASC_ISSUER_ID)
           [[ -n "$ASC_PRIVATE_KEY" ]] || missing+=(ASC_PRIVATE_KEY)
-          if (( ${#missing[@]} )); then
-            echo "Missing GitHub Actions secrets: ${missing[*]}" >&2
+          if (( ${#missing[@]} > 0 )); then
+            echo "Missing repository Actions secrets: ${missing[*]}" >&2
             exit 1
           fi
           [[ "$ASC_KEY_ID" =~ ^[A-Z0-9]{10}$ ]] || { echo 'ASC_KEY_ID format is invalid.' >&2; exit 1; }
           [[ "$ASC_ISSUER_ID" =~ ^[0-9a-fA-F-]{36}$ ]] || { echo 'ASC_ISSUER_ID format is invalid.' >&2; exit 1; }
-          KEY_DIR="$HOME/.appstoreconnect/private_keys"
-          mkdir -p "$KEY_DIR"
-          KEY_PATH="$KEY_DIR/AuthKey_${ASC_KEY_ID}.p8"
+
+          key_dir="$RUNNER_TEMP/private_keys"
+          key_path="$key_dir/AuthKey_${ASC_KEY_ID}.p8"
+          mkdir -p "$key_dir"
           umask 077
-          printf '%s' "$ASC_PRIVATE_KEY" > "$KEY_PATH"
-          chmod 600 "$KEY_PATH"
-          grep -Fq -- '-----BEGIN PRIVATE KEY-----' "$KEY_PATH"
-          grep -Fq -- '-----END PRIVATE KEY-----' "$KEY_PATH"
-          echo "ASC_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
+          printf '%s' "$ASC_PRIVATE_KEY" > "$key_path"
+          chmod 600 "$key_path"
+          grep -Fq -- '-----BEGIN PRIVATE KEY-----' "$key_path"
+          grep -Fq -- '-----END PRIVATE KEY-----' "$key_path"
+          echo "ASC_KEY_PATH=$key_path" >> "$GITHUB_ENV"
 
-      - name: Select Xcode
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ -d /Applications/Xcode_26.6.app ]]; then
-            sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
-          fi
-          xcodebuild -version
+          jwt="$(ruby "$PB_SOURCE_ROOT/scripts/app-store-connect-jwt.rb" "$key_path" "$ASC_KEY_ID" "$ASC_ISSUER_ID")"
+          auth="Authorization: Bearer $jwt"
+          bundle_json="$RUNNER_TEMP/bundle-id.json"
+          app_json="$RUNNER_TEMP/app.json"
 
-      - name: Install XcodeGen
-        run: brew install xcodegen
-
-      - name: Release integrity
-        run: python3 scripts/release_integrity.py
-
-      - name: Localization integrity
-        run: python3 scripts/verify_localization.py
-
-      - name: Deterministic engine smoke tests
-        run: node scripts/engine_smoke.js
-
-      - name: Verify App Store Connect app record
-        shell: bash
-        env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-        run: |
-          set -euo pipefail
-          JWT="$(ruby scripts/app-store-connect-jwt.rb "$ASC_KEY_PATH" "$ASC_KEY_ID" "$ASC_ISSUER_ID")"
-          RESPONSE="$RUNNER_TEMP/apps.json"
           curl --fail-with-body --silent --show-error --get \
-            -H "Authorization: Bearer $JWT" \
+            -H "$auth" \
+            --data-urlencode "filter[identifier]=$IOS_BUNDLE_ID" \
+            --data-urlencode 'limit=2' \
+            'https://api.appstoreconnect.apple.com/v1/bundleIds' \
+            -o "$bundle_json"
+          ruby -rjson -e '
+            data=JSON.parse(File.read(ARGV[0])).fetch("data")
+            abort "Expected exactly one registered bundle ID." unless data.length == 1
+            actual=data.first.fetch("attributes").fetch("identifier")
+            abort "Registered bundle ID mismatch: #{actual}" unless actual == ENV.fetch("IOS_BUNDLE_ID")
+          ' "$bundle_json"
+
+          curl --fail-with-body --silent --show-error --get \
+            -H "$auth" \
             --data-urlencode "filter[bundleId]=$IOS_BUNDLE_ID" \
             --data-urlencode 'limit=2' \
             'https://api.appstoreconnect.apple.com/v1/apps' \
-            -o "$RESPONSE"
-          APP_STORE_ID="$(python3 -c 'import json,sys; rows=json.load(open(sys.argv[1])).get("data",[]); len(rows)==1 or (_ for _ in ()).throw(SystemExit(f"Expected exactly one App Store Connect app for bundle ID; found {len(rows)}")); print(rows[0]["id"])' "$RESPONSE")"
-          echo "APP_STORE_ID=$APP_STORE_ID" >> "$GITHUB_ENV"
-          echo "Verified App Store Connect app $APP_STORE_ID for $IOS_BUNDLE_ID."
+            -o "$app_json"
+          ruby -rjson -e '
+            data=JSON.parse(File.read(ARGV[0])).fetch("data")
+            abort "PressBench App Store Connect app record is missing or ambiguous." unless data.length == 1
+            actual=data.first.fetch("attributes").fetch("bundleId")
+            abort "App Store Connect bundle ID mismatch: #{actual}" unless actual == ENV.fetch("IOS_BUNDLE_ID")
+          ' "$app_json"
 
-      - name: Generate Xcode project
-        run: xcodegen generate
-
-      - name: Release simulator compile gate
-        shell: bash
-        run: |
-          set -euo pipefail
-          xcodebuild \
-            -project PressBench.xcodeproj \
-            -scheme "$SCHEME" \
-            -configuration Release \
-            -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
-            CODE_SIGNING_ALLOWED=NO \
-            build
-
-      - name: Unit tests
-        shell: bash
-        run: |
-          set -euo pipefail
-          UDID="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; ids=[x["udid"] for runtime in d.values() for x in runtime if x.get("isAvailable") and "iPhone" in x.get("name","")]; print(ids[0] if ids else "")')"
-          [[ -n "$UDID" ]] || { echo 'No available iPhone simulator found.' >&2; exit 1; }
-          xcodebuild \
-            -project PressBench.xcodeproj \
-            -scheme "$SCHEME" \
-            -configuration Debug \
-            -destination "platform=iOS Simulator,id=$UDID" \
-            CODE_SIGNING_ALLOWED=NO \
-            test
-
-      - name: Archive signed iPhone app
+      - name: Archive signed App Store build
         shell: bash
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
           set -euo pipefail
-          mkdir -p "$(dirname "$ARCHIVE_PATH")"
+          rm -rf "$ARCHIVE_PATH" "$EXPORT_PATH"
+          mkdir -p "$(dirname "$ARCHIVE_PATH")" "$EXPORT_PATH"
+          cd "$PB_SOURCE_ROOT"
           xcodebuild \
             -project PressBench.xcodeproj \
             -scheme "$SCHEME" \
@@ -176,44 +244,57 @@ jobs:
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             archive
 
-      - name: Verify archive identity and privacy manifest
+      - name: Verify signed archive identity
         shell: bash
         run: |
           set -euo pipefail
-          APP="$ARCHIVE_PATH/Products/Applications/PressBench.app"
-          [[ -d "$APP" ]]
-          ACTUAL_BUNDLE="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")"
-          ACTUAL_VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")"
-          ACTUAL_BUILD="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")"
-          [[ "$ACTUAL_BUNDLE" == "$IOS_BUNDLE_ID" ]]
-          [[ "$ACTUAL_VERSION" == "$MARKETING_VERSION" ]]
-          [[ "$ACTUAL_BUILD" == "$BUILD_NUMBER" ]]
-          find "$APP" -name PrivacyInfo.xcprivacy -print -quit | grep -q . || { echo 'PrivacyInfo.xcprivacy missing from archive.' >&2; exit 1; }
-          codesign --verify --deep --strict --verbose=2 "$APP"
+          app="$(find "$ARCHIVE_PATH/Products/Applications" -maxdepth 1 -type d -name '*.app' -print -quit)"
+          [[ -n "$app" ]] || { echo 'Archived .app not found.' >&2; exit 1; }
+          plist="$app/Info.plist"
+          bundle="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$plist")"
+          version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$plist")"
+          build="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$plist")"
+          [[ "$bundle" == "$IOS_BUNDLE_ID" ]] || { echo "Bundle ID mismatch: $bundle" >&2; exit 1; }
+          [[ "$version" == "$MARKETING_VERSION" ]] || { echo "Marketing version mismatch: $version" >&2; exit 1; }
+          [[ "$build" == "$BUILD_NUMBER" ]] || { echo "Build number mismatch: $build" >&2; exit 1; }
+          [[ -f "$app/PrivacyInfo.xcprivacy" ]] || { echo 'PrivacyInfo.xcprivacy missing from signed app.' >&2; exit 1; }
+          codesign --verify --deep --strict --verbose=2 "$app"
 
-      - name: Export App Store IPA
+      - name: Export signed IPA
         shell: bash
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
           set -euo pipefail
-          mkdir -p "$EXPORT_PATH"
-          python3 -c 'import plistlib,os; plistlib.dump({"method":"app-store-connect","destination":"export","signingStyle":"automatic","teamID":os.environ["APPLE_TEAM_ID"],"manageAppVersionAndBuildNumber":False,"uploadSymbols":True}, open(os.path.join(os.environ["RUNNER_TEMP"],"ExportOptions.plist"),"wb"))'
+          options="$RUNNER_TEMP/ExportOptions.plist"
+          cat > "$options" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          PLIST
           xcodebuild \
             -exportArchive \
             -archivePath "$ARCHIVE_PATH" \
             -exportPath "$EXPORT_PATH" \
-            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportOptionsPlist "$options" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$ASC_KEY_PATH" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID"
-          IPA="$(find "$EXPORT_PATH" -maxdepth 1 -name '*.ipa' -print -quit)"
-          [[ -n "$IPA" && -f "$IPA" ]] || { echo 'IPA export failed.' >&2; exit 1; }
-          echo "IPA_PATH=$IPA" >> "$GITHUB_ENV"
+          IPA_PATH="$(find "$EXPORT_PATH" -maxdepth 1 -type f -name '*.ipa' -print -quit)"
+          [[ -n "$IPA_PATH" ]] || { echo 'IPA export failed.' >&2; exit 1; }
+          echo "IPA_PATH=$IPA_PATH" >> "$GITHUB_ENV"
 
-      - name: Validate with App Store Connect
+      - name: Validate IPA with App Store Connect
         shell: bash
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
@@ -221,12 +302,12 @@ jobs:
         run: |
           set -euo pipefail
           xcrun altool --validate-app \
-            --file "$IPA_PATH" \
             --type ios \
+            --file "$IPA_PATH" \
             --apiKey "$ASC_KEY_ID" \
             --apiIssuer "$ASC_ISSUER_ID"
 
-      - name: Upload to TestFlight
+      - name: Upload IPA to TestFlight
         shell: bash
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
@@ -234,15 +315,16 @@ jobs:
         run: |
           set -euo pipefail
           xcrun altool --upload-app \
-            --file "$IPA_PATH" \
             --type ios \
+            --file "$IPA_PATH" \
             --apiKey "$ASC_KEY_ID" \
             --apiIssuer "$ASC_ISSUER_ID"
 
-      - name: Publish IPA artifact
+      - name: Retain exact TestFlight IPA
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: PressBench-iOS-${{ env.MARKETING_VERSION }}-${{ env.BUILD_NUMBER }}
+          name: PressBench-TestFlight-${{ env.BUILD_NUMBER }}
           path: ${{ env.IPA_PATH }}
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 7
