@@ -1,0 +1,248 @@
+name: Run TestFlight Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type UPLOAD TESTFLIGHT to confirm upload
+        required: true
+        type: string
+      build_number:
+        description: Optional integer build number; blank uses GitHub run number
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pressbench-testflight
+  cancel-in-progress: false
+
+env:
+  IOS_BUNDLE_ID: com.goodusestudios.pressbench
+  APPLE_TEAM_ID: 49SQ3XQ68Q
+  MARKETING_VERSION: 0.21.4
+  SCHEME: PressBench
+  ARCHIVE_PATH: ${{ github.workspace }}/build/PressBench.xcarchive
+  EXPORT_PATH: ${{ github.workspace }}/build/export
+
+jobs:
+  upload:
+    if: github.ref == 'refs/heads/main'
+    runs-on: macos-26
+    timeout-minutes: 75
+
+    steps:
+      - name: Check out reviewed source
+        uses: actions/checkout@v4
+
+      - name: Confirm manual upload
+        shell: bash
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+          REQUESTED_BUILD: ${{ inputs.build_number }}
+        run: |
+          set -euo pipefail
+          [[ "$CONFIRMATION" == "UPLOAD TESTFLIGHT" ]] || { echo 'Confirmation must exactly match UPLOAD TESTFLIGHT.' >&2; exit 1; }
+          if [[ -n "$REQUESTED_BUILD" ]]; then
+            [[ "$REQUESTED_BUILD" =~ ^[1-9][0-9]{0,8}$ ]] || { echo 'Build number must be a positive integer.' >&2; exit 1; }
+            BUILD_NUMBER="$REQUESTED_BUILD"
+          else
+            BUILD_NUMBER="$GITHUB_RUN_NUMBER"
+          fi
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
+
+      - name: Verify Apple credentials
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          missing=()
+          [[ -n "$ASC_KEY_ID" ]] || missing+=(ASC_KEY_ID)
+          [[ -n "$ASC_ISSUER_ID" ]] || missing+=(ASC_ISSUER_ID)
+          [[ -n "$ASC_PRIVATE_KEY" ]] || missing+=(ASC_PRIVATE_KEY)
+          if (( ${#missing[@]} )); then
+            echo "Missing GitHub Actions secrets: ${missing[*]}" >&2
+            exit 1
+          fi
+          [[ "$ASC_KEY_ID" =~ ^[A-Z0-9]{10}$ ]] || { echo 'ASC_KEY_ID format is invalid.' >&2; exit 1; }
+          [[ "$ASC_ISSUER_ID" =~ ^[0-9a-fA-F-]{36}$ ]] || { echo 'ASC_ISSUER_ID format is invalid.' >&2; exit 1; }
+          KEY_DIR="$HOME/.appstoreconnect/private_keys"
+          mkdir -p "$KEY_DIR"
+          KEY_PATH="$KEY_DIR/AuthKey_${ASC_KEY_ID}.p8"
+          umask 077
+          printf '%s' "$ASC_PRIVATE_KEY" > "$KEY_PATH"
+          chmod 600 "$KEY_PATH"
+          grep -Fq -- '-----BEGIN PRIVATE KEY-----' "$KEY_PATH"
+          grep -Fq -- '-----END PRIVATE KEY-----' "$KEY_PATH"
+          echo "ASC_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
+
+      - name: Select Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -d /Applications/Xcode_26.6.app ]]; then
+            sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
+          fi
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Release integrity
+        run: python3 scripts/release_integrity.py
+
+      - name: Localization integrity
+        run: python3 scripts/verify_localization.py
+
+      - name: Deterministic engine smoke tests
+        run: node scripts/engine_smoke.js
+
+      - name: Verify App Store Connect app record
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          JWT="$(ruby scripts/app-store-connect-jwt.rb "$ASC_KEY_PATH" "$ASC_KEY_ID" "$ASC_ISSUER_ID")"
+          RESPONSE="$RUNNER_TEMP/apps.json"
+          curl --fail-with-body --silent --show-error --get \
+            -H "Authorization: Bearer $JWT" \
+            --data-urlencode "filter[bundleId]=$IOS_BUNDLE_ID" \
+            --data-urlencode 'limit=2' \
+            'https://api.appstoreconnect.apple.com/v1/apps' \
+            -o "$RESPONSE"
+          APP_STORE_ID="$(python3 -c 'import json,sys; rows=json.load(open(sys.argv[1])).get("data",[]); len(rows)==1 or (_ for _ in ()).throw(SystemExit(f"Expected exactly one App Store Connect app for bundle ID; found {len(rows)}")); print(rows[0]["id"])' "$RESPONSE")"
+          echo "APP_STORE_ID=$APP_STORE_ID" >> "$GITHUB_ENV"
+          echo "Verified App Store Connect app $APP_STORE_ID for $IOS_BUNDLE_ID."
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Release simulator compile gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project PressBench.xcodeproj \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Unit tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          UDID="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; ids=[x["udid"] for runtime in d.values() for x in runtime if x.get("isAvailable") and "iPhone" in x.get("name","")]; print(ids[0] if ids else "")')"
+          [[ -n "$UDID" ]] || { echo 'No available iPhone simulator found.' >&2; exit 1; }
+          xcodebuild \
+            -project PressBench.xcodeproj \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,id=$UDID" \
+            CODE_SIGNING_ALLOWED=NO \
+            test
+
+      - name: Archive signed iPhone app
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$ARCHIVE_PATH")"
+          xcodebuild \
+            -project PressBench.xcodeproj \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$ARCHIVE_PATH" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_STYLE=Automatic \
+            PRODUCT_BUNDLE_IDENTIFIER="$IOS_BUNDLE_ID" \
+            MARKETING_VERSION="$MARKETING_VERSION" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+            archive
+
+      - name: Verify archive identity and privacy manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$ARCHIVE_PATH/Products/Applications/PressBench.app"
+          [[ -d "$APP" ]]
+          ACTUAL_BUNDLE="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")"
+          ACTUAL_VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")"
+          ACTUAL_BUILD="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")"
+          [[ "$ACTUAL_BUNDLE" == "$IOS_BUNDLE_ID" ]]
+          [[ "$ACTUAL_VERSION" == "$MARKETING_VERSION" ]]
+          [[ "$ACTUAL_BUILD" == "$BUILD_NUMBER" ]]
+          find "$APP" -name PrivacyInfo.xcprivacy -print -quit | grep -q . || { echo 'PrivacyInfo.xcprivacy missing from archive.' >&2; exit 1; }
+          codesign --verify --deep --strict --verbose=2 "$APP"
+
+      - name: Export App Store IPA
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$EXPORT_PATH"
+          python3 -c 'import plistlib,os; plistlib.dump({"method":"app-store-connect","destination":"export","signingStyle":"automatic","teamID":os.environ["APPLE_TEAM_ID"],"manageAppVersionAndBuildNumber":False,"uploadSymbols":True}, open(os.path.join(os.environ["RUNNER_TEMP"],"ExportOptions.plist"),"wb"))'
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$ARCHIVE_PATH" \
+            -exportPath "$EXPORT_PATH" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          IPA="$(find "$EXPORT_PATH" -maxdepth 1 -name '*.ipa' -print -quit)"
+          [[ -n "$IPA" && -f "$IPA" ]] || { echo 'IPA export failed.' >&2; exit 1; }
+          echo "IPA_PATH=$IPA" >> "$GITHUB_ENV"
+
+      - name: Validate with App Store Connect
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          xcrun altool --validate-app \
+            --file "$IPA_PATH" \
+            --type ios \
+            --apiKey "$ASC_KEY_ID" \
+            --apiIssuer "$ASC_ISSUER_ID"
+
+      - name: Upload to TestFlight
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          xcrun altool --upload-app \
+            --file "$IPA_PATH" \
+            --type ios \
+            --apiKey "$ASC_KEY_ID" \
+            --apiIssuer "$ASC_ISSUER_ID"
+
+      - name: Publish IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PressBench-iOS-${{ env.MARKETING_VERSION }}-${{ env.BUILD_NUMBER }}
+          path: ${{ env.IPA_PATH }}
+          if-no-files-found: error
+          retention-days: 14
