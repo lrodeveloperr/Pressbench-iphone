@@ -1,0 +1,76 @@
+name: Validate PressBench iOS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pressbench-ios-validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -d /Applications/Xcode_26.6.app ]]; then
+            sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
+          fi
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Release integrity
+        run: python3 scripts/release_integrity.py
+
+      - name: Localization integrity
+        run: python3 scripts/verify_localization.py
+
+      - name: Deterministic engine smoke tests
+        run: node scripts/engine_smoke.js
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Release simulator build
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project PressBench.xcodeproj \
+            -scheme PressBench \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Unit tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          UDID="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; ids=[x["udid"] for runtime in d.values() for x in runtime if x.get("isAvailable") and "iPhone" in x.get("name","")]; print(ids[0] if ids else "")')"
+          if [[ -z "$UDID" ]]; then
+            echo 'No available iPhone simulator found.' >&2
+            exit 1
+          fi
+          xcodebuild \
+            -project PressBench.xcodeproj \
+            -scheme PressBench \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,id=$UDID" \
+            CODE_SIGNING_ALLOWED=NO \
+            test
