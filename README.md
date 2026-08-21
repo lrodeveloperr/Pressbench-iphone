@@ -11,14 +11,19 @@ The release target is locked to:
 
 ## Source contract
 
-Both GitHub Actions workflows accept either:
+Both GitHub Actions workflows accept any of:
 
 1. the unpacked production source tree at repository root (`project.yml`, `PressBench/`, `PressBenchTests/`, `scripts/`), or
-2. the canonical production package at repository root named exactly:
+2. the reviewed split Base64 package at `.source/PressBench-iOS-Approved-UI-v0.21.4.zip.b64.part-*`, or
+3. the canonical production package at repository root named exactly:
 
    `PressBench-TestFlight-Source-v0.21.4.zip`
 
 The packaged-source path exists specifically so the binary ZIP can be uploaded once without manually unpacking dozens of files. The workflow extracts it into an isolated runner directory and then requires the full deterministic engine and release gates before compiling.
+
+## Approved interface
+
+The reviewed source archive uses the GoodUse Studios Ocean Pearl system: adaptive light/dark tokens, 28-point page headers, 24-point cards, 62-point primary controls, four stable thumb destinations, RTL/Dynamic Type reflow, and Reduce Motion-aware interaction. The full operator workflow remains intact, including editable multi-stage setups, configurable run authorization, first-piece evidence, timers, quantity/QC/issue capture, backup/recovery, completed-run detail, and the three-way reuse selector. The deterministic production logic is unchanged. The durable catalog contains 311 keys across 32 runtime locale codes, generated from 286 canonical phrases; the compact-layout audit covers 960 text slots with zero failures.
 
 ## CI
 
