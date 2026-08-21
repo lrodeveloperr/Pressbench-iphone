@@ -52,7 +52,7 @@ jobs:
           elif compgen -G "$GITHUB_WORKSPACE/$SOURCE_B64_GLOB" >/dev/null; then
             assembled="$RUNNER_TEMP/PressBench-iOS-Approved-UI-v0.21.4.zip"
             cat $GITHUB_WORKSPACE/$SOURCE_B64_GLOB | base64 --decode > "$assembled"
-            echo '52004040fe6a03bfa882a190de4c6f1cb95b0509a566cab60bd57f3cf4fda538  '"$assembled" | shasum -a 256 -c -
+            echo 'deb9e0bfd40ec8682bcf5b876f6c87387a28d48ee145116ab12fbfc19258380e  '"$assembled" | shasum -a 256 -c -
             unpack="$RUNNER_TEMP/pressbench-source"
             rm -rf "$unpack"
             mkdir -p "$unpack"
