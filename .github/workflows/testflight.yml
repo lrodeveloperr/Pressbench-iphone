@@ -21,6 +21,7 @@ concurrency:
 
 env:
   SOURCE_ZIP: PressBench-TestFlight-Source-v0.21.4.zip
+  SOURCE_B64_GLOB: .source/PressBench-iOS-Approved-UI-v0.21.4.zip.b64.part-*
   IOS_BUNDLE_ID: com.goodusestudios.pressbench
   APPLE_TEAM_ID: 49SQ3XQ68Q
   MARKETING_VERSION: 0.21.4
@@ -77,6 +78,17 @@ jobs:
           set -euo pipefail
           if [[ -f "$GITHUB_WORKSPACE/project.yml" && -f "$GITHUB_WORKSPACE/PressBench/Resources/PressBenchLogic.js" ]]; then
             source_root="$GITHUB_WORKSPACE"
+          elif compgen -G "$GITHUB_WORKSPACE/$SOURCE_B64_GLOB" >/dev/null; then
+            assembled="$RUNNER_TEMP/PressBench-iOS-Approved-UI-v0.21.4.zip"
+            cat $GITHUB_WORKSPACE/$SOURCE_B64_GLOB | base64 --decode > "$assembled"
+            echo 'da448bf4a5507371fa3193c9df57e0d3a40973442d196134725bbccfebd2e6ba  '"$assembled" | shasum -a 256 -c -
+            unpack="$RUNNER_TEMP/pressbench-source"
+            rm -rf "$unpack"
+            mkdir -p "$unpack"
+            ditto -x -k "$assembled" "$unpack"
+            project="$(find "$unpack" -maxdepth 4 -type f -name project.yml -print -quit)"
+            [[ -n "$project" ]] || { echo 'Approved source archive did not contain project.yml' >&2; exit 1; }
+            source_root="$(dirname "$project")"
           elif [[ -f "$GITHUB_WORKSPACE/$SOURCE_ZIP" ]]; then
             unpack="$RUNNER_TEMP/pressbench-source"
             rm -rf "$unpack"
@@ -86,7 +98,7 @@ jobs:
             [[ -n "$project" ]] || { echo "$SOURCE_ZIP did not contain project.yml" >&2; exit 1; }
             source_root="$(dirname "$project")"
           else
-            echo "Production source missing. Commit the unpacked source tree or upload $SOURCE_ZIP at repository root." >&2
+            echo "Production source missing. Commit the unpacked source tree, approved Base64 source parts, or $SOURCE_ZIP." >&2
             exit 1
           fi
           [[ -f "$source_root/PressBench/Resources/PressBenchLogic.js" ]] || { echo 'PressBench deterministic engine missing.' >&2; exit 1; }
