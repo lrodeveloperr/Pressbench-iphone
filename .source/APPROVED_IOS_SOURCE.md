@@ -2,8 +2,8 @@
 
 The files `PressBench-iOS-Approved-UI-v0.21.4.zip.b64.part-*` are the approved native SwiftUI source archive, skinned with the GoodUse Studios Ocean Pearl system and split as Base64 text for GitHub's file API.
 
-- Archive SHA-256: `033c622563488c7ec0fdbaa1225df8782d30c278c99b73050fe70b7c2b410c12`
-- Archive size / source parts: `726020` bytes / `21`
+- Archive SHA-256: `9923c610a3f68c33eeb44b0b605718bebe49413e8ac3513a21a1e5fcd315381d`
+- Archive size / source parts: `726172` bytes / `21`
 - Bundle ID: `com.goodusestudios.pressbench`
 - Marketing version: `0.21.4`
 - Production logic SHA-256: `5bd9bbef6af2bd104fa93bc6a7a302a7445943814c64666b09ee8a7e56170eec`
