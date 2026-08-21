@@ -188,9 +188,10 @@ jobs:
           [[ "$ASC_KEY_ID" =~ ^[A-Z0-9]{10}$ ]] || { echo 'ASC_KEY_ID format is invalid.' >&2; exit 1; }
           [[ "$ASC_ISSUER_ID" =~ ^[0-9a-fA-F-]{36}$ ]] || { echo 'ASC_ISSUER_ID format is invalid.' >&2; exit 1; }
 
-          key_dir="$RUNNER_TEMP/private_keys"
-          key_path="$key_dir/AuthKey_${ASC_KEY_ID}.p8"
-          mkdir -p "$key_dir"
+          apple_key_dir="$HOME/.appstoreconnect/private_keys"
+          key_path="$apple_key_dir/AuthKey_${ASC_KEY_ID}.p8"
+          mkdir -p "$apple_key_dir"
+          chmod 700 "$apple_key_dir"
           umask 077
           printf '%s' "$ASC_PRIVATE_KEY" > "$key_path"
           chmod 600 "$key_path"
