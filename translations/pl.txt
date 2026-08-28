@@ -1,0 +1,304 @@
+PressBench
+Wstecz
+Dalej
+Otwórz PressBench
+Język
+Wybrano
+Dotknij, aby wybrać
+Wszystkie
+Sztuki
+Temperatura
+Nacisk
+Płyta prasy
+Proces
+Notatki
+Powiadomienia
+Ustawienia
+Pomoc
+Konserwacja
+Analizy
+Eksport
+Dostępność
+Historia partii
+Polityka prywatności
+Warunki korzystania
+Informacja o bezpieczeństwie
+Informacja o bezpieczeństwie prasy termicznej
+Zakupy i dostęp Pro
+Dane lokalne i kopie zapasowe
+Informacje o podmiotach trzecich
+Start
+Konfiguracje procesu
+Przebiegi
+Maszyny
+Więcej
+Sprawdzony
+Testowy
+Wersja robocza
+Zarchiwizowany
+W toku
+Zakończony
+Pozycjonowanie
+Wstępne prasowanie
+Prasowanie
+Odrywanie
+Chłodzenie
+Doprasowanie
+%1$d z %2$d
+Witamy w PressBench
+Powtarzalne konfiguracje. Zarejestrowane przebiegi. Lepsza produkcja.
+Ponownie używaj sprawdzonych konfiguracji
+Przechowuj skuteczne definicje procesu w porządku i gotowe do następnego przebiegu.
+Pracuj według jasnej kolejności
+Przejdź przez kontrolę konfiguracji, pierwszą sztukę, produkcję i zapis wyniku.
+Zobacz, co się poprawia
+Śledź uzysk za pierwszym przejściem, przeróbki i odpady na podstawie tworzonych zapisów produkcyjnych.
+Wybierz język
+Automatycznie wybraliśmy język Twojego iPhone’a. Wybierz teraz inny lub zmień go później w Ustawieniach.
+Otwiera listę rozwijaną języków
+Dopasowany do Twojego procesu
+PressBench to coś więcej niż minutnik lub notes z recepturami. Każdy przebieg zachowuje możliwą do prześledzenia historię produkcji wokół faktycznie użytej konfiguracji.
+Konfiguracja
+Pierwsza sztuka
+Produkcja
+Wynik
+Bezpieczeństwo, warunki i prywatność
+PressBench zapisuje informacje produkcyjne wprowadzone przez operatora. Nie sprawdza, nie mierzy, nie monitoruje ani nie steruje prasą termiczną.
+Akceptuję Warunki korzystania
+Potwierdzam zapoznanie się z Informacją o bezpieczeństwie
+Potwierdzam zapoznanie się z Polityką prywatności
+Strony z politykami są obecnie dostępne w języku angielskim.
+Wybierz jednostkę temperatury
+Możesz zmienić ją później w Ustawieniach. Potwierdź jednostkę przed użyciem wartości produkcyjnych.
+Fahrenheit
+Celsjusz
+Gotowe do utworzenia pierwszej konfiguracji
+Zacznij od maszyny i procesu, których faktycznie używasz. PressBench łączy konfigurację, przebieg i wynik.
+1. Dodaj pierwszą maszynę
+Nadaj prasie nazwę i zapisz jej profil.
+2. Utwórz konfigurację
+Zapisz dokładny proces i informacje o źródle.
+3. Zarejestruj przebieg
+Potwierdź instrukcje, wykonaj produkcję i zapisz wynik.
+Witaj ponownie
+Rozpocznij nowy przebieg
+Rozpocznij nowy przebieg produkcyjny
+Partie
+Pierwsze przejście
+Odpad
+Ostatnie konfiguracje
+Pokaż wszystkie
+Informacje prawne i bezpieczeństwo
+Oficjalne polityki PressBench i informacje dotyczące bezpieczeństwa.
+Prywatność
+Warunki
+Bezpieczeństwo
+Szukaj konfiguracji
+Przebiegi bez problemów: %d
+Zarejestrowane przebiegi: %d
+Jeszcze niesprawdzony
+Rozpocznij przebieg
+Ostatnio sprawdzony
+Przebiegi bez problemów
+%1$d / %2$d
+Etap %1$d / %2$d
+Aktywny przebieg
+Partia
+Wznów przebieg
+Wstrzymaj przebieg
+Zakończ przebieg
+Dostępna
+W użyciu
+Wymagana kalibracja minutnika
+PressBench %@
+Pokaż wprowadzenie ponownie
+Ogólne
+Jednostka temperatury
+Informacje prawne i pomoc
+Aplikacja używa tego ustawienia języka. Możesz je zmienić w dowolnym momencie.
+Szukaj języków
+Raport produkcyjny
+Wygenerowano w PressBench
+Okres raportowania
+Podsumowanie dla kierownictwa
+Wyniki przebiegów
+Problemy i wyjątki
+Definicje konfiguracji
+Wielkość próby
+Przetworzone sztuki
+Uzysk za pierwszym przejściem
+Uzysk końcowy
+Wskaźnik przeróbek
+Wskaźnik odpadów
+Przerobione sztuki
+Sztuki odrzucone
+Struktura wyników
+Data
+Przetworzono
+Końcowy
+Wynik
+Objaw
+Podejrzewana przyczyna
+Sposób postępowania
+Ilość
+Notatka
+Materiał / transfer
+Maszyna / płyta prasy
+Etap prasowania
+Źródło instrukcji
+Źródło sprawdzone
+Nie zarejestrowano problemów
+Ograniczona ilość danych
+Wartości wprowadzone przez operatora są odtwarzane tak, jak zostały zapisane, i nie są tłumaczone.
+Podsumowanie
+Problemy
+Zapisz
+Anuluj
+Nazwa
+Marka
+Model
+Odniesienie
+Czas (sekundy)
+Materiał
+Medium transferowe
+Przywróć zakupy
+Odblokuj Pro
+Potwierdź instrukcje
+Pierwsza sztuka zaakceptowana
+Rozpocznij produkcję
+Zapisz wynik
+Nie udało się ukończyć działania.
+OK
+Uruchom minutnik
+Wstrzymaj minutnik
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Wygląd
+System
+Jasny
+Ciemny
+Workspace tools
+Create backup
+Share backup
+Roll back last restore
+Restore this backup
+Machine
+Poprzedni etap
+Następny etap
+Dostosuj i spróbuj ponownie
+Stop with note
+Save adjustment and retry
+Save note and stop
+Count items
+Cofnij ostatnie zliczenie
+Record totals when the run ends
+Powód wstrzymania
+Tryb przebiegu
+Test run
+Production run
+Planowana ilość
+Numer referencyjny zadania
+Śledzenie postępu
+Count during the run
+Record totals at the end
+I understand this setup is not proven
+Quality check
+Pass check
+Adjustment required
+End run early
+Quality check due
+Next quality check at %@ items
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Wynik
+Tylko partia
+Update this setup
+Save as new variant
+Nazwa wariantu
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Instrukcja
+Repeat count
+Czynność umieszczania
+Czynność wykończeniowa
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Nieznane
+Przesunięcie koloru
+Efekt ducha
+Odklejenie krawędzi
+Przyczepność
+Przypalenie
+Wyrównanie
+Niepełny transfer
+Nierównomierne ciepło lub nacisk
+Wilgoć
+Przesunięcie transferu
+Zanieczyszczenie
+Wada podłoża
+Ustawienie projektu
+Materiały drukarskie
+Sprzęt lub zasilanie
+Przerwano
+Inne
+Ciepło
+Czas
+Transfer
+Podłoże
+Projekt
+Drukarka, tusz lub papier
+Przerwa operatora
+Odrzuć nierozpoczęty przebieg
+Odrzucić ten nierozpoczęty przebieg? Rekord partii nie zostanie utworzony.
+Wprowadź prawidłową liczbę.
+Ilości przypisane do problemów muszą obejmować wszystkie sztuki przerobione i odpadowe.
+Przed kontynuowaniem wybierz lub utwórz maszynę.
+Przed kontynuowaniem wybierz lub utwórz konfigurację produkcji.
+Zakończ lub zwolnij obecnie zarezerwowany przebieg przed zmianą tego rekordu.
+Przebieg nie jest w stanie wymaganym do wykonania tej czynności.
+Przed kontynuowaniem tej czynności trzeba odzyskać dane z pamięci lokalnej.
+Nie udało się zweryfikować ani przywrócić kopii zapasowej.
+Powtórz
+„Sprawdzone” oznacza kwalifikujące się przebiegi wprowadzone przez operatora dla dokładnie tej konfiguracji. Nie jest to walidacja producenta, certyfikacja ani ocena bezpieczeństwa.
+Rozmiar tekstu
+Zarządzane w ustawieniach iOS
+Ogranicz ruch
+Rozróżniaj bez koloru
+Włączone
+Wyłączone
+Otwórz ustawienia iOS
+Usuń dane lokalne
+Spowoduje to trwałe usunięcie maszyn, konfiguracji, cykli i ustawień lokalnych z tego urządzenia. Zakup w App Store nie zostanie usunięty.
+Czym różni się to zlecenie?
+Dokładne powtórzenie
+Ten sam wariant produktu
+Istotnie inny materiał
+Kontynuuj bez logowania
+Kopia zapasowa Apple i iCloud
+Zabezpiecz dane PressBench kopią zapasową
+Opcjonalnie. Zaloguj się przez Apple, aby przechowywać prywatną kopię zapasową w swoim iCloud. Możesz kontynuować bez logowania.
+Zaloguj się przez Apple, aby włączyć automatyczne tworzenie kopii zapasowych w prywatnej przestrzeni iCloud.
+Kopia zapasowa włączona
+Sprawdzanie stanu kopii zapasowej…
+Ostatnia kopia zapasowa
+Nie utworzono jeszcze kopii zapasowej
+Utwórz kopię teraz
+Przywróć z iCloud
+Wyłącz kopię zapasową
+Przywrócenie zastąpi maszyny, konfiguracje, przebiegi i ustawienia na tym urządzeniu. Zakup pozostanie bez zmian.
+Automatyczne tworzenie kopii zapasowych zostanie zatrzymane. Istniejąca kopia pozostanie w prywatnej przestrzeni iCloud.
+Nie udało się zweryfikować autoryzacji Apple. Spróbuj zalogować się ponownie.
+Kopia zapasowa iCloud jest niedostępna. Sprawdź ustawienia iCloud Drive i spróbuj ponownie.
+Nie znaleziono kopii zapasowej iCloud.
+Usuń kopię zapasową iCloud
+Spowoduje to trwałe usunięcie kopii zapasowej z przestrzeni iCloud. Dane na tym urządzeniu nie zostaną usunięte.

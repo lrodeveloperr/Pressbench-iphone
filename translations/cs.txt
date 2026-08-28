@@ -1,0 +1,304 @@
+PressBench
+Zpět
+Pokračovat
+Otevřít PressBench
+Jazyk
+Vybráno
+Klepnutím vyberte
+Vše
+Kusy
+Teplota
+Tlak
+Lisovací deska
+Proces
+Poznámky
+Oznámení
+Nastavení
+Podpora
+Údržba
+Analýzy
+Exporty
+Zpřístupnění
+Historie dávek
+Zásady ochrany soukromí
+Podmínky používání
+Bezpečnostní upozornění
+Bezpečnostní upozornění pro termolis
+Nákupy a přístup Pro
+Místní data a zálohy
+Upozornění třetích stran
+Domů
+Procesní nastavení
+Výrobní série
+Stroje
+Další
+Osvědčené
+Zkušební
+Koncept
+Archivováno
+Probíhá
+Dokončeno
+Umístění
+Předlisování
+Lisování
+Sloupnutí
+Chlazení
+Dolisování
+%1$d z %2$d
+Vítejte v PressBench
+Opakovatelná nastavení. Zaznamenané série. Lepší výroba.
+Znovu používejte osvědčená nastavení
+Udržujte úspěšné definice procesu přehledné a připravené pro další výrobní sérii.
+Pracujte podle jasného postupu
+Projděte kontrolu nastavení, první kus, výrobu a záznam výsledku.
+Sledujte, co se zlepšuje
+Sledujte výtěžnost na první průchod, přepracování a zmetky z výrobních záznamů, které vytváříte.
+Vyberte jazyk
+Automaticky jsme vybrali jazyk vašeho iPhonu. Vyberte nyní jiný nebo jej později změňte v Nastavení.
+Otevře rozevírací nabídku jazyků
+Navrženo podle vašeho procesu
+PressBench je víc než časovač nebo zápisník receptur. Každá výrobní série uchovává dohledatelnou historii výroby podle nastavení, které jste skutečně použili.
+Nastavení
+První kus
+Výroba
+Výsledek
+Bezpečnost, podmínky a soukromí
+PressBench zaznamenává výrobní informace zadané obsluhou. Váš termolis nekontroluje, neměří, nesleduje ani neovládá.
+Souhlasím s Podmínkami používání
+Beru na vědomí Bezpečnostní upozornění
+Potvrzuji seznámení se Zásadami ochrany soukromí
+Stránky zásad jsou v současnosti dostupné v angličtině.
+Vyberte jednotku teploty
+Později ji můžete změnit v Nastavení. Před použitím výrobních hodnot jednotku potvrďte.
+Fahrenheit
+Celsius
+Připraveno k vytvoření prvního nastavení
+Začněte strojem a procesem, které skutečně používáte. PressBench propojuje nastavení, výrobní sérii a výsledek.
+1. Přidejte první stroj
+Dejte lisu název a zaznamenejte jeho profil.
+2. Vytvořte nastavení
+Zaznamenejte přesný proces a informace o zdroji.
+3. Zaznamenejte výrobní sérii
+Potvrďte pokyny, proveďte výrobu a uložte výsledek.
+Vítejte zpět
+Spustit novou sérii
+Zahájit novou výrobní sérii
+Dávky
+První průchod
+Zmetky
+Poslední nastavení
+Zobrazit vše
+Právní informace a bezpečnost
+Oficiální zásady PressBench a bezpečnostní informace.
+Soukromí
+Podmínky
+Bezpečnost
+Hledat nastavení
+Bezproblémové série: %d
+Zaznamenané série: %d
+Zatím neosvědčené
+Spustit sérii
+Naposledy osvědčeno
+Bezproblémové série
+%1$d / %2$d
+Krok %1$d / %2$d
+Aktivní série
+Dávka
+Pokračovat v sérii
+Pozastavit sérii
+Ukončit sérii
+K dispozici
+Používá se
+Je třeba kalibrovat časovač
+PressBench %@
+Znovu zobrazit úvod
+Obecné
+Jednotka teploty
+Právní informace a podpora
+Aplikace používá tuto jazykovou předvolbu. Můžete ji kdykoli změnit.
+Hledat jazyky
+Výrobní zpráva
+Vygenerováno v PressBench
+Období zprávy
+Manažerské shrnutí
+Výkonnost výrobních sérií
+Problémy a výjimky
+Definice nastavení
+Velikost vzorku
+Zpracované kusy
+Výtěžnost na první průchod
+Konečná výtěžnost
+Míra přepracování
+Míra zmetkovitosti
+Přepracované kusy
+Zmetkové kusy
+Rozložení výsledků
+Datum
+Zpracováno
+Konečné
+Výsledek
+Příznak
+Předpokládaná příčina
+Způsob řešení
+Množství
+Poznámka
+Materiál / transfer
+Stroj / lisovací deska
+Krok lisování
+Zdroj pokynů
+Zdroj zkontrolován
+Nebyly zaznamenány žádné problémy
+Omezené množství dat
+Hodnoty zadané obsluhou se zobrazují tak, jak byly zaznamenány, a nepřekládají se.
+Shrnutí
+Problémy
+Uložit
+Zrušit
+Název
+Značka
+Model
+Reference
+Doba (sekundy)
+Materiál
+Přenosové médium
+Obnovit nákupy
+Odemknout Pro
+Potvrdit pokyny
+První kus vyhověl
+Spustit výrobu
+Zaznamenat výsledek
+Akci se nepodařilo dokončit.
+OK
+Spustit časovač
+Pozastavit časovač
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Vzhled
+Systém
+Světlý
+Tmavý
+Workspace tools
+Create backup
+Share backup
+Roll back last restore
+Restore this backup
+Machine
+Předchozí fáze
+Další fáze
+Upravit a zkusit znovu
+Stop with note
+Save adjustment and retry
+Save note and stop
+Count items
+Vrátit poslední započítání
+Record totals when the run ends
+Důvod pozastavení
+Režim běhu
+Test run
+Production run
+Plánované množství
+Reference zakázky
+Sledování průběhu
+Count during the run
+Record totals at the end
+I understand this setup is not proven
+Quality check
+Pass check
+Adjustment required
+End run early
+Quality check due
+Next quality check at %@ items
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Výsledek
+Pouze šarže
+Update this setup
+Save as new variant
+Název varianty
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Pokyn
+Repeat count
+Akce umístění
+Dokončovací akce
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Neznámé
+Posun barvy
+Duchový obraz
+Odchlípení okraje
+Přilnavost
+Připálení
+Zarovnání
+Neúplný přenos
+Nerovnoměrné teplo nebo tlak
+Vlhkost
+Posun přenosu
+Kontaminace
+Vada podkladu
+Nastavení návrhu
+Tiskový materiál
+Zařízení nebo napájení
+Přerušeno
+Jiné
+Teplo
+Čas
+Přenos
+Podklad
+Návrh
+Tiskárna, inkoust nebo papír
+Přerušení obsluhou
+Zahodit nezahájený běh
+Zahodit tento nezahájený běh? Záznam šarže nebude vytvořen.
+Zadejte platné číslo.
+Množství u problémů musí pokrývat všechny přepracované a odpadní kusy.
+Před pokračováním vyberte nebo vytvořte stroj.
+Před pokračováním vyberte nebo vytvořte výrobní nastavení.
+Před změnou tohoto záznamu dokončete nebo uvolněte aktuálně rezervovaný běh.
+Běh není ve stavu požadovaném pro tuto akci.
+Před pokračováním této akce je nutné obnovit místní úložiště.
+Zálohu se nepodařilo ověřit ani obnovit.
+Opakovat
+„Ověřené provozem“ znamená vyhovující běhy zadané obsluhou pro přesně toto nastavení. Nejde o ověření výrobcem, certifikaci ani posouzení bezpečnosti.
+Velikost textu
+Spravováno v Nastavení iOS
+Omezit pohyb
+Rozlišovat bez barev
+Zapnuto
+Vypnuto
+Otevřít Nastavení iOS
+Smazat místní data
+Tímto ze zařízení trvale smažete stroje, nastavení, běhy a místní předvolby. Nákup v App Store smazán nebude.
+V čem je tato zakázka jiná?
+Přesné opakování
+Stejná varianta produktu
+Podstatně jiný materiál
+Pokračovat bez přihlášení
+Záloha Apple a iCloud
+Zálohujte svá data PressBench
+Volitelné. Přihlaste se přes Apple a uchovávejte soukromou zálohu ve svém úložišti iCloud. Můžete pokračovat bez přihlášení.
+Přihlaste se přes Apple a zapněte automatické zálohování do svého soukromého úložiště iCloud.
+Zálohování zapnuto
+Kontrola stavu zálohy…
+Poslední záloha
+Dosud nebyla vytvořena žádná záloha
+Zálohovat nyní
+Obnovit z iCloudu
+Vypnout zálohování
+Obnovení nahradí stroje, nastavení procesů, běhy a nastavení na tomto zařízení. Váš nákup nebude ovlivněn.
+Automatické zálohování se zastaví. Stávající záloha zůstane ve vašem soukromém úložišti iCloud.
+Autorizaci Apple se nepodařilo ověřit. Zkuste se přihlásit znovu.
+Záloha na iCloudu není dostupná. Zkontrolujte nastavení iCloud Drivu a zkuste to znovu.
+Nebyla nalezena žádná záloha na iCloudu.
+Smazat zálohu na iCloudu
+Tím se záloha trvale smaže z vašeho úložiště iCloud. Data v tomto zařízení se nesmažou.

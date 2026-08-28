@@ -1,0 +1,304 @@
+PressBench
+Bumalik
+Magpatuloy
+Buksan ang PressBench
+Wika
+Napili
+I-tap para pumili
+Lahat
+Mga unit
+Temperatura
+Pressure
+Platen
+Proseso
+Mga tala
+Mga notification
+Mga Setting
+Suporta
+Maintenance
+Analytics
+Mga export
+Accessibility
+Kasaysayan ng batch
+Patakaran sa Privacy
+Mga Tuntunin ng Paggamit
+Paunawa sa Kaligtasan
+Paunawa sa Kaligtasan ng Heat Press
+Mga pagbili at Pro access
+Lokal na data at mga backup
+Mga paunawa ng third party
+Home
+Mga setup ng proseso
+Production runs
+Mga machine
+Higit pa
+Subok na
+Sinusubukan
+Draft
+Naka-archive
+Tumatakbo
+Tapos na
+Placement
+Pre-press
+Press
+Peel
+Pagpapalamig
+Post-press
+%1$d sa %2$d
+Maligayang pagdating sa PressBench
+Nauulit na setup. Naka-record na production runs. Mas maayos na production.
+Gamitin muli ang mga subok na setup
+Panatilihing maayos at handa para sa susunod na production run ang mga process definition na nagbigay ng magandang resulta.
+Sundin ang malinaw na daloy
+Dumaan sa setup checks, first piece, production, at pag-record ng resulta nang sunod-sunod.
+Tingnan kung ano ang gumaganda
+Subaybayan ang first-pass yield, rework, at waste mula sa production records na ginagawa mo.
+Piliin ang iyong wika
+Awtomatiko naming pinili ang wika ng iyong iPhone. Pumili ng iba ngayon o palitan ito mamaya sa Mga Setting.
+Binubuksan ang language dropdown
+Dinisenyo ayon sa iyong proseso
+Hindi lang timer o recipe notebook ang PressBench. Bawat production run ay nagtatago ng traceable production history batay sa setup na aktuwal mong ginamit.
+Setup
+First piece
+Production
+Resulta
+Kaligtasan, mga tuntunin at privacy
+Nire-record ng PressBench ang production information na inilalagay ng operator. Hindi nito iniinspeksyon, sinusukat, mino-monitor, o kinokontrol ang iyong heat press.
+Sumasang-ayon ako sa Mga Tuntunin ng Paggamit
+Nabasa ko at nauunawaan ko ang Paunawa sa Kaligtasan
+Nasuri ko ang Patakaran sa Privacy
+Kasalukuyang available sa English ang mga policy page.
+Piliin ang unit ng temperatura
+Maaari mo itong baguhin mamaya sa Mga Setting. Kumpirmahin ang unit bago gumamit ng production values.
+Fahrenheit
+Celsius
+Handa nang gumawa ng unang setup
+Magsimula sa machine at prosesong aktuwal mong ginagamit. Pinananatiling magkakaugnay ng PressBench ang setup, production run, at resulta.
+1. Idagdag ang unang machine
+Bigyan ng madaling makilalang pangalan ang press at i-record ang profile nito.
+2. Gumawa ng setup
+I-record ang eksaktong proseso at source information.
+3. Mag-record ng production run
+Kumpirmahin ang instructions, gawin ang production, at i-save ang resulta.
+Welcome back
+Magsimula ng bagong run
+Magsimula ng bagong production run
+Mga batch
+First-pass
+Waste
+Mga recent setup
+Tingnan lahat
+Legal at kaligtasan
+Opisyal na mga patakaran ng PressBench at impormasyon sa kaligtasan.
+Privacy
+Mga tuntunin
+Kaligtasan
+Maghanap ng setup
+Runs na walang problema: %d
+Naka-record na runs: %d
+Hindi pa subok
+Simulan ang run
+Pinakahuling subok na resulta
+Runs na walang problema
+%1$d / %2$d
+Stage %1$d / %2$d
+Aktibong run
+Batch
+Ipagpatuloy ang run
+I-pause ang run
+Tapusin ang run
+Available
+Ginagamit
+Kailangang i-calibrate ang timer
+PressBench %@
+Tingnan ulit ang onboarding
+General
+Unit ng temperatura
+Legal at suporta
+Ginagamit ng app ang language preference na ito. Maaari mo itong baguhin anumang oras.
+Maghanap ng wika
+Production Report
+Ginawa ng PressBench
+Reporting period
+Executive summary
+Performance ng production runs
+Mga issue at exception
+Mga setup definition
+Sample size
+Mga naprosesong unit
+First-pass yield
+Final yield
+Rework rate
+Waste rate
+Mga na-rework na unit
+Mga nasayang na unit
+Hati ng mga resulta
+Petsa
+Naproseso
+Final
+Resulta
+Sintomas
+Pinaghihinalaang sanhi
+Aksyon
+Dami
+Tala
+Material / transfer
+Machine / platen
+Press stage
+Source ng instructions
+Na-check ang source
+Walang na-record na issue
+Limitadong data
+Ang mga value na inilagay ng operator ay ipinapakita gaya ng pagkaka-record at hindi isinasalin.
+Buod
+Mga issue
+I-save
+Kanselahin
+Pangalan
+Brand
+Modelo
+Sanggunian
+Tagal (segundo)
+Materyal
+Transfer medium
+I-restore ang mga binili
+I-unlock ang Pro
+Kumpirmahin ang mga tagubilin
+Pumasa ang unang piraso
+Simulan ang produksyon
+Itala ang resulta
+Hindi makumpleto ang pagkilos.
+OK
+Simulan ang timer
+I-pause ang timer
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Hitsura
+Sistema
+Maliwanag
+Madilim
+Workspace tools
+Create backup
+Share backup
+Roll back last restore
+Restore this backup
+Machine
+Nakaraang yugto
+Susunod na yugto
+Ayusin at subukan muli
+Stop with note
+Save adjustment and retry
+Save note and stop
+Count items
+I-undo ang huling bilang
+Record totals when the run ends
+Dahilan ng pag-pause
+Mode ng takbo
+Test run
+Production run
+Nakaplanong dami
+Sanggunian ng trabaho
+Pagsubaybay sa progreso
+Count during the run
+Record totals at the end
+I understand this setup is not proven
+Quality check
+Pass check
+Adjustment required
+End run early
+Quality check due
+Next quality check at %@ items
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Resulta
+Batch lang
+Update this setup
+Save as new variant
+Pamagat ng variant
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Tagubilin
+Repeat count
+Aksyon sa paglalagay
+Aksyon sa pagtatapos
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Hindi alam
+Pagbabago ng kulay
+Dobleng larawan
+Pag-angat ng gilid
+Pagdikit
+Pagkapaso
+Pagkakahanay
+Hindi kumpletong transfer
+Hindi pantay na init o pressure
+Halumigmig
+Pagkilos ng transfer
+Kontaminasyon
+Depekto ng substrate
+Setup ng disenyo
+Supply sa pag-print
+Kagamitan o kuryente
+Naantala
+Iba pa
+Init
+Oras
+Transfer
+Substrate
+Disenyo
+Printer, tinta, o papel
+Pagkaantala ng operator
+I-discard ang run na hindi pa nasisimulan
+I-discard ang run na ito na hindi pa nasisimulan? Walang gagawing batch record.
+Maglagay ng valid na numero.
+Dapat saklawin ng dami ayon sa isyu ang lahat ng ni-rework at nasayang na unit.
+Pumili o gumawa ng machine bago magpatuloy.
+Pumili o gumawa ng production setup bago magpatuloy.
+Tapusin o i-release ang kasalukuyang nakareserbang run bago baguhin ang record na ito.
+Wala sa kinakailangang status ang run para sa pagkilos na iyon.
+Kailangang i-recover ang lokal na storage bago maipagpatuloy ang pagkilos na ito.
+Hindi ma-verify o ma-restore ang backup.
+Ulitin
+Ang “Proven” ay mga kwalipikadong run na inilagay ng operator para sa eksaktong setup na ito. Hindi ito pagpapatunay ng manufacturer, sertipikasyon, o pasya sa kaligtasan.
+Laki ng text
+Pinamamahalaan sa Mga Setting ng iOS
+Bawasan ang Galaw
+Ibahin nang Walang Kulay
+Naka-enable
+Naka-disable
+Buksan ang Mga Setting ng iOS
+Burahin ang Lokal na Data
+Permanenteng buburahin nito sa device na ito ang mga makina, setup, run, at lokal na setting. Hindi mabubura ang binili mo sa App Store.
+Paano naiiba ang trabahong ito?
+Eksaktong pag-uulit
+Parehong variant ng produkto
+Malaking pagkakaiba sa materyal
+Magpatuloy nang hindi nagsa-sign in
+Backup ng Apple at iCloud
+Panatilihing naka-backup ang iyong PressBench data
+Opsyonal. Mag-sign in gamit ang Apple para magtago ng pribadong backup sa iyong iCloud storage. Maaari kang magpatuloy nang hindi nagsa-sign in.
+Mag-sign in gamit ang Apple para i-enable ang awtomatikong backup sa iyong pribadong iCloud storage.
+Naka-enable ang backup
+Sinusuri ang status ng backup…
+Huling backup
+Wala pang nagagawang backup
+Mag-backup ngayon
+I-restore mula sa iCloud
+I-off ang backup
+Papalitan ng pag-restore ang mga machine, setup, run, at setting sa device na ito. Hindi maaapektuhan ang iyong binili.
+Hihinto ang awtomatikong backup. Mananatili ang kasalukuyang backup sa iyong pribadong iCloud storage.
+Hindi ma-verify ang pahintulot ng Apple. Subukang mag-sign in muli.
+Hindi available ang iCloud backup. Tingnan ang iyong mga setting ng iCloud Drive at subukan muli.
+Walang nakitang iCloud backup.
+I-delete ang iCloud backup
+Permanente nitong ide-delete ang backup mula sa iyong iCloud storage. Hindi made-delete ang data sa device na ito.

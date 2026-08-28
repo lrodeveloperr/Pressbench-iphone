@@ -1,0 +1,304 @@
+PressBench
+Kembali
+Teruskan
+Buka PressBench
+Bahasa
+Dipilih
+Ketik untuk memilih
+Semua
+Unit
+Suhu
+Tekanan
+Plat penekan
+Proses
+Nota
+Pemberitahuan
+Tetapan
+Sokongan
+Penyelenggaraan
+Analitik
+Eksport
+Kebolehcapaian
+Sejarah kelompok
+Dasar Privasi
+Terma Penggunaan
+Notis Keselamatan
+Notis Keselamatan Mesin Penekan Haba
+Pembelian & akses Pro
+Data setempat & sandaran
+Notis pihak ketiga
+Utama
+Tetapan proses
+Kitaran pengeluaran
+Mesin
+Lagi
+Terbukti
+Percubaan
+Draf
+Diarkibkan
+Sedang berjalan
+Selesai
+Penempatan
+Pra-tekan
+Tekan
+Kupas
+Penyejukan
+Tekan semula
+%1$d daripada %2$d
+Selamat datang ke PressBench
+Tetapan yang boleh diulang. Kitaran pengeluaran direkodkan. Pengeluaran lebih terkawal.
+Guna semula tetapan yang terbukti
+Simpan definisi proses yang berjaya dengan teratur dan sedia untuk kitaran pengeluaran seterusnya.
+Bekerja mengikut urutan yang jelas
+Ikuti semakan tetapan, unit pertama, pengeluaran dan catatan hasil secara berurutan.
+Lihat apa yang bertambah baik
+Jejaki kadar lulus kali pertama, kerja semula dan buangan daripada rekod pengeluaran yang anda cipta.
+Pilih bahasa
+Bahasa iPhone anda dipilih secara automatik. Pilih bahasa lain sekarang atau tukar kemudian dalam Tetapan.
+Membuka menu juntai bawah bahasa
+Dibina mengikut proses anda
+PressBench bukan sekadar pemasa atau buku resipi. Setiap kitaran pengeluaran menyimpan sejarah pengeluaran yang boleh dijejaki berdasarkan tetapan yang benar-benar digunakan.
+Tetapan proses
+Unit pertama
+Pengeluaran
+Hasil
+Keselamatan, terma & privasi
+PressBench merekodkan maklumat pengeluaran yang dimasukkan oleh pengendali. Aplikasi tidak memeriksa, mengukur, memantau atau mengawal mesin penekan haba anda.
+Saya bersetuju dengan Terma Penggunaan
+Saya telah membaca dan memahami Notis Keselamatan
+Saya telah menyemak Dasar Privasi
+Halaman dasar kini tersedia dalam bahasa Inggeris.
+Pilih unit suhu
+Anda boleh menukarnya kemudian dalam Tetapan. Sahkan unit sebelum menggunakan nilai pengeluaran.
+Fahrenheit
+Celsius
+Sedia untuk mencipta tetapan pertama
+Mulakan dengan mesin dan proses yang benar-benar anda gunakan. PressBench memastikan tetapan, kitaran pengeluaran dan hasil kekal berkaitan.
+1. Tambah mesin pertama
+Berikan nama yang mudah dikenal pada penekan dan rekodkan profilnya.
+2. Cipta tetapan proses
+Rekodkan proses yang tepat dan maklumat sumber.
+3. Rekod kitaran pengeluaran
+Sahkan arahan, jalankan pengeluaran dan simpan hasil.
+Selamat kembali
+Mulakan kitaran baharu
+Mulakan kitaran pengeluaran baharu
+Kelompok
+Lulus kali pertama
+Buangan
+Tetapan terkini
+Lihat semua
+Undang-undang & keselamatan
+Dasar rasmi PressBench dan maklumat keselamatan.
+Privasi
+Terma
+Keselamatan
+Cari tetapan
+Kitaran tanpa masalah: %d
+Kitaran direkodkan: %d
+Belum terbukti
+Mulakan kitaran
+Terbukti terakhir
+Kitaran tanpa masalah
+%1$d / %2$d
+Peringkat %1$d / %2$d
+Kitaran aktif
+Kelompok
+Sambung kitaran
+Jeda kitaran
+Tamatkan kitaran
+Tersedia
+Sedang digunakan
+Penentukuran pemasa diperlukan
+PressBench %@
+Lihat onboarding semula
+Umum
+Unit suhu
+Undang-undang & sokongan
+Aplikasi menggunakan pilihan bahasa ini. Anda boleh menukarnya pada bila-bila masa.
+Cari bahasa
+Laporan Pengeluaran
+Dijana oleh PressBench
+Tempoh laporan
+Ringkasan eksekutif
+Prestasi kitaran pengeluaran
+Masalah & pengecualian
+Definisi tetapan
+Saiz sampel
+Unit diproses
+Kadar lulus kali pertama
+Hasil akhir
+Kadar kerja semula
+Kadar buangan
+Unit dikerja semula
+Unit dibuang
+Taburan hasil
+Tarikh
+Diproses
+Akhir
+Hasil
+Gejala
+Punca disyaki
+Tindakan
+Kuantiti
+Nota
+Bahan / pemindahan
+Mesin / plat penekan
+Peringkat tekan
+Sumber arahan
+Sumber disemak
+Tiada masalah direkodkan
+Data terhad
+Nilai yang dimasukkan oleh pengendali dipaparkan seperti yang direkodkan dan tidak diterjemahkan.
+Ringkasan
+Masalah
+Simpan
+Batal
+Nama
+Jenama
+Model
+Rujukan
+Tempoh (saat)
+Bahan
+Medium pindahan
+Pulihkan pembelian
+Buka kunci Pro
+Sahkan arahan
+Sampel pertama lulus
+Mulakan pengeluaran
+Rekod keputusan
+Tindakan tidak dapat diselesaikan.
+OK
+Mulakan pemasa
+Jeda pemasa
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Penampilan
+Sistem
+Cerah
+Gelap
+Workspace tools
+Create backup
+Share backup
+Roll back last restore
+Restore this backup
+Machine
+Tahap sebelumnya
+Tahap seterusnya
+Laraskan dan cuba lagi
+Stop with note
+Save adjustment and retry
+Save note and stop
+Count items
+Buat asal kiraan terakhir
+Record totals when the run ends
+Sebab jeda
+Mod proses
+Test run
+Production run
+Kuantiti dirancang
+Rujukan kerja
+Penjejakan kemajuan
+Count during the run
+Record totals at the end
+I understand this setup is not proven
+Quality check
+Pass check
+Adjustment required
+End run early
+Quality check due
+Next quality check at %@ items
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Hasil
+Kelompok sahaja
+Update this setup
+Save as new variant
+Tajuk varian
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Arahan
+Repeat count
+Tindakan penempatan
+Tindakan kemasan
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Tidak diketahui
+Perubahan warna
+Imej berbayang
+Tepi terangkat
+Lekatan
+Kesan hangus
+Penjajaran
+Pemindahan tidak lengkap
+Haba atau tekanan tidak sekata
+Kelembapan
+Anjakan pemindahan
+Pencemaran
+Kecacatan substrat
+Persediaan reka bentuk
+Bekalan cetakan
+Peralatan atau kuasa
+Terganggu
+Lain-lain
+Haba
+Masa
+Pemindahan
+Substrat
+Reka bentuk
+Pencetak, dakwat atau kertas
+Gangguan operator
+Buang proses yang belum dimulakan
+Buang proses yang belum dimulakan ini? Tiada rekod kelompok akan dibuat.
+Masukkan nombor yang sah.
+Kuantiti masalah mesti merangkumi semua unit yang dikerja semula dan dibazirkan.
+Pilih atau cipta mesin sebelum meneruskan.
+Pilih atau cipta tetapan pengeluaran sebelum meneruskan.
+Selesaikan atau lepaskan proses semasa yang dikhaskan sebelum mengubah rekod ini.
+Proses tidak berada dalam keadaan yang diperlukan untuk tindakan tersebut.
+Storan setempat perlu dipulihkan sebelum tindakan ini boleh diteruskan.
+Sandaran tidak dapat disahkan atau dipulihkan.
+Ulang
+“Telah diuji” bermaksud kitaran yang layak dan dimasukkan oleh pengendali untuk tetapan yang sama tepat ini. Ia bukan pengesahan pengilang, pensijilan atau penentuan keselamatan.
+Saiz teks
+Diurus dalam Tetapan iOS
+Kurangkan Pergerakan
+Bezakan Tanpa Warna
+Didayakan
+Dinyahdayakan
+Buka Tetapan iOS
+Padam Data Setempat
+Tindakan ini memadamkan mesin, persediaan, kitaran dan tetapan setempat secara kekal daripada peranti ini. Pembelian App Store anda tidak dipadamkan.
+Apakah yang berbeza tentang kerja ini?
+Ulangan tepat
+Varian produk yang sama
+Bahan sangat berbeza
+Teruskan tanpa mendaftar masuk
+Sandaran Apple dan iCloud
+Pastikan data PressBench anda disandarkan
+Pilihan. Daftar masuk dengan Apple untuk menyimpan sandaran peribadi dalam storan iCloud anda. Anda boleh teruskan tanpa mendaftar masuk.
+Daftar masuk dengan Apple untuk mengaktifkan sandaran automatik dalam storan iCloud peribadi anda.
+Sandaran diaktifkan
+Menyemak status sandaran…
+Sandaran terakhir
+Belum ada sandaran dibuat
+Sandarkan sekarang
+Pulihkan daripada iCloud
+Matikan sandaran
+Pemulihan akan menggantikan mesin, persediaan, kitaran dan tetapan pada peranti ini. Pembelian anda tidak terjejas.
+Sandaran automatik akan dihentikan. Sandaran sedia ada akan kekal dalam storan iCloud peribadi anda.
+Kebenaran Apple tidak dapat disahkan. Cuba daftar masuk semula.
+Sandaran iCloud tidak tersedia. Semak tetapan iCloud Drive anda dan cuba lagi.
+Tiada sandaran iCloud ditemui.
+Padam sandaran iCloud
+Ini akan memadamkan sandaran secara kekal daripada storan iCloud anda. Data pada peranti ini tidak dipadamkan.
