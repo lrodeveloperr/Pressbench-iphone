@@ -33,7 +33,7 @@ final class PersistenceTests: XCTestCase {
         XCTAssertNil(backup["entitlement"])
         XCTAssertNil(backup["session"])
         XCTAssertNil(backup["operatorIssueDrafts"])
-        XCTAssertNotNil(backup["recipes"])
+        XCTAssertNotNil(backup["setups"])
         XCTAssertNotNil(backup["batches"])
         XCTAssertNotNil(backup["machines"])
     }
