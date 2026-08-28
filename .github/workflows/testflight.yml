@@ -24,7 +24,7 @@ env:
   SOURCE_B64_GLOB: .source/PressBench-iOS-Approved-UI-v0.21.4.zip.b64.part-*
   IOS_BUNDLE_ID: com.goodusestudios.pressbench
   APPLE_TEAM_ID: 49SQ3XQ68Q
-  MARKETING_VERSION: 0.21.4
+  MARKETING_VERSION: 0.22.0
   SCHEME: PressBench
   ARCHIVE_PATH: ${{ github.workspace }}/build/PressBench.xcarchive
   EXPORT_PATH: ${{ github.workspace }}/build/export
@@ -320,6 +320,11 @@ jobs:
           [[ "$exported_build" == "$BUILD_NUMBER" ]] || { echo "Exported build mismatch: $exported_build" >&2; exit 1; }
           [[ -f "$exported_app/PrivacyInfo.xcprivacy" ]] || { echo 'PrivacyInfo.xcprivacy missing from exported app.' >&2; exit 1; }
           codesign --verify --deep --strict --verbose=2 "$exported_app"
+          exported_entitlements="$RUNNER_TEMP/exported-entitlements.plist"
+          codesign -d --entitlements :- "$exported_app" > "$exported_entitlements" 2>/dev/null
+          [[ "$(/usr/libexec/PlistBuddy -c 'Print :com.apple.developer.applesignin:0' "$exported_entitlements")" == "Default" ]] || { echo 'Sign in with Apple entitlement missing from exported app.' >&2; exit 1; }
+          [[ "$(/usr/libexec/PlistBuddy -c 'Print :com.apple.developer.icloud-services:0' "$exported_entitlements")" == "CloudDocuments" ]] || { echo 'iCloud Documents entitlement missing from exported app.' >&2; exit 1; }
+          /usr/libexec/PlistBuddy -c 'Print :com.apple.developer.icloud-container-identifiers:0' "$exported_entitlements" | grep -Fxq 'iCloud.com.goodusestudios.pressbench' || { echo 'PressBench iCloud container missing from exported app.' >&2; exit 1; }
           profile="$exported_app/embedded.mobileprovision"
           [[ -f "$profile" ]] || { echo 'Embedded provisioning profile missing from exported app.' >&2; exit 1; }
           profile_plist="$RUNNER_TEMP/exported-profile.plist"
