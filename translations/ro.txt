@@ -1,0 +1,286 @@
+PressBench
+Înapoi
+Continuă
+Deschide PressBench
+Limbă
+Selectat
+Atinge pentru a selecta
+Toate
+Unități
+Temperatură
+Presiune
+Placă de presare
+Proces
+Note
+Notificări
+Setări
+Asistență
+Întreținere
+Analize
+Exporturi
+Accesibilitate
+Istoric loturi
+Politica de confidențialitate
+Termeni de utilizare
+Notificare de siguranță
+Notificare de siguranță pentru presa termică
+Achiziții și acces Pro
+Date locale și copii de siguranță
+Notificări privind terții
+Acasă
+Configurări de proces
+Rulări
+Mașini
+Mai multe
+Dovedit
+În test
+Ciornă
+Arhivat
+În desfășurare
+Finalizat
+Poziționare
+Prepresare
+Presare
+Dezlipire
+Răcire
+Postpresare
+%1$d din %2$d
+Bine ai venit la PressBench
+Configurări repetabile. Rulări înregistrate. Producție mai bună.
+Reutilizează configurările dovedite
+Păstrează definițiile de proces reușite organizate și gata pentru următoarea rulare.
+Lucrează cu o succesiune clară
+Parcurge verificările configurării, prima piesă, producția și înregistrarea rezultatului.
+Vezi ce se îmbunătățește
+Urmărește randamentul la prima trecere, reprelucrarea și rebutul din înregistrările de producție pe care le creezi.
+Alege limba
+Am selectat automat limba iPhone-ului. Alege alta acum sau schimb-o mai târziu în Setări.
+Deschide lista derulantă de limbi
+Construit în jurul procesului tău
+PressBench este mai mult decât un cronometru sau un caiet de rețete. Fiecare rulare păstrează un istoric de producție trasabil bazat pe configurarea folosită efectiv.
+Configurare
+Prima piesă
+Producție
+Rezultat
+Siguranță, termeni și confidențialitate
+PressBench înregistrează informațiile de producție introduse de operator. Nu inspectează, măsoară, monitorizează și nu controlează presa termică.
+Sunt de acord cu Termenii de utilizare
+Am citit și am luat la cunoștință Notificarea de siguranță
+Am consultat Politica de confidențialitate
+Paginile politicilor sunt disponibile în prezent în limba engleză.
+Alege unitatea de temperatură
+O poți schimba mai târziu în Setări. Confirmă unitatea înainte de a folosi valori de producție.
+Fahrenheit
+Celsius
+Ești gata să creezi prima configurare
+Începe cu mașina și procesul pe care le folosești efectiv. PressBench păstrează legătura dintre configurare, rulare și rezultat.
+1. Adaugă prima mașină
+Dă presei un nume și înregistrează-i profilul.
+2. Creează o configurare
+Înregistrează procesul exact și informațiile despre sursă.
+3. Înregistrează o rulare
+Confirmă instrucțiunile, efectuează producția și salvează rezultatul.
+Bine ai revenit
+Pornește o rulare nouă
+Începe o nouă rulare de producție
+Loturi
+Prima trecere
+Rebut
+Configurări recente
+Vezi toate
+Aspecte legale și siguranță
+Politici oficiale PressBench și informații de siguranță.
+Confidențialitate
+Termeni
+Siguranță
+Caută configurări
+Rulări fără probleme: %d
+Rulări înregistrate: %d
+Încă nedovedit
+Pornește rularea
+Ultima confirmare prin rezultate
+Rulări fără probleme
+%1$d / %2$d
+Etapa %1$d / %2$d
+Rulare activă
+Lot
+Reia rularea
+Pune rularea pe pauză
+Încheie rularea
+Disponibil
+În uz
+Calibrarea cronometrului este necesară
+PressBench %@
+Vezi din nou introducerea
+General
+Unitate de temperatură
+Aspecte legale și asistență
+Aplicația folosește această preferință de limbă. O poți schimba oricând.
+Caută limbi
+Raport de producție
+Generat de PressBench
+Perioada raportului
+Rezumat executiv
+Performanța rulărilor
+Probleme și excepții
+Definițiile configurărilor
+Dimensiunea eșantionului
+Unități procesate
+Randament la prima trecere
+Randament final
+Rată de reprelucrare
+Rată de rebut
+Unități reprelucrate
+Unități rebutate
+Distribuția rezultatelor
+Dată
+Procesat
+Final
+Rezultat
+Simptom
+Cauză suspectată
+Dispoziție
+Cantitate
+Notă
+Material / transfer
+Mașină / placă de presare
+Etapa de presare
+Sursa instrucțiunilor
+Sursă verificată
+Nu au fost înregistrate probleme
+Date limitate
+Valorile introduse de operator sunt reproduse așa cum au fost înregistrate și nu sunt traduse.
+Rezumat
+Probleme
+Salvează
+Anulează
+Nume
+Marcă
+Model
+Referință
+Durată (secunde)
+Material
+Mediu de transfer
+Restaurează achizițiile
+Deblochează Pro
+Confirmă instrucțiunile
+Prima piesă este conformă
+Pornește producția
+Înregistrează rezultatul
+Acțiunea nu a putut fi finalizată.
+OK
+Pornește cronometrul
+Pune cronometrul pe pauză
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Aspect
+Sistem
+Luminos
+Întunecat
+Workspace tools
+Create backup
+Share backup
+Import backup
+Roll back last restore
+Restore this backup
+Machine
+Etapa anterioară
+Etapa următoare
+Ajustează și reîncearcă
+Stop with note
+Save adjustment and retry
+Save note and stop
+Count items
+Anulează ultima numărare
+Record totals when the run ends
+Motivul pauzei
+Mod de rulare
+Test run
+Production run
+Cantitate planificată
+Referință lucrare
+Urmărirea progresului
+Count during the run
+Record totals at the end
+I understand this setup is not proven
+Quality check
+Pass check
+Adjustment required
+End run early
+Quality check due
+Next quality check at %@ items
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Rezultat
+Doar lot
+Update this setup
+Save as new variant
+Titlul variantei
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Instrucțiune
+Repeat count
+Acțiune de poziționare
+Acțiune de finisare
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Necunoscut
+Schimbare de culoare
+Imagine fantomă
+Ridicarea marginii
+Aderență
+Arsură
+Aliniere
+Transfer incomplet
+Căldură sau presiune neuniformă
+Umiditate
+Deplasarea transferului
+Contaminare
+Defect al substratului
+Configurarea designului
+Consumabil de imprimare
+Echipament sau alimentare
+Întrerupt
+Altele
+Căldură
+Timp
+Transfer
+Substrat
+Design
+Imprimantă, cerneală sau hârtie
+Întreruperea operatorului
+Renunță la rularea neîncepută
+Renunțați la această rulare neîncepută? Nu se va crea nicio înregistrare de lot.
+Introduceți un număr valid.
+Cantitățile aferente problemelor trebuie să acopere toate unitățile reprelucrate și rebutate.
+Selectați sau creați o mașină înainte de a continua.
+Selectați sau creați o configurație de producție înainte de a continua.
+Finalizați sau eliberați rularea rezervată curentă înainte de a modifica această înregistrare.
+Rularea nu se află în starea necesară pentru acțiunea respectivă.
+Spațiul de stocare local trebuie restaurat înainte ca această acțiune să poată continua.
+Copia de rezervă nu a putut fi verificată sau restaurată.
+Repetă
+„Dovedit” înseamnă rulări eligibile introduse de operator pentru exact această configurare. Nu reprezintă validarea producătorului, certificare sau o evaluare de siguranță.
+Dimensiunea textului
+Gestionată în Configurări iOS
+Reducere mișcare
+Diferențiere fără culoare
+Activat
+Dezactivat
+Deschide Configurări iOS
+Șterge datele locale
+Această acțiune șterge definitiv de pe dispozitiv mașinile, configurările, rulările și setările locale. Achiziția din App Store nu este ștearsă.
+Prin ce diferă această lucrare?
+Repetare exactă
+Aceeași variantă de produs
+Material substanțial diferit

@@ -43,7 +43,7 @@ The validation job must pass before the TestFlight build is treated as a release
 3. deterministic engine smoke tests;
 4. Xcode project generation;
 5. Release simulator compilation;
-6. unit tests.
+6. unit and first-use UI tests, including audit screenshots.
 
 ## 5. Upload a build
 

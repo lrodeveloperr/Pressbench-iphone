@@ -1,0 +1,286 @@
+PressBench
+Geri
+Devam
+PressBench’i Aç
+Dil
+Seçili
+Seçmek için dokunun
+Tümü
+Adet
+Sıcaklık
+Basınç
+Tabla
+Proses
+Notlar
+Bildirimler
+Ayarlar
+Destek
+Bakım
+Analizler
+Dışa aktarma
+Erişilebilirlik
+Parti geçmişi
+Gizlilik Politikası
+Kullanım Koşulları
+Güvenlik Bildirimi
+Isı Presi Güvenlik Bildirimi
+Satın almalar ve Pro erişimi
+Yerel veriler ve yedekler
+Üçüncü taraf bildirimleri
+Ana Sayfa
+Proses ayarları
+Üretim çalışmaları
+Makineler
+Daha Fazla
+Kanıtlı
+Deneme
+Taslak
+Arşivlendi
+Çalışıyor
+Tamamlandı
+Yerleştirme
+Ön pres
+Presleme
+Soyma
+Soğutma
+Son pres
+%1$d / %2$d
+PressBench’e hoş geldiniz
+Tekrarlanabilir ayarlar. Kayıtlı çalışmalar. Daha iyi üretim.
+Kanıtlı ayarları yeniden kullanın
+Başarılı proses tanımlarını düzenli tutun ve sonraki üretim çalışmasına hazır bulundurun.
+Düzenli bir akışla çalışın
+Ayar kontrolleri, ilk parça, üretim ve sonuç kaydı adımlarını sırayla izleyin.
+Nelerin iyileştiğini görün
+Oluşturduğunuz üretim kayıtlarından ilk geçiş verimini, yeniden işlemeyi ve fireyi takip edin.
+Dilinizi seçin
+iPhone diliniz otomatik olarak seçildi. Şimdi başka bir dil seçin veya daha sonra Ayarlar’dan değiştirin.
+Dil açılır menüsünü açar
+Prosesinize göre tasarlandı
+PressBench yalnızca bir zamanlayıcı veya reçete defteri değildir. Her üretim çalışması, gerçekten kullandığınız ayara bağlı izlenebilir bir üretim geçmişi tutar.
+Ayar
+İlk parça
+Üretim
+Sonuç
+Güvenlik, koşullar ve gizlilik
+PressBench, operatörün girdiği üretim bilgilerini kaydeder. Isı presinizi incelemez, ölçmez, izlemez veya kontrol etmez.
+Kullanım Koşulları’nı kabul ediyorum
+Güvenlik Bildirimi’ni okudum ve anladım
+Gizlilik Politikası’nı inceledim
+Politika sayfaları şu anda İngilizce olarak sunulmaktadır.
+Sıcaklık birimini seçin
+Bunu daha sonra Ayarlar’dan değiştirebilirsiniz. Üretim değerlerini kullanmadan önce birimi onaylayın.
+Fahrenhayt
+Santigrat
+İlk ayarınızı oluşturmaya hazırsınız
+Gerçekte kullandığınız makine ve prosesle başlayın. PressBench ayarı, üretim çalışmasını ve sonucu birbirine bağlı tutar.
+1. İlk makinenizi ekleyin
+Prese bir ad verin ve profilini kaydedin.
+2. Bir ayar oluşturun
+Tam prosesi ve kaynak bilgilerini kaydedin.
+3. Bir üretim çalışması kaydedin
+Talimatları doğrulayın, üretimi gerçekleştirin ve sonucu kaydedin.
+Tekrar hoş geldiniz
+Yeni çalışma başlat
+Yeni bir üretim çalışması başlatın
+Partiler
+İlk geçiş
+Fire
+Son ayarlar
+Tümünü Gör
+Yasal bilgiler ve güvenlik
+Resmî PressBench politikaları ve güvenlik bilgileri.
+Gizlilik
+Koşullar
+Güvenlik
+Ayarları ara
+Sorunsuz çalışmalar: %d
+Kayıtlı çalışmalar: %d
+Henüz kanıtlı değil
+Çalışmayı başlat
+Son kanıtlanan
+Sorunsuz çalışmalar
+%1$d / %2$d
+Aşama %1$d / %2$d
+Aktif çalışma
+Parti
+Çalışmayı sürdür
+Çalışmayı duraklat
+Çalışmayı bitir
+Uygun
+Kullanımda
+Zamanlayıcı kalibrasyonu gerekli
+PressBench %@
+Tanıtımı yeniden görüntüle
+Genel
+Sıcaklık birimi
+Yasal bilgiler ve destek
+Uygulama bu dil tercihini kullanır. İstediğiniz zaman değiştirebilirsiniz.
+Dillerde ara
+Üretim Raporu
+PressBench tarafından oluşturuldu
+Raporlama dönemi
+Yönetici özeti
+Üretim çalışması performansı
+Sorunlar ve istisnalar
+Ayar tanımları
+Örneklem büyüklüğü
+İşlenen adet
+İlk geçiş verimi
+Nihai verim
+Yeniden işleme oranı
+Fire oranı
+Yeniden işlenen adet
+Fire verilen adet
+Sonuç dağılımı
+Tarih
+İşlenen
+Nihai
+Sonuç
+Belirti
+Şüpheli neden
+İşlem kararı
+Miktar
+Not
+Malzeme / transfer
+Makine / tabla
+Pres aşaması
+Talimat kaynağı
+Kaynak kontrol edildi
+Kayıtlı sorun yok
+Sınırlı veri
+Operatörün girdiği değerler kaydedildiği şekilde gösterilir ve çevrilmez.
+Özet
+Sorunlar
+Kaydet
+İptal
+Ad
+Marka
+Model
+Referans
+Süre (saniye)
+Malzeme
+Transfer malzemesi
+Satın alımları geri yükle
+Pro'yu aç
+Talimatları onayla
+İlk parça geçti
+Üretimi başlat
+Sonucu kaydet
+İşlem tamamlanamadı.
+Tamam
+Zamanlayıcıyı başlat
+Zamanlayıcıyı duraklat
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Görünüm
+Sistem
+Açık
+Koyu
+Workspace tools
+Create backup
+Share backup
+Import backup
+Roll back last restore
+Restore this backup
+Machine
+Önceki aşama
+Sonraki aşama
+Ayarla ve yeniden dene
+Stop with note
+Save adjustment and retry
+Save note and stop
+Count items
+Son sayımı geri al
+Record totals when the run ends
+Duraklatma nedeni
+Çalışma modu
+Test run
+Production run
+Planlanan miktar
+İş referansı
+İlerleme takibi
+Count during the run
+Record totals at the end
+I understand this setup is not proven
+Quality check
+Pass check
+Adjustment required
+End run early
+Quality check due
+Next quality check at %@ items
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Sonuç
+Yalnızca parti
+Update this setup
+Save as new variant
+Varyant başlığı
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Talimat
+Repeat count
+Yerleştirme işlemi
+Bitirme işlemi
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Bilinmiyor
+Renk kayması
+Gölgelenme
+Kenar kalkması
+Yapışma
+Yanık
+Hizalama
+Eksik transfer
+Eşit olmayan ısı veya basınç
+Nem
+Transfer kayması
+Kirlenme
+Alt malzeme kusuru
+Tasarım ayarı
+Baskı malzemesi
+Ekipman veya güç
+Kesildi
+Diğer
+Isı
+Süre
+Transfer
+Alt malzeme
+Tasarım
+Yazıcı, mürekkep veya kâğıt
+Operatör kesintisi
+Başlatılmamış çalışmayı iptal et
+Bu başlatılmamış çalışma iptal edilsin mi? Parti kaydı oluşturulmayacak.
+Geçerli bir sayı girin.
+Sorun miktarları, yeniden işlenen ve fire olan tüm birimleri kapsamalıdır.
+Devam etmeden önce bir makine seçin veya oluşturun.
+Devam etmeden önce bir üretim ayarı seçin veya oluşturun.
+Bu kaydı değiştirmeden önce mevcut ayrılmış çalışmayı bitirin veya serbest bırakın.
+Çalışma, bu işlem için gereken durumda değil.
+Bu işleme devam edilebilmesi için önce yerel depolama alanının kurtarılması gerekiyor.
+Yedek doğrulanamadı veya geri yüklenemedi.
+Tekrarla
+“Kanıtlanmış”, bu tam kurulum için operatör tarafından girilen ve koşulları karşılayan çalışmaları ifade eder. Üretici doğrulaması, sertifika veya güvenlik değerlendirmesi değildir.
+Metin boyutu
+iOS Ayarları’ndan yönetilir
+Hareketi Azalt
+Renk Olmadan Farklılaştır
+Etkin
+Devre dışı
+iOS Ayarları’nı aç
+Yerel verileri sil
+Bu işlem makineleri, kurulumları, çalıştırmaları ve yerel ayarları bu aygıttan kalıcı olarak siler. App Store satın alımınız silinmez.
+Bu işin farkı nedir?
+Tam tekrar
+Aynı ürün çeşidi
+Malzeme açısından önemli ölçüde farklı

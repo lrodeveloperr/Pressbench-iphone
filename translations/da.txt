@@ -1,0 +1,286 @@
+PressBench
+Tilbage
+Fortsæt
+Åbn PressBench
+Sprog
+Valgt
+Tryk for at vælge
+Alle
+Enheder
+Temperatur
+Tryk
+Presseplade
+Proces
+Noter
+Notifikationer
+Indstillinger
+Support
+Vedligeholdelse
+Analyse
+Eksporter
+Tilgængelighed
+Batchhistorik
+Privatlivspolitik
+Brugsvilkår
+Sikkerhedsmeddelelse
+Sikkerhedsmeddelelse for varmepresse
+Køb og Pro-adgang
+Lokale data og sikkerhedskopier
+Meddelelser fra tredjeparter
+Hjem
+Procesopsætninger
+Produktionskørsler
+Maskiner
+Mere
+Afprøvet
+Prøve
+Kladde
+Arkiveret
+Kører
+Fuldført
+Placering
+Forpresning
+Presning
+Aftrækning
+Afkøling
+Efterpresning
+%1$d af %2$d
+Velkommen til PressBench
+Gentagelige opsætninger. Registrerede kørsler. Bedre produktionsstyring.
+Genbrug afprøvede opsætninger
+Hold vellykkede procesdefinitioner organiseret og klar til den næste produktionskørsel.
+Arbejd i en tydelig rækkefølge
+Gå gennem opsætningskontrol, første enhed, produktion og registrering af resultat trin for trin.
+Se hvad der forbedres
+Følg udbytte ved første gennemløb, omarbejde og kassation ud fra de produktionsregistreringer, du opretter.
+Vælg sprog
+Sproget på din iPhone blev valgt automatisk. Vælg et andet nu, eller skift det senere i Indstillinger.
+Åbner rullemenuen med sprog
+Bygget omkring din proces
+PressBench er mere end en timer eller opskriftsbog. Hver produktionskørsel gemmer en sporbar produktionshistorik omkring den opsætning, der faktisk blev brugt.
+Procesopsætning
+Første enhed
+Produktion
+Resultat
+Sikkerhed, vilkår og privatliv
+PressBench registrerer produktionsoplysninger, som operatøren indtaster. Appen inspicerer, måler, overvåger eller styrer ikke din varmepresse.
+Jeg accepterer Brugsvilkårene
+Jeg har læst og taget Sikkerhedsmeddelelsen til efterretning
+Jeg har gennemgået Privatlivspolitikken
+Politiksiderne er i øjeblikket tilgængelige på engelsk.
+Vælg temperaturenhed
+Du kan ændre den senere i Indstillinger. Bekræft enheden, før du bruger produktionsværdier.
+Fahrenheit
+Celsius
+Klar til at oprette din første procesopsætning
+Start med den maskine og proces, du faktisk bruger. PressBench holder opsætning, produktionskørsel og resultat forbundet.
+1. Tilføj din første maskine
+Giv pressen et tydeligt navn, og registrer dens profil.
+2. Opret en procesopsætning
+Registrer den præcise proces og kildeoplysningerne.
+3. Registrer en produktionskørsel
+Bekræft instruktionerne, gennemfør produktionen, og gem resultatet.
+Velkommen tilbage
+Start ny kørsel
+Start en ny produktionskørsel
+Batcher
+Første gennemløb
+Kassation
+Seneste opsætninger
+Vis alle
+Jura og sikkerhed
+Officielle PressBench-politikker og sikkerhedsoplysninger.
+Privatliv
+Vilkår
+Sikkerhed
+Søg i opsætninger
+Problemfri kørsler: %d
+Registrerede kørsler: %d
+Endnu ikke afprøvet
+Start kørsel
+Senest afprøvet
+Problemfri kørsler
+%1$d / %2$d
+Trin %1$d / %2$d
+Aktiv kørsel
+Batch
+Genoptag kørsel
+Sæt kørsel på pause
+Afslut kørsel
+Tilgængelig
+I brug
+Timerkalibrering er påkrævet
+PressBench %@
+Vis introduktionen igen
+Generelt
+Temperaturenhed
+Jura og support
+Appen bruger denne sprogindstilling. Du kan ændre den når som helst.
+Søg efter sprog
+Produktionsrapport
+Oprettet af PressBench
+Rapportperiode
+Ledelsesresume
+Ydeevne for produktionskørsler
+Problemer og undtagelser
+Definitioner af procesopsætninger
+Stikprøvestørrelse
+Behandlede enheder
+Udbytte ved første gennemløb
+Endeligt udbytte
+Omarbejdningsgrad
+Kassationsgrad
+Omarbejdede enheder
+Kasserede enheder
+Resultatfordeling
+Dato
+Behandlet
+Endeligt
+Resultat
+Symptom
+Mistænkt årsag
+Handling
+Antal
+Note
+Materiale / transfer
+Maskine / presseplade
+Presningstrin
+Instruktionskilde
+Kilde kontrolleret
+Ingen problemer registreret
+Begrænset datagrundlag
+Værdier, som operatøren har indtastet, vises som registreret og oversættes ikke.
+Resume
+Problemer
+Gem
+Annuller
+Navn
+Mærke
+Model
+Reference
+Varighed (sekunder)
+Materiale
+Transfermateriale
+Gendan køb
+Lås Pro op
+Bekræft instruktioner
+Første emne godkendt
+Start produktion
+Registrer resultat
+Handlingen kunne ikke gennemføres.
+OK
+Start timer
+Sæt timer på pause
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Udseende
+Enhedens standard
+Lys
+Mørk
+Workspace tools
+Create backup
+Share backup
+Import backup
+Roll back last restore
+Restore this backup
+Machine
+Forrige trin
+Næste trin
+Justér og prøv igen
+Stop with note
+Save adjustment and retry
+Save note and stop
+Count items
+Fortryd seneste optælling
+Record totals when the run ends
+Årsag til pause
+Kørselstilstand
+Test run
+Production run
+Planlagt antal
+Jobreference
+Sporing af fremskridt
+Count during the run
+Record totals at the end
+I understand this setup is not proven
+Quality check
+Pass check
+Adjustment required
+End run early
+Quality check due
+Next quality check at %@ items
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Resultat
+Kun batch
+Update this setup
+Save as new variant
+Variantnavn
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Instruktion
+Repeat count
+Placeringshandling
+Afslutningshandling
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Ukendt
+Farveforskydning
+Skyggebillede
+Løftet kant
+Vedhæftning
+Svidning
+Justering
+Ufuldstændig overførsel
+Ujævn varme eller tryk
+Fugt
+Forskudt overførsel
+Forurening
+Materialefejl
+Designopsætning
+Printmateriale
+Udstyr eller strøm
+Afbrudt
+Andet
+Varme
+Tid
+Overførsel
+Materiale
+Design
+Printer, blæk eller papir
+Operatørafbrydelse
+Kassér ikke-startet kørsel
+Kassér denne ikke-startede kørsel? Der oprettes ingen batchpost.
+Indtast et gyldigt tal.
+Problemmængderne skal dække alle omarbejdede og kasserede enheder.
+Vælg eller opret en maskine, før du fortsætter.
+Vælg eller opret en produktionsindstilling, før du fortsætter.
+Afslut eller frigiv den aktuelt reserverede kørsel, før du ændrer denne post.
+Kørslen har ikke den status, der kræves for handlingen.
+Det lokale lager skal gendannes, før handlingen kan fortsætte.
+Sikkerhedskopien kunne ikke bekræftes eller gendannes.
+Gentag
+“Afprøvet” betyder kvalificerende kørsler, som operatøren har indtastet for præcis denne opsætning. Det er ikke producentvalidering, certificering eller en sikkerhedsvurdering.
+Tekststørrelse
+Administreres i iOS-indstillinger
+Formindsk bevægelse
+Differentier uden farve
+Slået til
+Slået fra
+Åbn iOS-indstillinger
+Slet lokale data
+Dette sletter permanent maskiner, opsætninger, kørsler og lokale indstillinger fra denne enhed. Dit køb i App Store slettes ikke.
+Hvordan er dette job anderledes?
+Nøjagtig gentagelse
+Samme produktvariant
+Væsentligt anderledes materiale

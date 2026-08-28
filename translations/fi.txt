@@ -1,0 +1,286 @@
+PressBench
+Takaisin
+Jatka
+Avaa PressBench
+Kieli
+Valittu
+Valitse napauttamalla
+Kaikki
+Kappaleet
+Lämpötila
+Paine
+Puristuslevy
+Prosessi
+Muistiinpanot
+Ilmoitukset
+Asetukset
+Tuki
+Huolto
+Analytiikka
+Viennit
+Saavutettavuus
+Erähistoria
+Tietosuojakäytäntö
+Käyttöehdot
+Turvallisuusohje
+Lämpöprässin turvallisuusohje
+Ostot ja Pro-käyttöoikeus
+Paikalliset tiedot ja varmuuskopiot
+Kolmansien osapuolten ilmoitukset
+Koti
+Prosessiasetukset
+Tuotantoajot
+Koneet
+Lisää
+Hyväksi todettu
+Kokeilu
+Luonnos
+Arkistoitu
+Käynnissä
+Valmis
+Asemointi
+Esipuristus
+Puristus
+Irrotus
+Jäähdytys
+Jälkipuristus
+%1$d / %2$d
+Tervetuloa PressBenchiin
+Toistettavat asetukset. Tallennetut tuotantoajot. Hallitumpi tuotanto.
+Käytä hyväksi todettuja asetuksia uudelleen
+Pidä onnistuneet prosessimääritykset järjestyksessä ja valmiina seuraavaa tuotantoajoa varten.
+Etene selkeässä järjestyksessä
+Käy läpi asetusten tarkistukset, ensimmäinen kappale, tuotanto ja tuloksen kirjaus vaihe vaiheelta.
+Näe, mikä paranee
+Seuraa ensikierroksen saantoa, uudelleentyöstöä ja hylkyä luomistasi tuotantotiedoista.
+Valitse kieli
+iPhonen kieli valittiin automaattisesti. Valitse toinen kieli nyt tai vaihda se myöhemmin Asetuksissa.
+Avaa kielten pudotusvalikon
+Rakennettu prosessisi ympärille
+PressBench on enemmän kuin ajastin tai reseptivihko. Jokainen tuotantoajo säilyttää jäljitettävän tuotantohistorian juuri käytetyn prosessiasetuksen ympärillä.
+Prosessiasetus
+Ensimmäinen kappale
+Tuotanto
+Tulos
+Turvallisuus, ehdot ja tietosuoja
+PressBench tallentaa käyttäjän syöttämät tuotantotiedot. Se ei tarkasta, mittaa, valvo tai ohjaa lämpöprässiä.
+Hyväksyn Käyttöehdot
+Olen lukenut ja ottanut huomioon Turvallisuusohjeen
+Olen tutustunut Tietosuojakäytäntöön
+Käytäntösivut ovat tällä hetkellä saatavilla englanniksi.
+Valitse lämpötilayksikkö
+Voit vaihtaa sen myöhemmin Asetuksissa. Vahvista yksikkö ennen tuotantoarvojen käyttöä.
+Fahrenheit
+Celsius
+Valmis luomaan ensimmäisen prosessiasetuksen
+Aloita koneesta ja prosessista, joita oikeasti käytät. PressBench pitää asetuksen, tuotantoajon ja tuloksen yhteydessä toisiinsa.
+1. Lisää ensimmäinen kone
+Anna prässille tunnistettava nimi ja tallenna sen profiili.
+2. Luo prosessiasetus
+Tallenna tarkka prosessi ja lähdetiedot.
+3. Tallenna tuotantoajo
+Vahvista ohjeet, suorita tuotanto ja tallenna tulos.
+Tervetuloa takaisin
+Aloita uusi ajo
+Aloita uusi tuotantoajo
+Erät
+Ensikierros
+Hylky
+Viimeisimmät asetukset
+Näytä kaikki
+Lakiasiat ja turvallisuus
+PressBenchin viralliset käytännöt ja turvallisuustiedot.
+Tietosuoja
+Ehdot
+Turvallisuus
+Hae asetuksia
+Ongelmaton ajo: %d
+Tallennetut ajot: %d
+Ei vielä hyväksi todettu
+Aloita ajo
+Viimeksi hyväksi todettu
+Ongelmaton ajo
+%1$d / %2$d
+Vaihe %1$d / %2$d
+Aktiivinen ajo
+Erä
+Jatka ajoa
+Keskeytä ajo
+Lopeta ajo
+Saatavilla
+Käytössä
+Ajastimen kalibrointi tarpeen
+PressBench %@
+Näytä perehdytys uudelleen
+Yleiset
+Lämpötilayksikkö
+Lakiasiat ja tuki
+Sovellus käyttää tätä kieliasetusta. Voit vaihtaa sen milloin tahansa.
+Hae kieliä
+Tuotantoraportti
+Luotu PressBenchillä
+Raportointijakso
+Yhteenveto
+Tuotantoajojen suorituskyky
+Ongelmat ja poikkeukset
+Prosessiasetusten määritykset
+Otoksen koko
+Käsitellyt kappaleet
+Ensikierroksen saanto
+Lopullinen saanto
+Uudelleentyöstöaste
+Hylkyaste
+Uudelleentyöstetyt kappaleet
+Hylätyt kappaleet
+Tulosten jakauma
+Päivämäärä
+Käsitelty
+Lopullinen
+Tulos
+Oire
+Epäilty syy
+Jatkotoimi
+Määrä
+Muistiinpano
+Materiaali / siirtomateriaali
+Kone / puristuslevy
+Puristusvaihe
+Ohjeiden lähde
+Lähde tarkistettu
+Ongelmia ei ole kirjattu
+Rajallinen aineisto
+Käyttäjän syöttämät arvot näytetään sellaisina kuin ne on tallennettu eikä niitä käännetä.
+Yhteenveto
+Ongelmat
+Tallenna
+Peruuta
+Nimi
+Merkki
+Malli
+Viite
+Kesto (sekuntia)
+Materiaali
+Siirtomateriaali
+Palauta ostokset
+Avaa Pro
+Vahvista ohjeet
+Ensimmäinen kappale hyväksytty
+Aloita tuotanto
+Kirjaa tulos
+Toimintoa ei voitu suorittaa loppuun.
+OK
+Käynnistä ajastin
+Keskeytä ajastin
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Ulkoasu
+Järjestelmä
+Vaalea
+Tumma
+Workspace tools
+Create backup
+Share backup
+Import backup
+Roll back last restore
+Restore this backup
+Machine
+Edellinen vaihe
+Seuraava vaihe
+Säädä ja yritä uudelleen
+Stop with note
+Save adjustment and retry
+Save note and stop
+Count items
+Kumoa viimeisin laskenta
+Record totals when the run ends
+Keskeytyksen syy
+Ajotila
+Test run
+Production run
+Suunniteltu määrä
+Työviite
+Edistymisen seuranta
+Count during the run
+Record totals at the end
+I understand this setup is not proven
+Quality check
+Pass check
+Adjustment required
+End run early
+Quality check due
+Next quality check at %@ items
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Tulos
+Vain erä
+Update this setup
+Save as new variant
+Muunnelman nimi
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Ohje
+Repeat count
+Sijoitustoiminto
+Viimeistelytoiminto
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Tuntematon
+Värisiirtymä
+Haamukuva
+Reunan irtoaminen
+Tarttuvuus
+Palanut kohta
+Kohdistus
+Epätäydellinen siirto
+Epätasainen lämpö tai paine
+Kosteus
+Siirron siirtymä
+Likaantuminen
+Alustan vika
+Mallin määritys
+Tulostustarvike
+Laite tai virta
+Keskeytynyt
+Muu
+Lämpö
+Aika
+Siirto
+Alusta
+Kuvio
+Tulostin, muste tai paperi
+Käyttäjän keskeytys
+Hylkää aloittamaton ajo
+Hylätäänkö tämä aloittamaton ajo? Erätietuetta ei luoda.
+Anna kelvollinen luku.
+Ongelmiin kohdistettujen määrien on katettava kaikki uudelleentyöstetyt ja hukkaan menneet kappaleet.
+Valitse tai luo kone ennen jatkamista.
+Valitse tai luo tuotantoasetus ennen jatkamista.
+Viimeistele tai vapauta nykyinen varattu ajo ennen tämän tietueen muuttamista.
+Ajo ei ole kyseisen toiminnon edellyttämässä tilassa.
+Paikallinen tallennustila on palautettava, ennen kuin tätä toimintoa voidaan jatkaa.
+Varmuuskopiota ei voitu vahvistaa tai palauttaa.
+Toista
+”Toimivaksi todettu” tarkoittaa käyttäjän kirjaamia, ehdot täyttäviä ajoja juuri tällä asetuksella. Se ei ole valmistajan validointi, sertifiointi tai turvallisuusarvio.
+Tekstin koko
+Hallitaan iOS-asetuksissa
+Vähennä liikettä
+Erottele ilman värejä
+Käytössä
+Pois käytöstä
+Avaa iOS-asetukset
+Poista paikalliset tiedot
+Tämä poistaa laitteelta pysyvästi koneet, määritykset, ajot ja paikalliset asetukset. Ostostasi App Storessa ei poisteta.
+Miten tämä työ eroaa?
+Täsmällinen toisto
+Sama tuoteversio
+Olennaisesti eri materiaali

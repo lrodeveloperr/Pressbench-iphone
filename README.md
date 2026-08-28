@@ -23,11 +23,11 @@ The packaged-source path exists specifically so the binary ZIP can be uploaded o
 
 ## Approved interface
 
-The reviewed source archive uses the GoodUse Studios Ocean Pearl system: adaptive light/dark tokens, 28-point page headers, 24-point cards, 62-point primary controls, four stable thumb destinations, RTL/Dynamic Type reflow, and Reduce Motion-aware interaction. The full operator workflow remains intact, including editable multi-stage setups, configurable run authorization, first-piece evidence, timers, quantity/QC/issue capture, backup/recovery, completed-run detail, and the three-way reuse selector. The deterministic production logic is unchanged. The durable catalog contains 311 keys across 32 runtime locale codes, generated from 286 canonical phrases; the compact-layout audit covers 960 text slots with zero failures.
+The reviewed production source uses the GoodUse Studios Ocean Pearl system: adaptive light/dark tokens, 28-point page headers, 24-point cards, 62-point primary controls, four stable thumb destinations, RTL/Dynamic Type reflow, and Reduce Motion-aware interaction. The operator workflow includes one-screen onboarding, chained first-use setup, strict runnable-setup validation, guided first-piece/timer/QC gates, quantity and issue capture, Apple private backup/recovery, auditable completed-run correction, and the three-way reuse selector. The deterministic engine enforces timer, QC, capacity, recovery, and commit integrity. The durable catalog contains 354 keys across 32 runtime locale codes, generated from 327 canonical phrases; the compact-layout audit covers 960 text slots with zero failures.
 
 ## CI
 
-- **Validate PressBench iOS** runs on pushes/PRs and can also be run manually. It checks release integrity, the 31-language localization layer, deterministic engine smoke tests, Xcode project generation, a Release simulator build, and unit tests.
+- **Validate PressBench iOS** runs on pushes/PRs and can also be run manually. It checks release integrity, the 31-language localization layer, deterministic engine smoke tests, Xcode project generation, a Release simulator build, unit/UI tests, and captures first-use UI audit screenshots.
 - **Run TestFlight Build** is manual. It repeats all validation, verifies the Apple credentials and App Store Connect identity, archives/signs the production app, verifies bundle/version/build/privacy-manifest identity, exports and validates the IPA, then uploads it to TestFlight.
 
 The TestFlight workflow requires the literal confirmation `UPLOAD TESTFLIGHT` and fails closed before upload on any error.

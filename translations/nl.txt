@@ -1,0 +1,286 @@
+PressBench
+Terug
+Doorgaan
+PressBench openen
+Taal
+Geselecteerd
+Tik om te selecteren
+Alle
+Eenheden
+Temperatuur
+Druk
+Persplaat
+Proces
+Notities
+Meldingen
+Instellingen
+Ondersteuning
+Onderhoud
+Analyse
+Exporteren
+Toegankelijkheid
+Batchgeschiedenis
+Privacybeleid
+Gebruiksvoorwaarden
+Veiligheidsmelding
+Veiligheidsmelding voor de hittepers
+Aankopen en Pro-toegang
+Lokale gegevens en back-ups
+Kennisgevingen van derden
+Home
+Procesinstellingen
+Productieruns
+Machines
+Meer
+Beproefd
+Proef
+Concept
+Gearchiveerd
+Bezig
+Voltooid
+Plaatsing
+Voorpersen
+Persen
+Losmaken
+Afkoelen
+Napersen
+%1$d van %2$d
+Welkom bij PressBench
+Herhaalbare procesinstellingen. Vastgelegde runs. Betere productie.
+Gebruik beproefde instellingen opnieuw
+Houd succesvolle procesdefinities geordend en klaar voor de volgende productierun.
+Werk met een duidelijke volgorde
+Doorloop de controles van de instelling, het eerste stuk, de productie en de resultaatregistratie.
+Zie wat verbetert
+Volg de opbrengst bij de eerste doorgang, herbewerking en uitval op basis van de productieregistraties die je maakt.
+Kies je taal
+We hebben de taal van je iPhone automatisch geselecteerd. Kies nu een andere taal of wijzig deze later in Instellingen.
+Opent de keuzelijst met talen
+Gebouwd rond jouw proces
+PressBench is meer dan een timer of receptenboek. Elke run bewaart een traceerbare productiegeschiedenis rond de instelling die je daadwerkelijk hebt gebruikt.
+Procesinstelling
+Eerste stuk
+Productie
+Resultaat
+Veiligheid, voorwaarden en privacy
+PressBench registreert productiegegevens die de operator invoert. De app inspecteert, meet, bewaakt of bedient je hittepers niet.
+Ik ga akkoord met de Gebruiksvoorwaarden
+Ik heb de Veiligheidsmelding gelezen en begrepen
+Ik heb het Privacybeleid bekeken
+De beleidspagina’s zijn momenteel beschikbaar in het Engels.
+Kies je temperatuureenheid
+Je kunt dit later wijzigen in Instellingen. Bevestig de eenheid voordat je productiewaarden gebruikt.
+Fahrenheit
+Celsius
+Klaar om je eerste procesinstelling te maken
+Begin met de machine en het proces die je daadwerkelijk gebruikt. PressBench houdt instelling, run en resultaat met elkaar verbonden.
+1. Voeg je eerste machine toe
+Geef de pers een naam en leg het profiel vast.
+2. Maak een procesinstelling
+Leg het exacte proces en de broninformatie vast.
+3. Registreer een productierun
+Bevestig de instructies, voer de productie uit en sla het resultaat op.
+Welkom terug
+Nieuwe run starten
+Begin een nieuwe productierun
+Batches
+Eerste doorgang
+Uitval
+Recente instellingen
+Alles bekijken
+Juridisch en veiligheid
+Officieel PressBench-beleid en veiligheidsinformatie.
+Privacy
+Voorwaarden
+Veiligheid
+Instellingen zoeken
+Probleemloze runs: %d
+Geregistreerde runs: %d
+Nog niet beproefd
+Run starten
+Laatst beproefd
+Probleemloze runs
+%1$d / %2$d
+Stap %1$d / %2$d
+Actieve run
+Batch
+Run hervatten
+Run pauzeren
+Run beëindigen
+Beschikbaar
+In gebruik
+Timerkalibratie is nodig
+PressBench %@
+Introductie opnieuw bekijken
+Algemeen
+Temperatuureenheid
+Juridisch en ondersteuning
+De app gebruikt deze taalvoorkeur. Je kunt deze op elk moment wijzigen.
+Talen zoeken
+Productierapport
+Gegenereerd door PressBench
+Rapportageperiode
+Managementsamenvatting
+Prestaties van productieruns
+Problemen en uitzonderingen
+Definities van procesinstellingen
+Steekproefgrootte
+Verwerkte eenheden
+Opbrengst bij eerste doorgang
+Eindopbrengst
+Herbewerkingspercentage
+Uitvalpercentage
+Herbewerkte eenheden
+Uitgevallen eenheden
+Verdeling van resultaten
+Datum
+Verwerkt
+Eindresultaat
+Resultaat
+Symptoom
+Vermoedelijke oorzaak
+Afhandeling
+Aantal
+Notitie
+Materiaal / transfer
+Machine / persplaat
+Persstap
+Bron van instructies
+Bron gecontroleerd
+Geen problemen geregistreerd
+Beperkte gegevens
+Door de operator ingevoerde waarden worden weergegeven zoals ze zijn geregistreerd en worden niet vertaald.
+Samenvatting
+Problemen
+Opslaan
+Annuleren
+Naam
+Merk
+Model
+Referentie
+Duur (seconden)
+Materiaal
+Transfermedium
+Aankopen herstellen
+Pro ontgrendelen
+Instructies bevestigen
+Eerste stuk goedgekeurd
+Productie starten
+Resultaat vastleggen
+De actie kon niet worden voltooid.
+OK
+Timer starten
+Timer pauzeren
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Weergave
+Systeem
+Licht
+Donker
+Workspace tools
+Create backup
+Share backup
+Import backup
+Roll back last restore
+Restore this backup
+Machine
+Vorige fase
+Volgende fase
+Aanpassen en opnieuw proberen
+Stop with note
+Save adjustment and retry
+Save note and stop
+Count items
+Laatste telling ongedaan maken
+Record totals when the run ends
+Reden voor pauze
+Runmodus
+Test run
+Production run
+Geplande hoeveelheid
+Werkreferentie
+Voortgang bijhouden
+Count during the run
+Record totals at the end
+I understand this setup is not proven
+Quality check
+Pass check
+Adjustment required
+End run early
+Quality check due
+Next quality check at %@ items
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Resultaat
+Alleen batch
+Update this setup
+Save as new variant
+Varianttitel
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Instructie
+Repeat count
+Plaatsingsactie
+Afwerkingsactie
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Onbekend
+Kleurverschuiving
+Spookbeeld
+Loskomende rand
+Hechting
+Schroeiplek
+Uitlijning
+Onvolledige overdracht
+Ongelijke warmte of druk
+Vocht
+Verschoven overdracht
+Verontreiniging
+Materiaaldefect
+Ontwerpinstelling
+Afdrukmateriaal
+Apparatuur of stroom
+Onderbroken
+Overig
+Warmte
+Tijd
+Overdracht
+Ondergrond
+Ontwerp
+Printer, inkt of papier
+Onderbreking door operator
+Niet-gestarte run verwijderen
+Deze niet-gestarte run verwijderen? Er wordt geen batchregistratie aangemaakt.
+Voer een geldig getal in.
+De aantallen per probleem moeten alle herbewerkte en afgekeurde eenheden omvatten.
+Selecteer of maak een machine voordat u doorgaat.
+Selecteer of maak een productie-instelling voordat u doorgaat.
+Rond de huidige gereserveerde run af of geef deze vrij voordat u deze registratie wijzigt.
+De run heeft niet de vereiste status voor die actie.
+De lokale opslag moet worden hersteld voordat deze actie kan doorgaan.
+De back-up kon niet worden geverifieerd of teruggezet.
+Herhalen
+‘Bewezen’ betekent kwalificerende, door de operator ingevoerde runs voor exact deze instelling. Het is geen validatie door de fabrikant, certificering of veiligheidsbeoordeling.
+Tekstgrootte
+Beheerd in iOS-instellingen
+Verminder beweging
+Onderscheid zonder kleur
+Ingeschakeld
+Uitgeschakeld
+Open iOS-instellingen
+Verwijder lokale gegevens
+Hiermee worden machines, setups, runs en lokale instellingen permanent van dit apparaat verwijderd. Je aankoop in de App Store wordt niet verwijderd.
+Wat is er anders aan deze taak?
+Exacte herhaling
+Dezelfde productvariant
+Wezenlijk ander materiaal
