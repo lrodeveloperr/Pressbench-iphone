@@ -1,0 +1,1318 @@
+{
+  "app.name": {
+    "context": "Common",
+    "source": "PressBench"
+  },
+  "common.back": {
+    "context": "Common",
+    "source": "Back"
+  },
+  "common.continue": {
+    "context": "Common",
+    "source": "Continue"
+  },
+  "common.openPressBench": {
+    "context": "Common",
+    "source": "Open PressBench"
+  },
+  "common.language": {
+    "context": "Common",
+    "source": "Language"
+  },
+  "common.selected": {
+    "context": "Common",
+    "source": "Selected"
+  },
+  "common.tapToSelect": {
+    "context": "Common",
+    "source": "Tap to select"
+  },
+  "common.all": {
+    "context": "Common",
+    "source": "All"
+  },
+  "common.units": {
+    "context": "Common",
+    "source": "Units"
+  },
+  "common.temperature": {
+    "context": "Common",
+    "source": "Temperature"
+  },
+  "common.pressure": {
+    "context": "Common",
+    "source": "Pressure"
+  },
+  "common.platen": {
+    "context": "Common",
+    "source": "Platen"
+  },
+  "common.process": {
+    "context": "Common",
+    "source": "Process"
+  },
+  "common.notes": {
+    "context": "Common",
+    "source": "Notes"
+  },
+  "common.notifications": {
+    "context": "Common",
+    "source": "Notifications"
+  },
+  "common.settings": {
+    "context": "Common",
+    "source": "Settings"
+  },
+  "common.support": {
+    "context": "Common",
+    "source": "Support"
+  },
+  "common.maintenance": {
+    "context": "Common",
+    "source": "Maintenance"
+  },
+  "common.analytics": {
+    "context": "Common",
+    "source": "Analytics"
+  },
+  "common.exports": {
+    "context": "Common",
+    "source": "Exports"
+  },
+  "common.accessibility": {
+    "context": "Common",
+    "source": "Accessibility"
+  },
+  "common.batchHistory": {
+    "context": "Common",
+    "source": "Batch History"
+  },
+  "common.privacyPolicy": {
+    "context": "Common",
+    "source": "Privacy Policy"
+  },
+  "common.termsOfUse": {
+    "context": "Common",
+    "source": "Terms of Use"
+  },
+  "common.safetyNotice": {
+    "context": "Common",
+    "source": "Safety Notice"
+  },
+  "common.heatPressSafetyNotice": {
+    "context": "Common",
+    "source": "Heat-Press Safety Notice"
+  },
+  "common.purchasesPro": {
+    "context": "Common",
+    "source": "Purchases & Pro Access"
+  },
+  "common.localDataBackups": {
+    "context": "Common",
+    "source": "Local Data & Backups"
+  },
+  "common.thirdPartyNotices": {
+    "context": "Common",
+    "source": "Third-Party Notices"
+  },
+  "tab.home": {
+    "context": "Navigation",
+    "source": "Home"
+  },
+  "tab.setups": {
+    "context": "Navigation",
+    "source": "Setups"
+  },
+  "tab.runs": {
+    "context": "Navigation",
+    "source": "Runs"
+  },
+  "tab.machines": {
+    "context": "Navigation",
+    "source": "Machines"
+  },
+  "tab.more": {
+    "context": "Navigation",
+    "source": "More"
+  },
+  "status.proven": {
+    "context": "Status",
+    "source": "Proven"
+  },
+  "status.trial": {
+    "context": "Status",
+    "source": "Trial"
+  },
+  "status.draft": {
+    "context": "Status",
+    "source": "Draft"
+  },
+  "status.archived": {
+    "context": "Status",
+    "source": "Archived"
+  },
+  "runState.running": {
+    "context": "Status",
+    "source": "Running"
+  },
+  "runState.completed": {
+    "context": "Status",
+    "source": "Completed"
+  },
+  "runState.draft": {
+    "context": "Status",
+    "source": "Draft"
+  },
+  "stage.placement": {
+    "context": "Process stage",
+    "source": "Placement"
+  },
+  "stage.prepress": {
+    "context": "Process stage",
+    "source": "Pre-press"
+  },
+  "stage.press": {
+    "context": "Process stage",
+    "source": "Press"
+  },
+  "stage.peel": {
+    "context": "Process stage",
+    "source": "Peel"
+  },
+  "stage.cool": {
+    "context": "Process stage",
+    "source": "Cool"
+  },
+  "stage.postpress": {
+    "context": "Process stage",
+    "source": "Post-press"
+  },
+  "onboarding.pageProgress": {
+    "context": "Onboarding",
+    "source": "%1$d of %2$d"
+  },
+  "onboarding.welcome.title": {
+    "context": "Onboarding",
+    "source": "Welcome to PressBench"
+  },
+  "onboarding.welcome.subtitle": {
+    "context": "Onboarding",
+    "source": "Repeatable setups. Recorded runs. Better production."
+  },
+  "onboarding.welcome.reuse.title": {
+    "context": "Onboarding",
+    "source": "Reuse proven setups"
+  },
+  "onboarding.welcome.reuse.body": {
+    "context": "Onboarding",
+    "source": "Keep successful process definitions organized and ready for the next run."
+  },
+  "onboarding.welcome.structure.title": {
+    "context": "Onboarding",
+    "source": "Run with structure"
+  },
+  "onboarding.welcome.structure.body": {
+    "context": "Onboarding",
+    "source": "Move through setup checks, first piece, production and result recording."
+  },
+  "onboarding.welcome.improve.title": {
+    "context": "Onboarding",
+    "source": "See what improves"
+  },
+  "onboarding.welcome.improve.body": {
+    "context": "Onboarding",
+    "source": "Track first-pass yield, rework and waste from the production records you create."
+  },
+  "onboarding.language.title": {
+    "context": "Onboarding",
+    "source": "Choose your language"
+  },
+  "onboarding.language.body": {
+    "context": "Onboarding",
+    "source": "We selected your iPhone language automatically. Choose another language now or change it later in Settings."
+  },
+  "onboarding.language.dropdownHint": {
+    "context": "Accessibility",
+    "source": "Opens the language dropdown"
+  },
+  "onboarding.process.title": {
+    "context": "Onboarding",
+    "source": "Built around your process"
+  },
+  "onboarding.process.body": {
+    "context": "Onboarding",
+    "source": "PressBench is more than a timer or recipe notebook. Each run keeps a traceable production history around the setup you actually used."
+  },
+  "onboarding.process.setup": {
+    "context": "Onboarding process",
+    "source": "Setup"
+  },
+  "onboarding.process.firstPiece": {
+    "context": "Onboarding process",
+    "source": "First piece"
+  },
+  "onboarding.process.production": {
+    "context": "Onboarding process",
+    "source": "Production"
+  },
+  "onboarding.process.result": {
+    "context": "Onboarding process",
+    "source": "Result"
+  },
+  "onboarding.process.proven": {
+    "context": "Onboarding process",
+    "source": "Proven"
+  },
+  "onboarding.legal.title": {
+    "context": "Onboarding",
+    "source": "Safety, terms & privacy"
+  },
+  "onboarding.legal.body": {
+    "context": "Onboarding",
+    "source": "PressBench records operator-entered production information. It does not inspect, measure, monitor or control your heat press."
+  },
+  "onboarding.legal.acceptTerms": {
+    "context": "Onboarding acknowledgement",
+    "source": "I agree to the Terms of Use"
+  },
+  "onboarding.legal.ackSafety": {
+    "context": "Onboarding acknowledgement",
+    "source": "I have read and acknowledge the Safety Notice"
+  },
+  "onboarding.legal.reviewPrivacy": {
+    "context": "Onboarding acknowledgement",
+    "source": "I have reviewed the Privacy Policy"
+  },
+  "onboarding.legal.policyLanguageNotice": {
+    "context": "Onboarding legal notice",
+    "source": "Policy pages are currently available in English."
+  },
+  "onboarding.temperature.title": {
+    "context": "Onboarding",
+    "source": "Choose your temperature unit"
+  },
+  "onboarding.temperature.body": {
+    "context": "Onboarding",
+    "source": "You can change this later in Settings. Confirm the unit before using production values."
+  },
+  "onboarding.temperature.fahrenheit": {
+    "context": "Unit name",
+    "source": "Fahrenheit"
+  },
+  "onboarding.temperature.celsius": {
+    "context": "Unit name",
+    "source": "Celsius"
+  },
+  "onboarding.ready.title": {
+    "context": "Onboarding",
+    "source": "Ready to build your first setup"
+  },
+  "onboarding.ready.body": {
+    "context": "Onboarding",
+    "source": "Start with the machine and process you actually use. PressBench keeps the setup, run and result connected."
+  },
+  "onboarding.ready.machine.title": {
+    "context": "Onboarding",
+    "source": "1. Add your first machine"
+  },
+  "onboarding.ready.machine.body": {
+    "context": "Onboarding",
+    "source": "Give the press a nickname and record its profile."
+  },
+  "onboarding.ready.setup.title": {
+    "context": "Onboarding",
+    "source": "2. Create a setup"
+  },
+  "onboarding.ready.setup.body": {
+    "context": "Onboarding",
+    "source": "Record the exact process and source information."
+  },
+  "onboarding.ready.run.title": {
+    "context": "Onboarding",
+    "source": "3. Record a run"
+  },
+  "onboarding.ready.run.body": {
+    "context": "Onboarding",
+    "source": "Confirm instructions, run production and save the result."
+  },
+  "home.greeting": {
+    "context": "Home",
+    "source": "Welcome back"
+  },
+  "home.startRun.title": {
+    "context": "Home",
+    "source": "Start New Run"
+  },
+  "home.startRun.body": {
+    "context": "Home",
+    "source": "Begin a new production run"
+  },
+  "home.metric.setups": {
+    "context": "Home metric",
+    "source": "Setups"
+  },
+  "home.metric.batches": {
+    "context": "Home metric",
+    "source": "Batches"
+  },
+  "home.metric.firstPass": {
+    "context": "Home metric",
+    "source": "First-pass"
+  },
+  "home.metric.waste": {
+    "context": "Home metric",
+    "source": "Waste"
+  },
+  "home.recentSetups": {
+    "context": "Home",
+    "source": "Recent Setups"
+  },
+  "home.viewAll": {
+    "context": "Home",
+    "source": "View All"
+  },
+  "home.legal.title": {
+    "context": "Home",
+    "source": "Legal & Safety"
+  },
+  "home.legal.body": {
+    "context": "Home",
+    "source": "Official PressBench policies and safety information."
+  },
+  "home.legal.privacy": {
+    "context": "Home link",
+    "source": "Privacy"
+  },
+  "home.legal.terms": {
+    "context": "Home link",
+    "source": "Terms"
+  },
+  "home.legal.safety": {
+    "context": "Home link",
+    "source": "Safety"
+  },
+  "setups.title": {
+    "context": "Setups",
+    "source": "Setups"
+  },
+  "setups.search": {
+    "context": "Setups",
+    "source": "Search setups"
+  },
+  "setups.cleanRunsCount": {
+    "context": "Setups",
+    "source": "Clean runs: %d"
+  },
+  "setups.recordedRunsCount": {
+    "context": "Setups",
+    "source": "Recorded runs: %d"
+  },
+  "setups.notProven": {
+    "context": "Setups",
+    "source": "Not yet proven"
+  },
+  "setup.title": {
+    "context": "Setup detail",
+    "source": "Setup"
+  },
+  "setup.startRun": {
+    "context": "Setup detail",
+    "source": "Start Run"
+  },
+  "setup.lastProven": {
+    "context": "Setup detail",
+    "source": "Last proven"
+  },
+  "setup.cleanRuns": {
+    "context": "Setup detail",
+    "source": "Clean runs"
+  },
+  "setup.firstPass": {
+    "context": "Setup detail",
+    "source": "First-pass"
+  },
+  "runs.title": {
+    "context": "Runs",
+    "source": "Runs"
+  },
+  "runs.unitsProgress": {
+    "context": "Runs",
+    "source": "%1$d / %2$d"
+  },
+  "runs.stageProgress": {
+    "context": "Runs",
+    "source": "Stage %1$d / %2$d"
+  },
+  "runs.activeRun": {
+    "context": "Runs",
+    "source": "Active Run"
+  },
+  "runs.batch": {
+    "context": "Runs",
+    "source": "Batch"
+  },
+  "runs.resume": {
+    "context": "Runs action",
+    "source": "Resume Run"
+  },
+  "runs.pause": {
+    "context": "Runs action",
+    "source": "Pause Run"
+  },
+  "runs.end": {
+    "context": "Runs action",
+    "source": "End Run"
+  },
+  "machines.title": {
+    "context": "Machines",
+    "source": "Machines"
+  },
+  "machines.available": {
+    "context": "Machines status",
+    "source": "Available"
+  },
+  "machines.inUse": {
+    "context": "Machines status",
+    "source": "In use"
+  },
+  "machines.calibrationDue": {
+    "context": "Machines",
+    "source": "Timer calibration due"
+  },
+  "more.title": {
+    "context": "More",
+    "source": "More"
+  },
+  "more.versionFormat": {
+    "context": "More",
+    "source": "PressBench %@"
+  },
+  "more.viewOnboarding": {
+    "context": "More",
+    "source": "View onboarding again"
+  },
+  "settings.title": {
+    "context": "Settings",
+    "source": "Settings"
+  },
+  "settings.general": {
+    "context": "Settings",
+    "source": "General"
+  },
+  "settings.temperatureUnit": {
+    "context": "Settings",
+    "source": "Temperature unit"
+  },
+  "settings.legalSupport": {
+    "context": "Settings",
+    "source": "Legal & support"
+  },
+  "language.footer": {
+    "context": "Language settings",
+    "source": "The app follows this language preference. You can change it at any time."
+  },
+  "language.search": {
+    "context": "Language settings",
+    "source": "Search languages"
+  },
+  "language.selected": {
+    "context": "Accessibility",
+    "source": "Selected"
+  },
+  "report.productionReport": {
+    "context": "Report",
+    "source": "Production Report"
+  },
+  "report.generatedBy": {
+    "context": "Report",
+    "source": "Generated by PressBench"
+  },
+  "report.reportingPeriod": {
+    "context": "Report",
+    "source": "Reporting period"
+  },
+  "report.executiveSummary": {
+    "context": "Report",
+    "source": "Executive summary"
+  },
+  "report.runPerformance": {
+    "context": "Report",
+    "source": "Run performance"
+  },
+  "report.issuesExceptions": {
+    "context": "Report",
+    "source": "Issues & exceptions"
+  },
+  "report.setupDefinitions": {
+    "context": "Report",
+    "source": "Setup definitions"
+  },
+  "report.sampleSize": {
+    "context": "Report",
+    "source": "Sample size"
+  },
+  "report.unitsProcessed": {
+    "context": "Report",
+    "source": "Units processed"
+  },
+  "report.firstPassYield": {
+    "context": "Report",
+    "source": "First-pass yield"
+  },
+  "report.finalYield": {
+    "context": "Report",
+    "source": "Final yield"
+  },
+  "report.reworkRate": {
+    "context": "Report",
+    "source": "Rework rate"
+  },
+  "report.wasteRate": {
+    "context": "Report",
+    "source": "Waste rate"
+  },
+  "report.reworkedUnits": {
+    "context": "Report",
+    "source": "Reworked units"
+  },
+  "report.wasteUnits": {
+    "context": "Report",
+    "source": "Waste units"
+  },
+  "report.outcomeMix": {
+    "context": "Report",
+    "source": "Outcome mix"
+  },
+  "report.date": {
+    "context": "Report header",
+    "source": "Date"
+  },
+  "report.batch": {
+    "context": "Report header",
+    "source": "Batch"
+  },
+  "report.setup": {
+    "context": "Report header",
+    "source": "Setup"
+  },
+  "report.processed": {
+    "context": "Report header",
+    "source": "Processed"
+  },
+  "report.firstPass": {
+    "context": "Report header",
+    "source": "First-pass"
+  },
+  "report.final": {
+    "context": "Report header",
+    "source": "Final"
+  },
+  "report.outcome": {
+    "context": "Report header",
+    "source": "Outcome"
+  },
+  "report.symptom": {
+    "context": "Report header",
+    "source": "Symptom"
+  },
+  "report.suspectedCause": {
+    "context": "Report header",
+    "source": "Suspected cause"
+  },
+  "report.disposition": {
+    "context": "Report header",
+    "source": "Disposition"
+  },
+  "report.quantity": {
+    "context": "Report header",
+    "source": "Quantity"
+  },
+  "report.note": {
+    "context": "Report header",
+    "source": "Note"
+  },
+  "report.materialTransfer": {
+    "context": "Report",
+    "source": "Material / transfer"
+  },
+  "report.machinePlaten": {
+    "context": "Report",
+    "source": "Machine / platen"
+  },
+  "report.pressStage": {
+    "context": "Report",
+    "source": "Press stage"
+  },
+  "report.instructionSource": {
+    "context": "Report",
+    "source": "Instruction source"
+  },
+  "report.sourceChecked": {
+    "context": "Report",
+    "source": "Source checked"
+  },
+  "report.noIssues": {
+    "context": "Report",
+    "source": "No issues recorded"
+  },
+  "report.lowData": {
+    "context": "Report",
+    "source": "Limited data"
+  },
+  "report.operatorValuesNotice": {
+    "context": "Report notice",
+    "source": "Operator-entered values are reproduced as recorded and are not translated."
+  },
+  "report.sheet.summary": {
+    "context": "Workbook sheet",
+    "source": "Summary"
+  },
+  "report.sheet.runs": {
+    "context": "Workbook sheet",
+    "source": "Runs"
+  },
+  "report.sheet.setups": {
+    "context": "Workbook sheet",
+    "source": "Setups"
+  },
+  "report.sheet.issues": {
+    "context": "Workbook sheet",
+    "source": "Issues"
+  },
+  "common.save": {
+    "context": "Production UI",
+    "source": "Save"
+  },
+  "common.cancel": {
+    "context": "Production UI",
+    "source": "Cancel"
+  },
+  "common.name": {
+    "context": "Production UI",
+    "source": "Name"
+  },
+  "common.brand": {
+    "context": "Production UI",
+    "source": "Brand"
+  },
+  "common.model": {
+    "context": "Production UI",
+    "source": "Model"
+  },
+  "common.reference": {
+    "context": "Production UI",
+    "source": "Reference"
+  },
+  "common.durationSeconds": {
+    "context": "Production UI",
+    "source": "Duration (seconds)"
+  },
+  "common.material": {
+    "context": "Production UI",
+    "source": "Material"
+  },
+  "common.transferMedium": {
+    "context": "Production UI",
+    "source": "Transfer medium"
+  },
+  "common.restorePurchases": {
+    "context": "Production UI",
+    "source": "Restore Purchases"
+  },
+  "common.unlockPro": {
+    "context": "Production UI",
+    "source": "Unlock Pro"
+  },
+  "run.confirmInstructions": {
+    "context": "Production UI",
+    "source": "Confirm instructions"
+  },
+  "run.firstPiecePass": {
+    "context": "Production UI",
+    "source": "First piece passed"
+  },
+  "run.startProduction": {
+    "context": "Production UI",
+    "source": "Start production"
+  },
+  "run.recordResult": {
+    "context": "Production UI",
+    "source": "Record result"
+  },
+  "common.actionFailed": {
+    "context": "Production UI",
+    "source": "Couldn’t complete that action."
+  },
+  "common.ok": {
+    "context": "Production UI",
+    "source": "OK"
+  },
+  "run.startTimer": {
+    "context": "Active Run",
+    "source": "Start timer"
+  },
+  "run.pauseTimer": {
+    "context": "Active Run",
+    "source": "Pause timer"
+  },
+  "settings.subtitle": {
+    "context": "Native operator workflow and settings",
+    "source": "Language, units, feedback, backups, and support"
+  },
+  "settings.storageRecoveryRequired": {
+    "context": "Native operator workflow and settings",
+    "source": "Storage recovery required"
+  },
+  "settings.hapticFeedback": {
+    "context": "Native operator workflow and settings",
+    "source": "Haptic feedback"
+  },
+  "settings.timerSound": {
+    "context": "Native operator workflow and settings",
+    "source": "Timer sound"
+  },
+  "settings.appearance": {
+    "context": "Settings",
+    "source": "Appearance"
+  },
+  "settings.theme.system": {
+    "context": "Native operator workflow and settings",
+    "source": "System"
+  },
+  "settings.theme.light": {
+    "context": "Native operator workflow and settings",
+    "source": "Light"
+  },
+  "settings.theme.dark": {
+    "context": "Native operator workflow and settings",
+    "source": "Dark"
+  },
+  "settings.workspaceTools": {
+    "context": "Native operator workflow and settings",
+    "source": "Workspace tools"
+  },
+  "settings.createBackup": {
+    "context": "Native operator workflow and settings",
+    "source": "Create backup"
+  },
+  "settings.shareBackup": {
+    "context": "Native operator workflow and settings",
+    "source": "Share backup"
+  },
+  "settings.rollbackRestore": {
+    "context": "Native operator workflow and settings",
+    "source": "Roll back last restore"
+  },
+  "settings.restoreBackup": {
+    "context": "Native operator workflow and settings",
+    "source": "Restore this backup"
+  },
+  "run.machine": {
+    "context": "Native operator workflow and settings",
+    "source": "Machine"
+  },
+  "run.previousStage": {
+    "context": "Native operator workflow and settings",
+    "source": "Previous stage"
+  },
+  "run.nextStage": {
+    "context": "Native operator workflow and settings",
+    "source": "Next stage"
+  },
+  "run.adjustRetry": {
+    "context": "Native operator workflow and settings",
+    "source": "Adjust and retry"
+  },
+  "run.stopWithNote": {
+    "context": "Native operator workflow and settings",
+    "source": "Stop with note"
+  },
+  "run.saveAdjustmentRetry": {
+    "context": "Native operator workflow and settings",
+    "source": "Save adjustment and retry"
+  },
+  "run.saveNoteStop": {
+    "context": "Native operator workflow and settings",
+    "source": "Save note and stop"
+  },
+  "run.countItems": {
+    "context": "Native operator workflow and settings",
+    "source": "Count items"
+  },
+  "run.undoLastCount": {
+    "context": "Native operator workflow and settings",
+    "source": "Undo last count"
+  },
+  "run.finalTotalsMode": {
+    "context": "Native operator workflow and settings",
+    "source": "Record totals when the run ends"
+  },
+  "run.pauseReason": {
+    "context": "Native operator workflow and settings",
+    "source": "Pause reason"
+  },
+  "run.mode": {
+    "context": "Native operator workflow and settings",
+    "source": "Run mode"
+  },
+  "run.mode.test": {
+    "context": "Native operator workflow and settings",
+    "source": "Test run"
+  },
+  "run.mode.production": {
+    "context": "Native operator workflow and settings",
+    "source": "Production run"
+  },
+  "run.plannedQuantity": {
+    "context": "Native operator workflow and settings",
+    "source": "Planned quantity"
+  },
+  "run.jobReference": {
+    "context": "Native operator workflow and settings",
+    "source": "Job reference"
+  },
+  "run.progressTracking": {
+    "context": "Native operator workflow and settings",
+    "source": "Progress tracking"
+  },
+  "run.progress.live": {
+    "context": "Native operator workflow and settings",
+    "source": "Count during the run"
+  },
+  "run.progress.final": {
+    "context": "Native operator workflow and settings",
+    "source": "Record totals at the end"
+  },
+  "run.confirmUnproven": {
+    "context": "Native operator workflow and settings",
+    "source": "I understand this setup is not proven"
+  },
+  "qc.title": {
+    "context": "Native operator workflow and settings",
+    "source": "Quality check"
+  },
+  "qc.pass": {
+    "context": "Native operator workflow and settings",
+    "source": "Pass check"
+  },
+  "qc.adjust": {
+    "context": "Native operator workflow and settings",
+    "source": "Adjustment required"
+  },
+  "qc.endEarly": {
+    "context": "Native operator workflow and settings",
+    "source": "End run early"
+  },
+  "qc.due": {
+    "context": "Native operator workflow and settings",
+    "source": "Quality check due"
+  },
+  "qc.nextAt": {
+    "context": "Native operator workflow and settings",
+    "source": "Next quality check at %@ items"
+  },
+  "result.allGood": {
+    "context": "Native operator workflow and settings",
+    "source": "All planned units were good"
+  },
+  "result.allGoodHelp": {
+    "context": "Native operator workflow and settings",
+    "source": "Confirms zero rework, zero waste, and no issues."
+  },
+  "result.saveOutcome": {
+    "context": "Native operator workflow and settings",
+    "source": "Save outcome"
+  },
+  "result.batchOnly": {
+    "context": "Native operator workflow and settings",
+    "source": "Batch only"
+  },
+  "result.updateSetup": {
+    "context": "Native operator workflow and settings",
+    "source": "Update this setup"
+  },
+  "result.saveVariant": {
+    "context": "Native operator workflow and settings",
+    "source": "Save as new variant"
+  },
+  "result.variantTitle": {
+    "context": "Native operator workflow and settings",
+    "source": "Variant title"
+  },
+  "issue.title": {
+    "context": "Native operator workflow and settings",
+    "source": "Issue"
+  },
+  "issue.add": {
+    "context": "Native operator workflow and settings",
+    "source": "Add issue"
+  },
+  "issue.disposition.discarded": {
+    "context": "Native operator workflow and settings",
+    "source": "Discarded"
+  },
+  "issue.disposition.reworked": {
+    "context": "Native operator workflow and settings",
+    "source": "Reworked"
+  },
+  "setup.defaultQuantity": {
+    "context": "Native operator workflow and settings",
+    "source": "Default quantity"
+  },
+  "stage.stage": {
+    "context": "Native operator workflow and settings",
+    "source": "Stage"
+  },
+  "stage.type": {
+    "context": "Native operator workflow and settings",
+    "source": "Stage type"
+  },
+  "stage.name": {
+    "context": "Native operator workflow and settings",
+    "source": "Stage name"
+  },
+  "stage.instruction": {
+    "context": "Native operator workflow and settings",
+    "source": "Instruction"
+  },
+  "stage.repeatCount": {
+    "context": "Native operator workflow and settings",
+    "source": "Repeat count"
+  },
+  "stage.placementAction": {
+    "context": "Native operator workflow and settings",
+    "source": "Placement action"
+  },
+  "stage.finishAction": {
+    "context": "Native operator workflow and settings",
+    "source": "Finish action"
+  },
+  "stage.moveUp": {
+    "context": "Native operator workflow and settings",
+    "source": "Move stage up"
+  },
+  "stage.moveDown": {
+    "context": "Native operator workflow and settings",
+    "source": "Move stage down"
+  },
+  "stage.remove": {
+    "context": "Native operator workflow and settings",
+    "source": "Remove stage"
+  },
+  "stage.add": {
+    "context": "Native operator workflow and settings",
+    "source": "Add stage"
+  },
+  "issue.symptom.unknown": {
+    "context": "Native operator workflow and settings",
+    "source": "Unknown"
+  },
+  "issue.symptom.color_shift": {
+    "context": "Native operator workflow and settings",
+    "source": "Color shift"
+  },
+  "issue.symptom.ghosting": {
+    "context": "Native operator workflow and settings",
+    "source": "Ghosting"
+  },
+  "issue.symptom.edge_lift": {
+    "context": "Native operator workflow and settings",
+    "source": "Edge lift"
+  },
+  "issue.symptom.adhesion": {
+    "context": "Native operator workflow and settings",
+    "source": "Adhesion"
+  },
+  "issue.symptom.scorch": {
+    "context": "Native operator workflow and settings",
+    "source": "Scorch"
+  },
+  "issue.symptom.alignment": {
+    "context": "Native operator workflow and settings",
+    "source": "Alignment"
+  },
+  "issue.symptom.incomplete_transfer": {
+    "context": "Native operator workflow and settings",
+    "source": "Incomplete transfer"
+  },
+  "issue.symptom.uneven_heat_pressure": {
+    "context": "Native operator workflow and settings",
+    "source": "Uneven heat or pressure"
+  },
+  "issue.symptom.moisture": {
+    "context": "Native operator workflow and settings",
+    "source": "Moisture"
+  },
+  "issue.symptom.transfer_shift": {
+    "context": "Native operator workflow and settings",
+    "source": "Transfer shift"
+  },
+  "issue.symptom.contamination": {
+    "context": "Native operator workflow and settings",
+    "source": "Contamination"
+  },
+  "issue.symptom.substrate_defect": {
+    "context": "Native operator workflow and settings",
+    "source": "Substrate defect"
+  },
+  "issue.symptom.design_setup": {
+    "context": "Native operator workflow and settings",
+    "source": "Design setup"
+  },
+  "issue.symptom.print_supply": {
+    "context": "Native operator workflow and settings",
+    "source": "Print supply"
+  },
+  "issue.symptom.equipment_power": {
+    "context": "Native operator workflow and settings",
+    "source": "Equipment or power"
+  },
+  "issue.symptom.interrupted": {
+    "context": "Native operator workflow and settings",
+    "source": "Interrupted"
+  },
+  "issue.symptom.other": {
+    "context": "Native operator workflow and settings",
+    "source": "Other"
+  },
+  "issue.cause.unknown": {
+    "context": "Native operator workflow and settings",
+    "source": "Unknown"
+  },
+  "issue.cause.heat": {
+    "context": "Native operator workflow and settings",
+    "source": "Heat"
+  },
+  "issue.cause.pressure": {
+    "context": "Native operator workflow and settings",
+    "source": "Pressure"
+  },
+  "issue.cause.time": {
+    "context": "Native operator workflow and settings",
+    "source": "Time"
+  },
+  "issue.cause.moisture": {
+    "context": "Native operator workflow and settings",
+    "source": "Moisture"
+  },
+  "issue.cause.placement": {
+    "context": "Native operator workflow and settings",
+    "source": "Placement"
+  },
+  "issue.cause.transfer": {
+    "context": "Native operator workflow and settings",
+    "source": "Transfer"
+  },
+  "issue.cause.substrate": {
+    "context": "Native operator workflow and settings",
+    "source": "Substrate"
+  },
+  "issue.cause.design": {
+    "context": "Native operator workflow and settings",
+    "source": "Design"
+  },
+  "issue.cause.printer_ink_paper": {
+    "context": "Native operator workflow and settings",
+    "source": "Printer, ink, or paper"
+  },
+  "issue.cause.equipment_power": {
+    "context": "Native operator workflow and settings",
+    "source": "Equipment or power"
+  },
+  "issue.cause.operator_interruption": {
+    "context": "Native operator workflow and settings",
+    "source": "Operator interruption"
+  },
+  "issue.cause.other": {
+    "context": "Native operator workflow and settings",
+    "source": "Other"
+  },
+  "run.discardUnstarted": {
+    "context": "Run",
+    "source": "Discard unstarted run"
+  },
+  "run.discardUnstartedConfirm": {
+    "context": "Run",
+    "source": "Discard this unstarted run? No batch record will be created."
+  },
+  "error.invalidNumber": {
+    "context": "Validation error",
+    "source": "Enter a valid number."
+  },
+  "error.issueCoverage": {
+    "context": "Validation error",
+    "source": "Issue quantities must cover all reworked and waste units."
+  },
+  "error.machineRequired": {
+    "context": "Validation error",
+    "source": "Select or create a machine before continuing."
+  },
+  "error.setupRequired": {
+    "context": "Validation error",
+    "source": "Select or create a production setup before continuing."
+  },
+  "error.activeRunConflict": {
+    "context": "Validation error",
+    "source": "Finish or release the current reserved run before changing this record."
+  },
+  "error.runState": {
+    "context": "Validation error",
+    "source": "The run is not in the required state for that action."
+  },
+  "error.storageRecovery": {
+    "context": "Validation error",
+    "source": "Local storage needs recovery before this action can continue."
+  },
+  "error.backupRestore": {
+    "context": "Validation error",
+    "source": "The backup could not be verified or restored."
+  },
+  "stage.repeat": {
+    "context": "Stage",
+    "source": "Repeat"
+  },
+  "setup.provenBoundary": {
+    "context": "Setup evidence boundary",
+    "source": "Proven means qualifying operator-entered runs for this exact setup. It is not manufacturer validation, certification, or a safety determination."
+  },
+  "appearance.system": {
+    "context": "Appearance",
+    "source": "System"
+  },
+  "appearance.light": {
+    "context": "Appearance",
+    "source": "Light"
+  },
+  "appearance.dark": {
+    "context": "Appearance",
+    "source": "Dark"
+  },
+  "accessibility.textSize": {
+    "context": "Accessibility",
+    "source": "Text size"
+  },
+  "accessibility.systemManaged": {
+    "context": "Accessibility",
+    "source": "Managed in iOS Settings"
+  },
+  "accessibility.reduceMotion": {
+    "context": "Accessibility",
+    "source": "Reduce Motion"
+  },
+  "accessibility.differentiateWithoutColor": {
+    "context": "Accessibility",
+    "source": "Differentiate Without Color"
+  },
+  "accessibility.enabled": {
+    "context": "Accessibility",
+    "source": "Enabled"
+  },
+  "accessibility.disabled": {
+    "context": "Accessibility",
+    "source": "Disabled"
+  },
+  "accessibility.openSettings": {
+    "context": "Accessibility action",
+    "source": "Open iOS Settings"
+  },
+  "settings.deleteLocalData": {
+    "context": "Settings destructive action",
+    "source": "Delete Local Data"
+  },
+  "settings.deleteLocalDataMessage": {
+    "context": "Settings destructive confirmation",
+    "source": "This permanently deletes machines, setups, runs, and local settings from this device. Your App Store purchase is not deleted."
+  },
+  "run.jobDifference": {
+    "context": "Pre-run reuse selection",
+    "source": "How is this job different?"
+  },
+  "run.exactRepeat": {
+    "context": "Pre-run reuse selection",
+    "source": "Exact repeat"
+  },
+  "run.sameProductVariant": {
+    "context": "Pre-run reuse selection",
+    "source": "Same product variant"
+  },
+  "run.materiallyDifferent": {
+    "context": "Pre-run reuse selection",
+    "source": "Materially different"
+  },
+  "common.continueWithoutSigningIn": {
+    "context": "Optional account action",
+    "source": "Continue without signing in"
+  },
+  "backup.title": {
+    "context": "Apple backup settings",
+    "source": "Apple & iCloud Backup"
+  },
+  "backup.onboardingTitle": {
+    "context": "Apple backup onboarding",
+    "source": "Keep your PressBench data backed up"
+  },
+  "backup.onboardingBody": {
+    "context": "Apple backup onboarding",
+    "source": "Optional. Sign in with Apple to keep a private backup in your iCloud storage. You can continue without signing in."
+  },
+  "backup.settingsBody": {
+    "context": "Apple backup settings",
+    "source": "Sign in with Apple to enable automatic backup in your private iCloud storage."
+  },
+  "backup.enabled": {
+    "context": "Apple backup status",
+    "source": "Backup enabled"
+  },
+  "backup.checking": {
+    "context": "Apple backup status",
+    "source": "Checking backup status…"
+  },
+  "backup.lastBackup": {
+    "context": "Apple backup status",
+    "source": "Last backup"
+  },
+  "backup.never": {
+    "context": "Apple backup status",
+    "source": "No backup created yet"
+  },
+  "backup.backUpNow": {
+    "context": "Apple backup action",
+    "source": "Back up now"
+  },
+  "backup.restore": {
+    "context": "Apple backup action",
+    "source": "Restore from iCloud"
+  },
+  "backup.turnOff": {
+    "context": "Apple backup action",
+    "source": "Turn off backup"
+  },
+  "backup.restoreWarning": {
+    "context": "Apple backup confirmation",
+    "source": "Restoring replaces this device's machines, setups, runs, and settings. Your purchase is not affected."
+  },
+  "backup.turnOffWarning": {
+    "context": "Apple backup confirmation",
+    "source": "Automatic backup will stop. The existing backup will remain in your private iCloud storage."
+  },
+  "backup.authorizationFailed": {
+    "context": "Apple backup error",
+    "source": "Apple authorization could not be verified. Try signing in again."
+  },
+  "backup.unavailable": {
+    "context": "Apple backup error",
+    "source": "iCloud backup is unavailable. Check your iCloud Drive settings and try again."
+  },
+  "backup.notFound": {
+    "context": "Apple backup error",
+    "source": "No iCloud backup was found."
+  },
+  "backup.delete": {
+    "context": "Apple backup action",
+    "source": "Delete iCloud backup"
+  },
+  "backup.deleteWarning": {
+    "context": "Apple backup confirmation",
+    "source": "This permanently deletes the backup from your iCloud storage. Data on this device is not deleted."
+  }
+}

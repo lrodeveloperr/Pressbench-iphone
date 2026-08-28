@@ -1,0 +1,304 @@
+PressBench
+Atrás
+Continuar
+Abrir PressBench
+Idioma
+Seleccionado
+Toca para seleccionar
+Todos
+Unidades
+Temperatura
+Presión
+Plato
+Proceso
+Notas
+Notificaciones
+Ajustes
+Soporte
+Mantenimiento
+Análisis
+Exportaciones
+Accesibilidad
+Historial de lotes
+Política de privacidad
+Términos de uso
+Aviso de seguridad
+Aviso de seguridad de la prensa térmica
+Compras y acceso Pro
+Datos locales y copias de seguridad
+Avisos de terceros
+Inicio
+Configuraciones
+Ejecuciones
+Máquinas
+Más
+Probado
+En prueba
+Borrador
+Archivado
+En curso
+Completado
+Colocación
+Preprensado
+Prensado
+Despegado
+Enfriado
+Posprensado
+%1$d de %2$d
+Te damos la bienvenida a PressBench
+Configuraciones repetibles. Ejecuciones registradas. Mejor producción.
+Reutiliza configuraciones probadas
+Mantén organizadas las definiciones de proceso que han funcionado y listas para la próxima ejecución.
+Trabaja con una secuencia clara
+Avanza por las comprobaciones de configuración, la primera pieza, la producción y el registro del resultado.
+Identifica qué mejora
+Controla el rendimiento a la primera, el retrabajo y el desperdicio a partir de los registros de producción que creas.
+Elige tu idioma
+Hemos seleccionado automáticamente el idioma de tu iPhone. Elige otro ahora o cámbialo más tarde en Ajustes.
+Abre el menú desplegable de idiomas
+Diseñado alrededor de tu proceso
+PressBench es más que un temporizador o un cuaderno de recetas. Cada ejecución conserva un historial de producción trazable basado en la configuración que realmente usaste.
+Configuración
+Primera pieza
+Producción
+Resultado
+Seguridad, términos y privacidad
+PressBench registra la información de producción introducida por el operador. No inspecciona, mide, supervisa ni controla tu prensa térmica.
+Acepto los Términos de uso
+He leído y reconozco el Aviso de seguridad
+He revisado la Política de privacidad
+Las páginas de las políticas están disponibles actualmente en inglés.
+Elige la unidad de temperatura
+Puedes cambiarla más tarde en Ajustes. Confirma la unidad antes de usar valores de producción.
+Fahrenheit
+Celsius
+Todo listo para crear tu primera configuración
+Empieza con la máquina y el proceso que realmente utilizas. PressBench mantiene conectados la configuración, la ejecución y el resultado.
+1. Añade tu primera máquina
+Ponle un nombre a la prensa y registra su perfil.
+2. Crea una configuración
+Registra el proceso exacto y la información de la fuente.
+3. Registra una ejecución
+Confirma las instrucciones, realiza la producción y guarda el resultado.
+Te damos la bienvenida de nuevo
+Iniciar nueva ejecución
+Comienza una nueva ejecución de producción
+Lotes
+A la primera
+Desperdicio
+Configuraciones recientes
+Ver todo
+Aspectos legales y seguridad
+Políticas oficiales de PressBench e información de seguridad.
+Privacidad
+Términos
+Seguridad
+Buscar configuraciones
+Ejecuciones sin incidencias: %d
+Ejecuciones registradas: %d
+Aún no probado
+Iniciar ejecución
+Última prueba
+Ejecuciones sin incidencias
+%1$d / %2$d
+Etapa %1$d / %2$d
+Ejecución activa
+Lote
+Reanudar ejecución
+Pausar ejecución
+Finalizar ejecución
+Disponible
+En uso
+Calibración del temporizador pendiente
+PressBench %@
+Ver la introducción de nuevo
+General
+Unidad de temperatura
+Aspectos legales y soporte
+La aplicación usa esta preferencia de idioma. Puedes cambiarla en cualquier momento.
+Buscar idiomas
+Informe de producción
+Generado por PressBench
+Periodo del informe
+Resumen ejecutivo
+Rendimiento de las ejecuciones
+Problemas y excepciones
+Definiciones de configuración
+Tamaño de la muestra
+Unidades procesadas
+Rendimiento a la primera
+Rendimiento final
+Tasa de retrabajo
+Tasa de desperdicio
+Unidades retrabajadas
+Unidades desperdiciadas
+Distribución de resultados
+Fecha
+Procesado
+Final
+Resultado
+Síntoma
+Causa sospechada
+Disposición
+Cantidad
+Nota
+Material / transferencia
+Máquina / plato
+Etapa de prensado
+Fuente de instrucciones
+Fuente revisada
+No se registraron problemas
+Datos limitados
+Los valores introducidos por el operador se reproducen tal como se registraron y no se traducen.
+Resumen
+Problemas
+Guardar
+Cancelar
+Nombre
+Marca
+Modelo
+Referencia
+Duración (segundos)
+Material
+Medio de transferencia
+Restaurar compras
+Desbloquear Pro
+Confirmar instrucciones
+Primera pieza aprobada
+Iniciar producción
+Registrar resultado
+No se pudo completar la acción.
+Aceptar
+Iniciar temporizador
+Pausar temporizador
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Apariencia
+Sistema
+Claro
+Oscuro
+Workspace tools
+Create backup
+Share backup
+Roll back last restore
+Restore this backup
+Machine
+Etapa anterior
+Siguiente etapa
+Ajustar y volver a intentar
+Stop with note
+Save adjustment and retry
+Save note and stop
+Contar unidades
+Deshacer último conteo
+Registrar totales al finalizar
+Motivo de la pausa
+Modo de ejecución
+Ejecución de prueba
+Ejecución de producción
+Cantidad planificada
+Referencia del trabajo
+Seguimiento del progreso
+Contar durante la ejecución
+Registrar totales al final
+Acepto usar esta configuración no validada
+Control de calidad
+Aprobar control
+Ajuste necesario
+Finalizar ejecución antes
+Control de calidad pendiente
+Próximo control de calidad a las %@ unidades
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Resultado
+Solo lote
+Update this setup
+Save as new variant
+Título de variante
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Instrucción
+Repeat count
+Acción de colocación
+Acción de acabado
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Desconocido
+Cambio de color
+Imagen fantasma
+Levantamiento del borde
+Adhesión
+Quemadura
+Alineación
+Transferencia incompleta
+Calor o presión desiguales
+Humedad
+Desplazamiento de la transferencia
+Contaminación
+Defecto del sustrato
+Configuración del diseño
+Suministro de impresión
+Equipo o alimentación
+Interrumpido
+Otro
+Calor
+Tiempo
+Transferencia
+Sustrato
+Diseño
+Impresora, tinta o papel
+Interrupción del operador
+Descartar tirada no iniciada
+¿Descartar esta tirada no iniciada? No se creará ningún registro de lote.
+Introduzca un número válido.
+Las cantidades de incidencias deben cubrir todas las unidades retrabajadas y desperdiciadas.
+Seleccione o cree una máquina antes de continuar.
+Seleccione o cree una configuración de producción antes de continuar.
+Finalice o libere la tirada reservada actual antes de modificar este registro.
+La tirada no se encuentra en el estado requerido para esa acción.
+El almacenamiento local debe recuperarse antes de poder continuar con esta acción.
+No se pudo verificar ni restaurar la copia de seguridad.
+Repetir
+“Proven” significa ejecuciones válidas introducidas por el operador para esta configuración exacta. No es una validación del fabricante, una certificación ni una determinación de seguridad.
+Tamaño del texto
+Se gestiona en Ajustes de iOS
+Reducir movimiento
+Diferenciar sin color
+Activado
+Desactivado
+Abrir Ajustes de iOS
+Eliminar datos locales
+Esto elimina de forma permanente las máquinas, las configuraciones, las tiradas y los ajustes locales de este dispositivo. Tu compra en el App Store no se elimina.
+¿En qué se diferencia este trabajo?
+Repetición exacta
+Misma variante de producto
+Material sustancialmente diferente
+Continuar sin iniciar sesión
+Copia de seguridad de Apple e iCloud
+Mantén una copia de seguridad de tus datos de PressBench
+Opcional. Inicia sesión con Apple para guardar una copia de seguridad privada en tu almacenamiento de iCloud. Puedes continuar sin iniciar sesión.
+Inicia sesión con Apple para activar la copia de seguridad automática en tu almacenamiento privado de iCloud.
+Copia de seguridad activada
+Comprobando el estado de la copia de seguridad…
+Última copia de seguridad
+Aún no se ha creado ninguna copia de seguridad
+Crear copia ahora
+Restaurar desde iCloud
+Desactivar copia de seguridad
+La restauración sustituirá las máquinas, configuraciones, ejecuciones y ajustes de este dispositivo. Tu compra no se verá afectada.
+La copia de seguridad automática se detendrá. La copia existente permanecerá en tu almacenamiento privado de iCloud.
+No se pudo verificar la autorización de Apple. Intenta iniciar sesión de nuevo.
+La copia de seguridad de iCloud no está disponible. Comprueba los ajustes de iCloud Drive e inténtalo de nuevo.
+No se encontró ninguna copia de seguridad de iCloud.
+Eliminar copia de seguridad de iCloud
+Esto elimina permanentemente la copia de seguridad de tu almacenamiento de iCloud. Los datos de este dispositivo no se eliminan.

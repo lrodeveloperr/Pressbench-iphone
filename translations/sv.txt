@@ -1,0 +1,304 @@
+PressBench
+Tillbaka
+Fortsätt
+Öppna PressBench
+Språk
+Valt
+Tryck för att välja
+Alla
+Enheter
+Temperatur
+Tryck
+Pressplatta
+Process
+Anteckningar
+Notiser
+Inställningar
+Support
+Underhåll
+Analys
+Exporter
+Hjälpmedel
+Batchhistorik
+Integritetspolicy
+Användarvillkor
+Säkerhetsinformation
+Säkerhetsinformation för värmepress
+Köp och Pro-åtkomst
+Lokala data och säkerhetskopior
+Meddelanden från tredje part
+Hem
+Processinställningar
+Produktionskörningar
+Maskiner
+Mer
+Beprövad
+Test
+Utkast
+Arkiverad
+Pågår
+Slutförd
+Placering
+Förpressning
+Pressning
+Avdragning
+Kylning
+Efterpressning
+%1$d av %2$d
+Välkommen till PressBench
+Repeterbara inställningar. Dokumenterade körningar. Bättre produktionskontroll.
+Återanvänd beprövade inställningar
+Håll framgångsrika processdefinitioner ordnade och redo för nästa produktionskörning.
+Arbeta i en tydlig ordning
+Gå igenom inställningskontroller, första enheten, produktion och resultatregistrering steg för steg.
+Se vad som förbättras
+Följ förstapassutbyte, omarbete och kassation utifrån produktionsregistren du skapar.
+Välj språk
+Språket på din iPhone valdes automatiskt. Välj ett annat nu eller ändra det senare i Inställningar.
+Öppnar rullgardinsmenyn för språk
+Byggd kring din process
+PressBench är mer än en timer eller receptbok. Varje produktionskörning sparar en spårbar produktionshistorik kring den inställning som faktiskt användes.
+Processinställning
+Första enheten
+Produktion
+Resultat
+Säkerhet, villkor och integritet
+PressBench registrerar produktionsinformation som operatören matar in. Appen inspekterar, mäter, övervakar eller styr inte din värmepress.
+Jag godkänner Användarvillkoren
+Jag har läst och tagit del av Säkerhetsinformationen
+Jag har granskat Integritetspolicyn
+Policysidorna är för närvarande tillgängliga på engelska.
+Välj temperaturenhet
+Du kan ändra den senare i Inställningar. Bekräfta enheten innan du använder produktionsvärden.
+Fahrenheit
+Celsius
+Redo att skapa din första processinställning
+Börja med den maskin och process du faktiskt använder. PressBench håller inställning, produktionskörning och resultat sammanlänkade.
+1. Lägg till din första maskin
+Ge pressen ett tydligt namn och registrera dess profil.
+2. Skapa en processinställning
+Registrera den exakta processen och källinformationen.
+3. Registrera en produktionskörning
+Bekräfta instruktionerna, genomför produktionen och spara resultatet.
+Välkommen tillbaka
+Starta ny körning
+Starta en ny produktionskörning
+Batcher
+Förstapass
+Kassation
+Senaste inställningar
+Visa alla
+Juridik och säkerhet
+Officiella PressBench-policyer och säkerhetsinformation.
+Integritet
+Villkor
+Säkerhet
+Sök inställningar
+Problemfria körningar: %d
+Registrerade körningar: %d
+Ännu inte beprövad
+Starta körning
+Senast beprövad
+Problemfria körningar
+%1$d / %2$d
+Steg %1$d / %2$d
+Aktiv körning
+Batch
+Återuppta körning
+Pausa körning
+Avsluta körning
+Tillgänglig
+Används
+Timerkalibrering krävs
+PressBench %@
+Visa introduktionen igen
+Allmänt
+Temperaturenhet
+Juridik och support
+Appen använder den här språkinställningen. Du kan ändra den när som helst.
+Sök språk
+Produktionsrapport
+Skapad av PressBench
+Rapportperiod
+Sammanfattning
+Prestanda för produktionskörningar
+Problem och undantag
+Definitioner av processinställningar
+Urvalsstorlek
+Bearbetade enheter
+Förstapassutbyte
+Slutligt utbyte
+Omarbetningsgrad
+Kassationsgrad
+Omarbetade enheter
+Kasserade enheter
+Resultatfördelning
+Datum
+Bearbetat
+Slutligt
+Resultat
+Symptom
+Misstänkt orsak
+Åtgärd
+Antal
+Anteckning
+Material / transfer
+Maskin / pressplatta
+Pressningssteg
+Instruktionskälla
+Källa kontrollerad
+Inga problem registrerade
+Begränsat dataunderlag
+Värden som operatören har matat in visas som de registrerades och översätts inte.
+Sammanfattning
+Problem
+Spara
+Avbryt
+Namn
+Märke
+Modell
+Referens
+Tid (sekunder)
+Material
+Transfermaterial
+Återställ köp
+Lås upp Pro
+Bekräfta instruktioner
+Första exemplaret godkänt
+Starta produktion
+Registrera resultat
+Åtgärden kunde inte slutföras.
+OK
+Starta timer
+Pausa timer
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Utseende
+System
+Ljust
+Mörkt
+Workspace tools
+Create backup
+Share backup
+Roll back last restore
+Restore this backup
+Machine
+Föregående steg
+Nästa steg
+Justera och försök igen
+Stop with note
+Save adjustment and retry
+Save note and stop
+Count items
+Ångra senaste räkningen
+Record totals when the run ends
+Orsak till paus
+Körläge
+Test run
+Production run
+Planerad kvantitet
+Jobbreferens
+Förloppsspårning
+Count during the run
+Record totals at the end
+I understand this setup is not proven
+Quality check
+Pass check
+Adjustment required
+End run early
+Quality check due
+Next quality check at %@ items
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Resultat
+Endast batch
+Update this setup
+Save as new variant
+Variantnamn
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Instruktion
+Repeat count
+Placeringsåtgärd
+Slutbearbetningsåtgärd
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Okänt
+Färgskiftning
+Spökbild
+Kantlyft
+Vidhäftning
+Brännmärke
+Justering
+Ofullständig överföring
+Ojämn värme eller tryck
+Fukt
+Förskjuten överföring
+Kontaminering
+Materialfel
+Designinställning
+Utskriftsmaterial
+Utrustning eller ström
+Avbruten
+Annat
+Värme
+Tid
+Överföring
+Material
+Design
+Skrivare, bläck eller papper
+Operatörsavbrott
+Kassera ej startad körning
+Kassera den här ej startade körningen? Ingen batchpost kommer att skapas.
+Ange ett giltigt tal.
+Problemkvantiteterna måste omfatta alla omarbetade enheter och kasserade enheter.
+Välj eller skapa en maskin innan du fortsätter.
+Välj eller skapa en produktionsinställning innan du fortsätter.
+Slutför eller frisläpp den nuvarande reserverade körningen innan du ändrar den här posten.
+Körningen har inte den status som krävs för åtgärden.
+Det lokala lagringsutrymmet måste återställas innan åtgärden kan fortsätta.
+Säkerhetskopian kunde inte verifieras eller återställas.
+Upprepa
+”Beprövad” betyder kvalificerande körningar som operatören har registrerat för exakt den här inställningen. Det är inte tillverkarvalidering, certifiering eller en säkerhetsbedömning.
+Textstorlek
+Hanteras i iOS-inställningar
+Minska rörelse
+Differentiera utan färg
+Aktiverat
+Inaktiverat
+Öppna iOS-inställningar
+Radera lokala data
+Detta raderar permanent maskiner, konfigurationer, körningar och lokala inställningar från enheten. Ditt köp i App Store raderas inte.
+Hur skiljer sig det här jobbet?
+Exakt upprepning
+Samma produktvariant
+Väsentligt annorlunda material
+Fortsätt utan att logga in
+Apple- och iCloud-säkerhetskopia
+Säkerhetskopiera dina PressBench-data
+Valfritt. Logga in med Apple för att spara en privat säkerhetskopia i ditt iCloud-utrymme. Du kan fortsätta utan att logga in.
+Logga in med Apple för att aktivera automatisk säkerhetskopiering i ditt privata iCloud-utrymme.
+Säkerhetskopiering aktiverad
+Kontrollerar säkerhetskopians status…
+Senaste säkerhetskopian
+Ingen säkerhetskopia har skapats ännu
+Säkerhetskopiera nu
+Återställ från iCloud
+Stäng av säkerhetskopiering
+Återställning ersätter maskiner, inställningar, körningar och inställningar på den här enheten. Ditt köp påverkas inte.
+Automatisk säkerhetskopiering stoppas. Den befintliga säkerhetskopian finns kvar i ditt privata iCloud-utrymme.
+Apple-auktoriseringen kunde inte verifieras. Försök logga in igen.
+iCloud-säkerhetskopiering är inte tillgänglig. Kontrollera inställningarna för iCloud Drive och försök igen.
+Ingen iCloud-säkerhetskopia hittades.
+Radera iCloud-säkerhetskopia
+Detta raderar säkerhetskopian permanent från ditt iCloud-utrymme. Data på den här enheten raderas inte.

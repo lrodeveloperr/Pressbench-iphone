@@ -1,0 +1,304 @@
+PressBench
+Retour
+Continuer
+Ouvrir PressBench
+Langue
+Sélectionné
+Touchez pour sélectionner
+Tous
+Unités
+Température
+Pression
+Plateau
+Processus
+Notes
+Notifications
+Paramètres
+Assistance
+Maintenance
+Analyses
+Exportations
+Accessibilité
+Historique des lots
+Politique de confidentialité
+Conditions d’utilisation
+Avis de sécurité
+Avis de sécurité de la presse à chaud
+Achats et accès Pro
+Données locales et sauvegardes
+Avis relatifs aux tiers
+Accueil
+Réglages
+Séries
+Machines
+Plus
+Éprouvé
+Essai
+Brouillon
+Archivé
+En cours
+Terminé
+Positionnement
+Pré-pressage
+Pressage
+Pelage
+Refroidissement
+Post-pressage
+%1$d sur %2$d
+Bienvenue dans PressBench
+Réglages reproductibles. Séries enregistrées. Production mieux maîtrisée.
+Réutilisez les réglages éprouvés
+Gardez les définitions de processus qui ont réussi bien organisées et prêtes pour la prochaine série.
+Produisez avec une séquence claire
+Suivez les contrôles du réglage, la première pièce, la production puis l’enregistrement du résultat.
+Voyez ce qui s’améliore
+Suivez le rendement au premier passage, les reprises et le rebut à partir des enregistrements de production que vous créez.
+Choisissez votre langue
+Nous avons sélectionné automatiquement la langue de votre iPhone. Choisissez-en une autre maintenant ou changez-la plus tard dans Paramètres.
+Ouvre la liste déroulante des langues
+Conçu autour de votre processus
+PressBench est plus qu’un minuteur ou un carnet de recettes. Chaque série conserve un historique de production traçable autour du réglage réellement utilisé.
+Réglage
+Première pièce
+Production
+Résultat
+Sécurité, conditions et confidentialité
+PressBench enregistre les informations de production saisies par l’opérateur. L’application n’inspecte, ne mesure, ne surveille ni ne contrôle votre presse à chaud.
+J’accepte les Conditions d’utilisation
+J’ai lu et pris connaissance de l’Avis de sécurité
+J’ai consulté la Politique de confidentialité
+Les pages des politiques sont actuellement disponibles en anglais.
+Choisissez l’unité de température
+Vous pourrez la modifier plus tard dans Paramètres. Confirmez l’unité avant d’utiliser des valeurs de production.
+Fahrenheit
+Celsius
+Prêt à créer votre premier réglage
+Commencez par la machine et le processus que vous utilisez réellement. PressBench relie le réglage, la série et le résultat.
+1. Ajoutez votre première machine
+Donnez un nom à la presse et enregistrez son profil.
+2. Créez un réglage
+Enregistrez le processus exact et les informations de source.
+3. Enregistrez une série
+Confirmez les instructions, effectuez la production et enregistrez le résultat.
+Bon retour
+Démarrer une nouvelle série
+Commencer une nouvelle série de production
+Lots
+Premier passage
+Rebut
+Réglages récents
+Tout afficher
+Informations légales et sécurité
+Politiques officielles de PressBench et informations de sécurité.
+Confidentialité
+Conditions
+Sécurité
+Rechercher des réglages
+Séries sans défaut : %d
+Séries enregistrées : %d
+Pas encore éprouvé
+Démarrer la série
+Dernière validation par résultat
+Séries sans défaut
+%1$d / %2$d
+Étape %1$d / %2$d
+Série active
+Lot
+Reprendre la série
+Mettre la série en pause
+Terminer la série
+Disponible
+En cours d’utilisation
+Étalonnage du minuteur à effectuer
+PressBench %@
+Revoir l’introduction
+Général
+Unité de température
+Informations légales et assistance
+L’application utilise cette préférence de langue. Vous pouvez la modifier à tout moment.
+Rechercher des langues
+Rapport de production
+Généré par PressBench
+Période du rapport
+Résumé exécutif
+Performance des séries
+Problèmes et exceptions
+Définitions des réglages
+Taille de l’échantillon
+Unités traitées
+Rendement au premier passage
+Rendement final
+Taux de reprise
+Taux de rebut
+Unités reprises
+Unités rebutées
+Répartition des résultats
+Date
+Traité
+Final
+Résultat
+Symptôme
+Cause présumée
+Traitement
+Quantité
+Note
+Matière / transfert
+Machine / plateau
+Étape de pressage
+Source des instructions
+Source vérifiée
+Aucun problème enregistré
+Données limitées
+Les valeurs saisies par l’opérateur sont reproduites telles qu’elles ont été enregistrées et ne sont pas traduites.
+Résumé
+Problèmes
+Enregistrer
+Annuler
+Nom
+Marque
+Modèle
+Référence
+Durée (secondes)
+Matière
+Support de transfert
+Restaurer les achats
+Débloquer Pro
+Confirmer les instructions
+Première pièce validée
+Démarrer la production
+Enregistrer le résultat
+Impossible de terminer l’action.
+OK
+Démarrer le minuteur
+Mettre le minuteur en pause
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Apparence
+Système
+Clair
+Sombre
+Workspace tools
+Create backup
+Share backup
+Roll back last restore
+Restore this backup
+Machine
+Étape précédente
+Étape suivante
+Ajuster et réessayer
+Stop with note
+Save adjustment and retry
+Save note and stop
+Compter les articles
+Annuler le dernier comptage
+Saisir les totaux à la fin
+Motif de la pause
+Mode d’exécution
+Cycle d’essai
+Cycle de production
+Quantité prévue
+Référence du travail
+Suivi de l’avancement
+Compter pendant le cycle
+Saisir les totaux à la fin
+J’accepte ce réglage non validé
+Contrôle qualité
+Contrôle réussi
+Réglage requis
+Terminer le cycle plus tôt
+Contrôle qualité requis
+Prochain contrôle qualité à %@ articles
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Résultat
+Lot uniquement
+Update this setup
+Save as new variant
+Nom de la variante
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Consigne
+Repeat count
+Action de placement
+Action de finition
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Inconnu
+Dérive de couleur
+Image fantôme
+Décollement du bord
+Adhérence
+Brûlure
+Alignement
+Transfert incomplet
+Chaleur ou pression inégale
+Humidité
+Décalage du transfert
+Contamination
+Défaut du support
+Configuration du motif
+Fourniture d’impression
+Équipement ou alimentation
+Interrompu
+Autre
+Chaleur
+Temps
+Transfert
+Support
+Motif
+Imprimante, encre ou papier
+Interruption de l’opérateur
+Abandonner le cycle non démarré
+Abandonner ce cycle non démarré ? Aucun enregistrement de lot ne sera créé.
+Saisissez un nombre valide.
+Les quantités associées aux problèmes doivent couvrir toutes les unités reprises et mises au rebut.
+Sélectionnez ou créez une machine avant de continuer.
+Sélectionnez ou créez une configuration de production avant de continuer.
+Terminez ou libérez le cycle réservé en cours avant de modifier cet enregistrement.
+Le cycle n’est pas dans l’état requis pour cette action.
+Le stockage local doit être restauré avant de pouvoir poursuivre cette action.
+La sauvegarde n’a pas pu être vérifiée ni restaurée.
+Répéter
+« Éprouvé » désigne des séries admissibles saisies par l’opérateur pour cette configuration exacte. Il ne s’agit ni d’une validation du fabricant, ni d’une certification, ni d’une évaluation de sécurité.
+Taille du texte
+Géré dans les réglages iOS
+Réduire les animations
+Différencier sans couleur
+Activé
+Désactivé
+Ouvrir les réglages iOS
+Supprimer les données locales
+Cette action supprime définitivement de cet appareil les machines, les configurations, les séries et les réglages locaux. Votre achat sur l’App Store n’est pas supprimé.
+En quoi cette tâche est-elle différente ?
+Répétition exacte
+Même variante de produit
+Matériau sensiblement différent
+Continuer sans se connecter
+Sauvegarde Apple et iCloud
+Gardez vos données PressBench sauvegardées
+Facultatif. Connectez-vous avec Apple pour conserver une sauvegarde privée dans votre espace iCloud. Vous pouvez continuer sans vous connecter.
+Connectez-vous avec Apple pour activer la sauvegarde automatique dans votre espace iCloud privé.
+Sauvegarde activée
+Vérification de l’état de la sauvegarde…
+Dernière sauvegarde
+Aucune sauvegarde créée pour le moment
+Sauvegarder maintenant
+Restaurer depuis iCloud
+Désactiver la sauvegarde
+La restauration remplace les machines, les configurations, les exécutions et les réglages de cet appareil. Votre achat n’est pas affecté.
+La sauvegarde automatique va s’arrêter. La sauvegarde existante restera dans votre espace iCloud privé.
+L’autorisation Apple n’a pas pu être vérifiée. Essayez de vous reconnecter.
+La sauvegarde iCloud est indisponible. Vérifiez les réglages d’iCloud Drive et réessayez.
+Aucune sauvegarde iCloud n’a été trouvée.
+Supprimer la sauvegarde iCloud
+Cette action supprime définitivement la sauvegarde de votre espace iCloud. Les données de cet appareil ne sont pas supprimées.

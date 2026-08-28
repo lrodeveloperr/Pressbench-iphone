@@ -1,0 +1,304 @@
+PressBench
+Tilbake
+Fortsett
+Åpne PressBench
+Språk
+Valgt
+Trykk for å velge
+Alle
+Enheter
+Temperatur
+Trykk
+Presseplate
+Prosess
+Notater
+Varsler
+Innstillinger
+Støtte
+Vedlikehold
+Analyse
+Eksporter
+Tilgjengelighet
+Batchhistorikk
+Personvernerklæring
+Bruksvilkår
+Sikkerhetsinformasjon
+Sikkerhetsinformasjon for varmepresse
+Kjøp og Pro-tilgang
+Lokale data og sikkerhetskopier
+Merknader fra tredjeparter
+Hjem
+Prosessoppsett
+Produksjonskjøringer
+Maskiner
+Mer
+Utprøvd
+Prøve
+Utkast
+Arkivert
+Kjører
+Fullført
+Plassering
+Forpressing
+Pressing
+Avtrekking
+Avkjøling
+Etterpressing
+%1$d av %2$d
+Velkommen til PressBench
+Repeterbare oppsett. Registrerte kjøringer. Bedre produksjonskontroll.
+Gjenbruk utprøvde oppsett
+Hold vellykkede prosessdefinisjoner organisert og klare til neste produksjonskjøring.
+Arbeid i en tydelig rekkefølge
+Gå gjennom oppsettskontroller, første enhet, produksjon og registrering av resultat trinn for trinn.
+Se hva som forbedres
+Følg utbytte ved første gjennomløp, omarbeid og kassasjon fra produksjonsregistreringene du oppretter.
+Velg språk
+Språket på iPhone ble valgt automatisk. Velg et annet nå, eller bytt senere i Innstillinger.
+Åpner nedtrekksmenyen for språk
+Bygget rundt prosessen din
+PressBench er mer enn en timer eller oppskriftsbok. Hver produksjonskjøring lagrer en sporbar produksjonshistorikk rundt oppsettet som faktisk ble brukt.
+Prosessoppsett
+Første enhet
+Produksjon
+Resultat
+Sikkerhet, vilkår og personvern
+PressBench registrerer produksjonsinformasjon som operatøren legger inn. Appen inspiserer, måler, overvåker eller styrer ikke varmepressen din.
+Jeg godtar Bruksvilkårene
+Jeg har lest og tatt Sikkerhetsinformasjonen til etterretning
+Jeg har gjennomgått Personvernerklæringen
+Policysidene er for øyeblikket tilgjengelige på engelsk.
+Velg temperaturenhet
+Du kan endre den senere i Innstillinger. Bekreft enheten før du bruker produksjonsverdier.
+Fahrenheit
+Celsius
+Klar til å opprette ditt første prosessoppsett
+Start med maskinen og prosessen du faktisk bruker. PressBench holder oppsett, produksjonskjøring og resultat koblet sammen.
+1. Legg til din første maskin
+Gi pressen et tydelig navn og registrer profilen.
+2. Opprett et prosessoppsett
+Registrer den nøyaktige prosessen og kildeinformasjonen.
+3. Registrer en produksjonskjøring
+Bekreft instruksjonene, gjennomfør produksjonen og lagre resultatet.
+Velkommen tilbake
+Start ny kjøring
+Start en ny produksjonskjøring
+Batcher
+Første gjennomløp
+Kassasjon
+Nylige oppsett
+Vis alle
+Juridisk og sikkerhet
+Offisielle PressBench-policyer og sikkerhetsinformasjon.
+Personvern
+Vilkår
+Sikkerhet
+Søk i oppsett
+Problemfrie kjøringer: %d
+Registrerte kjøringer: %d
+Ikke utprøvd ennå
+Start kjøring
+Sist utprøvd
+Problemfrie kjøringer
+%1$d / %2$d
+Trinn %1$d / %2$d
+Aktiv kjøring
+Batch
+Fortsett kjøring
+Sett kjøring på pause
+Avslutt kjøring
+Tilgjengelig
+I bruk
+Timerkalibrering er nødvendig
+PressBench %@
+Vis introduksjonen igjen
+Generelt
+Temperaturenhet
+Juridisk og støtte
+Appen bruker denne språkinnstillingen. Du kan endre den når som helst.
+Søk etter språk
+Produksjonsrapport
+Opprettet av PressBench
+Rapportperiode
+Ledelsessammendrag
+Ytelse for produksjonskjøringer
+Problemer og unntak
+Definisjoner av prosessoppsett
+Utvalgsstørrelse
+Behandlede enheter
+Utbytte ved første gjennomløp
+Endelig utbytte
+Omarbeidingsgrad
+Kassasjonsgrad
+Omarbeidede enheter
+Kasserte enheter
+Resultatfordeling
+Dato
+Behandlet
+Endelig
+Resultat
+Symptom
+Mistenkt årsak
+Tiltak
+Antall
+Notat
+Materiale / transfer
+Maskin / presseplate
+Pressetrinn
+Instruksjonskilde
+Kilde kontrollert
+Ingen problemer registrert
+Begrenset datagrunnlag
+Verdier som operatøren har lagt inn, vises som registrert og oversettes ikke.
+Sammendrag
+Problemer
+Lagre
+Avbryt
+Navn
+Merke
+Modell
+Referanse
+Varighet (sekunder)
+Materiale
+Transfermateriale
+Gjenopprett kjøp
+Lås opp Pro
+Bekreft instruksjoner
+Første enhet godkjent
+Start produksjon
+Registrer resultat
+Handlingen kunne ikke fullføres.
+OK
+Start tidtaker
+Sett tidtaker på pause
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Utseende
+System
+Lyst
+Mørkt
+Workspace tools
+Create backup
+Share backup
+Roll back last restore
+Restore this backup
+Machine
+Forrige trinn
+Neste trinn
+Juster og prøv igjen
+Stop with note
+Save adjustment and retry
+Save note and stop
+Count items
+Angre siste telling
+Record totals when the run ends
+Årsak til pause
+Kjøremodus
+Test run
+Production run
+Planlagt antall
+Jobbreferanse
+Fremdriftssporing
+Count during the run
+Record totals at the end
+I understand this setup is not proven
+Quality check
+Pass check
+Adjustment required
+End run early
+Quality check due
+Next quality check at %@ items
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Resultat
+Bare parti
+Update this setup
+Save as new variant
+Variantnavn
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Instruksjon
+Repeat count
+Plasseringshandling
+Avslutningshandling
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Ukjent
+Fargeforskyvning
+Skyggebilde
+Løftet kant
+Vedheft
+Sviskade
+Justering
+Ufullstendig overføring
+Ujevn varme eller trykk
+Fukt
+Forskjøvet overføring
+Forurensning
+Materialfeil
+Designoppsett
+Utskriftsmateriale
+Utstyr eller strøm
+Avbrutt
+Annet
+Varme
+Tid
+Overføring
+Materiale
+Design
+Skriver, blekk eller papir
+Operatøravbrudd
+Forkast ikke-startet kjøring
+Forkaste denne ikke-startede kjøringen? Det blir ikke opprettet noen batchpost.
+Skriv inn et gyldig tall.
+Problemmengdene må dekke alle omarbeidede og kasserte enheter.
+Velg eller opprett en maskin før du fortsetter.
+Velg eller opprett et produksjonsoppsett før du fortsetter.
+Fullfør eller frigi den gjeldende reserverte kjøringen før du endrer denne posten.
+Kjøringen har ikke statusen som kreves for handlingen.
+Den lokale lagringen må gjenopprettes før handlingen kan fortsette.
+Sikkerhetskopien kunne ikke bekreftes eller gjenopprettes.
+Gjenta
+«Utprøvd» betyr kvalifiserende kjøringer som operatøren har registrert for akkurat dette oppsettet. Det er ikke produsentvalidering, sertifisering eller en sikkerhetsvurdering.
+Tekststørrelse
+Administreres i iOS-innstillinger
+Reduser bevegelse
+Skill uten farger
+Aktivert
+Deaktivert
+Åpne iOS-innstillinger
+Slett lokale data
+Dette sletter maskiner, oppsett, kjøringer og lokale innstillinger permanent fra denne enheten. Kjøpet ditt i App Store slettes ikke.
+Hvordan skiller denne jobben seg?
+Nøyaktig gjentakelse
+Samme produktvariant
+Vesentlig annerledes materiale
+Fortsett uten å logge på
+Apple- og iCloud-sikkerhetskopi
+Sikkerhetskopier PressBench-dataene dine
+Valgfritt. Logg på med Apple for å lagre en privat sikkerhetskopi i iCloud-lagringen din. Du kan fortsette uten å logge på.
+Logg på med Apple for å aktivere automatisk sikkerhetskopiering i din private iCloud-lagring.
+Sikkerhetskopiering aktivert
+Kontrollerer status for sikkerhetskopiering…
+Siste sikkerhetskopi
+Ingen sikkerhetskopi er opprettet ennå
+Sikkerhetskopier nå
+Gjenopprett fra iCloud
+Slå av sikkerhetskopiering
+Gjenoppretting erstatter maskiner, oppsett, kjøringer og innstillinger på denne enheten. Kjøpet ditt påvirkes ikke.
+Automatisk sikkerhetskopiering stopper. Den eksisterende sikkerhetskopien blir liggende i din private iCloud-lagring.
+Apple-godkjenningen kunne ikke bekreftes. Prøv å logge på igjen.
+iCloud-sikkerhetskopiering er ikke tilgjengelig. Kontroller innstillingene for iCloud Drive, og prøv igjen.
+Ingen iCloud-sikkerhetskopi ble funnet.
+Slett iCloud-sikkerhetskopi
+Dette sletter sikkerhetskopien permanent fra iCloud-lagringen din. Data på denne enheten slettes ikke.

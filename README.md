@@ -1,35 +1,43 @@
-# PressBench iPhone
+# PressBench for iPhone
 
-Production iPhone release repository for PressBench.
+Production SwiftUI source for PressBench `0.22.0`.
 
-The release target is locked to:
+This repository is intentionally root-ready: `project.yml`, `PressBench/`,
+`PressBenchTests/`, and `scripts/` are committed as normal files. Do not replace
+them with partial Base64 source chunks. Both GitHub Actions workflows fail closed
+if the deterministic engine or release gates are missing.
 
-- Bundle ID: `com.goodusestudios.pressbench`
-- Apple Team: `49SQ3XQ68Q`
-- Version: `0.21.4`
-- Scheme: `PressBench`
+## Local integrity gates
 
-## Source contract
+```bash
+python3 scripts/release_integrity.py
+python3 scripts/verify_localization.py
+node scripts/engine_smoke.js
+python3 run_static_layout_audit.py
+```
 
-Both GitHub Actions workflows accept any of:
+On macOS with Xcode and XcodeGen installed:
 
-1. the unpacked production source tree at repository root (`project.yml`, `PressBench/`, `PressBenchTests/`, `scripts/`), or
-2. the reviewed split Base64 package at `.source/PressBench-iOS-Approved-UI-v0.21.4.zip.b64.part-*`, or
-3. the canonical production package at repository root named exactly:
+```bash
+xcodegen generate
+xcodebuild -project PressBench.xcodeproj -scheme PressBench \
+  -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+  CODE_SIGNING_ALLOWED=NO build
+```
 
-   `PressBench-TestFlight-Source-v0.21.4.zip`
+The production bundle identifier is `com.goodusestudios.pressbench`; the Apple
+Developer team is `49SQ3XQ68Q`. See `TESTFLIGHT_SETUP.md` before running the
+manual TestFlight workflow.
 
-The packaged-source path exists specifically so the binary ZIP can be uploaded once without manually unpacking dozens of files. The workflow extracts it into an isolated runner directory and then requires the full deterministic engine and release gates before compiling.
+## Release source policy
 
-## Approved interface
-
-The reviewed source archive uses the GoodUse Studios Ocean Pearl system: adaptive light/dark tokens, 28-point page headers, 24-point cards, 62-point primary controls, four stable thumb destinations, RTL/Dynamic Type reflow, and Reduce Motion-aware interaction. The full operator workflow remains intact, including editable multi-stage setups, configurable run authorization, first-piece evidence, timers, quantity/QC/issue capture, backup/recovery, completed-run detail, and the three-way reuse selector. The deterministic production logic is unchanged. The durable catalog contains 311 keys across 32 runtime locale codes, generated from 286 canonical phrases; the compact-layout audit covers 960 text slots with zero failures.
-
-## CI
-
-- **Validate PressBench iOS** runs on pushes/PRs and can also be run manually. It checks release integrity, the 31-language localization layer, deterministic engine smoke tests, Xcode project generation, a Release simulator build, and unit tests.
-- **Run TestFlight Build** is manual. It repeats all validation, verifies the Apple credentials and App Store Connect identity, archives/signs the production app, verifies bundle/version/build/privacy-manifest identity, exports and validates the IPA, then uploads it to TestFlight.
-
-The TestFlight workflow requires the literal confirmation `UPLOAD TESTFLIGHT` and fails closed before upload on any error.
-
-See `TESTFLIGHT_SETUP.md` for the one-time Apple secret setup.
+- `PressBench/Resources/PressBenchLogic.js` is the reviewed deterministic engine.
+- The approved logo remains both the brand image and app icon.
+- The GoodUse Studios Ocean Pearl visual system is locked by `scripts/release_integrity.py`.
+- Every Proven setup shows a localized boundary directly below its run evidence: the status comes from qualifying operator-entered runs, not manufacturer validation, certification or a safety determination.
+- Before a run, the localized GoodUse selector classifies the job as an Exact repeat, Same product variant or Materially different. Same-variant editing is limited to title, quantity and notes; materially different setups use the engine’s proof and operating-value reset.
+- Four stable thumb destinations keep Machines under More while machine creation remains directly reachable from first-use and Setups flows.
+- Appearance can follow the iPhone or be set to Light/Dark. Dynamic Type, RTL layout, VoiceOver semantics, high-contrast semantic inks and Reduce Motion are honored natively; the in-app accessibility screen reports relevant system states and opens iOS app settings.
+- Settings also exposes language, temperature units, optional Sign in with Apple and private iCloud backup, exports, local backup creation/sharing, confirmed local-data deletion that preserves App Store entitlement, onboarding reset, privacy, terms, safety and support. Manual backup-file import is intentionally unavailable.
+- `build_l10n.py` and `assemble_catalog.py` are the live 329-key/304-phrase source-of-truth pipeline; every runtime locale is reproducible from the canonical metadata and translation files.
+- Generated `PressBench.xcodeproj` and signed artifacts are build outputs, not source.

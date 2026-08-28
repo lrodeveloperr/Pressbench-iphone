@@ -1,0 +1,304 @@
+PressBench
+Kembali
+Lanjutkan
+Buka PressBench
+Bahasa
+Dipilih
+Ketuk untuk memilih
+Semua
+Unit
+Suhu
+Tekanan
+Pelat press
+Proses
+Catatan
+Notifikasi
+Pengaturan
+Dukungan
+Perawatan
+Analitik
+Ekspor
+Aksesibilitas
+Riwayat batch
+Kebijakan Privasi
+Ketentuan Penggunaan
+Pemberitahuan Keselamatan
+Pemberitahuan Keselamatan Mesin Heat Press
+Pembelian & akses Pro
+Data lokal & cadangan
+Pemberitahuan pihak ketiga
+Beranda
+Pengaturan proses
+Sesi produksi
+Mesin
+Lainnya
+Terbukti
+Uji coba
+Draf
+Diarsipkan
+Berjalan
+Selesai
+Penempatan
+Pra-press
+Press
+Pelepasan
+Pendinginan
+Press lanjutan
+%1$d dari %2$d
+Selamat datang di PressBench
+Pengaturan yang dapat diulang. Sesi produksi tercatat. Produksi lebih terkendali.
+Gunakan kembali pengaturan yang terbukti
+Simpan definisi proses yang berhasil secara rapi dan siap untuk sesi produksi berikutnya.
+Bekerja dengan urutan yang jelas
+Ikuti pemeriksaan pengaturan, unit pertama, produksi, lalu pencatatan hasil.
+Lihat apa yang membaik
+Pantau tingkat lolos pertama, pengerjaan ulang, dan produk terbuang dari catatan produksi yang Anda buat.
+Pilih bahasa
+Bahasa iPhone dipilih secara otomatis. Pilih bahasa lain sekarang atau ubah nanti di Pengaturan.
+Membuka menu tarik-turun bahasa
+Dibuat mengikuti proses Anda
+PressBench bukan sekadar timer atau buku resep. Setiap sesi produksi menyimpan riwayat produksi yang dapat ditelusuri berdasarkan pengaturan yang benar-benar digunakan.
+Pengaturan proses
+Unit pertama
+Produksi
+Hasil
+Keselamatan, ketentuan & privasi
+PressBench mencatat informasi produksi yang dimasukkan operator. Aplikasi tidak memeriksa, mengukur, memantau, atau mengendalikan mesin heat press Anda.
+Saya menyetujui Ketentuan Penggunaan
+Saya telah membaca dan memahami Pemberitahuan Keselamatan
+Saya telah meninjau Kebijakan Privasi
+Halaman kebijakan saat ini tersedia dalam bahasa Inggris.
+Pilih satuan suhu
+Anda dapat mengubahnya nanti di Pengaturan. Konfirmasikan satuan sebelum menggunakan nilai produksi.
+Fahrenheit
+Celsius
+Siap membuat pengaturan pertama
+Mulai dari mesin dan proses yang benar-benar Anda gunakan. PressBench menjaga pengaturan, sesi produksi, dan hasil tetap terhubung.
+1. Tambahkan mesin pertama
+Beri nama yang mudah dikenali pada press dan catat profilnya.
+2. Buat pengaturan proses
+Catat proses yang tepat dan informasi sumber.
+3. Catat sesi produksi
+Konfirmasikan petunjuk, jalankan produksi, lalu simpan hasil.
+Selamat datang kembali
+Mulai sesi baru
+Mulai sesi produksi baru
+Batch
+Lolos pertama
+Produk terbuang
+Pengaturan terbaru
+Lihat semua
+Hukum & keselamatan
+Kebijakan resmi PressBench dan informasi keselamatan.
+Privasi
+Ketentuan
+Keselamatan
+Cari pengaturan
+Sesi tanpa masalah: %d
+Sesi tercatat: %d
+Belum terbukti
+Mulai sesi
+Terakhir terbukti
+Sesi tanpa masalah
+%1$d / %2$d
+Tahap %1$d / %2$d
+Sesi aktif
+Batch
+Lanjutkan sesi
+Jeda sesi
+Akhiri sesi
+Tersedia
+Sedang digunakan
+Kalibrasi timer diperlukan
+PressBench %@
+Lihat onboarding lagi
+Umum
+Satuan suhu
+Hukum & dukungan
+Aplikasi menggunakan preferensi bahasa ini. Anda dapat mengubahnya kapan saja.
+Cari bahasa
+Laporan Produksi
+Dibuat oleh PressBench
+Periode laporan
+Ringkasan eksekutif
+Kinerja sesi produksi
+Masalah & pengecualian
+Definisi pengaturan
+Ukuran sampel
+Unit diproses
+Tingkat lolos pertama
+Hasil akhir
+Tingkat pengerjaan ulang
+Tingkat produk terbuang
+Unit dikerjakan ulang
+Unit terbuang
+Distribusi hasil
+Tanggal
+Diproses
+Akhir
+Hasil
+Gejala
+Penyebab yang diduga
+Tindakan
+Jumlah
+Catatan
+Bahan / transfer
+Mesin / pelat press
+Tahap press
+Sumber petunjuk
+Sumber diperiksa
+Tidak ada masalah tercatat
+Data terbatas
+Nilai yang dimasukkan operator ditampilkan sebagaimana dicatat dan tidak diterjemahkan.
+Ringkasan
+Masalah
+Simpan
+Batal
+Nama
+Merek
+Model
+Referensi
+Durasi (detik)
+Bahan
+Media transfer
+Pulihkan pembelian
+Buka Pro
+Konfirmasi petunjuk
+Sampel pertama lolos
+Mulai produksi
+Catat hasil
+Tindakan tidak dapat diselesaikan.
+OK
+Mulai timer
+Jeda timer
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Tampilan
+Sistem
+Terang
+Gelap
+Workspace tools
+Create backup
+Share backup
+Roll back last restore
+Restore this backup
+Machine
+Tahap sebelumnya
+Tahap berikutnya
+Sesuaikan dan coba lagi
+Stop with note
+Save adjustment and retry
+Save note and stop
+Count items
+Urungkan hitungan terakhir
+Record totals when the run ends
+Alasan jeda
+Mode proses
+Test run
+Production run
+Jumlah yang direncanakan
+Referensi pekerjaan
+Pelacakan progres
+Count during the run
+Record totals at the end
+I understand this setup is not proven
+Quality check
+Pass check
+Adjustment required
+End run early
+Quality check due
+Next quality check at %@ items
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Hasil
+Hanya batch
+Update this setup
+Save as new variant
+Judul varian
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Petunjuk
+Repeat count
+Tindakan penempatan
+Tindakan penyelesaian
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Tidak diketahui
+Pergeseran warna
+Bayangan ganda
+Tepi terangkat
+Daya rekat
+Hangus
+Penyelarasan
+Transfer tidak lengkap
+Panas atau tekanan tidak merata
+Kelembapan
+Pergeseran transfer
+Kontaminasi
+Cacat substrat
+Penyiapan desain
+Bahan cetak
+Peralatan atau daya
+Terputus
+Lainnya
+Panas
+Waktu
+Transfer
+Substrat
+Desain
+Printer, tinta, atau kertas
+Gangguan operator
+Buang proses yang belum dimulai
+Buang proses yang belum dimulai ini? Catatan batch tidak akan dibuat.
+Masukkan angka yang valid.
+Jumlah masalah harus mencakup semua unit yang dikerjakan ulang dan terbuang.
+Pilih atau buat mesin sebelum melanjutkan.
+Pilih atau buat pengaturan produksi sebelum melanjutkan.
+Selesaikan atau lepaskan proses yang saat ini dicadangkan sebelum mengubah catatan ini.
+Proses tidak berada dalam status yang diperlukan untuk tindakan tersebut.
+Penyimpanan lokal perlu dipulihkan sebelum tindakan ini dapat dilanjutkan.
+Cadangan tidak dapat diverifikasi atau dipulihkan.
+Ulangi
+“Teruji” berarti sesi yang memenuhi syarat dan dimasukkan operator untuk penyiapan yang sama persis ini. Ini bukan validasi produsen, sertifikasi, atau penetapan keselamatan.
+Ukuran teks
+Dikelola di Pengaturan iOS
+Kurangi Gerakan
+Bedakan Tanpa Warna
+Aktif
+Nonaktif
+Buka Pengaturan iOS
+Hapus Data Lokal
+Tindakan ini menghapus mesin, penyiapan, sesi, dan pengaturan lokal secara permanen dari perangkat ini. Pembelian App Store Anda tidak dihapus.
+Apa yang berbeda dari pekerjaan ini?
+Pengulangan persis
+Varian produk yang sama
+Material berbeda secara mendasar
+Lanjutkan tanpa masuk
+Cadangan Apple & iCloud
+Simpan cadangan data PressBench Anda
+Opsional. Masuk dengan Apple untuk menyimpan cadangan pribadi di penyimpanan iCloud Anda. Anda dapat melanjutkan tanpa masuk.
+Masuk dengan Apple untuk mengaktifkan pencadangan otomatis di penyimpanan iCloud pribadi Anda.
+Cadangan diaktifkan
+Memeriksa status cadangan…
+Cadangan terakhir
+Belum ada cadangan yang dibuat
+Cadangkan sekarang
+Pulihkan dari iCloud
+Matikan cadangan
+Pemulihan akan mengganti mesin, penyiapan, proses, dan pengaturan di perangkat ini. Pembelian Anda tidak terpengaruh.
+Pencadangan otomatis akan berhenti. Cadangan yang ada tetap tersimpan di penyimpanan iCloud pribadi Anda.
+Otorisasi Apple tidak dapat diverifikasi. Coba masuk kembali.
+Cadangan iCloud tidak tersedia. Periksa pengaturan iCloud Drive lalu coba lagi.
+Cadangan iCloud tidak ditemukan.
+Hapus cadangan iCloud
+Tindakan ini menghapus cadangan secara permanen dari penyimpanan iCloud Anda. Data di perangkat ini tidak dihapus.

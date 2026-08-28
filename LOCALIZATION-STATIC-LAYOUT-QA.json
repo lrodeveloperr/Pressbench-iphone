@@ -1,0 +1,8652 @@
+{
+  "summary": {
+    "languageChoices": 31,
+    "testedLocaleCodes": 32,
+    "localizationKeys": 329,
+    "textSlotTests": 960,
+    "textSlotFailures": 0,
+    "failures": []
+  },
+  "results": [
+    {
+      "language": "en",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Home",
+      "width": 29.5,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Setups",
+      "width": 34.3,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Runs",
+      "width": 24.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Machines",
+      "width": 47.1,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "More",
+      "width": 24.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Proven",
+      "width": 37.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Trial",
+      "width": 22.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Draft",
+      "width": 27.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Running",
+      "width": 45.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Completed",
+      "width": 60.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Available",
+      "width": 49.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "In use",
+      "width": 33.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Continue",
+      "width": 67.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Open PressBench",
+      "width": 131.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Start Run",
+      "width": 70.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Resume Run",
+      "width": 93.7,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Pause Run",
+      "width": 77.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "End Run",
+      "width": 62.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "View onboarding again",
+      "width": 171.9,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Exact repeat",
+      "width": 108.0,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Same product variant",
+      "width": 184.5,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Materially different",
+      "width": 161.5,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "How is this job different?",
+      "width": 346.7,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Appearance",
+      "width": 102.1,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Text size",
+      "width": 72.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Reduce Motion",
+      "width": 125.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Differentiate Without Color",
+      "width": 228.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Open iOS Settings",
+      "width": 154.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Delete Local Data",
+      "width": 151.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Inicio",
+      "width": 26.5,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Procesos",
+      "width": 44.1,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Ejecuciones",
+      "width": 59.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Máquinas",
+      "width": 47.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Más",
+      "width": 20.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Probado",
+      "width": 44.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "En prueba",
+      "width": 56.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Borrador",
+      "width": 48.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "En curso",
+      "width": 47.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Completado",
+      "width": 66.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Disponible",
+      "width": 57.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "En uso",
+      "width": 36.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Continuar",
+      "width": 73.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Abrir PressBench",
+      "width": 127.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Iniciar ejecución",
+      "width": 122.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Reanudar ejecución",
+      "width": 148.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Pausar ejecución",
+      "width": 126.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Finalizar ejecución",
+      "width": 138.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Ver la introducción de nuevo",
+      "width": 214.9,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Repetición exacta",
+      "width": 151.9,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Misma variante de producto",
+      "width": 239.0,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Material sustancialmente diferente",
+      "width": 297.3,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "¿En qué se diferencia este trabajo?",
+      "width": 492.7,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Apariencia",
+      "width": 90.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Tamaño del texto",
+      "width": 146.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Reducir movimiento",
+      "width": 170.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Diferenciar sin color",
+      "width": 170.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Abrir Ajustes de iOS",
+      "width": 169.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Eliminar datos locales",
+      "width": 186.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Início",
+      "width": 26.5,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Receitas",
+      "width": 42.3,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Execuções",
+      "width": 52.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Máquinas",
+      "width": 47.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Mais",
+      "width": 22.7,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Testado",
+      "width": 42.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Em teste",
+      "width": 49.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Rascunho",
+      "width": 53.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Em curso",
+      "width": 51.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Concluído",
+      "width": 54.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Disponível",
+      "width": 57.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "Em utilização",
+      "width": 73.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Continuar",
+      "width": 73.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Abrir o PressBench",
+      "width": 141.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Iniciar execução",
+      "width": 121.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Retomar execução",
+      "width": 139.7,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Pausar execução",
+      "width": 126.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Terminar execução",
+      "width": 141.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Ver introdução novamente",
+      "width": 199.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Repetição exata",
+      "width": 137.5,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Mesma variante do produto",
+      "width": 235.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Material substancialmente diferente",
+      "width": 308.1,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "O que há de diferente neste trabalho?",
+      "width": 534.8,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Aparência",
+      "width": 85.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Tamanho do texto",
+      "width": 152.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Reduzir Movimento",
+      "width": 163.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Diferenciar sem cor",
+      "width": 167.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Abrir Ajustes do iOS",
+      "width": 169.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Apagar dados locais",
+      "width": 171.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Accueil",
+      "width": 35.7,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Réglages",
+      "width": 45.6,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Séries",
+      "width": 30.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Machines",
+      "width": 47.1,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Plus",
+      "width": 20.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Éprouvé",
+      "width": 45.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Essai",
+      "width": 28.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Brouillon",
+      "width": 48.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "En cours",
+      "width": 47.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Terminé",
+      "width": 43.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Disponible",
+      "width": 57.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "Occupée",
+      "width": 48.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Continuer",
+      "width": 73.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Ouvrir PressBench",
+      "width": 137.7,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Démarrer la série",
+      "width": 131.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Reprendre la série",
+      "width": 137.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Mettre la série en pause",
+      "width": 182.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Terminer la série",
+      "width": 125.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Revoir l’introduction",
+      "width": 151.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Répétition exacte",
+      "width": 149.2,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Même variante de produit",
+      "width": 220.9,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Matériau sensiblement différent",
+      "width": 272.2,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "En quoi cette tâche est-elle différente ?",
+      "width": 553.7,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Apparence",
+      "width": 91.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Taille du texte",
+      "width": 119.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Réduire les animations",
+      "width": 194.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Différencier sans couleur",
+      "width": 212.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Ouvrir les réglages iOS",
+      "width": 195.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Supprimer les données locales",
+      "width": 260.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Start",
+      "width": 24.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Prozesse",
+      "width": 43.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Durchläufe",
+      "width": 54.7,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Maschinen",
+      "width": 53.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Mehr",
+      "width": 25.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Bewährt",
+      "width": 45.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Test",
+      "width": 21.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Entwurf",
+      "width": 42.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Läuft",
+      "width": 27.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Abgeschlossen",
+      "width": 82.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Verfügbar",
+      "width": 54.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "In Verwendung",
+      "width": 82.3,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Weiter",
+      "width": 48.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "PressBench öffnen",
+      "width": 138.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Lauf starten",
+      "width": 90.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Lauf fortsetzen",
+      "width": 113.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Lauf pausieren",
+      "width": 111.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Lauf beenden",
+      "width": 102.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Einführung erneut anzeigen",
+      "width": 209.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Exakte Wiederholung",
+      "width": 181.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Gleiche Produktvariante",
+      "width": 204.6,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Wesentlich anderes Material",
+      "width": 240.8,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Wodurch unterscheidet sich dieser Auftrag?",
+      "width": 612.6,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Erscheinungsbild",
+      "width": 144.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Textgröße",
+      "width": 83.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Bewegung reduzieren",
+      "width": 185.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Ohne Farbe differenzieren",
+      "width": 220.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "iOS-Einstellungen öffnen",
+      "width": 209.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Lokale Daten löschen",
+      "width": 182.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Home",
+      "width": 29.5,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Setup",
+      "width": 29.1,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Cicli",
+      "width": 20.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Macchine",
+      "width": 47.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Altro",
+      "width": 23.6,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Testato",
+      "width": 39.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "In prova",
+      "width": 45.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Bozza",
+      "width": 32.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "In corso",
+      "width": 43.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Completato",
+      "width": 64.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Disponibile",
+      "width": 60.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "In uso",
+      "width": 33.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Continua",
+      "width": 67.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Apri PressBench",
+      "width": 121.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Avvia ciclo",
+      "width": 79.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Riprendi ciclo",
+      "width": 101.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Metti in pausa il ciclo",
+      "width": 158.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Termina ciclo",
+      "width": 98.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Rivedi l’introduzione",
+      "width": 153.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Ripetizione esatta",
+      "width": 153.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Stessa variante di prodotto",
+      "width": 231.1,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Materiale sostanzialmente diverso",
+      "width": 292.3,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "In che modo questo lavoro è diverso?",
+      "width": 526.0,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Aspetto",
+      "width": 65.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Dimensione testo",
+      "width": 149.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Riduci movimento",
+      "width": 154.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Distingui senza colore",
+      "width": 187.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Apri Impostazioni di iOS",
+      "width": 203.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Elimina dati locali",
+      "width": 150.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Home",
+      "width": 29.5,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Processen",
+      "width": 50.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Producties",
+      "width": 52.1,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Machines",
+      "width": 47.1,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Meer",
+      "width": 25.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Beproefd",
+      "width": 49.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Proef",
+      "width": 28.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Concept",
+      "width": 45.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Bezig",
+      "width": 30.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Voltooid",
+      "width": 44.3,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Beschikbaar",
+      "width": 67.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "In gebruik",
+      "width": 55.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Doorgaan",
+      "width": 73.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "PressBench openen",
+      "width": 147.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Run starten",
+      "width": 87.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Run hervatten",
+      "width": 107.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Run pauzeren",
+      "width": 103.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Run beëindigen",
+      "width": 117.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Introductie opnieuw bekijken",
+      "width": 216.9,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Exacte herhaling",
+      "width": 143.2,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Dezelfde productvariant",
+      "width": 205.8,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Wezenlijk ander materiaal",
+      "width": 222.0,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Wat is er anders aan deze taak?",
+      "width": 450.0,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Weergave",
+      "width": 85.1,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Tekstgrootte",
+      "width": 105.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Verminder beweging",
+      "width": 175.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Onderscheid zonder kleur",
+      "width": 219.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Open iOS-instellingen",
+      "width": 184.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Verwijder lokale gegevens",
+      "width": 223.1,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Start",
+      "width": 24.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Procesy",
+      "width": 38.7,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Przebiegi",
+      "width": 45.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Maszyny",
+      "width": 43.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Więcej",
+      "width": 33.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Sprawdzony",
+      "width": 67.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Testowy",
+      "width": 43.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Wersja robocza",
+      "width": 83.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "W toku",
+      "width": 38.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Zakończony",
+      "width": 66.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Dostępna",
+      "width": 52.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "W użyciu",
+      "width": 49.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Dalej",
+      "width": 38.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Otwórz PressBench",
+      "width": 144.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Rozpocznij przebieg",
+      "width": 149.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Wznów przebieg",
+      "width": 123.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Wstrzymaj przebieg",
+      "width": 149.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Zakończ przebieg",
+      "width": 132.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Pokaż wprowadzenie ponownie",
+      "width": 233.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Dokładne powtórzenie",
+      "width": 190.5,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Ten sam wariant produktu",
+      "width": 221.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Istotnie inny materiał",
+      "width": 181.8,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Czym różni się to zlecenie?",
+      "width": 379.7,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Wygląd",
+      "width": 63.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Rozmiar tekstu",
+      "width": 127.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Ogranicz ruch",
+      "width": 118.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Rozróżniaj bez koloru",
+      "width": 180.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Otwórz ustawienia iOS",
+      "width": 191.7,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Usuń dane lokalne",
+      "width": 157.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Ana Sayfa",
+      "width": 50.5,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Prosesler",
+      "width": 45.5,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Üretim",
+      "width": 33.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Makineler",
+      "width": 48.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Daha Fazla",
+      "width": 54.6,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Denenmiş",
+      "width": 55.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Deneme",
+      "width": 46.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Taslak",
+      "width": 33.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Çalışıyor",
+      "width": 47.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Tamamlandı",
+      "width": 66.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Uygun",
+      "width": 35.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "Kullanımda",
+      "width": 61.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Devam",
+      "width": 53.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "PressBench’i Aç",
+      "width": 118.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Çalışmayı başlat",
+      "width": 123.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Çalışmayı sürdür",
+      "width": 125.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Çalışmayı duraklat",
+      "width": 139.7,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Çalışmayı bitir",
+      "width": 107.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Tanıtımı yeniden görüntüle",
+      "width": 200.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Tam tekrar",
+      "width": 91.3,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Aynı ürün çeşidi",
+      "width": 135.1,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Malzeme açısından önemli ölçüde farklı",
+      "width": 335.5,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Bu işin farkı nedir?",
+      "width": 261.0,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Görünüm",
+      "width": 79.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Metin boyutu",
+      "width": 112.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Hareketi Azalt",
+      "width": 119.1,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Renk Olmadan Farklılaştır",
+      "width": 217.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "iOS Ayarları’nı aç",
+      "width": 145.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Yerel verileri sil",
+      "width": 128.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Acasă",
+      "width": 29.6,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Procese",
+      "width": 38.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Rulări",
+      "width": 28.6,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Mașini",
+      "width": 31.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Mai multe",
+      "width": 49.6,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Testat",
+      "width": 32.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "În test",
+      "width": 34.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Ciornă",
+      "width": 35.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "În desfășurare",
+      "width": 78.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Finalizat",
+      "width": 45.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Disponibil",
+      "width": 54.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "În uz",
+      "width": 26.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Continuă",
+      "width": 67.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Deschide PressBench",
+      "width": 160.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Pornește rularea",
+      "width": 123.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Reia rularea",
+      "width": 90.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Pune rularea pe pauză",
+      "width": 168.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Încheie rularea",
+      "width": 112.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Vezi din nou introducerea",
+      "width": 191.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Repetare exactă",
+      "width": 139.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Aceeași variantă de produs",
+      "width": 231.8,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Material substanțial diferit",
+      "width": 223.9,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Prin ce diferă această lucrare?",
+      "width": 425.3,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Aspect",
+      "width": 57.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Dimensiunea textului",
+      "width": 181.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Reducere mișcare",
+      "width": 152.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Diferențiere fără culoare",
+      "width": 208.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Deschide Configurări iOS",
+      "width": 212.7,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Șterge datele locale",
+      "width": 170.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Domů",
+      "width": 29.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Procesy",
+      "width": 38.7,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Výrobní série",
+      "width": 65.6,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Stroje",
+      "width": 29.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Další",
+      "width": 24.6,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Osvědčené",
+      "width": 61.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Zkušební",
+      "width": 50.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Koncept",
+      "width": 44.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Probíhá",
+      "width": 41.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Dokončeno",
+      "width": 61.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "K dispozici",
+      "width": 58.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "Používá se",
+      "width": 58.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Pokračovat",
+      "width": 83.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Otevřít PressBench",
+      "width": 143.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Spustit sérii",
+      "width": 88.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Pokračovat v sérii",
+      "width": 133.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Pozastavit sérii",
+      "width": 112.9,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Ukončit sérii",
+      "width": 92.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Znovu zobrazit úvod",
+      "width": 153.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Přesné opakování",
+      "width": 149.8,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Stejná varianta produktu",
+      "width": 211.8,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Podstatně jiný materiál",
+      "width": 196.8,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "V čem je tato zakázka jiná?",
+      "width": 382.5,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Vzhled",
+      "width": 57.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Velikost textu",
+      "width": 115.1,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Omezit pohyb",
+      "width": 119.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Rozlišovat bez barev",
+      "width": 175.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Otevřít Nastavení iOS",
+      "width": 183.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Smazat místní data",
+      "width": 165.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Головна",
+      "width": 43.3,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Процеси",
+      "width": 45.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Запуски",
+      "width": 43.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Машини",
+      "width": 43.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Більше",
+      "width": 37.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Випробувано",
+      "width": 76.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Тестове",
+      "width": 45.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Чернетка",
+      "width": 55.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Триває",
+      "width": 40.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Завершено",
+      "width": 64.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Доступна",
+      "width": 55.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "У роботі",
+      "width": 46.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Продовжити",
+      "width": 100.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Відкрити PressBench",
+      "width": 162.7,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Почати цикл",
+      "width": 100.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Продовжити цикл",
+      "width": 143.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Призупинити цикл",
+      "width": 148.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Завершити цикл",
+      "width": 131.7,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Переглянути вступ ще раз",
+      "width": 211.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Точне повторення",
+      "width": 163.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Той самий варіант продукту",
+      "width": 254.5,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Суттєво інший матеріал",
+      "width": 216.2,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Чим відрізняється це завдання?",
+      "width": 474.6,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Вигляд",
+      "width": 64.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Розмір тексту",
+      "width": 123.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Зменшення руху",
+      "width": 150.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Розрізняти без кольору",
+      "width": 210.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Відкрити Параметри iOS",
+      "width": 220.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Видалити локальні дані",
+      "width": 215.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Главная",
+      "width": 43.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Процессы",
+      "width": 51.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Запуски",
+      "width": 43.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Прессы",
+      "width": 38.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Ещё",
+      "width": 21.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Опробовано",
+      "width": 70.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Пробный",
+      "width": 51.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Черновик",
+      "width": 55.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Выполняется",
+      "width": 76.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Завершено",
+      "width": 64.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Доступно",
+      "width": 55.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "Используется",
+      "width": 79.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Продолжить",
+      "width": 100.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Открыть PressBench",
+      "width": 159.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Начать запуск",
+      "width": 114.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Продолжить запуск",
+      "width": 157.9,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Приостановить запуск",
+      "width": 179.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Завершить запуск",
+      "width": 145.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Показать введение снова",
+      "width": 203.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Точное повторение",
+      "width": 173.9,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Тот же вариант продукта",
+      "width": 231.1,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Существенно другой материал",
+      "width": 281.3,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Чем отличается это задание?",
+      "width": 439.3,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Оформление",
+      "width": 115.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Размер текста",
+      "width": 129.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Уменьшение движения",
+      "width": 209.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Различать без цвета",
+      "width": 185.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Открыть настройки iOS",
+      "width": 211.7,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Удалить локальные данные",
+      "width": 251.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "الرئيسية",
+      "width": 34.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "العمليات",
+      "width": 35.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "دورات الإنتاج",
+      "width": 53.3,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "الآلات",
+      "width": 23.6,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "المزيد",
+      "width": 25.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "مُجرّب",
+      "width": 29.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "تجريبي",
+      "width": 31.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "مسودة",
+      "width": 32.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "قيد التشغيل",
+      "width": 54.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "مكتمل",
+      "width": 30.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "متاح",
+      "width": 19.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "قيد الاستخدام",
+      "width": 62.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "متابعة",
+      "width": 36.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "فتح PressBench",
+      "width": 112.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "بدء الدورة",
+      "width": 62.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "استئناف الدورة",
+      "width": 94.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "إيقاف الدورة مؤقتًا",
+      "width": 116.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "إنهاء الدورة",
+      "width": 70.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "عرض المقدمة مرة أخرى",
+      "width": 156.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "تكرار مطابق",
+      "width": 89.0,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "نفس نوع المنتج",
+      "width": 110.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "مادة مختلفة جوهريًا",
+      "width": 137.7,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "كيف تختلف هذه المهمة؟",
+      "width": 285.7,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "المظهر",
+      "width": 50.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "حجم النص",
+      "width": 74.1,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "تقليل الحركة",
+      "width": 89.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "التمييز دون لون",
+      "width": 110.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "فتح إعدادات iOS",
+      "width": 120.7,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "حذف البيانات المحلية",
+      "width": 149.7,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "首页",
+      "width": 12.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "工艺设置",
+      "width": 24.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "生产运行",
+      "width": 24.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "设备",
+      "width": 12.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "更多",
+      "width": 12.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "已有成功记录",
+      "width": 39.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "试验中",
+      "width": 19.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "草稿",
+      "width": 13.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "进行中",
+      "width": 19.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "已完成",
+      "width": 19.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "可用",
+      "width": 13.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "使用中",
+      "width": 19.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "继续",
+      "width": 18.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "打开 PressBench",
+      "width": 109.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "开始运行",
+      "width": 36.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "继续运行",
+      "width": 36.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "暂停运行",
+      "width": 36.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "结束运行",
+      "width": 36.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "重新查看引导",
+      "width": 54.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "完全重复",
+      "width": 40.8,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "相同产品变体",
+      "width": 61.2,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "材料存在实质差异",
+      "width": 81.6,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "此任务有何不同？",
+      "width": 134.4,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "外观",
+      "width": 20.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "文字大小",
+      "width": 40.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "减弱动态效果",
+      "width": 61.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "无需颜色区分",
+      "width": 61.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "打开 iOS“设置”",
+      "width": 92.7,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "删除本地数据",
+      "width": 61.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "ホーム",
+      "width": 18.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "工程設定",
+      "width": 24.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "生産実行",
+      "width": 24.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "機械",
+      "width": 12.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "その他",
+      "width": 18.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "実績あり",
+      "width": 26.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "試行中",
+      "width": 19.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "下書き",
+      "width": 19.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "実行中",
+      "width": 19.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "完了",
+      "width": 13.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "利用可能",
+      "width": 26.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "使用中",
+      "width": 19.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "続ける",
+      "width": 27.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "PressBenchを開く",
+      "width": 113.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "実行を開始",
+      "width": 45.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "実行を再開",
+      "width": 45.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "実行を一時停止",
+      "width": 63.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "実行を終了",
+      "width": 45.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "オンボーディングをもう一度見る",
+      "width": 135.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "完全な繰り返し",
+      "width": 71.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "同じ製品バリエーション",
+      "width": 112.2,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "素材が大きく異なる",
+      "width": 91.8,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "このジョブはどのように異なりますか？",
+      "width": 302.3,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "外観",
+      "width": 20.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "テキストサイズ",
+      "width": 71.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "視差効果を減らす",
+      "width": 81.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "色以外で区別",
+      "width": 61.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "iOSの「設定」を開く",
+      "width": 110.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "ローカルデータを削除",
+      "width": 102.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "홈",
+      "width": 6.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "공정 설정",
+      "width": 27.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "생산 실행",
+      "width": 27.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "장비",
+      "width": 12.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "더보기",
+      "width": 18.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "실적 있음",
+      "width": 29.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "시험 중",
+      "width": 23.3,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "초안",
+      "width": 13.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "실행 중",
+      "width": 23.3,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "완료됨",
+      "width": 19.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "사용 가능",
+      "width": 29.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "사용 중",
+      "width": 23.3,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "계속",
+      "width": 18.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "PressBench 열기",
+      "width": 109.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "실행 시작",
+      "width": 40.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "실행 재개",
+      "width": 40.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "실행 일시 정지",
+      "width": 63.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "실행 종료",
+      "width": 40.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "온보딩 다시 보기",
+      "width": 72.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "정확히 반복",
+      "width": 56.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "동일한 제품 옵션",
+      "width": 82.2,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "소재가 크게 다름",
+      "width": 82.2,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "이 작업은 어떻게 다른가요?",
+      "width": 226.3,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "화면 스타일",
+      "width": 56.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "텍스트 크기",
+      "width": 56.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "동작 줄이기",
+      "width": 56.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "색상 없이 구별",
+      "width": 72.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "iOS 설정 열기",
+      "width": 80.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "로컬 데이터 삭제",
+      "width": 82.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "होम",
+      "width": 18.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "सेटअप",
+      "width": 30.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "उत्पादन रन",
+      "width": 57.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "मशीनें",
+      "width": 36.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "और",
+      "width": 12.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "परीक्षित",
+      "width": 52.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "परीक्षण",
+      "width": 46.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "मसौदा",
+      "width": 33.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "चल रहा है",
+      "width": 53.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "पूरा हुआ",
+      "width": 49.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "उपलब्ध",
+      "width": 39.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "उपयोग में",
+      "width": 56.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "जारी रखें",
+      "width": 76.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "PressBench खोलें",
+      "width": 136.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "रन शुरू करें",
+      "width": 99.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "रन फिर शुरू करें",
+      "width": 131.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "रन रोकें",
+      "width": 67.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "रन समाप्त करें",
+      "width": 117.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "ऑनबोर्डिंग फिर देखें",
+      "width": 171.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "हूबहू दोहराव",
+      "width": 117.6,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "वही उत्पाद प्रकार",
+      "width": 163.9,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "सामग्री में बड़ा अंतर",
+      "width": 199.9,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "यह काम किस तरह अलग है?",
+      "width": 328.1,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "रूप-रंग",
+      "width": 67.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "टेक्स्ट का आकार",
+      "width": 143.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "गति कम करें",
+      "width": 102.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "रंग के बिना अंतर करें",
+      "width": 195.1,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "iOS सेटिंग्स खोलें",
+      "width": 172.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "स्थानीय डेटा मिटाएँ",
+      "width": 184.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "ہوم",
+      "width": 17.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "عملیات",
+      "width": 30.5,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "پیداواری رنز",
+      "width": 50.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "مشینیں",
+      "width": 30.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "مزید",
+      "width": 18.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "آزمودہ",
+      "width": 31.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "آزمائشی",
+      "width": 39.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "مسودہ",
+      "width": 32.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "جاری",
+      "width": 24.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "مکمل",
+      "width": 26.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "دستیاب",
+      "width": 34.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "استعمال میں",
+      "width": 59.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "جاری رکھیں",
+      "width": 74.9,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "PressBench کھولیں",
+      "width": 133.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "رن شروع کریں",
+      "width": 95.9,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "رن دوبارہ شروع کریں",
+      "width": 139.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "رن روکیں",
+      "width": 60.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "رن ختم کریں",
+      "width": 82.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "آن بورڈنگ دوبارہ دیکھیں",
+      "width": 153.9,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "بالکل یکساں تکرار",
+      "width": 131.6,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "اسی پروڈکٹ کی قسم",
+      "width": 160.9,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "مواد میں نمایاں فرق",
+      "width": 146.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "یہ کام کس طرح مختلف ہے؟",
+      "width": 341.4,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "ظاہری شکل",
+      "width": 93.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "متن کا سائز",
+      "width": 84.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "حرکت کم کریں",
+      "width": 110.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "رنگ کے بغیر فرق کریں",
+      "width": 161.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "iOS کی ترتیبات کھولیں",
+      "width": 165.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "مقامی ڈیٹا حذف کریں",
+      "width": 157.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "হোম",
+      "width": 18.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "সেটআপ",
+      "width": 30.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "উৎপাদন রান",
+      "width": 57.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "মেশিন",
+      "width": 30.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "আরও",
+      "width": 18.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "পরীক্ষিত",
+      "width": 52.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "পরীক্ষাধীন",
+      "width": 65.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "খসড়া",
+      "width": 33.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "চলছে",
+      "width": 26.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "সম্পন্ন",
+      "width": 46.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "উপলব্ধ",
+      "width": 39.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "ব্যবহৃত হচ্ছে",
+      "width": 82.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "চালিয়ে যান",
+      "width": 94.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "PressBench খুলুন",
+      "width": 136.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "রান শুরু করুন",
+      "width": 108.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "রান আবার চালু করুন",
+      "width": 149.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "রান বিরতি দিন",
+      "width": 108.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "রান শেষ করুন",
+      "width": 99.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "অনবোর্ডিং আবার দেখুন",
+      "width": 171.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "হুবহু পুনরাবৃত্তি",
+      "width": 168.7,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "একই পণ্য ভ্যারিয়েন্ট",
+      "width": 204.7,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "উপাদান উল্লেখযোগ্যভাবে আলাদা",
+      "width": 276.1,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "এই কাজটি কীভাবে আলাদা?",
+      "width": 343.9,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "চেহারা",
+      "width": 61.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "লেখার আকার",
+      "width": 97.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "নড়াচড়া কমান",
+      "width": 127.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "রঙ ছাড়াই পার্থক্য করুন",
+      "width": 220.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "iOS সেটিংস খুলুন",
+      "width": 151.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "স্থানীয় ডেটা মুছুন",
+      "width": 184.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Trang chủ",
+      "width": 48.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Quy trình",
+      "width": 46.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Mẻ",
+      "width": 14.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Máy móc",
+      "width": 45.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Thêm",
+      "width": 28.3,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Có kết quả tốt",
+      "width": 78.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Đang thử",
+      "width": 51.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Bản nháp",
+      "width": 52.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Đang chạy",
+      "width": 59.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Đã hoàn tất",
+      "width": 65.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Sẵn sàng",
+      "width": 50.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "Đang sử dụng",
+      "width": 76.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Tiếp tục",
+      "width": 60.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Mở PressBench",
+      "width": 113.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Bắt đầu lượt",
+      "width": 91.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Tiếp tục lượt",
+      "width": 93.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Tạm dừng lượt",
+      "width": 109.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Kết thúc lượt",
+      "width": 96.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Xem lại phần giới thiệu",
+      "width": 173.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Lặp lại chính xác",
+      "width": 143.0,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Cùng biến thể sản phẩm",
+      "width": 209.1,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Khác biệt đáng kể về vật liệu",
+      "width": 248.2,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Công việc này khác ở điểm nào?",
+      "width": 454.7,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Giao diện",
+      "width": 80.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Cỡ chữ",
+      "width": 58.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Giảm chuyển động",
+      "width": 160.7,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Phân biệt không cần màu",
+      "width": 217.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Mở Cài đặt iOS",
+      "width": 125.1,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Xóa dữ liệu cục bộ",
+      "width": 157.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Beranda",
+      "width": 42.1,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Proses",
+      "width": 32.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Sesi produksi",
+      "width": 66.5,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Mesin",
+      "width": 29.1,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Lainnya",
+      "width": 39.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Teruji",
+      "width": 29.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Uji coba",
+      "width": 44.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Draf",
+      "width": 23.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Berjalan",
+      "width": 45.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Selesai",
+      "width": 39.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Tersedia",
+      "width": 45.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "Sedang digunakan",
+      "width": 102.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Lanjutkan",
+      "width": 73.7,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Buka PressBench",
+      "width": 128.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Mulai sesi",
+      "width": 73.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Lanjutkan sesi",
+      "width": 107.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Jeda sesi",
+      "width": 66.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Akhiri sesi",
+      "width": 76.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Lihat onboarding lagi",
+      "width": 158.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Pengulangan persis",
+      "width": 166.5,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Varian produk yang sama",
+      "width": 217.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Material berbeda secara mendasar",
+      "width": 297.8,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Apa yang berbeda dari pekerjaan ini?",
+      "width": 525.6,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Tampilan",
+      "width": 76.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Ukuran teks",
+      "width": 102.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Kurangi Gerakan",
+      "width": 142.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Bedakan Tanpa Warna",
+      "width": 188.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Buka Pengaturan iOS",
+      "width": 179.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Hapus Data Lokal",
+      "width": 149.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "หน้าแรก",
+      "width": 42.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "ขั้นตอน",
+      "width": 42.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "รอบการผลิต",
+      "width": 60.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "เครื่องจักร",
+      "width": 66.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "เพิ่มเติม",
+      "width": 54.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "ผ่านการทดสอบ",
+      "width": 79.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "กำลังทดลอง",
+      "width": 72.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "ฉบับร่าง",
+      "width": 52.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "กำลังทำงาน",
+      "width": 79.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "เสร็จสิ้น",
+      "width": 59.3,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "พร้อมใช้",
+      "width": 52.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "กำลังใช้งาน",
+      "width": 79.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "ดำเนินการต่อ",
+      "width": 117.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "เปิด PressBench",
+      "width": 127.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "เริ่มรอบ",
+      "width": 72.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "ทำรอบต่อ",
+      "width": 81.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "พักรอบ",
+      "width": 54.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "จบรอบ",
+      "width": 45.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "ดูการเริ่มต้นใช้งานอีกครั้ง",
+      "width": 243.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "ทำซ้ำทุกอย่าง",
+      "width": 153.0,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "ผลิตภัณฑ์รุ่นเดียวกัน",
+      "width": 214.3,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "วัสดุแตกต่างอย่างมาก",
+      "width": 204.1,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "งานนี้แตกต่างอย่างไร?",
+      "width": 350.8,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "ลักษณะ",
+      "width": 61.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "ขนาดข้อความ",
+      "width": 112.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "ลดการเคลื่อนไหว",
+      "width": 153.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "แยกแยะโดยไม่ใช้สี",
+      "width": 173.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "เปิดการตั้งค่า iOS",
+      "width": 177.1,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "ลบข้อมูลในเครื่อง",
+      "width": 173.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Home",
+      "width": 29.5,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Proseso",
+      "width": 38.6,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Mga run",
+      "width": 41.1,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Mga machine",
+      "width": 67.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Higit pa",
+      "width": 39.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Subok na",
+      "width": 51.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Sinusubukan",
+      "width": 70.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Draft",
+      "width": 27.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Tumatakbo",
+      "width": 60.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Tapos na",
+      "width": 48.3,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Available",
+      "width": 49.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "Ginagamit",
+      "width": 57.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Magpatuloy",
+      "width": 87.9,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Buksan ang PressBench",
+      "width": 179.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Simulan ang run",
+      "width": 123.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Ipagpatuloy ang run",
+      "width": 151.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "I-pause ang run",
+      "width": 118.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Tapusin ang run",
+      "width": 119.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Tingnan ulit ang onboarding",
+      "width": 211.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Eksaktong pag-uulit",
+      "width": 169.6,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Parehong variant ng produkto",
+      "width": 253.9,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Malaking pagkakaiba sa materyal",
+      "width": 286.1,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Paano naiiba ang trabahong ito?",
+      "width": 454.3,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Hitsura",
+      "width": 61.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Laki ng text",
+      "width": 100.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Bawasan ang Galaw",
+      "width": 171.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Ibahin nang Walang Kulay",
+      "width": 220.7,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Buksan ang Mga Setting ng iOS",
+      "width": 268.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Burahin ang Lokal na Data",
+      "width": 225.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Utama",
+      "width": 33.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Proses",
+      "width": 32.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Kitaran",
+      "width": 36.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Mesin",
+      "width": 29.1,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Lagi",
+      "width": 20.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Telah diuji",
+      "width": 55.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Percubaan",
+      "width": 57.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Draf",
+      "width": 23.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Sedang berjalan",
+      "width": 89.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Selesai",
+      "width": 39.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Tersedia",
+      "width": 45.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "Sedang digunakan",
+      "width": 102.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Teruskan",
+      "width": 66.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Buka PressBench",
+      "width": 128.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Mulakan kitaran",
+      "width": 120.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Sambung kitaran",
+      "width": 128.9,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Jeda kitaran",
+      "width": 89.9,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Tamatkan kitaran",
+      "width": 130.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Lihat onboarding semula",
+      "width": 186.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Ulangan tepat",
+      "width": 120.8,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Varian produk yang sama",
+      "width": 217.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Bahan sangat berbeza",
+      "width": 191.7,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Apakah yang berbeza tentang kerja ini?",
+      "width": 558.7,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Penampilan",
+      "width": 99.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Saiz teks",
+      "width": 76.1,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Kurangkan Pergerakan",
+      "width": 192.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Bezakan Tanpa Warna",
+      "width": 187.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Buka Tetapan iOS",
+      "width": 149.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Padam Data Setempat",
+      "width": 191.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Koti",
+      "width": 18.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Prosessit",
+      "width": 44.3,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Ajot",
+      "width": 19.7,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Koneet",
+      "width": 34.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Lisää",
+      "width": 25.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Hyväksi todettu",
+      "width": 87.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Kokeilu",
+      "width": 39.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Luonnos",
+      "width": 46.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Käynnissä",
+      "width": 55.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Valmis",
+      "width": 36.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Saatavilla",
+      "width": 53.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "Käytössä",
+      "width": 49.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Jatka",
+      "width": 37.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Avaa PressBench",
+      "width": 127.7,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Aloita ajo",
+      "width": 70.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Jatka ajoa",
+      "width": 73.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Keskeytä ajo",
+      "width": 94.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Lopeta ajo",
+      "width": 78.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Näytä perehdytys uudelleen",
+      "width": 212.2,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Täsmällinen toisto",
+      "width": 154.0,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Sama tuoteversio",
+      "width": 150.1,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Olennaisesti eri materiaali",
+      "width": 223.9,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Miten tämä työ eroaa?",
+      "width": 316.3,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Ulkoasu",
+      "width": 66.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Tekstin koko",
+      "width": 103.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Vähennä liikettä",
+      "width": 137.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Erottele ilman värejä",
+      "width": 177.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Avaa iOS-asetukset",
+      "width": 165.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Poista paikalliset tiedot",
+      "width": 197.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Hem",
+      "width": 23.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Processer",
+      "width": 48.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Körningar",
+      "width": 48.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Maskiner",
+      "width": 45.1,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Mer",
+      "width": 18.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Beprövad",
+      "width": 52.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Test",
+      "width": 21.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Utkast",
+      "width": 35.3,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Pågår",
+      "width": 31.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Slutförd",
+      "width": 43.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Tillgänglig",
+      "width": 56.3,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "Används",
+      "width": 47.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Fortsätt",
+      "width": 58.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Öppna PressBench",
+      "width": 140.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Starta körning",
+      "width": 106.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Återuppta körning",
+      "width": 135.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Pausa körning",
+      "width": 104.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Avsluta körning",
+      "width": 115.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Visa introduktionen igen",
+      "width": 182.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Exakt upprepning",
+      "width": 150.5,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Samma produktvariant",
+      "width": 196.1,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Väsentligt annorlunda material",
+      "width": 263.0,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Hur skiljer sig det här jobbet?",
+      "width": 413.9,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Utseende",
+      "width": 80.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Textstorlek",
+      "width": 92.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Minska rörelse",
+      "width": 122.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Differentiera utan färg",
+      "width": 190.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Öppna iOS-inställningar",
+      "width": 202.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Radera lokala data",
+      "width": 159.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Hjem",
+      "width": 26.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Processer",
+      "width": 48.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Kørsler",
+      "width": 35.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Maskiner",
+      "width": 45.1,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Mere",
+      "width": 24.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Afprøvet",
+      "width": 46.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Prøve",
+      "width": 31.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Kladde",
+      "width": 37.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Kører",
+      "width": 29.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Fuldført",
+      "width": 42.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Tilgængelig",
+      "width": 64.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "I brug",
+      "width": 32.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Fortsæt",
+      "width": 57.7,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Åbn PressBench",
+      "width": 120.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Start kørsel",
+      "width": 86.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Genoptag kørsel",
+      "width": 123.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Sæt kørsel på pause",
+      "width": 153.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Afslut kørsel",
+      "width": 92.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Vis introduktionen igen",
+      "width": 173.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Nøjagtig gentagelse",
+      "width": 171.1,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Samme produktvariant",
+      "width": 196.2,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Væsentligt anderledes materiale",
+      "width": 278.9,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Hvordan er dette job anderledes?",
+      "width": 470.7,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Udseende",
+      "width": 85.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Tekststørrelse",
+      "width": 117.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Formindsk bevægelse",
+      "width": 186.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Differentier uden farve",
+      "width": 194.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Åbn iOS-indstillinger",
+      "width": 173.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Slet lokale data",
+      "width": 132.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Hjem",
+      "width": 26.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Oppsett",
+      "width": 39.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Kjøringer",
+      "width": 45.3,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Maskiner",
+      "width": 45.1,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Mer",
+      "width": 18.9,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Utprøvd",
+      "width": 44.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Prøve",
+      "width": 31.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Utkast",
+      "width": 35.3,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Kjører",
+      "width": 32.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Fullført",
+      "width": 38.3,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Tilgjengelig",
+      "width": 63.1,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "I bruk",
+      "width": 31.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Fortsett",
+      "width": 58.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Åpne PressBench",
+      "width": 129.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Start kjøring",
+      "width": 92.8,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Fortsett kjøring",
+      "width": 114.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Sett kjøring på pause",
+      "width": 160.1,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Avslutt kjøring",
+      "width": 107.7,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Vis introduksjonen igjen",
+      "width": 179.7,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Nøyaktig gjentakelse",
+      "width": 178.6,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Samme produktvariant",
+      "width": 196.2,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Vesentlig annerledes materiale",
+      "width": 264.7,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Hvordan skiller denne jobben seg?",
+      "width": 484.7,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Utseende",
+      "width": 80.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Tekststørrelse",
+      "width": 117.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Reduser bevegelse",
+      "width": 161.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Skill uten farger",
+      "width": 135.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Åpne iOS-innstillinger",
+      "width": 183.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Slett lokale data",
+      "width": 138.7,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "Αρχική",
+      "width": 34.6,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "Διαδικασίες",
+      "width": 59.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "Παραγωγή",
+      "width": 53.6,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "Μηχανές",
+      "width": 44.2,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "Περισσότερα",
+      "width": 65.8,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "Δοκιμασμένο",
+      "width": 71.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "Δοκιμή",
+      "width": 38.4,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "Πρόχειρο",
+      "width": 51.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "Σε εξέλιξη",
+      "width": 57.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "Ολοκληρώθηκε",
+      "width": 84.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "Διαθέσιμη",
+      "width": 55.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "Σε χρήση",
+      "width": 50.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "Συνέχεια",
+      "width": 66.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "Άνοιγμα PressBench",
+      "width": 152.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "Έναρξη εκτέλεσης",
+      "width": 140.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "Συνέχιση εκτέλεσης",
+      "width": 151.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "Παύση εκτέλεσης",
+      "width": 132.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "Τερματισμός εκτέλεσης",
+      "width": 181.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "Προβολή εισαγωγής ξανά",
+      "width": 194.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "Ακριβής επανάληψη",
+      "width": 169.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "Ίδια παραλλαγή προϊόντος",
+      "width": 228.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "Ουσιαστικά διαφορετικό υλικό",
+      "width": 261.2,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "Σε τι διαφέρει αυτή η εργασία;",
+      "width": 434.8,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "Εμφάνιση",
+      "width": 80.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "Μέγεθος κειμένου",
+      "width": 154.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "Μείωση κίνησης",
+      "width": 138.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "Διαφοροποίηση χωρίς χρώμα",
+      "width": 248.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "Άνοιγμα Ρυθμίσεων iOS",
+      "width": 200.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "Διαγραφή τοπικών δεδομένων",
+      "width": 257.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "בית",
+      "width": 14.6,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "הגדרות תהליך",
+      "width": 60.6,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "הרצות ייצור",
+      "width": 49.3,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "מכונות",
+      "width": 28.1,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "עוד",
+      "width": 14.4,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "נוסה",
+      "width": 21.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "בניסוי",
+      "width": 25.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "טיוטה",
+      "width": 26.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "פועל",
+      "width": 23.0,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "הושלם",
+      "width": 31.5,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "זמין",
+      "width": 16.7,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "בשימוש",
+      "width": 34.9,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "המשך",
+      "width": 38.7,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "פתיחת PressBench",
+      "width": 133.3,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "התחלת הרצה",
+      "width": 89.6,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "המשך הרצה",
+      "width": 80.4,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "השהיית הרצה",
+      "width": 88.5,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "סיום הרצה",
+      "width": 68.9,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "הצגת ההדרכה שוב",
+      "width": 121.7,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "חזרה מדויקת",
+      "width": 95.6,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "אותה גרסת מוצר",
+      "width": 123.7,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "חומר שונה מהותית",
+      "width": 135.7,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "במה העבודה הזו שונה?",
+      "width": 280.9,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "מראה",
+      "width": 43.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "גודל הטקסט",
+      "width": 92.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "הפחתת תנועה",
+      "width": 104.9,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "הבחנה ללא צבע",
+      "width": 122.0,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "פתיחת הגדרות iOS",
+      "width": 140.3,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "מחיקת נתונים מקומיים",
+      "width": 163.7,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "bottom-tab",
+      "key": "tab.home",
+      "text": "首頁",
+      "width": 12.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "bottom-tab",
+      "key": "tab.setups",
+      "text": "製程設定",
+      "width": 24.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "bottom-tab",
+      "key": "tab.runs",
+      "text": "生產運行",
+      "width": 24.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "bottom-tab",
+      "key": "tab.machines",
+      "text": "設備",
+      "width": 12.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "bottom-tab",
+      "key": "tab.more",
+      "text": "更多",
+      "width": 12.0,
+      "limit": 68,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "status-badge",
+      "key": "status.proven",
+      "text": "已有成功紀錄",
+      "width": 39.6,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "status-badge",
+      "key": "status.trial",
+      "text": "試驗中",
+      "width": 19.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "status-badge",
+      "key": "status.draft",
+      "text": "草稿",
+      "width": 13.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "status-badge",
+      "key": "runState.running",
+      "text": "進行中",
+      "width": 19.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "status-badge",
+      "key": "runState.completed",
+      "text": "已完成",
+      "width": 19.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "status-badge",
+      "key": "machines.available",
+      "text": "可用",
+      "width": 13.2,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "status-badge",
+      "key": "machines.inUse",
+      "text": "使用中",
+      "width": 19.8,
+      "limit": 105,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "primary-button",
+      "key": "common.continue",
+      "text": "繼續",
+      "width": 18.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "primary-button",
+      "key": "common.openPressBench",
+      "text": "開啟 PressBench",
+      "width": 109.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "primary-button",
+      "key": "setup.startRun",
+      "text": "開始運行",
+      "width": 36.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "primary-button",
+      "key": "runs.resume",
+      "text": "繼續運行",
+      "width": 36.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "primary-button",
+      "key": "runs.pause",
+      "text": "暫停運行",
+      "width": 36.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "primary-button",
+      "key": "runs.end",
+      "text": "結束運行",
+      "width": 36.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "primary-button",
+      "key": "more.viewOnboarding",
+      "text": "重新查看導覽",
+      "width": 54.0,
+      "limit": 330,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "reuse-option-two-lines",
+      "key": "run.exactRepeat",
+      "text": "完全重複",
+      "width": 40.8,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "reuse-option-two-lines",
+      "key": "run.sameProductVariant",
+      "text": "相同產品款式",
+      "width": 61.2,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "reuse-option-two-lines",
+      "key": "run.materiallyDifferent",
+      "text": "材料有實質差異",
+      "width": 71.4,
+      "limit": 552,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "reuse-header-two-lines",
+      "key": "run.jobDifference",
+      "text": "此工作有何不同？",
+      "width": 134.4,
+      "limit": 620,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "settings-row",
+      "key": "settings.appearance",
+      "text": "外觀",
+      "width": 20.4,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "settings-row",
+      "key": "accessibility.textSize",
+      "text": "文字大小",
+      "width": 40.8,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "settings-row",
+      "key": "accessibility.reduceMotion",
+      "text": "減少動態效果",
+      "width": 61.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "settings-row",
+      "key": "accessibility.differentiateWithoutColor",
+      "text": "不使用顏色來區分",
+      "width": 81.6,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "settings-row",
+      "key": "accessibility.openSettings",
+      "text": "開啟 iOS「設定」",
+      "width": 95.5,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "settings-row",
+      "key": "settings.deleteLocalData",
+      "text": "刪除本機資料",
+      "width": 61.2,
+      "limit": 300,
+      "pass": true
+    },
+    {
+      "language": "en",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Privacy | Terms | Safety",
+      "width": 158.9,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "es",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Privacidad | Términos | Seguridad",
+      "width": 223.7,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "pt",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Privacidade | Termos | Segurança",
+      "width": 223.0,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "fr",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Confidentialité | Conditions | Sécurité",
+      "width": 249.4,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "de",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Datenschutz | Bedingungen | Sicherheit",
+      "width": 265.1,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "it",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Privacy | Termini | Sicurezza",
+      "width": 187.9,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "nl",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Privacy | Voorwaarden | Veiligheid",
+      "width": 227.4,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "pl",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Prywatność | Warunki | Bezpieczeństwo",
+      "width": 263.6,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "tr",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Gizlilik | Koşullar | Güvenlik",
+      "width": 182.8,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "ro",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Confidențialitate | Termeni | Siguranță",
+      "width": 254.3,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "cs",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Soukromí | Podmínky | Bezpečnost",
+      "width": 231.3,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "uk",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Конфіденційність | Умови | Безпека",
+      "width": 251.2,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "ru",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Конфиденциальность | Условия | Безопасность",
+      "width": 332.3,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "ar",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "الخصوصية | الشروط | السلامة",
+      "width": 173.4,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "zh",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "隐私 | 条款 | 安全",
+      "width": 78.8,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "ja",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "プライバシー | 規約 | 安全",
+      "width": 110.0,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "ko",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "개인정보 | 약관 | 안전",
+      "width": 94.4,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "hi",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "गोपनीयता | शर्तें | सुरक्षा",
+      "width": 195.7,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "ur",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "رازداری | شرائط | حفاظت",
+      "width": 153.4,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "bn",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "গোপনীয়তা | শর্তাবলি | নিরাপত্তা",
+      "width": 234.7,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "vi",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Quyền riêng tư | Điều khoản | An toàn",
+      "width": 253.9,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "id",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Privasi | Ketentuan | Keselamatan",
+      "width": 225.5,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "th",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "ความเป็นส่วนตัว | ข้อกำหนด | ความปลอดภัย",
+      "width": 304.9,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "fil",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Privacy | Mga tuntunin | Kaligtasan",
+      "width": 233.3,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "ms",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Privasi | Terma | Keselamatan",
+      "width": 198.2,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "fi",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Tietosuoja | Ehdot | Turvallisuus",
+      "width": 212.5,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "sv",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Integritet | Villkor | Säkerhet",
+      "width": 190.1,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "da",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Privatliv | Vilkår | Sikkerhed",
+      "width": 184.7,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "nb",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Personvern | Vilkår | Sikkerhet",
+      "width": 202.0,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "el",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "Απόρρητο | Όροι | Ασφάλεια",
+      "width": 190.3,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "he",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "פרטיות | תנאים | בטיחות",
+      "width": 144.3,
+      "limit": 335,
+      "pass": true
+    },
+    {
+      "language": "zh-Hant",
+      "slot": "home-legal-links-combined",
+      "key": "home.legal.privacy,home.legal.terms,home.legal.safety",
+      "text": "隱私權 | 條款 | 安全",
+      "width": 86.6,
+      "limit": 335,
+      "pass": true
+    }
+  ]
+}

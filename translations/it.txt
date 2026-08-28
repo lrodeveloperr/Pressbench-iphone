@@ -1,0 +1,304 @@
+PressBench
+Indietro
+Continua
+Apri PressBench
+Lingua
+Selezionato
+Tocca per selezionare
+Tutti
+Unità
+Temperatura
+Pressione
+Piastra
+Processo
+Note
+Notifiche
+Impostazioni
+Assistenza
+Manutenzione
+Analisi
+Esportazioni
+Accessibilità
+Cronologia lotti
+Informativa sulla privacy
+Termini di utilizzo
+Avviso di sicurezza
+Avviso di sicurezza della termopressa
+Acquisti e accesso Pro
+Dati locali e backup
+Avvisi di terze parti
+Home
+Configurazioni
+Cicli
+Macchine
+Altro
+Comprovato
+In prova
+Bozza
+Archiviato
+In corso
+Completato
+Posizionamento
+Prepressatura
+Pressatura
+Rimozione
+Raffreddamento
+Post-pressatura
+%1$d di %2$d
+Benvenuto in PressBench
+Configurazioni ripetibili. Cicli registrati. Produzione migliore.
+Riutilizza configurazioni comprovate
+Mantieni ordinate le definizioni di processo che hanno dato buoni risultati e pronte per il prossimo ciclo.
+Lavora con una sequenza chiara
+Procedi attraverso i controlli della configurazione, il primo pezzo, la produzione e la registrazione del risultato.
+Scopri cosa migliora
+Monitora resa al primo passaggio, rilavorazioni e scarti dai registri di produzione che crei.
+Scegli la lingua
+Abbiamo selezionato automaticamente la lingua del tuo iPhone. Scegline un’altra ora oppure cambiala più tardi nelle Impostazioni.
+Apre il menu a discesa delle lingue
+Pensato intorno al tuo processo
+PressBench è più di un timer o un ricettario. Ogni ciclo mantiene una cronologia di produzione tracciabile basata sulla configurazione effettivamente utilizzata.
+Configurazione
+Primo pezzo
+Produzione
+Risultato
+Sicurezza, termini e privacy
+PressBench registra le informazioni di produzione inserite dall’operatore. Non ispeziona, misura, monitora né controlla la termopressa.
+Accetto i Termini di utilizzo
+Ho letto e preso atto dell’Avviso di sicurezza
+Ho consultato l’Informativa sulla privacy
+Le pagine delle informative sono attualmente disponibili in inglese.
+Scegli l’unità di temperatura
+Puoi cambiarla in seguito nelle Impostazioni. Conferma l’unità prima di usare valori di produzione.
+Fahrenheit
+Celsius
+Pronto per creare la prima configurazione
+Inizia dalla macchina e dal processo che utilizzi realmente. PressBench mantiene collegati configurazione, ciclo e risultato.
+1. Aggiungi la prima macchina
+Dai un nome alla pressa e registra il suo profilo.
+2. Crea una configurazione
+Registra il processo esatto e le informazioni sulla fonte.
+3. Registra un ciclo
+Conferma le istruzioni, esegui la produzione e salva il risultato.
+Bentornato
+Avvia nuovo ciclo
+Inizia un nuovo ciclo di produzione
+Lotti
+Primo passaggio
+Scarto
+Configurazioni recenti
+Vedi tutto
+Informazioni legali e sicurezza
+Informative ufficiali di PressBench e informazioni sulla sicurezza.
+Privacy
+Termini
+Sicurezza
+Cerca configurazioni
+Cicli senza problemi: %d
+Cicli registrati: %d
+Non ancora comprovato
+Avvia ciclo
+Ultima prova riuscita
+Cicli senza problemi
+%1$d / %2$d
+Fase %1$d / %2$d
+Ciclo attivo
+Lotto
+Riprendi ciclo
+Metti in pausa il ciclo
+Termina ciclo
+Disponibile
+In uso
+Calibrazione del timer in scadenza
+PressBench %@
+Rivedi l’introduzione
+Generali
+Unità di temperatura
+Informazioni legali e assistenza
+L’app usa questa preferenza di lingua. Puoi cambiarla in qualsiasi momento.
+Cerca lingue
+Rapporto di produzione
+Generato da PressBench
+Periodo del rapporto
+Riepilogo esecutivo
+Prestazioni dei cicli
+Problemi ed eccezioni
+Definizioni delle configurazioni
+Dimensione del campione
+Unità lavorate
+Resa al primo passaggio
+Resa finale
+Tasso di rilavorazione
+Tasso di scarto
+Unità rilavorate
+Unità scartate
+Distribuzione dei risultati
+Data
+Lavorato
+Finale
+Risultato
+Sintomo
+Causa sospetta
+Destinazione
+Quantità
+Nota
+Materiale / transfer
+Macchina / piastra
+Fase di pressatura
+Fonte delle istruzioni
+Fonte verificata
+Nessun problema registrato
+Dati limitati
+I valori inseriti dall’operatore vengono riprodotti come registrati e non vengono tradotti.
+Riepilogo
+Problemi
+Salva
+Annulla
+Nome
+Marca
+Modello
+Riferimento
+Durata (secondi)
+Materiale
+Supporto di trasferimento
+Ripristina acquisti
+Sblocca Pro
+Conferma istruzioni
+Primo pezzo approvato
+Avvia produzione
+Registra risultato
+Impossibile completare l’azione.
+OK
+Avvia timer
+Metti in pausa il timer
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Aspetto
+Sistema
+Chiaro
+Scuro
+Workspace tools
+Create backup
+Share backup
+Roll back last restore
+Restore this backup
+Machine
+Fase precedente
+Fase successiva
+Regola e riprova
+Stop with note
+Save adjustment and retry
+Save note and stop
+Conta articoli
+Annulla l'ultimo conteggio
+Registra i totali alla fine
+Motivo della pausa
+Modalità di lavorazione
+Lavorazione di prova
+Lavorazione di produzione
+Quantità pianificata
+Riferimento del lavoro
+Monitoraggio avanzamento
+Conta durante la lavorazione
+Registra i totali alla fine
+Accetto impostazione non convalidata
+Controllo qualità
+Controllo superato
+Regolazione necessaria
+Termina prima la lavorazione
+Controllo qualità richiesto
+Prossimo controllo qualità a %@ articoli
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Risultato
+Solo lotto
+Update this setup
+Save as new variant
+Titolo variante
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Istruzione
+Repeat count
+Azione di posizionamento
+Azione di finitura
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Sconosciuto
+Variazione di colore
+Immagine fantasma
+Sollevamento del bordo
+Adesione
+Bruciatura
+Allineamento
+Trasferimento incompleto
+Calore o pressione non uniformi
+Umidità
+Spostamento del trasferimento
+Contaminazione
+Difetto del supporto
+Impostazione del design
+Materiale di stampa
+Attrezzatura o alimentazione
+Interrotto
+Altro
+Calore
+Tempo
+Trasferimento
+Supporto
+Grafica
+Stampante, inchiostro o carta
+Interruzione dell’operatore
+Scarta ciclo non avviato
+Scartare questo ciclo non avviato? Non verrà creato alcun record del lotto.
+Inserisci un numero valido.
+Le quantità dei problemi devono coprire tutte le unità rilavorate e di scarto.
+Seleziona o crea una macchina prima di continuare.
+Seleziona o crea una configurazione di produzione prima di continuare.
+Termina o rilascia il ciclo attualmente riservato prima di modificare questo record.
+Il ciclo non è nello stato richiesto per questa azione.
+È necessario ripristinare l’archivio locale prima di poter continuare questa azione.
+Non è stato possibile verificare o ripristinare il backup.
+Ripeti
+“Testato” indica cicli idonei inseriti dall’operatore per questa configurazione esatta. Non è una convalida del produttore, una certificazione o una valutazione di sicurezza.
+Dimensione testo
+Gestito nelle Impostazioni di iOS
+Riduci movimento
+Distingui senza colore
+Attivo
+Disattivo
+Apri Impostazioni di iOS
+Elimina dati locali
+Questo elimina definitivamente macchine, configurazioni, cicli e impostazioni locali da questo dispositivo. Il tuo acquisto sull’App Store non viene eliminato.
+In che modo questo lavoro è diverso?
+Ripetizione esatta
+Stessa variante di prodotto
+Materiale sostanzialmente diverso
+Continua senza accedere
+Backup Apple e iCloud
+Mantieni al sicuro i dati di PressBench
+Facoltativo. Accedi con Apple per conservare un backup privato nel tuo spazio iCloud. Puoi continuare senza accedere.
+Accedi con Apple per attivare il backup automatico nel tuo spazio iCloud privato.
+Backup attivato
+Verifica dello stato del backup…
+Ultimo backup
+Nessun backup ancora creato
+Esegui backup ora
+Ripristina da iCloud
+Disattiva backup
+Il ripristino sostituisce macchine, setup, esecuzioni e impostazioni su questo dispositivo. Il tuo acquisto non viene modificato.
+Il backup automatico verrà interrotto. Il backup esistente rimarrà nel tuo spazio iCloud privato.
+Impossibile verificare l’autorizzazione Apple. Prova ad accedere di nuovo.
+Il backup iCloud non è disponibile. Controlla le impostazioni di iCloud Drive e riprova.
+Nessun backup iCloud trovato.
+Elimina backup iCloud
+Il backup verrà eliminato definitivamente dal tuo spazio iCloud. I dati su questo dispositivo non verranno eliminati.
