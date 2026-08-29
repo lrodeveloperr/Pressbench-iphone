@@ -1,0 +1,239 @@
+name: Kitchen TestFlight Build
+
+on:
+  push:
+    branches:
+      - kitchen-testflight-builder
+    paths:
+      - .github/workflows/kitchen-testflight-build.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kitchen-testflight-build
+  cancel-in-progress: true
+
+env:
+  IOS_BUNDLE_ID: studio.gooduse.kitchenprep
+  APPLE_TEAM_ID: 49SQ3XQ68Q
+  MARKETING_VERSION: 2.0.0
+  BUILD_NUMBER: 200
+
+jobs:
+  build-and-upload:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - name: Check out signing scripts
+        uses: actions/checkout@v7
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.1'
+          channel: stable
+          cache: true
+
+      - name: Fetch Kitchen release candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch vgc-release-candidate \
+            https://github.com/lrodeveloperr/kitcgen-prep-android.git \
+            "$RUNNER_TEMP/kitchen-src"
+          cd "$RUNNER_TEMP/kitchen-src"
+          cat .source/integration.part00 .source/integration.part01 .source/integration.part02 .source/integration.part03 > "$RUNNER_TEMP/integration.b64"
+          base64 --decode -i "$RUNNER_TEMP/integration.b64" -o "$RUNNER_TEMP/integration.tgz"
+          rm -rf "$RUNNER_TEMP/reviewed"
+          mkdir -p "$RUNNER_TEMP/reviewed"
+          tar -xzf "$RUNNER_TEMP/integration.tgz" -C "$RUNNER_TEMP/reviewed"
+          rm -rf flutter_app/lib flutter_app/test
+          cp -a "$RUNNER_TEMP/reviewed/integration/lib" flutter_app/lib
+          cp -a "$RUNNER_TEMP/reviewed/integration/test" flutter_app/test
+          cp "$RUNNER_TEMP/reviewed/integration/pubspec.yaml" flutter_app/pubspec.yaml
+          cp "$RUNNER_TEMP/reviewed/integration/analysis_options.yaml" flutter_app/analysis_options.yaml
+          cp "$RUNNER_TEMP/reviewed/integration/very_good.yaml" flutter_app/very_good.yaml
+          echo "KITCHEN_ROOT=$RUNNER_TEMP/kitchen-src/flutter_app" >> "$GITHUB_ENV"
+
+      - name: Resolve, analyze and test
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$KITCHEN_ROOT"
+          flutter pub get
+          flutter analyze --fatal-infos
+          flutter test
+
+      - name: Prepare App Store Connect API key
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          [[ -n "$ASC_KEY_ID" && -n "$ASC_ISSUER_ID" && -n "$ASC_PRIVATE_KEY" ]] || { echo 'App Store Connect API key is missing.' >&2; exit 2; }
+          key_dir="$HOME/.appstoreconnect/private_keys"
+          key_path="$key_dir/AuthKey_${ASC_KEY_ID}.p8"
+          mkdir -p "$key_dir"
+          chmod 700 "$key_dir"
+          umask 077
+          printf '%s' "$ASC_PRIVATE_KEY" > "$key_path"
+          chmod 600 "$key_path"
+          grep -Fq -- '-----BEGIN PRIVATE KEY-----' "$key_path"
+          grep -Fq -- '-----END PRIVATE KEY-----' "$key_path"
+          echo "ASC_KEY_PATH=$key_path" >> "$GITHUB_ENV"
+
+      - name: Build Flutter iOS artifacts without local signing
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$KITCHEN_ROOT"
+          flutter build ios \
+            --release \
+            --flavor production \
+            -t lib/main.dart \
+            --no-codesign \
+            --build-name "$MARKETING_VERSION" \
+            --build-number "$BUILD_NUMBER"
+
+      - name: Archive unsigned iOS app
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/KitchenPrepBoard.xcarchive"
+          export_dir="$RUNNER_TEMP/KitchenExport"
+          rm -rf "$archive" "$export_dir"
+          mkdir -p "$export_dir"
+          cd "$KITCHEN_ROOT/ios"
+          xcodebuild \
+            -workspace Runner.xcworkspace \
+            -scheme production \
+            -configuration Release-production \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$archive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            PRODUCT_BUNDLE_IDENTIFIER="$IOS_BUNDLE_ID" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            FLUTTER_BUILD_NAME="$MARKETING_VERSION" \
+            FLUTTER_BUILD_NUMBER="$BUILD_NUMBER" \
+            clean archive
+          echo "ARCHIVE_PATH=$archive" >> "$GITHUB_ENV"
+          echo "EXPORT_PATH=$export_dir" >> "$GITHUB_ENV"
+
+      - name: Stage embedded frameworks for cloud export
+        shell: bash
+        run: |
+          set -euo pipefail
+          app="$(find "$ARCHIVE_PATH/Products/Applications" -maxdepth 1 -type d -name '*.app' -print -quit)"
+          [[ -n "$app" ]] || { echo 'Archived .app not found.' >&2; exit 1; }
+          plist="$app/Info.plist"
+          bundle="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$plist")"
+          version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$plist")"
+          build="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$plist")"
+          [[ "$bundle" == "$IOS_BUNDLE_ID" ]] || { echo "Bundle ID mismatch: $bundle" >&2; exit 1; }
+          [[ "$version" == "$MARKETING_VERSION" ]] || { echo "Version mismatch: $version" >&2; exit 1; }
+          [[ "$build" == "$BUILD_NUMBER" ]] || { echo "Build mismatch: $build" >&2; exit 1; }
+          while IFS= read -r -d '' framework; do
+            codesign --force --sign - --timestamp=none "$framework"
+            codesign --verify --strict --verbose=2 "$framework"
+          done < <(find "$app/Frameworks" -depth -type d -name '*.framework' -print0 2>/dev/null || true)
+
+      - name: Export Apple-distribution-signed IPA
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          options="$RUNNER_TEMP/ExportOptions.plist"
+          cat > "$options" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>export</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>signingCertificate</key><string>Apple Distribution</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$ARCHIVE_PATH" \
+            -exportPath "$EXPORT_PATH" \
+            -exportOptionsPlist "$options" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          ipa="$(find "$EXPORT_PATH" -maxdepth 1 -type f -name '*.ipa' -print -quit)"
+          [[ -n "$ipa" ]] || { echo 'IPA export failed.' >&2; exit 1; }
+          echo "IPA_PATH=$ipa" >> "$GITHUB_ENV"
+          verify="$RUNNER_TEMP/ipa-verify"
+          rm -rf "$verify" && mkdir -p "$verify"
+          ditto -x -k "$ipa" "$verify"
+          app="$(find "$verify/Payload" -maxdepth 1 -type d -name '*.app' -print -quit)"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          signature="$(codesign -dvv "$app" 2>&1)"
+          [[ "$signature" == *'Authority=Apple Distribution'* ]] || { echo 'IPA is not Apple Distribution signed.' >&2; exit 1; }
+          [[ "$signature" == *"TeamIdentifier=$APPLE_TEAM_ID"* ]] || { echo 'IPA team mismatch.' >&2; exit 1; }
+          cp "$ipa" "$RUNNER_TEMP/Kitchen-Prep-Board-TestFlight.ipa"
+          shasum -a 256 "$RUNNER_TEMP/Kitchen-Prep-Board-TestFlight.ipa" > "$RUNNER_TEMP/Kitchen-Prep-Board-TestFlight.ipa.sha256"
+
+      - name: Validate and attempt TestFlight upload
+        id: delivery
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set +e
+          ipa="$RUNNER_TEMP/Kitchen-Prep-Board-TestFlight.ipa"
+          xcrun altool --validate-app --type ios --file "$ipa" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID" 2>&1 | tee "$RUNNER_TEMP/apple-validation.log"
+          validate_rc=${PIPESTATUS[0]}
+          upload_rc=99
+          if [[ $validate_rc -eq 0 ]]; then
+            xcrun altool --upload-app --type ios --file "$ipa" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID" 2>&1 | tee "$RUNNER_TEMP/apple-upload.log"
+            upload_rc=${PIPESTATUS[0]}
+          else
+            echo 'Upload skipped because Apple validation failed.' | tee "$RUNNER_TEMP/apple-upload.log"
+          fi
+          {
+            echo "validate_rc=$validate_rc"
+            echo "upload_rc=$upload_rc"
+          } >> "$GITHUB_OUTPUT"
+          if [[ $upload_rc -eq 0 ]]; then
+            echo 'TESTFLIGHT_UPLOAD=SUCCESS' | tee "$RUNNER_TEMP/TestFlight-status.txt"
+          else
+            echo "TESTFLIGHT_UPLOAD=BLOCKED validate_rc=$validate_rc upload_rc=$upload_rc" | tee "$RUNNER_TEMP/TestFlight-status.txt"
+          fi
+          exit 0
+
+      - name: Retain Kitchen IPA and Apple delivery logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kitchen-Prep-Board-TestFlight-${{ env.BUILD_NUMBER }}
+          path: |
+            ${{ runner.temp }}/Kitchen-Prep-Board-TestFlight.ipa
+            ${{ runner.temp }}/Kitchen-Prep-Board-TestFlight.ipa.sha256
+            ${{ runner.temp }}/TestFlight-status.txt
+            ${{ runner.temp }}/apple-validation.log
+            ${{ runner.temp }}/apple-upload.log
+          if-no-files-found: warn
+          retention-days: 14
