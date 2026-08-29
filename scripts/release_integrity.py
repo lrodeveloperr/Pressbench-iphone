@@ -405,10 +405,12 @@ require('privacyOptionsRequirementStatus == .required' in advertising and
 require('BannerViewDelegate' in advertising and 'didFailToReceiveAdWithError' in advertising and
         'bannerLoadResolved && !bannerLoaded ? 0' in advertising,
         'failed banner loads must collapse instead of leaving a blank fixed strip')
-require('content.safeAreaInset(edge: .bottom, spacing: 0)' in advertising and
-        'PBTheme.paper.ignoresSafeArea(edges: .bottom)' in advertising and
-        'VStack(spacing: 0)' not in advertising,
-        'banner does not use native iPhone bottom-safe-area placement')
+banner_modifier = advertising.split('private struct PBTestBannerModifier', 1)[-1].split('extension View', 1)[0]
+require('VStack(spacing: 0)' in banner_modifier and
+        'content\n            if visible {' in banner_modifier and
+        'PBTheme.paper.ignoresSafeArea(edges: .bottom)' in banner_modifier and
+        'safeAreaInset' not in banner_modifier,
+        'banner does not keep the native tab bar above its iPhone bottom slot')
 
 catalog=json.loads((root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8'))
 require(len(catalog.get('languages',[])) == 31, 'language choice count is not 31')

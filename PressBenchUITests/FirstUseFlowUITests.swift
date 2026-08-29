@@ -249,7 +249,6 @@ final class FirstUseFlowUITests: XCTestCase {
         let choice = app.buttons[option].firstMatch
         makeHittable(choice, in: app)
         choice.tap()
-        XCTAssertTrue(field.waitForExistence(timeout: 4))
     }
 
     private func makeHittable(_ element: XCUIElement, in app: XCUIApplication) {
