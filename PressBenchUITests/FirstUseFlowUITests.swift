@@ -8,13 +8,11 @@ final class FirstUseFlowUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.staticTexts["Welcome to PressBench"].waitForExistence(timeout: 8))
-        let preferencesContinue = app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch
-        XCTAssertTrue(waitForHittable(preferencesContinue, timeout: 8))
-        preferencesContinue.tap()
+        XCTAssertTrue(tapButton("pb.onboarding.continue", app: app, timeout: 20),
+                      "The first onboarding action must settle inside the Face ID viewport")
         let acknowledgement = app.buttons.matching(identifier: "pb.onboarding.accept").firstMatch
-        if !acknowledgement.waitForExistence(timeout: 8),
-           preferencesContinue.exists, preferencesContinue.isHittable {
-            preferencesContinue.tap()
+        if !acknowledgement.waitForExistence(timeout: 8) {
+            _ = tapButton("pb.onboarding.continue", app: app, timeout: 8)
         }
         XCTAssertTrue(acknowledgement.waitForExistence(timeout: 8))
         acknowledgement.tap()
@@ -155,7 +153,8 @@ final class FirstUseFlowUITests: XCTestCase {
         capture("09-completed-history")
 
         correctRecord.tap()
-        let reason = app.textViews.matching(identifier: "pb.correction.reason").firstMatch
+        let reason = app.descendants(matching: .any)
+            .matching(identifier: "pb.correction.reason").firstMatch
         XCTAssertTrue(reason.waitForExistence(timeout: 5))
         reason.tap(); reason.typeText("Audit check")
         app.buttons["Cancel"].firstMatch.tap()
@@ -266,6 +265,16 @@ final class FirstUseFlowUITests: XCTestCase {
             guard waitForHittable(tab, timeout: 4) else { continue }
             tab.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
             if destination.waitForExistence(timeout: 4), destination.isHittable { return true }
+        }
+        return false
+    }
+
+    private func tapButton(_ identifier: String, app: XCUIApplication, timeout: TimeInterval) -> Bool {
+        for _ in 0..<3 {
+            let button = app.buttons.matching(identifier: identifier).firstMatch
+            guard waitForHittable(button, timeout: timeout / 3) else { continue }
+            button.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            return true
         }
         return false
     }
