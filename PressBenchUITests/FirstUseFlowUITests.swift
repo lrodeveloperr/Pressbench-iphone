@@ -1,6 +1,35 @@
 import XCTest
 
 final class FirstUseFlowUITests: XCTestCase {
+    func testFaceIDFirstViewportLayout() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += ["--pressbench-ui-test-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Welcome to PressBench"].waitForExistence(timeout: 8))
+        app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch.tap()
+        let acknowledgement = app.buttons.matching(identifier: "pb.onboarding.accept").firstMatch
+        XCTAssertTrue(acknowledgement.waitForExistence(timeout: 3))
+        acknowledgement.tap()
+        app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch.tap()
+        let skipBackup = app.buttons.matching(identifier: "pb.onboarding.skipBackup").firstMatch
+        XCTAssertTrue(skipBackup.waitForExistence(timeout: 3))
+        skipBackup.tap()
+
+        XCTAssertTrue(app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch.waitForExistence(timeout: 8))
+        capture("face-id-home-safe-area")
+        app.tabBars.buttons["More"].tap()
+        let settingsLink = app.staticTexts["Settings"]
+        XCTAssertTrue(settingsLink.waitForExistence(timeout: 3))
+        settingsLink.tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 4))
+        let backup = app.descendants(matching: .any)["pb.settings.backup"]
+        XCTAssertTrue(backup.waitForExistence(timeout: 4))
+        XCTAssertTrue(backup.isHittable, "Backup must remain in the first Settings viewport")
+        capture("face-id-prioritized-settings")
+    }
+
     func testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup() {
         continueAfterFailure = false
         let app = XCUIApplication()

@@ -321,6 +321,7 @@ ui_test=(root/'PressBenchUITests/FirstUseFlowUITests.swift').read_text(encoding=
 app_source=(root/'PressBench/App/PressBenchApp.swift').read_text(encoding='utf-8')
 workflow=(root/'.github/workflows/validate-ios.yml').read_text(encoding='utf-8')
 require('testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup' in ui_test and
+        'testFaceIDFirstViewportLayout' in ui_test and
         'XCTAssertFalse' in ui_test and
         '11-identified-delete-warning' in ui_test and 'First piece passed' in ui_test and
         all(marker in ui_test for marker in ['choose("pb.choice.platen"', 'choose("pb.choice.material"',
@@ -347,8 +348,8 @@ require('simctl bootstatus' in workflow,
 require(all(marker in workflow for marker in [
             'iPhone SE (3rd generation)', 'PB_SE_UDID', 'PB_FACE_UDID',
             'PressBenchSETests.xcresult', 'PressBenchFaceIDTests.xcresult',
-            '-only-testing:PressBenchUITests/FirstUseFlowUITests',
-            '- name: UI tests — Face ID iPhone\n        if: always()']) and
+            '-only-testing:PressBenchUITests/FirstUseFlowUITests/testFaceIDFirstViewportLayout',
+            '- name: UI tests — Face ID iPhone\n        if: ${{ always() && !cancelled() }}']) and
         workflow.count('xcrun simctl bootstatus') == 2,
         'native layout audit does not run and retain screenshots on both iPhone SE and Face ID devices')
 require('requestPermissionIfNeeded' not in onboarding_view and

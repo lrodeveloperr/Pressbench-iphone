@@ -174,7 +174,7 @@ jobs:
             test
 
       - name: UI tests — Face ID iPhone
-        if: always()
+        if: ${{ always() && !cancelled() }}
         shell: bash
         run: |
           set -euo pipefail
@@ -190,7 +190,7 @@ jobs:
             -destination "platform=iOS Simulator,id=$PB_FACE_UDID" \
             -resultBundlePath "$result_bundle" \
             CODE_SIGNING_ALLOWED=NO \
-            -only-testing:PressBenchUITests/FirstUseFlowUITests \
+            -only-testing:PressBenchUITests/FirstUseFlowUITests/testFaceIDFirstViewportLayout \
             test
 
       - name: Export UI audit screenshots
