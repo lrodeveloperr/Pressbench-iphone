@@ -239,6 +239,7 @@ struct SetupEditorView: View {
                         )
                     }
                     TextField(t("setup.title"), text: $draft.title, prompt: Text(suggestedSetupTitle))
+                        .accessibilityIdentifier("pb.setup.title")
                 }
                 Section {
                     TextField(t("setup.defaultQuantity") + " *", text: $draft.defaultQuantity).keyboardType(.numberPad)
