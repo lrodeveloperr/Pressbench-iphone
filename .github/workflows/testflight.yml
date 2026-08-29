@@ -246,14 +246,15 @@ jobs:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath "$ARCHIVE_PATH" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             PRODUCT_BUNDLE_IDENTIFIER="$IOS_BUNDLE_ID" \
             MARKETING_VERSION="$MARKETING_VERSION" \
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            archive
+            clean archive
 
       - name: Verify archive identity
         shell: bash
@@ -269,6 +270,16 @@ jobs:
           [[ "$version" == "$MARKETING_VERSION" ]] || { echo "Marketing version mismatch: $version" >&2; exit 1; }
           [[ "$build" == "$BUILD_NUMBER" ]] || { echo "Build number mismatch: $build" >&2; exit 1; }
           [[ -f "$app/PrivacyInfo.xcprivacy" ]] || { echo 'PrivacyInfo.xcprivacy missing from signed app.' >&2; exit 1; }
+          codesign --verify --deep --strict --verbose=2 "$app"
+          app_signature="$(codesign -dvv "$app" 2>&1)"
+          [[ "$app_signature" != *'Signature=adhoc'* ]] || { echo 'Archived app is ad hoc signed.' >&2; exit 1; }
+          [[ "$app_signature" == *"TeamIdentifier=$APPLE_TEAM_ID"* ]] || { echo 'Archived app signing team mismatch.' >&2; exit 1; }
+          while IFS= read -r framework; do
+            codesign --verify --strict --verbose=2 "$framework"
+            framework_signature="$(codesign -dvv "$framework" 2>&1)"
+            [[ "$framework_signature" != *'Signature=adhoc'* ]] || { echo "Embedded framework is ad hoc signed: $framework" >&2; exit 1; }
+            [[ "$framework_signature" == *"TeamIdentifier=$APPLE_TEAM_ID"* ]] || { echo "Embedded framework signing team mismatch: $framework" >&2; exit 1; }
+          done < <(find "$app/Frameworks" -maxdepth 1 -type d -name '*.framework' -print 2>/dev/null || true)
 
       - name: Export signed IPA
         shell: bash
@@ -320,6 +331,15 @@ jobs:
           [[ "$exported_build" == "$BUILD_NUMBER" ]] || { echo "Exported build mismatch: $exported_build" >&2; exit 1; }
           [[ -f "$exported_app/PrivacyInfo.xcprivacy" ]] || { echo 'PrivacyInfo.xcprivacy missing from exported app.' >&2; exit 1; }
           codesign --verify --deep --strict --verbose=2 "$exported_app"
+          exported_app_signature="$(codesign -dvv "$exported_app" 2>&1)"
+          [[ "$exported_app_signature" != *'Signature=adhoc'* ]] || { echo 'Exported app is ad hoc signed.' >&2; exit 1; }
+          [[ "$exported_app_signature" == *"TeamIdentifier=$APPLE_TEAM_ID"* ]] || { echo 'Exported app signing team mismatch.' >&2; exit 1; }
+          while IFS= read -r framework; do
+            codesign --verify --strict --verbose=2 "$framework"
+            framework_signature="$(codesign -dvv "$framework" 2>&1)"
+            [[ "$framework_signature" != *'Signature=adhoc'* ]] || { echo "Exported framework is ad hoc signed: $framework" >&2; exit 1; }
+            [[ "$framework_signature" == *"TeamIdentifier=$APPLE_TEAM_ID"* ]] || { echo "Exported framework signing team mismatch: $framework" >&2; exit 1; }
+          done < <(find "$exported_app/Frameworks" -maxdepth 1 -type d -name '*.framework' -print 2>/dev/null || true)
           profile="$exported_app/embedded.mobileprovision"
           [[ -f "$profile" ]] || { echo 'Embedded provisioning profile missing from exported app.' >&2; exit 1; }
           profile_plist="$RUNNER_TEMP/exported-profile.plist"
