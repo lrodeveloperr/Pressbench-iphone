@@ -143,6 +143,7 @@ require('XCTAssertEqual(PBPrefillCatalog.choiceCount, 98)' in prefill_test and
 streamlining_test=(root/'PressBenchTests/DataEntryStreamliningTests.swift').read_text(encoding='utf-8')
 require('testMachineNicknameAndSetupTitleAreDerivedWithoutInventingOperatingValues' in streamlining_test and
         'XCTAssertEqual(draft.stages.first?.temperature, "")' in streamlining_test and
+        streamlining_test.count('try store.completeOnboarding') == 2 and
         '100% cotton T-shirt · Direct-to-film transfer (DTF) · 15 × 15 in' in streamlining_test and
         'testFrenchGeneratedTitleContainsOnlyOperatorOwnedDisplayValues' in streamlining_test and
         'T-shirt en coton · Transfert DTF · Presse principale' in streamlining_test,
@@ -326,7 +327,8 @@ require('testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup' in 
                                               'choose("pb.choice.transfer"', 'choose("pb.choice.pressure"',
                                               'choose("pb.choice.source"']) and
         'pb.onboarding.accept' in ui_test and 'pb.onboarding.skipBackup' in ui_test and
-        'pb.more.settings' in ui_test and 'pb.settings.plan' in ui_test and 'pb.settings.backup' in ui_test and
+        'app.navigationBars["Settings"]' in ui_test and
+        'pb.settings.plan' in ui_test and 'pb.settings.backup' in ui_test and
         'Backup must remain in the first Settings viewport' in ui_test and
         'generatedSetupTitle' in ui_test and 'enter("Main Press"' not in ui_test and
         'enter("Quick Tee"' not in ui_test and
@@ -345,7 +347,8 @@ require('simctl bootstatus' in workflow,
 require(all(marker in workflow for marker in [
             'iPhone SE (3rd generation)', 'PB_SE_UDID', 'PB_FACE_UDID',
             'PressBenchSETests.xcresult', 'PressBenchFaceIDTests.xcresult',
-            '-only-testing:PressBenchUITests/FirstUseFlowUITests']) and
+            '-only-testing:PressBenchUITests/FirstUseFlowUITests',
+            '- name: UI tests — Face ID iPhone\n        if: always()']) and
         workflow.count('xcrun simctl bootstatus') == 2,
         'native layout audit does not run and retain screenshots on both iPhone SE and Face ID devices')
 require('requestPermissionIfNeeded' not in onboarding_view and

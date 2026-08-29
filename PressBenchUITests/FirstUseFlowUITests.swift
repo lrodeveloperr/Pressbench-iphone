@@ -39,9 +39,10 @@ final class FirstUseFlowUITests: XCTestCase {
         let moreTab = app.tabBars.buttons["More"]
         XCTAssertTrue(moreTab.waitForExistence(timeout: 3))
         moreTab.tap()
-        let settingsLink = app.buttons.matching(identifier: "pb.more.settings").firstMatch
+        let settingsLink = app.staticTexts["Settings"]
         XCTAssertTrue(settingsLink.waitForExistence(timeout: 3))
         settingsLink.tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 4))
         let plan = app.descendants(matching: .any)["pb.settings.plan"]
         XCTAssertTrue(plan.waitForExistence(timeout: 4))
         XCTAssertTrue(plan.isHittable)
@@ -182,7 +183,7 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)
         XCTAssertFalse(app.staticTexts["Free runs left: 0 of 5"].exists)
         app.tabBars.buttons["More"].tap()
-        app.buttons.matching(identifier: "pb.more.settings").firstMatch.tap()
+        app.staticTexts["Settings"].tap()
         XCTAssertTrue(app.staticTexts["Purchases & Pro Access"].waitForExistence(timeout: 4))
         XCTAssertTrue(app.staticTexts["Manage subscription"].exists)
         capture("14-pro-removes-ads-and-cap")
@@ -206,7 +207,6 @@ final class FirstUseFlowUITests: XCTestCase {
         makeHittable(field, in: app)
         field.tap()
         let choice = app.buttons[option].firstMatch
-        XCTAssertTrue(choice.waitForExistence(timeout: 4))
         makeHittable(choice, in: app)
         choice.tap()
         XCTAssertTrue(field.waitForExistence(timeout: 4))
