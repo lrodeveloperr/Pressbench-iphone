@@ -1,0 +1,53 @@
+name: Kitchen ASC Discovery
+
+on:
+  push:
+    branches:
+      - kitchen-testflight-builder
+    paths:
+      - .github/workflows/kitchen-asc-discovery.yml
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Find Kitchen App Store Connect records
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          [[ -n "$ASC_KEY_ID" && -n "$ASC_ISSUER_ID" && -n "$ASC_PRIVATE_KEY" ]] || { echo 'ASC_SECRETS_MISSING'; exit 2; }
+          key="$RUNNER_TEMP/AuthKey_${ASC_KEY_ID}.p8"
+          umask 077
+          printf '%s' "$ASC_PRIVATE_KEY" > "$key"
+          jwt="$(ruby scripts/app-store-connect-jwt.rb "$key" "$ASC_KEY_ID" "$ASC_ISSUER_ID")"
+          auth="Authorization: Bearer $jwt"
+          apps="$RUNNER_TEMP/apps.json"
+          bundles="$RUNNER_TEMP/bundles.json"
+          curl --fail-with-body --silent --show-error -H "$auth" 'https://api.appstoreconnect.apple.com/v1/apps?limit=200' -o "$apps"
+          curl --fail-with-body --silent --show-error -H "$auth" 'https://api.appstoreconnect.apple.com/v1/bundleIds?limit=200' -o "$bundles"
+          python3 - "$apps" "$bundles" <<'PY'
+          import json,sys
+          apps=json.load(open(sys.argv[1])).get('data',[])
+          bundles=json.load(open(sys.argv[2])).get('data',[])
+          def kitchen(s): return 'kitchen' in (s or '').lower() or 'prep' in (s or '').lower()
+          app_hits=[]
+          for x in apps:
+              a=x.get('attributes',{})
+              if kitchen(a.get('name')) or kitchen(a.get('bundleId')):
+                  app_hits.append({'id':x.get('id'),'name':a.get('name'),'bundleId':a.get('bundleId'),'sku':a.get('sku')})
+          bundle_hits=[]
+          for x in bundles:
+              a=x.get('attributes',{})
+              if kitchen(a.get('name')) or kitchen(a.get('identifier')):
+                  bundle_hits.append({'id':x.get('id'),'name':a.get('name'),'identifier':a.get('identifier'),'platform':a.get('platform')})
+          print('KITCHEN_APPS='+json.dumps(app_hits,separators=(',',':')))
+          print('KITCHEN_BUNDLE_IDS='+json.dumps(bundle_hits,separators=(',',':')))
+          PY
