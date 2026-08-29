@@ -351,6 +351,9 @@ require('BannerViewDelegate' in advertising and 'didFailToReceiveAdWithError' in
 catalog=json.loads((root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8'))
 require(len(catalog.get('languages',[])) == 31, 'language choice count is not 31')
 require(len(catalog.get('strings',{})) == 366, 'reviewed localization catalog must contain 366 keys')
+language_tests=(root/'PressBenchTests/LanguageSupportTests.swift').read_text(encoding='utf-8')
+require('XCTAssertEqual(PBL10n.catalog.strings.count, 366)' in language_tests,
+        'unit-test localization count is stale')
 boundary = catalog.get('strings',{}).get('setup.provenBoundary',{})
 require(bool(boundary), 'localized Proven evidence boundary is missing')
 boundary_source = boundary.get('source','').lower()
