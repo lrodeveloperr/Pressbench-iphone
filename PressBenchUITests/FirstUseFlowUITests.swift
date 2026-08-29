@@ -27,9 +27,8 @@ final class FirstUseFlowUITests: XCTestCase {
         let moreTab = app.tabBars.buttons["More"]
         XCTAssertTrue(waitForHittable(moreTab, timeout: 8), "The native tab bar must settle inside the Face ID viewport")
         capture("face-id-home-safe-area")
-        moreTab.tap()
         let settingsLink = app.staticTexts["Settings"].firstMatch
-        XCTAssertTrue(waitForHittable(settingsLink, timeout: 8))
+        XCTAssertTrue(openTab("More", until: settingsLink, app: app))
         settingsLink.tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 4))
         let backup = app.descendants(matching: .any)["pb.settings.backup"]
@@ -257,7 +256,7 @@ final class FirstUseFlowUITests: XCTestCase {
     }
 
     private func scrollForward(in app: XCUIApplication) {
-        let setupForm = app.collectionViews["pb.setup.form"].firstMatch
+        let setupForm = app.descendants(matching: .any)["pb.setup.form"].firstMatch
         if setupForm.exists, setupForm.isHittable {
             setupForm.swipeUp()
             return
@@ -273,6 +272,17 @@ final class FirstUseFlowUITests: XCTestCase {
             return
         }
         app.swipeUp()
+    }
+
+    private func openTab(_ name: String, until destination: XCUIElement, app: XCUIApplication) -> Bool {
+        for _ in 0..<3 {
+            if destination.exists, destination.isHittable { return true }
+            let tab = app.tabBars.buttons[name]
+            guard waitForHittable(tab, timeout: 4) else { continue }
+            tab.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            if destination.waitForExistence(timeout: 4), destination.isHittable { return true }
+        }
+        return false
     }
 
     private func waitForHittable(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
