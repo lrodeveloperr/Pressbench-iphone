@@ -1,0 +1,43 @@
+name: Patch Kitchen Production Entrypoint
+
+on:
+  push:
+    branches: [kitchen-testflight-builder]
+    paths:
+      - .github/workflows/patch-kitchen-production-entrypoint.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: kitchen-testflight-builder
+      - name: Add VGC production entrypoint to TestFlight source overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/kitchen-testflight-build-v3.yml')
+          s=p.read_text()
+          needle='          rm -f flutter_app/l10n.yaml\n          echo "KITCHEN_ROOT=$RUNNER_TEMP/kitchen-src/flutter_app" >> "$GITHUB_ENV"\n'
+          replacement='''          rm -f flutter_app/l10n.yaml
+          cat > flutter_app/lib/main_production.dart <<'DART'
+          import 'main.dart' as kitchen;
+          void main() => kitchen.main();
+          DART
+          echo "KITCHEN_ROOT=$RUNNER_TEMP/kitchen-src/flutter_app" >> "$GITHUB_ENV"
+'''
+          if needle not in s:
+              raise SystemExit('Expected insertion point not found')
+          p.write_text(s.replace(needle,replacement,1))
+          PY
+          git config user.name 'kitchen-build-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add .github/workflows/kitchen-testflight-build-v3.yml
+          git commit -m 'fix: add Kitchen VGC production entrypoint'
+          git push origin HEAD:kitchen-testflight-builder
