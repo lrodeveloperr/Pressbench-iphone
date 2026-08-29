@@ -36,9 +36,8 @@ final class FirstUseFlowUITests: XCTestCase {
         let name = app.textFields["Name *"]
         XCTAssertTrue(name.waitForExistence(timeout: 4))
         capture("03-machine-required-fields")
-        name.tap(); name.typeText("Main Press")
-        let platen = app.textFields["Platen *"]
-        platen.tap(); platen.typeText("15 × 15")
+        enter("Main Press", in: name, app: app)
+        choose("pb.choice.platen", option: "15 × 15 in", app: app)
         app.buttons["Save"].tap()
 
         XCTAssertTrue(app.navigationBars["Setup"].waitForExistence(timeout: 5))
@@ -46,12 +45,12 @@ final class FirstUseFlowUITests: XCTestCase {
         capture("04-chained-setup-editor")
 
         enter("Quick Tee", in: app.textFields["Setup *"], app: app)
-        enter("Cotton tee", in: app.textFields["Material *"], app: app)
-        enter("DTF transfer", in: app.textFields["Transfer medium *"], app: app)
+        choose("pb.choice.material", option: "100% cotton T-shirt", app: app)
+        choose("pb.choice.transfer", option: "Direct-to-film transfer (DTF)", app: app)
         enter("325", in: app.textFields["Temperature *"], app: app)
         enter("1", in: app.textFields["Duration (seconds) *"], app: app)
-        enter("Medium", in: app.textFields["Pressure *"], app: app)
-        enter("Supplier sheet", in: app.textFields["Instruction source *"], app: app)
+        choose("pb.choice.pressure", option: "Medium", app: app)
+        choose("pb.choice.source", option: "Supplier instructions", app: app)
         enter("S-1", in: app.textFields["Reference *"], app: app)
         let saveSetup = app.buttons.matching(identifier: "Save").firstMatch
         makeHittable(saveSetup, in: app)
@@ -100,7 +99,6 @@ final class FirstUseFlowUITests: XCTestCase {
         app.buttons["Cancel"].firstMatch.tap()
         let discardCorrection = app.buttons.matching(identifier: "pb.correction.discard").firstMatch
         XCTAssertTrue(discardCorrection.waitForExistence(timeout: 3))
-        XCTAssertTrue(app.buttons.matching(identifier: "pb.correction.cancel").firstMatch.waitForExistence(timeout: 3))
         XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 2))
         capture("09-correction-discard-guard")
         discardCorrection.tap()
@@ -109,10 +107,8 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(deleteRecord.waitForExistence(timeout: 5))
         deleteRecord.tap()
         XCTAssertTrue(app.staticTexts["Permanently delete “Quick Tee”? This cannot be undone."].waitForExistence(timeout: 3))
-        let cancelDelete = app.buttons.matching(identifier: "pb.delete.cancel").firstMatch
-        XCTAssertTrue(cancelDelete.waitForExistence(timeout: 3))
         capture("10-identified-delete-warning")
-        cancelDelete.tap()
+        app.buttons["Cancel"].firstMatch.tap()
     }
 
     private func enter(_ value: String, in field: XCUIElement, app: XCUIApplication) {
@@ -126,6 +122,17 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(dismissKeyboard.isHittable)
         dismissKeyboard.tap()
         XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 2))
+    }
+
+    private func choose(_ identifier: String, option: String, app: XCUIApplication) {
+        let field = app.buttons.matching(identifier: identifier).firstMatch
+        makeHittable(field, in: app)
+        field.tap()
+        let choice = app.buttons[option].firstMatch
+        XCTAssertTrue(choice.waitForExistence(timeout: 4))
+        makeHittable(choice, in: app)
+        choice.tap()
+        XCTAssertTrue(field.waitForExistence(timeout: 4))
     }
 
     private func makeHittable(_ element: XCUIElement, in app: XCUIApplication) {

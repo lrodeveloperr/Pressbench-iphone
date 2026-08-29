@@ -15,8 +15,6 @@ struct ReportsView: View {
     var body: some View {
         List {
             Section {
-                exportButton(format: "CSV", systemImage: "tablecells")
-                exportButton(format: "JSON", systemImage: "curlybraces")
                 exportButton(format: "PDF", systemImage: "doc.richtext")
                     .disabled(!store.isPro)
                 exportButton(format: "XLSX", systemImage: "tablecells.badge.ellipsis")
@@ -97,12 +95,6 @@ struct ReportsView: View {
     }
 
     private func prepareExport(_ format: String) throws -> ReportExportWork {
-        if format == "CSV" {
-            guard let data = try store.csvExport().data(using: .utf8) else {
-                throw PressBenchReportExporter.ExportError.encoding
-            }
-            return ReportExportWork(format: format, payload: data, setups: Data(), language: language, localeIdentifier: locale.identifier)
-        }
         let plan = try store.reportPlan(format: format.lowercased())
         let payload = try JSONSerialization.data(withJSONObject: plan, options: [.sortedKeys])
         let setups = try JSONSerialization.data(withJSONObject: store.canonicalReportSetups, options: [.sortedKeys])
@@ -118,27 +110,18 @@ private struct ReportExportWork: @unchecked Sendable {
     let localeIdentifier: String
 
     func generate() throws -> URL {
-        if format == "CSV" { return try write(payload, name: "PressBench-Detailed-Export.csv") }
         guard let plan = try JSONSerialization.jsonObject(with: payload) as? [String: Any],
               let setupRows = try JSONSerialization.jsonObject(with: setups) as? [[String: Any]] else {
             throw PressBenchReportExporter.ExportError.encoding
         }
         let locale = Locale(identifier: localeIdentifier)
         switch format {
-        case "JSON": return try PressBenchReportExporter.json(plan: plan)
         case "PDF": return try PressBenchReportExporter.pdf(plan: plan, setups: setupRows, language: language, locale: locale)
         case "XLSX": return try PressBenchReportExporter.xlsx(plan: plan, setups: setupRows, language: language, locale: locale)
         default: throw PressBenchReportExporter.ExportError.encoding
         }
     }
 
-    private func write(_ data: Data, name: String) throws -> URL {
-        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("PressBenchExports", isDirectory: true)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        let url = directory.appendingPathComponent(name)
-        try data.write(to: url, options: .atomic)
-        return url
-    }
 }
 
 private struct ActivityShareView: UIViewControllerRepresentable {

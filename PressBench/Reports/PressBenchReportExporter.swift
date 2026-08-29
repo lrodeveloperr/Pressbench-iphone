@@ -13,19 +13,6 @@ enum PressBenchReportExporter {
         }
     }
 
-    static func json(plan: [String: Any]) throws -> URL {
-        guard plan["allowed"] as? Bool == true else { throw ExportError.planDenied(plan["reason"] as? String ?? "report_denied") }
-        let records = plan["records"] as? [[String: Any]] ?? []
-        let payload: [String: Any] = [
-            "schema": "pressbench-report-records",
-            "schemaVersion": 1,
-            "datasetFingerprint": plan["datasetFingerprint"] as? String ?? "",
-            "records": records
-        ]
-        let data = try JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys])
-        return try write(data, name: "PressBench-Report.json")
-    }
-
     static func pdf(
         plan: [String: Any],
         setups: [[String: Any]],

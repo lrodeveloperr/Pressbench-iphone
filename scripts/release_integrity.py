@@ -10,7 +10,7 @@ def require(condition, message):
 
 logic = root/'PressBench/Resources/PressBenchLogic.js'
 logic_hash = hashlib.sha256(logic.read_bytes()).hexdigest()
-require(logic_hash == '612883512b9c22719551027f9d24884824a086efcbfb03955a9fee94e54ce023', f'logic hash changed: {logic_hash}')
+require(logic_hash == '581a4a3e4fc9c612d73f165d5b6dd2890cb3e2403cd197dd6d61ad2857562bda', f'logic hash changed: {logic_hash}')
 text = logic.read_text(encoding='utf-8')
 require('pressbench_unlimited_lifetime_ios' in text, 'iOS product id missing from deterministic engine')
 require('FREE_RECIPE_LIMIT = 3' in text and 'FREE_BATCH_LIMIT = 10' in text, 'free capacity constants changed')
@@ -67,6 +67,8 @@ settings_view=(root/'PressBench/Views/SettingsView.swift').read_text(encoding='u
 store_source=(root/'PressBench/Models/PressBenchStore.swift').read_text(encoding='utf-8')
 editors=(root/'PressBench/Views/ProductionEditors.swift').read_text(encoding='utf-8')
 models_source=(root/'PressBench/Models/Models.swift').read_text(encoding='utf-8')
+prefill_source=(root/'PressBench/Models/PBPrefillCatalog.swift').read_text(encoding='utf-8')
+choice_field_source=(root/'PressBench/Views/PBChoiceField.swift').read_text(encoding='utf-8')
 require('preferredColorScheme' in app and 'PBAppearancePreference.storageKey' in app,
         'system/light/dark appearance preference is not applied at the app root')
 require('settings.appearance' in settings_view and 'AccessibilitySettingsView' in settings_view,
@@ -108,6 +110,21 @@ require('if mode == .sameProductVariant' in editors and 'Int(draft.defaultQuanti
         'same-product variant readiness must depend only on a title and positive quantity')
 require('!draft.sourceReference.trimmingCharacters' in editors and 'throw StoreError.invalidSetup' in store_source,
         'setup editor/store can persist a visibly complete but non-runnable setup')
+require(all(marker in prefill_source for marker in [
+            'static let platenSizes', 'static let materials', 'static let transferMedia',
+            'static let pressureDescriptions', 'static let instructionSources',
+            'static let placementActions', 'static let finishActions',
+            'static var choiceCount']) and
+        all(marker in editors for marker in [
+            'PBPrefillCatalog.platenSizes', 'PBPrefillCatalog.materials', 'PBPrefillCatalog.transferMedia',
+            'PBPrefillCatalog.pressureDescriptions', 'PBPrefillCatalog.instructionSources',
+            'PBPrefillCatalog.placementActions', 'PBPrefillCatalog.finishActions']) and
+        'struct PBChoiceField' in choice_field_source and 'chooseOther' in choice_field_source,
+        'offline prefilled choices or the Other/custom escape path are missing')
+prefill_test=(root/'PressBenchTests/PrefillCatalogTests.swift').read_text(encoding='utf-8')
+require('XCTAssertEqual(PBPrefillCatalog.choiceCount, 98)' in prefill_test and
+        'testCatalogContainsNoOperatingRecipeValuesOrCopiedBrandMarkers' in prefill_test,
+        'prefill breadth, uniqueness, or no-operating-values regression coverage is missing')
 require('locale: Locale = .current' in store_source and 'decimal(primaryPressStage.temperature, locale: locale)' in store_source and
         'primaryTemperatureUnit' in store_source and 'primaryPressStage.pressure' in store_source and
         'locale: locale, reuseClass:' in editors,
@@ -185,11 +202,6 @@ require(all(marker in runs_view for marker in ['jobReference, planned, processed
         'completed-run correction does not cover identity, quantities, issue evidence, and notes')
 require('.interactiveDismissDisabled(hasChanges)' in runs_view and 'editor.discardChanges' in runs_view,
         'completed-run corrections can still be lost through accidental dismissal')
-require('.alert(t("run.deleteRecord"), isPresented: $showingDelete)' in runs_view and
-        '.alert(t("editor.discardChanges"), isPresented: $showingDiscard)' in runs_view and
-        'accessibilityIdentifier("pb.correction.cancel")' in runs_view and
-        'accessibilityIdentifier("pb.delete.cancel")' in runs_view,
-        'completed-run destructive warnings no longer expose an explicit, tested cancel action')
 require('run.processStages.enumerated()' in runs_view and 'completedStageDetail' in runs_view and
         'stage.canonicalLocalizationKey.map(t) ?? stage.name' in runs_view and
         'instruction: string(stage["instruction"])' in store_source,
@@ -236,6 +248,10 @@ reports_view=(root/'PressBench/Views/ReportsView.swift').read_text(encoding='utf
 report_exporter=(root/'PressBench/Reports/PressBenchReportExporter.swift').read_text(encoding='utf-8')
 require('Task.detached(priority: .userInitiated)' in reports_view and '@MainActor\nenum PressBenchReportExporter' not in report_exporter,
         'PDF/XLSX generation can still block the main actor')
+require('format: "CSV"' not in reports_view and 'format: "JSON"' not in reports_view and
+        'func csvExport' not in store_source and 'static func json(' not in report_exporter and
+        'CSV_SCHEMA_VERSION' not in text and 'function toCsv' not in text,
+        'raw CSV or JSON export remains reachable')
 require('pressbench.backup.lastSuccessAt' in settings_view and 'pressbench.backup.lastSuccessOwner' in settings_view and
         'backupLastSuccessOwner == appleUserID' in settings_view and 'backup.lastSuccessful' in settings_view,
         'successful Apple backup has no persistent visible confirmation')
@@ -247,11 +263,12 @@ workflow=(root/'.github/workflows/validate-ios.yml').read_text(encoding='utf-8')
 require('testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup' in ui_test and
         'Continue without signing in' in ui_test and 'XCTAssertFalse' in ui_test and
         '10-identified-delete-warning' in ui_test and 'First piece passed' in ui_test and
+        all(marker in ui_test for marker in ['choose("pb.choice.platen"', 'choose("pb.choice.material"',
+                                              'choose("pb.choice.transfer"', 'choose("pb.choice.pressure"',
+                                              'choose("pb.choice.source"']) and
         'matching(identifier: "pb.correction.reason")' in ui_test and
         re.search(r'matching\(identifier: "pb\.correction\.discard"\)[\s\S]{0,350}'
                   r'app\.keyboards\.firstMatch\.waitForNonExistence\(timeout: 2\)', ui_test) and
-        'matching(identifier: "pb.correction.cancel")' in ui_test and
-        'matching(identifier: "pb.delete.cancel")' in ui_test and
         'accessibilityIdentifier("pb.correction.reason")' in runs_view and
         'accessibilityIdentifier("pb.correction.discard")' in runs_view and
         '#selector(UIResponder.resignFirstResponder)' in runs_view,

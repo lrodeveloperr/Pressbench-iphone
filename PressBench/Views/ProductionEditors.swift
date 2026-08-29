@@ -27,7 +27,15 @@ struct MachineEditorView: View {
                     TextField(t("common.name") + " *", text: $draft.nickname)
                     TextField(t("common.brand"), text: $draft.brand)
                     TextField(t("common.model"), text: $draft.model)
-                    TextField(t("common.platen") + " *", text: $draft.platen)
+                    PBChoiceField(
+                        title: t("common.platen") + " *",
+                        selection: $draft.platen,
+                        choices: PBPrefillCatalog.platenSizes,
+                        identifier: "pb.choice.platen",
+                        tapToSelectTitle: t("common.tapToSelect"),
+                        otherTitle: t("issue.symptom.other"),
+                        cancelTitle: t("common.cancel")
+                    )
                     if !machineReady {
                         Label(t("error.machineRequired"), systemImage: "asterisk")
                             .font(.caption).foregroundStyle(PBTheme.warningInk)
@@ -123,8 +131,24 @@ struct SetupEditorView: View {
                 Section {
                     TextField(t("setup.title") + " *", text: $draft.title)
                     if mode != .sameProductVariant {
-                        TextField(t("common.material") + " *", text: $draft.material)
-                        TextField(t("common.transferMedium") + " *", text: $draft.transferMedium)
+                        PBChoiceField(
+                            title: t("common.material") + " *",
+                            selection: $draft.material,
+                            choices: PBPrefillCatalog.materials,
+                            identifier: "pb.choice.material",
+                            tapToSelectTitle: t("common.tapToSelect"),
+                            otherTitle: t("issue.symptom.other"),
+                            cancelTitle: t("common.cancel")
+                        )
+                        PBChoiceField(
+                            title: t("common.transferMedium") + " *",
+                            selection: $draft.transferMedium,
+                            choices: PBPrefillCatalog.transferMedia,
+                            identifier: "pb.choice.transfer",
+                            tapToSelectTitle: t("common.tapToSelect"),
+                            otherTitle: t("issue.symptom.other"),
+                            cancelTitle: t("common.cancel")
+                        )
                         Picker(t("machines.title") + " *", selection: $draft.machineID) {
                             ForEach(store.machines.filter { $0.active }) { machine in Text(machine.nickname).tag(machine.id) }
                         }
@@ -160,13 +184,37 @@ struct SetupEditorView: View {
                         .pickerStyle(.segmented)
                         .frame(minHeight: PBTheme.minimumTarget)
                         TextField(t("common.durationSeconds") + (stage.stageType == "press" ? " *" : ""), text: $stage.durationSeconds).keyboardType(.numberPad)
-                        TextField(t("common.pressure") + (stage.stageType == "press" ? " *" : ""), text: $stage.pressure)
+                        PBChoiceField(
+                            title: t("common.pressure") + (stage.stageType == "press" ? " *" : ""),
+                            selection: $stage.pressure,
+                            choices: PBPrefillCatalog.pressureDescriptions,
+                            identifier: "pb.choice.pressure",
+                            tapToSelectTitle: t("common.tapToSelect"),
+                            otherTitle: t("issue.symptom.other"),
+                            cancelTitle: t("common.cancel")
+                        )
                         DisclosureGroup(t("setup.advanced")) {
                             TextField(t("stage.name"), text: $stage.name)
                             TextField(t("stage.instruction"), text: $stage.instruction)
                             TextField(t("stage.repeatCount"), text: $stage.repeatCount).keyboardType(.numberPad)
-                            TextField(t("stage.placementAction"), text: $stage.placementAction)
-                            TextField(t("stage.finishAction"), text: $stage.finishAction)
+                            PBChoiceField(
+                                title: t("stage.placementAction"),
+                                selection: $stage.placementAction,
+                                choices: PBPrefillCatalog.placementActions,
+                                identifier: "pb.choice.placement",
+                                tapToSelectTitle: t("common.tapToSelect"),
+                                otherTitle: t("issue.symptom.other"),
+                                cancelTitle: t("common.cancel")
+                            )
+                            PBChoiceField(
+                                title: t("stage.finishAction"),
+                                selection: $stage.finishAction,
+                                choices: PBPrefillCatalog.finishActions,
+                                identifier: "pb.choice.finish",
+                                tapToSelectTitle: t("common.tapToSelect"),
+                                otherTitle: t("issue.symptom.other"),
+                                cancelTitle: t("common.cancel")
+                            )
                             HStack {
                                 Button { moveStage(id: stage.id, offset: -1) } label: {
                                     Label(t("stage.moveUp"), systemImage: "arrow.up")
@@ -201,7 +249,15 @@ struct SetupEditorView: View {
                     }
                 }
                 Section(t("report.instructionSource")) {
-                    TextField(t("report.instructionSource") + " *", text: $draft.sourceName)
+                    PBChoiceField(
+                        title: t("report.instructionSource") + " *",
+                        selection: $draft.sourceName,
+                        choices: PBPrefillCatalog.instructionSources,
+                        identifier: "pb.choice.source",
+                        tapToSelectTitle: t("common.tapToSelect"),
+                        otherTitle: t("issue.symptom.other"),
+                        cancelTitle: t("common.cancel")
+                    )
                     TextField(t("common.reference") + " *", text: $draft.sourceReference)
                 }
                 }

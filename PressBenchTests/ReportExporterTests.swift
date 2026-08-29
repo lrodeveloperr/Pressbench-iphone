@@ -33,10 +33,4 @@ final class ReportExporterTests: XCTestCase {
         XCTAssertFalse(archiveText.contains("<f>"))
     }
 
-    func testJSONReportPreservesFingerprint() throws {
-        let plan: [String: Any] = ["allowed": true, "datasetFingerprint": "sha256:abc", "records": [sampleBatch]]
-        let url = try PressBenchReportExporter.json(plan: plan)
-        let object = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
-        XCTAssertEqual(object["datasetFingerprint"] as? String, "sha256:abc")
-    }
 }

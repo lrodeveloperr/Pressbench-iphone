@@ -753,12 +753,6 @@ final class PressBenchStore: ObservableObject {
         try bridge.dictionary(bridge.process("planReport", [context, format, rawBatches, Self.isoNow()]), context: "report plan")
     }
 
-    func csvExport() throws -> String {
-        let value = try bridge.domain("toCsv", [rawRecipes, rawBatches])
-        guard let text = value as? String else { throw StoreError.exportFailed }
-        return text
-    }
-
     func backupPayload() throws -> [String: Any] {
         try bridge.dictionary(bridge.domain("makeBackup", [rawRecipes, rawBatches, state["settings"] ?? NSNull(), rawMachines]), context: "backup")
     }

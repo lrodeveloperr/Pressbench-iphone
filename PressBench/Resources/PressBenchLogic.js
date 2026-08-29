@@ -1590,12 +1590,6 @@
     };
   }
 
-  function escapeCsv(value) {
-    const raw = value === null || value === undefined ? "" : String(value);
-    const safe = /^\s*[=+\-@]/.test(raw) || /^[\t\r]/.test(raw) ? `'${raw}` : raw;
-    return /[",\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
-  }
-
   function assertUniqueBackupIds(records, errorCode) {
     const seen = new Set();
     records.forEach(function (record) {
@@ -1616,72 +1610,6 @@
         seen.add(id);
       });
     });
-  }
-
-  const CSV_SCHEMA_VERSION = "pressbench-csv-v2";
-  const CSV_HEADERS = [
-    "record_type", "record_id", "setup_id", "title", "result_job_reference", "blank_or_material", "transfer_medium",
-    "machine_nickname", "platen_or_zone", "temperature", "temperature_unit", "press_time_seconds", "pressure",
-    "pre_press_seconds", "peel_method", "press_count", "quantity_planned", "quantity_good", "quantity_waste",
-    "quantity_reworked", "outcome", "issue_details_json", "setup_notes", "result_notes", "created_or_completed_at", "setup_status",
-    "proven_at", "blank_supplier", "blank_sku", "blank_lot", "blank_colour_size", "transfer_supplier",
-    "transfer_sku", "transfer_lot", "design_revision", "printer_ink_paper_profile", "accessories_placement_cooling",
-    "ordered_steps_json", "corrections_json", "proven_batch_id", "record_review_status", "legacy_original_json",
-    "archived", "quantity_processed", "setup_revision_id", "source_batch_id", "started_at", "duration_seconds",
-    "legacy_instruction_checked_at", "legacy_instruction_check_fingerprint", "work_date", "utc_offset_minutes", "time_zone",
-    "process_structure", "setup_job_reference", "machine_profile_json", "instruction_source_json", "ordered_process_stages_json",
-    "run_mode", "first_piece_json", "qc_checks_json", "interruptions_json", "production_started_at",
-    "instruction_checked_at", "instruction_check_fingerprint", "operational_fingerprint_v4", "provenance_fingerprint",
-    "exact_setup_fingerprint", "authorization_basis", "public_setup_status", "initial_pressed_setup_json", "setup_changed_during_run"
-  ];
-
-  function csvLine(values) {
-    return values.map(escapeCsv).join(",");
-  }
-
-  function recipeCsvLine(recipe) {
-    return csvLine([
-      "setup", recipe.id, recipe.id, recipe.title, "", recipe.blankMaterial, recipe.transferMedium,
-      recipe.machineNickname, recipe.platenZone, recipe.temperature, recipe.temperatureUnit, recipe.pressTimeSeconds,
-      recipe.pressure, recipe.prePressSeconds, recipe.peelMethod, recipe.pressCount, recipe.defaultQuantity, "", "", "", "", "",
-      recipe.notes, "", recipe.createdAt, publicSetupStatus(recipe), recipe.verifiedAt, recipe.blankSupplier, recipe.blankSku, recipe.blankLot,
-      recipe.blankColourSize, recipe.transferSupplier, recipe.transferSku, recipe.transferLot, recipe.designRevision,
-      recipe.printerInkPaperProfile, recipe.accessoriesPlacementCooling, JSON.stringify(recipe.steps || []), "",
-      recipe.verifiedBatchId, recipe.needsReview ? "legacy_needs_review" : "", JSON.stringify(recipe.migrationOriginal || null), recipe.archived ? "true" : "false", "",
-      recipeRevisionId(recipe.id, recipe), "", "", "", "", "", "", "", "",
-      recipe.processStructure, recipe.jobReference, JSON.stringify(recipe.machineProfile || null), JSON.stringify(recipe.instructionSource || null),
-      JSON.stringify(recipe.steps || []), "", "", "", "", "", "", "", operationalFingerprintV4(recipe),
-      provenanceFingerprint(recipe), exactSetupFingerprint(recipe), "", publicSetupStatus(recipe), "", ""
-    ]);
-  }
-
-  function batchCsvLine(batch) {
-    const recipe = batch.recipe || {};
-    return csvLine([
-      "batch", batch.id, batch.recipeId, recipe.title, batch.jobName, recipe.blankMaterial,
-      recipe.transferMedium, recipe.machineNickname, recipe.platenZone, recipe.temperature, recipe.temperatureUnit,
-      recipe.pressTimeSeconds, recipe.pressure, recipe.prePressSeconds, recipe.peelMethod, recipe.pressCount,
-      batch.quantityPlanned, batch.quantityGood, batch.quantityWaste, batch.quantityReworked, batch.outcome,
-      JSON.stringify(batch.issues || []), recipe.notes, batch.notes, batch.completedAt, publicSetupStatus(recipe), recipe.verifiedAt,
-      recipe.blankSupplier, recipe.blankSku, recipe.blankLot, recipe.blankColourSize, recipe.transferSupplier,
-      recipe.transferSku, recipe.transferLot, recipe.designRevision, recipe.printerInkPaperProfile,
-      recipe.accessoriesPlacementCooling, JSON.stringify(recipe.steps || []), JSON.stringify(batch.corrections || []),
-      recipe.verifiedBatchId, batch.reviewStatus, JSON.stringify(batch.legacyOriginal || null), recipe.archived ? "true" : "false",
-      batch.quantityProcessed, batch.recipeRevisionId, batch.sourceBatchId, batch.startedAt, batch.durationSeconds,
-      batch.manufacturerVerifiedAt, batch.manufacturerVerificationFingerprint, batch.workDate, batch.utcOffsetMinutes, batch.timeZone,
-      recipe.processStructure, recipe.jobReference, JSON.stringify(recipe.machineProfile || null), JSON.stringify(recipe.instructionSource || null),
-      JSON.stringify(recipe.steps || []), batch.runMode, JSON.stringify(batch.firstPiece || null), JSON.stringify(batch.qcChecks || []),
-      JSON.stringify(batch.interruptions || []), batch.productionStartedAt, batch.instructionCheckedAt, batch.instructionCheckFingerprint,
-      batch.operationalFingerprintV4, batch.provenanceFingerprint, batch.exactSetupFingerprint, batch.authorizationBasis, publicSetupStatus(recipe),
-      JSON.stringify(batch.initialPressedSetup || null), batch.setupChangedDuringRun ? "true" : "false"
-    ]);
-  }
-
-  function toCsv(recipes, batches) {
-    const rows = ["\uFEFF" + csvLine(CSV_HEADERS)];
-    recipes.forEach(function (recipe) { rows.push(recipeCsvLine(recipe)); });
-    batches.forEach(function (batch) { rows.push(batchCsvLine(batch)); });
-    return rows.join("\r\n");
   }
 
   function makeBackup(setups, batches, settings, machines) {
@@ -2421,7 +2349,6 @@
     MAX_BACKUP_BYTES: MAX_BACKUP_BYTES,
     MAX_DATA_BYTES: MAX_DATA_BYTES,
     MAX_RECORD_BYTES: MAX_RECORD_BYTES,
-    CSV_SCHEMA_VERSION: CSV_SCHEMA_VERSION,
     TERMS_VERSION: TERMS_VERSION,
     SAFETY_ACK_VERSION: SAFETY_ACK_VERSION,
     PRIVACY_NOTICE_VERSION: PRIVACY_NOTICE_VERSION,
@@ -2517,11 +2444,6 @@
     sortSetups: sortRecipes,
     sortBatches: sortBatches,
     metrics: metrics,
-    toCsv: toCsv,
-    csvHeaderLine: function () { return "\uFEFF" + csvLine(CSV_HEADERS); },
-    recipeCsvLine: recipeCsvLine,
-    setupCsvLine: recipeCsvLine,
-    batchCsvLine: batchCsvLine,
     makeBackup: makeBackup,
     parseBackup: parseBackup,
     validateV4MachineRaw: validateV4MachineRaw,
