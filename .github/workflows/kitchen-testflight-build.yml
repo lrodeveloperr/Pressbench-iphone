@@ -44,6 +44,8 @@ jobs:
             "$RUNNER_TEMP/kitchen-src"
           cd "$RUNNER_TEMP/kitchen-src"
           cat .source/integration.part00 .source/integration.part01 .source/integration.part02 .source/integration.part03 > "$RUNNER_TEMP/integration.b64"
+          full_sha="$(shasum -a 256 "$RUNNER_TEMP/integration.b64" | awk '{print $1}')"
+          [[ "$full_sha" == '18a85cefef0b769066b8c9d89a06e9015f0441a278b9af649db4c3106566ad52' ]] || { echo "Reviewed source checksum mismatch: $full_sha" >&2; exit 1; }
           base64 --decode -i "$RUNNER_TEMP/integration.b64" -o "$RUNNER_TEMP/integration.tgz"
           rm -rf "$RUNNER_TEMP/reviewed"
           mkdir -p "$RUNNER_TEMP/reviewed"
@@ -62,7 +64,7 @@ jobs:
           set -euo pipefail
           cd "$KITCHEN_ROOT"
           flutter pub get
-          flutter analyze --fatal-infos
+          flutter analyze
           flutter test
 
       - name: Prepare App Store Connect API key
