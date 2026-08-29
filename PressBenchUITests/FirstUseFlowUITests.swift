@@ -257,6 +257,11 @@ final class FirstUseFlowUITests: XCTestCase {
     }
 
     private func scrollForward(in app: XCUIApplication) {
+        let setupForm = app.collectionViews["pb.setup.form"].firstMatch
+        if setupForm.exists, setupForm.isHittable {
+            setupForm.swipeUp()
+            return
+        }
         let form = app.collectionViews.firstMatch
         if form.exists, form.isHittable {
             form.swipeUp()

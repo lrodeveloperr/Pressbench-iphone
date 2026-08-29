@@ -381,6 +381,7 @@ struct SetupEditorView: View {
             .pbKeyboardDismissToolbar(t("common.ok"))
             .background(PBTheme.canvasGradient)
             .tint(PBTheme.primary)
+            .accessibilityIdentifier("pb.setup.form")
             .navigationTitle(t("setup.title"))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button(t("common.cancel")) { cancel() } }
