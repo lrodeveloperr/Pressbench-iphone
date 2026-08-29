@@ -43,7 +43,8 @@ final class PurchaseManager: ObservableObject {
                 state = .pending
                 onStoreEvent?(event(
                     action: "purchase", userInitiated: true, purchaseState: "pending",
-                    transactionID: "", nativeID: "storekit2:pending:\(UUID().uuidString)", eventDate: Date()
+                    productID: Self.productID, transactionID: "",
+                    nativeID: "storekit2:pending:\(UUID().uuidString)", eventDate: Date()
                 ))
             case .userCancelled:
                 await refresh(action: "automatic_refresh", userInitiated: false)
@@ -87,7 +88,8 @@ final class PurchaseManager: ObservableObject {
             state = .free
             onStoreEvent?(event(
                 action: action, userInitiated: userInitiated, purchaseState: "not_purchased",
-                transactionID: "", nativeID: "storekit2:none:\(Int(Date().timeIntervalSince1970))", eventDate: Date()
+                productID: Self.productID, transactionID: "",
+                nativeID: "storekit2:none:\(Int(Date().timeIntervalSince1970))", eventDate: Date()
             ))
         }
     }
@@ -149,7 +151,7 @@ final class PurchaseManager: ObservableObject {
         action: String,
         userInitiated: Bool,
         purchaseState: String,
-        productID: String = Self.productID,
+        productID: String,
         transactionID: String,
         nativeID: String,
         eventDate: Date,
