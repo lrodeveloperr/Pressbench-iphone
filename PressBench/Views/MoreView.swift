@@ -6,13 +6,16 @@ struct MoreView: View {
     @Environment(\.locale) private var locale
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
+    private var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
+    }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: PBTheme.pageSpacing) {
                 VStack(alignment: .leading, spacing: 2) {
                     PBPageHeader(title: t("more.title"))
-                    Text(PBL10n.format("more.versionFormat", language: language, locale: locale, "0.21.4" as NSString))
+                    Text(PBL10n.format("more.versionFormat", language: language, locale: locale, appVersion as NSString))
                         .font(.caption).foregroundStyle(PBTheme.secondary)
                 }
 
