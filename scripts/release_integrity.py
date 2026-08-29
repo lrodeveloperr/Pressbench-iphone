@@ -348,6 +348,9 @@ require('privacyOptionsRequirementStatus == .required' in advertising and
 require('BannerViewDelegate' in advertising and 'didFailToReceiveAdWithError' in advertising and
         'bannerLoadResolved && !bannerLoaded ? 0' in advertising,
         'failed banner loads must collapse instead of leaving a blank fixed strip')
+require('VStack(spacing: 0)' in advertising and
+        'content.safeAreaInset(edge: .bottom' not in advertising,
+        'fixed banner must not push the primary tab bar off-screen')
 
 catalog=json.loads((root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8'))
 require(len(catalog.get('languages',[])) == 31, 'language choice count is not 31')
