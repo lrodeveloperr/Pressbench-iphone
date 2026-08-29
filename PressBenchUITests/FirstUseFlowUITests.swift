@@ -244,13 +244,12 @@ final class FirstUseFlowUITests: XCTestCase {
         let field = app.buttons.matching(identifier: identifier).firstMatch
         makeHittable(field, in: app)
         field.tap()
-        let choiceSheet = app.descendants(matching: .any)
-            .matching(identifier: "\(identifier).sheet").firstMatch
-        XCTAssertTrue(choiceSheet.waitForExistence(timeout: 5))
         let choice = app.buttons[option].firstMatch
+        let choiceCancel = app.buttons.matching(identifier: "\(identifier).cancel").firstMatch
+        XCTAssertTrue(choiceCancel.waitForExistence(timeout: 5))
         makeHittable(choice, in: app)
         choice.tap()
-        XCTAssertTrue(choiceSheet.waitForNonExistence(timeout: 5),
+        XCTAssertTrue(choiceCancel.waitForNonExistence(timeout: 5),
                       "The choice sheet must dismiss before the editor continues")
     }
 

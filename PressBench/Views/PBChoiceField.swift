@@ -124,6 +124,7 @@ private struct PBChoicePickerSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(cancelTitle) { dismiss() }
+                        .accessibilityIdentifier("\(identifier).cancel")
                 }
             }
         }
