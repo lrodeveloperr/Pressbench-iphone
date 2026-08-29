@@ -256,23 +256,6 @@ final class FirstUseFlowUITests: XCTestCase {
     }
 
     private func scrollForward(in app: XCUIApplication) {
-        let setupForm = app.collectionViews
-            .containing(.textField, identifier: "pb.setup.title")
-            .firstMatch
-        if setupForm.exists, setupForm.isHittable {
-            setupForm.swipeUp()
-            return
-        }
-        let form = app.collectionViews.firstMatch
-        if form.exists, form.isHittable {
-            form.swipeUp()
-            return
-        }
-        let scrollView = app.scrollViews.firstMatch
-        if scrollView.exists, scrollView.isHittable {
-            scrollView.swipeUp()
-            return
-        }
         app.swipeUp()
     }
 
