@@ -56,17 +56,16 @@ struct PBChoiceField: View {
                 title: title,
                 selection: selection,
                 choices: choices,
+                identifier: identifier,
                 otherTitle: otherTitle,
                 cancelTitle: cancelTitle,
                 choose: { value in
                     selection = value
                     customMode = false
-                    showingChoices = false
                 },
                 chooseOther: {
                     if choices.contains(selection) { selection = "" }
                     customMode = true
-                    showingChoices = false
                 }
             )
         }
@@ -77,6 +76,7 @@ private struct PBChoicePickerSheet: View {
     let title: String
     let selection: String
     let choices: [String]
+    let identifier: String
     let otherTitle: String
     let cancelTitle: String
     let choose: (String) -> Void
@@ -87,7 +87,10 @@ private struct PBChoicePickerSheet: View {
         NavigationStack {
             List {
                 ForEach(choices, id: \.self) { value in
-                    Button { choose(value) } label: {
+                    Button {
+                        choose(value)
+                        dismiss()
+                    } label: {
                         HStack {
                             Text(value).foregroundStyle(PBTheme.text)
                             Spacer()
@@ -99,7 +102,10 @@ private struct PBChoicePickerSheet: View {
                     }
                     .buttonStyle(.plain)
                 }
-                Button(action: chooseOther) {
+                Button {
+                    chooseOther()
+                    dismiss()
+                } label: {
                     HStack {
                         Text(otherTitle).foregroundStyle(PBTheme.text)
                         Spacer()
@@ -109,6 +115,7 @@ private struct PBChoicePickerSheet: View {
                 }
                 .buttonStyle(.plain)
             }
+            .accessibilityIdentifier("\(identifier).sheet")
             .environment(\.defaultMinListRowHeight, PBTheme.minimumTarget)
             .scrollContentBackground(.hidden)
             .background(PBTheme.canvasGradient)
