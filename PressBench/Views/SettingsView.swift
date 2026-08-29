@@ -177,7 +177,7 @@ struct SettingsView: View {
     @ViewBuilder
     private var planSection: some View {
         Section {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 8) {
                 Label(t(store.isPro ? "common.purchasesPro" : "upgrade.title"),
                       systemImage: store.isPro ? "checkmark.seal.fill" : "infinity.circle.fill")
                     .font(.headline)
@@ -195,9 +195,6 @@ struct SettingsView: View {
                         PBFormat.integer(PBUsageMeter.freePressLimit, locale: locale) as NSString
                     ))
                     .font(.subheadline.weight(.bold))
-                    Text(t("upgrade.body"))
-                        .font(.caption)
-                        .foregroundStyle(PBTheme.secondary)
                     Button { showingUpgrade = true } label: {
                         Label(t("common.unlockPro"), systemImage: "arrow.up.circle.fill")
                             .font(.headline)

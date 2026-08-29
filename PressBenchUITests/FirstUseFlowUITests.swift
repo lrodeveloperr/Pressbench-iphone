@@ -2,6 +2,7 @@ import XCTest
 
 final class FirstUseFlowUITests: XCTestCase {
     func testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup() {
+        continueAfterFailure = false
         let app = XCUIApplication()
         app.launchArguments += ["--pressbench-ui-test-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
