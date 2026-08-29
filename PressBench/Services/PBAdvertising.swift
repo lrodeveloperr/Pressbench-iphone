@@ -18,6 +18,14 @@ enum PBAdvertising {
     private static var started = false
     private static var preparationTask: Task<Bool, Never>?
 
+    static var isUITestRun: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.arguments.contains { $0.hasPrefix("--pressbench-ui-test") }
+        #else
+        false
+        #endif
+    }
+
     static var privacyOptionsRequired: Bool {
         ConsentInformation.shared.privacyOptionsRequirementStatus == .required
     }
@@ -72,7 +80,18 @@ struct PBTestBannerSlot: View {
 
     var body: some View {
         Group {
-            if canRequestAds {
+            if PBAdvertising.isUITestRun {
+                Color.clear
+                    .frame(width: 320, height: PBAdConfiguration.slotHeight)
+                    .frame(maxWidth: .infinity,
+                           minHeight: PBAdConfiguration.slotHeight,
+                           maxHeight: PBAdConfiguration.slotHeight)
+                    .background(PBTheme.paper)
+                    .overlay(alignment: .top) { Divider() }
+                    .accessibilityIdentifier("pb.ad.banner")
+                    .accessibilityElement()
+                    .accessibilityLabel(PBL10n.text("ads.bannerLabel", language: language, locale: locale))
+            } else if canRequestAds {
                 PBTestBannerView { loaded in
                     bannerLoaded = loaded
                     bannerLoadResolved = true
@@ -96,6 +115,7 @@ struct PBTestBannerSlot: View {
             }
         }
         .task {
+            guard !PBAdvertising.isUITestRun else { return }
             canRequestAds = await PBAdvertising.prepareForAds()
             consentResolved = true
         }
