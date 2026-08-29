@@ -6,7 +6,7 @@ The release target is locked to:
 
 - Bundle ID: `com.goodusestudios.pressbench`
 - Apple Team: `49SQ3XQ68Q`
-- Version: `0.21.4`
+- Version: `0.22.0`
 - Scheme: `PressBench`
 
 ## Source contract
