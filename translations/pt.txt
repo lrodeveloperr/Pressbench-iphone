@@ -1,0 +1,286 @@
+PressBench
+Voltar
+Continuar
+Abrir o PressBench
+Idioma
+Selecionado
+Toque para selecionar
+Todos
+Unidades
+Temperatura
+Pressão
+Prato
+Processo
+Notas
+Notificações
+Definições
+Suporte
+Manutenção
+Análises
+Exportações
+Acessibilidade
+Histórico de lotes
+Política de Privacidade
+Termos de Utilização
+Aviso de Segurança
+Aviso de Segurança da Prensa Térmica
+Compras e acesso Pro
+Dados locais e cópias de segurança
+Avisos de terceiros
+Início
+Configurações
+Execuções
+Máquinas
+Mais
+Comprovado
+Em teste
+Rascunho
+Arquivado
+Em curso
+Concluído
+Posicionamento
+Pré-prensagem
+Prensagem
+Remoção
+Arrefecimento
+Pós-prensagem
+%1$d de %2$d
+Bem-vindo ao PressBench
+Configurações repetíveis. Execuções registadas. Melhor produção.
+Reutilize configurações comprovadas
+Mantenha organizadas as definições de processo que funcionaram e prontas para a próxima execução.
+Produza com uma sequência clara
+Avance pelas verificações da configuração, primeira peça, produção e registo do resultado.
+Veja o que melhora
+Acompanhe o rendimento à primeira passagem, o retrabalho e o desperdício a partir dos registos de produção que cria.
+Escolha o seu idioma
+Selecionámos automaticamente o idioma do seu iPhone. Escolha outro agora ou altere-o mais tarde em Definições.
+Abre a lista pendente de idiomas
+Criado à volta do seu processo
+O PressBench é mais do que um temporizador ou caderno de receitas. Cada execução mantém um histórico de produção rastreável baseado na configuração que realmente utilizou.
+Configuração
+Primeira peça
+Produção
+Resultado
+Segurança, termos e privacidade
+O PressBench regista informações de produção introduzidas pelo operador. Não inspeciona, mede, monitoriza nem controla a sua prensa térmica.
+Aceito os Termos de Utilização
+Li e reconheço o Aviso de Segurança
+Revi a Política de Privacidade
+As páginas das políticas estão atualmente disponíveis em inglês.
+Escolha a unidade de temperatura
+Pode alterá-la mais tarde em Definições. Confirme a unidade antes de utilizar valores de produção.
+Fahrenheit
+Celsius
+Tudo pronto para criar a sua primeira configuração
+Comece com a máquina e o processo que realmente utiliza. O PressBench mantém ligados a configuração, a execução e o resultado.
+1. Adicione a sua primeira máquina
+Dê um nome à prensa e registe o respetivo perfil.
+2. Crie uma configuração
+Registe o processo exato e as informações da fonte.
+3. Registe uma execução
+Confirme as instruções, execute a produção e guarde o resultado.
+Bem-vindo de volta
+Iniciar nova execução
+Comece uma nova execução de produção
+Lotes
+Primeira passagem
+Desperdício
+Configurações recentes
+Ver tudo
+Aspetos legais e segurança
+Políticas oficiais do PressBench e informações de segurança.
+Privacidade
+Termos
+Segurança
+Pesquisar configurações
+Execuções sem problemas: %d
+Execuções registadas: %d
+Ainda não comprovado
+Iniciar execução
+Última comprovação
+Execuções sem problemas
+%1$d / %2$d
+Etapa %1$d / %2$d
+Execução ativa
+Lote
+Retomar execução
+Pausar execução
+Terminar execução
+Disponível
+Em utilização
+Calibração do temporizador pendente
+PressBench %@
+Ver introdução novamente
+Geral
+Unidade de temperatura
+Aspetos legais e suporte
+A aplicação segue esta preferência de idioma. Pode alterá-la a qualquer momento.
+Pesquisar idiomas
+Relatório de produção
+Gerado pelo PressBench
+Período do relatório
+Resumo executivo
+Desempenho das execuções
+Problemas e exceções
+Definições das configurações
+Tamanho da amostra
+Unidades processadas
+Rendimento à primeira passagem
+Rendimento final
+Taxa de retrabalho
+Taxa de desperdício
+Unidades retrabalhadas
+Unidades desperdiçadas
+Distribuição dos resultados
+Data
+Processado
+Final
+Resultado
+Sintoma
+Causa suspeita
+Disposição
+Quantidade
+Nota
+Material / transferência
+Máquina / prato
+Etapa de prensagem
+Fonte das instruções
+Fonte verificada
+Sem problemas registados
+Dados limitados
+Os valores introduzidos pelo operador são reproduzidos tal como foram registados e não são traduzidos.
+Resumo
+Problemas
+Guardar
+Cancelar
+Nome
+Marca
+Modelo
+Referência
+Duração (segundos)
+Material
+Meio de transferência
+Restaurar compras
+Desbloquear Pro
+Confirmar instruções
+Primeira peça aprovada
+Iniciar produção
+Registar resultado
+Não foi possível concluir a ação.
+OK
+Iniciar temporizador
+Pausar temporizador
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Aparência
+Sistema
+Claro
+Escuro
+Workspace tools
+Create backup
+Share backup
+Import backup
+Roll back last restore
+Restore this backup
+Machine
+Etapa anterior
+Próxima etapa
+Ajustar e tentar novamente
+Stop with note
+Save adjustment and retry
+Save note and stop
+Contar itens
+Desfazer última contagem
+Registrar totais ao final
+Motivo da pausa
+Modo de execução
+Execução de teste
+Execução de produção
+Quantidade planejada
+Referência do trabalho
+Acompanhamento do progresso
+Contar durante a execução
+Registrar totais no final
+Aceito usar esta configuração não validada
+Verificação de qualidade
+Aprovar verificação
+Ajuste necessário
+Encerrar execução antes
+Verificação de qualidade pendente
+Próxima verificação de qualidade em %@ itens
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Resultado
+Apenas lote
+Update this setup
+Save as new variant
+Título da variante
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Instrução
+Repeat count
+Ação de colocação
+Ação de acabamento
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Desconhecido
+Alteração de cor
+Imagem fantasma
+Levantamento da borda
+Adesão
+Queimadura
+Alinhamento
+Transferência incompleta
+Calor ou pressão irregulares
+Umidade
+Deslocamento da transferência
+Contaminação
+Defeito do substrato
+Configuração do design
+Suprimento de impressão
+Equipamento ou energia
+Interrompido
+Outro
+Calor
+Tempo
+Transferência
+Substrato
+Design
+Impressora, tinta ou papel
+Interrupção do operador
+Descartar execução não iniciada
+Descartar esta execução não iniciada? Não será criado qualquer registo de lote.
+Introduza um número válido.
+As quantidades de problemas devem abranger todas as unidades retrabalhadas e desperdiçadas.
+Selecione ou crie uma máquina antes de continuar.
+Selecione ou crie uma configuração de produção antes de continuar.
+Conclua ou liberte a execução reservada atual antes de alterar este registo.
+A execução não se encontra no estado necessário para essa ação.
+O armazenamento local tem de ser recuperado antes de esta ação poder continuar.
+Não foi possível verificar nem restaurar a cópia de segurança.
+Repetir
+“Comprovado” significa execuções qualificadas introduzidas pelo operador para esta configuração exata. Não constitui validação do fabricante, certificação nem uma avaliação de segurança.
+Tamanho do texto
+Gerenciado nos Ajustes do iOS
+Reduzir Movimento
+Diferenciar sem cor
+Ativado
+Desativado
+Abrir Ajustes do iOS
+Apagar dados locais
+Isso apaga permanentemente as máquinas, configurações, execuções e ajustes locais deste dispositivo. Sua compra na App Store não será apagada.
+O que há de diferente neste trabalho?
+Repetição exata
+Mesma variante do produto
+Material substancialmente diferente

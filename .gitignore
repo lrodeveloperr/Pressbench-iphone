@@ -1,0 +1,17 @@
+.DS_Store
+DerivedData/
+build/
+PressBench.xcodeproj/
+*.xcarchive
+*.ipa
+*.p8
+__pycache__/
+*.pyc
+extracted/
+LOCALIZATION-AUDIT-31-LANGUAGES.csv
+LOCALIZATION-CULTURAL-REVIEW.md
+LOCALIZATION-QA-REPORT.md
+LOCALIZATION-STATIC-LAYOUT-QA.json
+LOCALIZATION-STATUS.md
+RELEASE_HANDOFF.md
+UI-TEXT-INVENTORY.md

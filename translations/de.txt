@@ -1,0 +1,286 @@
+PressBench
+Zurück
+Weiter
+PressBench öffnen
+Sprache
+Ausgewählt
+Zum Auswählen tippen
+Alle
+Einheiten
+Temperatur
+Druck
+Pressplatte
+Prozess
+Notizen
+Mitteilungen
+Einstellungen
+Support
+Wartung
+Analysen
+Exporte
+Bedienungshilfen
+Chargenverlauf
+Datenschutzrichtlinie
+Nutzungsbedingungen
+Sicherheitshinweis
+Sicherheitshinweis zur Transferpresse
+Käufe & Pro-Zugang
+Lokale Daten & Sicherungen
+Hinweise zu Drittanbietern
+Start
+Prozess-Setups
+Produktionsläufe
+Maschinen
+Mehr
+Bewährt
+Test
+Entwurf
+Archiviert
+Läuft
+Abgeschlossen
+Positionierung
+Vorpressen
+Pressen
+Abziehen
+Abkühlen
+Nachpressen
+%1$d von %2$d
+Willkommen bei PressBench
+Wiederholbare Setups. Dokumentierte Läufe. Bessere Produktion.
+Bewährte Setups wiederverwenden
+Bewahren Sie erfolgreiche Prozessdefinitionen geordnet und für den nächsten Lauf griffbereit auf.
+Strukturiert produzieren
+Gehen Sie nacheinander durch Setup-Prüfungen, Erstteil, Produktion und Ergebniserfassung.
+Verbesserungen erkennen
+Verfolgen Sie Erstausbeute, Nacharbeit und Ausschuss anhand Ihrer Produktionsaufzeichnungen.
+Sprache auswählen
+Wir haben die Sprache Ihres iPhones automatisch ausgewählt. Wählen Sie jetzt eine andere oder ändern Sie sie später in den Einstellungen.
+Öffnet das Sprachauswahlmenü
+Auf Ihren Prozess ausgerichtet
+PressBench ist mehr als ein Timer oder Rezeptbuch. Jeder Lauf hält eine nachvollziehbare Produktionshistorie zu dem tatsächlich verwendeten Setup fest.
+Setup
+Erstteil
+Produktion
+Ergebnis
+Sicherheit, Bedingungen & Datenschutz
+PressBench erfasst vom Bediener eingegebene Produktionsinformationen. Die App prüft, misst, überwacht oder steuert Ihre Transferpresse nicht.
+Ich stimme den Nutzungsbedingungen zu
+Ich habe den Sicherheitshinweis gelesen und zur Kenntnis genommen
+Ich habe die Datenschutzrichtlinie gelesen
+Die Richtlinienseiten sind derzeit auf Englisch verfügbar.
+Temperatureinheit auswählen
+Sie können dies später in den Einstellungen ändern. Bestätigen Sie die Einheit, bevor Sie Produktionswerte verwenden.
+Fahrenheit
+Celsius
+Bereit für Ihr erstes Setup
+Beginnen Sie mit der Maschine und dem Prozess, die Sie tatsächlich verwenden. PressBench hält Setup, Lauf und Ergebnis miteinander verknüpft.
+1. Erste Maschine hinzufügen
+Geben Sie der Presse einen Namen und erfassen Sie ihr Profil.
+2. Setup erstellen
+Erfassen Sie den genauen Prozess und die Quellenangaben.
+3. Produktionslauf erfassen
+Bestätigen Sie die Anweisungen, führen Sie die Produktion durch und speichern Sie das Ergebnis.
+Willkommen zurück
+Neuen Lauf starten
+Einen neuen Produktionslauf beginnen
+Chargen
+Erstausbeute
+Ausschuss
+Letzte Setups
+Alle anzeigen
+Rechtliches & Sicherheit
+Offizielle PressBench-Richtlinien und Sicherheitsinformationen.
+Datenschutz
+Bedingungen
+Sicherheit
+Setups durchsuchen
+Fehlerfreie Läufe: %d
+Erfasste Läufe: %d
+Noch nicht bewährt
+Lauf starten
+Zuletzt bewährt
+Fehlerfreie Läufe
+%1$d / %2$d
+Schritt %1$d / %2$d
+Aktiver Lauf
+Charge
+Lauf fortsetzen
+Lauf pausieren
+Lauf beenden
+Verfügbar
+In Verwendung
+Timer-Kalibrierung fällig
+PressBench %@
+Einführung erneut anzeigen
+Allgemein
+Temperatureinheit
+Rechtliches & Support
+Die App verwendet diese Spracheinstellung. Sie können sie jederzeit ändern.
+Sprachen durchsuchen
+Produktionsbericht
+Erstellt mit PressBench
+Berichtszeitraum
+Zusammenfassung
+Leistung der Produktionsläufe
+Probleme & Ausnahmen
+Setup-Definitionen
+Stichprobengröße
+Verarbeitete Einheiten
+Erstausbeute
+Endausbeute
+Nacharbeitsquote
+Ausschussquote
+Nachgearbeitete Einheiten
+Ausschusseinheiten
+Ergebnisverteilung
+Datum
+Verarbeitet
+Endgültig
+Ergebnis
+Fehlerbild
+Vermutete Ursache
+Verbleib
+Menge
+Notiz
+Material / Transfer
+Maschine / Pressplatte
+Pressschritt
+Anweisungsquelle
+Quelle geprüft
+Keine Probleme erfasst
+Begrenzte Datenbasis
+Vom Bediener eingegebene Werte werden so wiedergegeben, wie sie erfasst wurden, und nicht übersetzt.
+Zusammenfassung
+Probleme
+Speichern
+Abbrechen
+Name
+Marke
+Modell
+Referenz
+Dauer (Sekunden)
+Material
+Transfermedium
+Käufe wiederherstellen
+Pro freischalten
+Anweisungen bestätigen
+Erstteil bestanden
+Produktion starten
+Ergebnis erfassen
+Aktion konnte nicht abgeschlossen werden.
+OK
+Timer starten
+Timer pausieren
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Erscheinungsbild
+Gerätestandard
+Hell
+Dunkel
+Workspace tools
+Create backup
+Share backup
+Import backup
+Roll back last restore
+Restore this backup
+Machine
+Vorherige Stufe
+Nächste Stufe
+Anpassen und erneut versuchen
+Stop with note
+Save adjustment and retry
+Save note and stop
+Stück zählen
+Letzte Zählung rückgängig
+Gesamtmengen am Laufende erfassen
+Pausengrund
+Laufmodus
+Testlauf
+Produktionslauf
+Planmenge
+Auftragsreferenz
+Fortschrittserfassung
+Während des Laufs zählen
+Gesamtmengen am Ende erfassen
+Nicht validierte Einstellung verwenden
+Qualitätsprüfung
+Prüfung bestanden
+Anpassung erforderlich
+Lauf vorzeitig beenden
+Qualitätsprüfung fällig
+Nächste Qualitätsprüfung bei %@ Stück
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Ergebnis
+Nur Charge
+Update this setup
+Save as new variant
+Variantentitel
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Anweisung
+Repeat count
+Platzierungsaktion
+Abschlussaktion
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Unbekannt
+Farbverschiebung
+Geisterbild
+Kantenablösung
+Haftung
+Versengung
+Ausrichtung
+Unvollständige Übertragung
+Ungleichmäßige Hitze oder Druck
+Feuchtigkeit
+Transfer-Verschiebung
+Verunreinigung
+Substratfehler
+Design-Einrichtung
+Druckmaterial
+Gerät oder Stromversorgung
+Unterbrochen
+Sonstiges
+Hitze
+Zeit
+Transfer
+Substrat
+Design
+Drucker, Tinte oder Papier
+Unterbrechung durch Bediener
+Nicht gestarteten Lauf verwerfen
+Diesen nicht gestarteten Lauf verwerfen? Es wird kein Chargenprotokoll erstellt.
+Geben Sie eine gültige Zahl ein.
+Die Problemmengen müssen alle nachgearbeiteten Einheiten und Ausschusseinheiten abdecken.
+Wählen oder erstellen Sie eine Maschine, bevor Sie fortfahren.
+Wählen oder erstellen Sie eine Produktionskonfiguration, bevor Sie fortfahren.
+Beenden oder geben Sie den aktuell reservierten Lauf frei, bevor Sie diesen Datensatz ändern.
+Der Lauf befindet sich nicht im erforderlichen Status für diese Aktion.
+Der lokale Speicher muss wiederhergestellt werden, bevor diese Aktion fortgesetzt werden kann.
+Die Sicherung konnte nicht überprüft oder wiederhergestellt werden.
+Wiederholen
+„Bewährt“ bezeichnet qualifizierende, vom Bediener eingegebene Durchläufe für genau dieses Setup. Es ist weder eine Herstellerfreigabe noch eine Zertifizierung oder Sicherheitsbewertung.
+Textgröße
+In den iOS-Einstellungen verwaltet
+Bewegung reduzieren
+Ohne Farbe differenzieren
+Aktiviert
+Deaktiviert
+iOS-Einstellungen öffnen
+Lokale Daten löschen
+Dadurch werden Maschinen, Setups, Durchläufe und lokale Einstellungen dauerhaft von diesem Gerät gelöscht. Dein Kauf im App Store wird nicht gelöscht.
+Wodurch unterscheidet sich dieser Auftrag?
+Exakte Wiederholung
+Gleiche Produktvariante
+Wesentlich anderes Material

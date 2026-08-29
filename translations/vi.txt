@@ -1,0 +1,286 @@
+PressBench
+Quay lại
+Tiếp tục
+Mở PressBench
+Ngôn ngữ
+Đã chọn
+Chạm để chọn
+Tất cả
+Số lượng
+Nhiệt độ
+Áp lực
+Bàn ép
+Quy trình
+Ghi chú
+Thông báo
+Cài đặt
+Hỗ trợ
+Bảo trì
+Phân tích
+Xuất dữ liệu
+Trợ năng
+Lịch sử lô
+Chính sách quyền riêng tư
+Điều khoản sử dụng
+Thông báo an toàn
+Thông báo an toàn máy ép nhiệt
+Mua hàng và quyền truy cập Pro
+Dữ liệu cục bộ và sao lưu
+Thông báo bên thứ ba
+Trang chủ
+Thiết lập quy trình
+Lượt sản xuất
+Máy móc
+Thêm
+Đã chứng minh
+Đang thử
+Bản nháp
+Đã lưu trữ
+Đang chạy
+Đã hoàn tất
+Định vị
+Ép sơ bộ
+Ép
+Bóc
+Làm nguội
+Ép bổ sung
+%1$d / %2$d
+Chào mừng đến với PressBench
+Thiết lập có thể lặp lại. Lượt sản xuất được ghi lại. Sản xuất ổn định hơn.
+Dùng lại thiết lập đã có kết quả
+Giữ các định nghĩa quy trình đã thành công gọn gàng và sẵn sàng cho lượt sản xuất tiếp theo.
+Làm việc theo trình tự rõ ràng
+Đi lần lượt qua kiểm tra thiết lập, sản phẩm đầu tiên, sản xuất và ghi nhận kết quả.
+Nhìn rõ điều gì đang cải thiện
+Theo dõi tỷ lệ đạt ngay lần đầu, làm lại và phế phẩm từ các bản ghi sản xuất bạn tạo.
+Chọn ngôn ngữ
+Ngôn ngữ của iPhone đã được chọn tự động. Chọn ngôn ngữ khác ngay bây giờ hoặc đổi sau trong Cài đặt.
+Mở danh sách thả xuống ngôn ngữ
+Thiết kế xoay quanh quy trình của bạn
+PressBench không chỉ là bộ hẹn giờ hay sổ công thức. Mỗi lượt sản xuất lưu lại lịch sử có thể truy vết dựa trên thiết lập thực tế đã dùng.
+Thiết lập
+Sản phẩm đầu tiên
+Sản xuất
+Kết quả
+An toàn, điều khoản và quyền riêng tư
+PressBench ghi lại thông tin sản xuất do người vận hành nhập. Ứng dụng không kiểm tra, đo, giám sát hoặc điều khiển máy ép nhiệt của bạn.
+Tôi đồng ý với Điều khoản sử dụng
+Tôi đã đọc và xác nhận Thông báo an toàn
+Tôi đã xem Chính sách quyền riêng tư
+Các trang chính sách hiện chỉ có bằng tiếng Anh.
+Chọn đơn vị nhiệt độ
+Bạn có thể đổi sau trong Cài đặt. Hãy xác nhận đơn vị trước khi dùng các giá trị sản xuất.
+Fahrenheit
+Celsius
+Sẵn sàng tạo thiết lập đầu tiên
+Bắt đầu với máy và quy trình bạn thực sự dùng. PressBench giữ thiết lập, lượt sản xuất và kết quả liên kết với nhau.
+1. Thêm máy đầu tiên
+Đặt tên dễ nhận biết cho máy ép và ghi lại hồ sơ của máy.
+2. Tạo thiết lập
+Ghi lại chính xác quy trình và thông tin nguồn.
+3. Ghi một lượt sản xuất
+Xác nhận hướng dẫn, thực hiện sản xuất và lưu kết quả.
+Chào mừng trở lại
+Bắt đầu lượt mới
+Bắt đầu một lượt sản xuất mới
+Lô
+Đạt ngay lần đầu
+Phế phẩm
+Thiết lập gần đây
+Xem tất cả
+Pháp lý và an toàn
+Chính sách chính thức của PressBench và thông tin an toàn.
+Quyền riêng tư
+Điều khoản
+An toàn
+Tìm thiết lập
+Lượt không có sự cố: %d
+Lượt đã ghi: %d
+Chưa được chứng minh
+Bắt đầu lượt
+Lần chứng minh gần nhất
+Lượt không có sự cố
+%1$d / %2$d
+Giai đoạn %1$d / %2$d
+Lượt đang hoạt động
+Lô
+Tiếp tục lượt
+Tạm dừng lượt
+Kết thúc lượt
+Sẵn sàng
+Đang sử dụng
+Cần hiệu chuẩn bộ hẹn giờ
+PressBench %@
+Xem lại phần giới thiệu
+Chung
+Đơn vị nhiệt độ
+Pháp lý và hỗ trợ
+Ứng dụng dùng tùy chọn ngôn ngữ này. Bạn có thể thay đổi bất cứ lúc nào.
+Tìm ngôn ngữ
+Báo cáo sản xuất
+Được tạo bởi PressBench
+Kỳ báo cáo
+Tóm tắt điều hành
+Hiệu suất lượt sản xuất
+Sự cố và ngoại lệ
+Định nghĩa thiết lập
+Cỡ mẫu
+Số lượng đã xử lý
+Tỷ lệ đạt ngay lần đầu
+Tỷ lệ đạt cuối cùng
+Tỷ lệ làm lại
+Tỷ lệ phế phẩm
+Số lượng làm lại
+Số lượng phế phẩm
+Phân bố kết quả
+Ngày
+Đã xử lý
+Cuối cùng
+Kết quả
+Biểu hiện
+Nguyên nhân nghi ngờ
+Cách xử lý
+Số lượng
+Ghi chú
+Vật liệu / transfer
+Máy / bàn ép
+Giai đoạn ép
+Nguồn hướng dẫn
+Nguồn đã được kiểm tra
+Không ghi nhận sự cố
+Dữ liệu hạn chế
+Các giá trị do người vận hành nhập được hiển thị đúng như đã ghi và không được dịch.
+Tóm tắt
+Sự cố
+Lưu
+Hủy
+Tên
+Thương hiệu
+Mẫu máy
+Tham chiếu
+Thời lượng (giây)
+Vật liệu
+Vật liệu chuyển nhiệt
+Khôi phục giao dịch mua
+Mở khóa Pro
+Xác nhận hướng dẫn
+Mẫu đầu đạt
+Bắt đầu sản xuất
+Ghi kết quả
+Không thể hoàn tất thao tác.
+OK
+Bắt đầu hẹn giờ
+Tạm dừng hẹn giờ
+Language, units, feedback, backups, and support
+Storage recovery required
+Haptic feedback
+Timer sound
+Giao diện
+Hệ thống
+Sáng
+Tối
+Workspace tools
+Create backup
+Share backup
+Import backup
+Roll back last restore
+Restore this backup
+Machine
+Giai đoạn trước
+Giai đoạn tiếp theo
+Điều chỉnh và thử lại
+Stop with note
+Save adjustment and retry
+Save note and stop
+Count items
+Hoàn tác lần đếm gần nhất
+Record totals when the run ends
+Lý do tạm dừng
+Chế độ lượt chạy
+Test run
+Production run
+Số lượng theo kế hoạch
+Tham chiếu công việc
+Theo dõi tiến độ
+Count during the run
+Record totals at the end
+I understand this setup is not proven
+Quality check
+Pass check
+Adjustment required
+End run early
+Quality check due
+Next quality check at %@ items
+All planned units were good
+Confirms zero rework, zero waste, and no issues.
+Kết quả
+Chỉ lô
+Update this setup
+Save as new variant
+Tên biến thể
+Issue
+Add issue
+Discarded
+Reworked
+Default quantity
+Stage
+Stage type
+Stage name
+Hướng dẫn
+Repeat count
+Thao tác đặt
+Thao tác hoàn thiện
+Move stage up
+Move stage down
+Remove stage
+Add stage
+Không xác định
+Lệch màu
+Bóng mờ
+Bong mép
+Độ bám dính
+Cháy xém
+Căn chỉnh
+Truyền không hoàn tất
+Nhiệt hoặc áp suất không đều
+Độ ẩm
+Lệch bản truyền
+Nhiễm bẩn
+Lỗi vật liệu nền
+Thiết lập thiết kế
+Vật tư in
+Thiết bị hoặc nguồn điện
+Bị gián đoạn
+Khác
+Nhiệt
+Thời gian
+Truyền
+Vật liệu nền
+Thiết kế
+Máy in, mực hoặc giấy
+Gián đoạn do người vận hành
+Hủy lượt chạy chưa bắt đầu
+Hủy lượt chạy chưa bắt đầu này? Sẽ không tạo hồ sơ lô.
+Nhập một số hợp lệ.
+Số lượng theo sự cố phải bao gồm tất cả các đơn vị làm lại và phế phẩm.
+Chọn hoặc tạo máy trước khi tiếp tục.
+Chọn hoặc tạo thiết lập sản xuất trước khi tiếp tục.
+Hoàn tất hoặc giải phóng lượt chạy đang được giữ chỗ trước khi thay đổi bản ghi này.
+Lượt chạy không ở trạng thái cần thiết để thực hiện thao tác đó.
+Cần khôi phục bộ nhớ cục bộ trước khi có thể tiếp tục thao tác này.
+Không thể xác minh hoặc khôi phục bản sao lưu.
+Lặp lại
+“Đã chứng minh” nghĩa là các lượt đạt điều kiện do người vận hành nhập cho đúng thiết lập này. Đây không phải là xác nhận của nhà sản xuất, chứng nhận hay kết luận về an toàn.
+Cỡ chữ
+Được quản lý trong Cài đặt iOS
+Giảm chuyển động
+Phân biệt không cần màu
+Đã bật
+Đã tắt
+Mở Cài đặt iOS
+Xóa dữ liệu cục bộ
+Thao tác này sẽ xóa vĩnh viễn máy móc, thiết lập, lượt chạy và cài đặt cục bộ khỏi thiết bị này. Giao dịch mua trên App Store của bạn sẽ không bị xóa.
+Công việc này khác ở điểm nào?
+Lặp lại chính xác
+Cùng biến thể sản phẩm
+Khác biệt đáng kể về vật liệu

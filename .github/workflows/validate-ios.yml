@@ -127,12 +127,40 @@ jobs:
         run: |
           set -euo pipefail
           cd "$PB_SOURCE_ROOT"
+          result_bundle="$GITHUB_WORKSPACE/build/PressBenchTests.xcresult"
+          rm -rf "$result_bundle"
+          mkdir -p "$(dirname "$result_bundle")"
           UDID="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; ids=[x["udid"] for runtime in d.values() for x in runtime if x.get("isAvailable") and "iPhone" in x.get("name","")]; print(ids[0] if ids else "")')"
           [[ -n "$UDID" ]] || { echo 'No available iPhone simulator found.' >&2; exit 1; }
+          xcrun simctl boot "$UDID" 2>/dev/null || true
+          xcrun simctl bootstatus "$UDID" -b
           xcodebuild \
             -project PressBench.xcodeproj \
             -scheme "$SCHEME" \
             -configuration Debug \
             -destination "platform=iOS Simulator,id=$UDID" \
+            -resultBundlePath "$result_bundle" \
             CODE_SIGNING_ALLOWED=NO \
             test
+
+      - name: Export UI audit screenshots
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result_bundle="$GITHUB_WORKSPACE/build/PressBenchTests.xcresult"
+          screenshot_dir="$GITHUB_WORKSPACE/build/ui-screenshots"
+          [[ -d "$result_bundle" ]] || { echo 'Xcode test result bundle is missing.' >&2; exit 1; }
+          rm -rf "$screenshot_dir"
+          xcrun xcresulttool export attachments \
+            --path "$result_bundle" \
+            --output-path "$screenshot_dir"
+
+      - name: Upload UI audit screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pressbench-ui-audit-screenshots
+          path: build/ui-screenshots/**/*.png
+          if-no-files-found: error
+          retention-days: 14

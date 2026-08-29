@@ -1,0 +1,327 @@
+001	PressBench	app.name
+002	Back	common.back
+003	Continue	common.continue
+004	Open PressBench	common.openPressBench
+005	Language	common.language
+006	Selected	common.selected,language.selected
+007	Tap to select	common.tapToSelect
+008	All	common.all
+009	Units	common.units
+010	Temperature	common.temperature
+011	Pressure	common.pressure,issue.cause.pressure
+012	Platen	common.platen
+013	Process	common.process
+014	Notes	common.notes
+015	Notifications	common.notifications
+016	Settings	common.settings,settings.title
+017	Support	common.support
+018	Maintenance	common.maintenance
+019	Analytics	common.analytics
+020	Exports	common.exports
+021	Accessibility	common.accessibility
+022	Batch History	common.batchHistory
+023	Privacy Policy	common.privacyPolicy
+024	Terms of Use	common.termsOfUse
+025	Safety Notice	common.safetyNotice
+026	Heat-Press Safety Notice	common.heatPressSafetyNotice
+027	Purchases & Pro Access	common.purchasesPro
+028	Local Data & Backups	common.localDataBackups
+029	Third-Party Notices	common.thirdPartyNotices
+030	Home	tab.home
+031	Setups	tab.setups,home.metric.setups,setups.title,report.sheet.setups
+032	Runs	tab.runs,runs.title,report.sheet.runs
+033	Machines	tab.machines,machines.title
+034	More	tab.more,more.title
+035	Proven	status.proven,onboarding.process.proven
+036	Trial	status.trial
+037	Draft	status.draft,runState.draft
+038	Archived	status.archived
+039	Running	runState.running
+040	Completed	runState.completed
+041	Placement	stage.placement,issue.cause.placement
+042	Pre-press	stage.prepress
+043	Press	stage.press
+044	Peel	stage.peel
+045	Cool	stage.cool
+046	Post-press	stage.postpress
+047	%1$d of %2$d	onboarding.pageProgress
+048	Welcome to PressBench	onboarding.welcome.title
+049	Repeatable setups. Recorded runs. Better production.	onboarding.welcome.subtitle
+050	Reuse proven setups	onboarding.welcome.reuse.title
+051	Keep successful process definitions organized and ready for the next run.	onboarding.welcome.reuse.body
+052	Run with structure	onboarding.welcome.structure.title
+053	Move through setup checks, first piece, production and result recording.	onboarding.welcome.structure.body
+054	See what improves	onboarding.welcome.improve.title
+055	Track first-pass yield, rework and waste from the production records you create.	onboarding.welcome.improve.body
+056	Choose your language	onboarding.language.title
+057	We selected your iPhone language automatically. Choose another language now or change it later in Settings.	onboarding.language.body
+058	Opens the language dropdown	onboarding.language.dropdownHint
+059	Built around your process	onboarding.process.title
+060	PressBench is more than a timer or recipe notebook. Each run keeps a traceable production history around the setup you actually used.	onboarding.process.body
+061	Setup	onboarding.process.setup,setup.title,report.setup
+062	First piece	onboarding.process.firstPiece
+063	Production	onboarding.process.production
+064	Result	onboarding.process.result
+065	Safety, terms & privacy	onboarding.legal.title
+066	PressBench records operator-entered production information. It does not inspect, measure, monitor or control your heat press.	onboarding.legal.body
+067	I agree to the Terms of Use	onboarding.legal.acceptTerms
+068	I have read and acknowledge the Safety Notice	onboarding.legal.ackSafety
+069	I have reviewed the Privacy Policy	onboarding.legal.reviewPrivacy
+070	Policy pages are currently available in English.	onboarding.legal.policyLanguageNotice
+071	Choose your temperature unit	onboarding.temperature.title
+072	You can change this later in Settings. Confirm the unit before using production values.	onboarding.temperature.body
+073	Fahrenheit	onboarding.temperature.fahrenheit
+074	Celsius	onboarding.temperature.celsius
+075	Ready to build your first setup	onboarding.ready.title
+076	Start with the machine and process you actually use. PressBench keeps the setup, run and result connected.	onboarding.ready.body
+077	1. Add your first machine	onboarding.ready.machine.title
+078	Give the press a nickname and record its profile.	onboarding.ready.machine.body
+079	2. Create a setup	onboarding.ready.setup.title
+080	Record the exact process and source information.	onboarding.ready.setup.body
+081	3. Record a run	onboarding.ready.run.title
+082	Confirm instructions, run production and save the result.	onboarding.ready.run.body
+083	Welcome back	home.greeting
+084	Start New Run	home.startRun.title
+085	Begin a new production run	home.startRun.body
+086	Batches	home.metric.batches
+087	First-pass	home.metric.firstPass,setup.firstPass,report.firstPass
+088	Waste	home.metric.waste
+089	Recent Setups	home.recentSetups
+090	View All	home.viewAll
+091	Legal & Safety	home.legal.title
+092	Official PressBench policies and safety information.	home.legal.body
+093	Privacy	home.legal.privacy
+094	Terms	home.legal.terms
+095	Safety	home.legal.safety
+096	Search setups	setups.search
+097	Clean runs: %d	setups.cleanRunsCount
+098	Recorded runs: %d	setups.recordedRunsCount
+099	Not yet proven	setups.notProven
+100	Start Run	setup.startRun
+101	Last proven	setup.lastProven
+102	Clean runs	setup.cleanRuns
+103	%1$d / %2$d	runs.unitsProgress
+104	Stage %1$d / %2$d	runs.stageProgress
+105	Active Run	runs.activeRun
+106	Batch	runs.batch,report.batch
+107	Resume Run	runs.resume
+108	Pause Run	runs.pause
+109	End Run	runs.end
+110	Available	machines.available
+111	In use	machines.inUse
+112	Timer calibration due	machines.calibrationDue
+113	PressBench %@	more.versionFormat
+114	View onboarding again	more.viewOnboarding
+115	General	settings.general
+116	Temperature unit	settings.temperatureUnit
+117	Legal & support	settings.legalSupport
+118	The app follows this language preference. You can change it at any time.	language.footer
+119	Search languages	language.search
+120	Production Report	report.productionReport
+121	Generated by PressBench	report.generatedBy
+122	Reporting period	report.reportingPeriod
+123	Executive summary	report.executiveSummary
+124	Run performance	report.runPerformance
+125	Issues & exceptions	report.issuesExceptions
+126	Setup definitions	report.setupDefinitions
+127	Sample size	report.sampleSize
+128	Units processed	report.unitsProcessed
+129	First-pass yield	report.firstPassYield
+130	Final yield	report.finalYield
+131	Rework rate	report.reworkRate
+132	Waste rate	report.wasteRate
+133	Reworked units	report.reworkedUnits
+134	Waste units	report.wasteUnits
+135	Outcome mix	report.outcomeMix
+136	Date	report.date
+137	Processed	report.processed
+138	Final	report.final
+139	Outcome	report.outcome
+140	Symptom	report.symptom
+141	Suspected cause	report.suspectedCause
+142	Disposition	report.disposition
+143	Quantity	report.quantity
+144	Note	report.note
+145	Material / transfer	report.materialTransfer
+146	Machine / platen	report.machinePlaten
+147	Press stage	report.pressStage
+148	Instruction source	report.instructionSource
+149	Source checked	report.sourceChecked
+150	No issues recorded	report.noIssues
+151	Limited data	report.lowData
+152	Operator-entered values are reproduced as recorded and are not translated.	report.operatorValuesNotice
+153	Summary	report.sheet.summary
+154	Issues	report.sheet.issues
+155	Save	common.save
+156	Cancel	common.cancel
+157	Name	common.name
+158	Brand	common.brand
+159	Model	common.model
+160	Reference	common.reference
+161	Duration (seconds)	common.durationSeconds
+162	Material	common.material
+163	Transfer medium	common.transferMedium
+164	Restore Purchases	common.restorePurchases
+165	Unlock Pro	common.unlockPro
+166	Confirm instructions	run.confirmInstructions
+167	First piece passed	run.firstPiecePass
+168	Start production	run.startProduction
+169	Record result	run.recordResult
+170	Couldn’t complete that action.	common.actionFailed
+171	OK	common.ok
+172	Start timer	run.startTimer
+173	Pause timer	run.pauseTimer
+174	Language, units, feedback, backups, and support	settings.subtitle
+175	Storage recovery required	settings.storageRecoveryRequired
+176	Haptic feedback	settings.hapticFeedback
+177	Timer sound	settings.timerSound
+178	Appearance	settings.appearance
+179	System	settings.theme.system,appearance.system
+180	Light	settings.theme.light,appearance.light
+181	Dark	settings.theme.dark,appearance.dark
+182	Workspace tools	settings.workspaceTools
+183	Create backup	settings.createBackup
+184	Share backup	settings.shareBackup
+185	Import backup	settings.importBackup
+186	Roll back last restore	settings.rollbackRestore
+187	Restore this backup	settings.restoreBackup
+188	Machine	run.machine
+189	Previous stage	run.previousStage
+190	Next stage	run.nextStage
+191	Adjust and retry	run.adjustRetry
+192	Stop with note	run.stopWithNote
+193	Save adjustment and retry	run.saveAdjustmentRetry
+194	Save note and stop	run.saveNoteStop
+195	Count items	run.countItems
+196	Undo last count	run.undoLastCount
+197	Record totals when the run ends	run.finalTotalsMode
+198	Pause reason	run.pauseReason
+199	Run mode	run.mode
+200	Test run	run.mode.test
+201	Production run	run.mode.production
+202	Planned quantity	run.plannedQuantity
+203	Job reference	run.jobReference
+204	Progress tracking	run.progressTracking
+205	Count during the run	run.progress.live
+206	Record totals at the end	run.progress.final
+207	I understand this setup is not proven	run.confirmUnproven
+208	Quality check	qc.title
+209	Pass check	qc.pass
+210	Adjustment required	qc.adjust
+211	End run early	qc.endEarly
+212	Quality check due	qc.due
+213	Next quality check at %@ items	qc.nextAt
+214	All planned units were good	result.allGood
+215	Confirms zero rework, zero waste, and no issues.	result.allGoodHelp
+216	Save outcome	result.saveOutcome
+217	Batch only	result.batchOnly
+218	Update this setup	result.updateSetup
+219	Save as new variant	result.saveVariant
+220	Variant title	result.variantTitle
+221	Issue	issue.title
+222	Add issue	issue.add
+223	Discarded	issue.disposition.discarded
+224	Reworked	issue.disposition.reworked
+225	Default quantity	setup.defaultQuantity
+226	Stage	stage.stage
+227	Stage type	stage.type
+228	Stage name	stage.name
+229	Instruction	stage.instruction
+230	Repeat count	stage.repeatCount
+231	Placement action	stage.placementAction
+232	Finish action	stage.finishAction
+233	Move stage up	stage.moveUp
+234	Move stage down	stage.moveDown
+235	Remove stage	stage.remove
+236	Add stage	stage.add
+237	Unknown	issue.symptom.unknown,issue.cause.unknown
+238	Color shift	issue.symptom.color_shift
+239	Ghosting	issue.symptom.ghosting
+240	Edge lift	issue.symptom.edge_lift
+241	Adhesion	issue.symptom.adhesion
+242	Scorch	issue.symptom.scorch
+243	Alignment	issue.symptom.alignment
+244	Incomplete transfer	issue.symptom.incomplete_transfer
+245	Uneven heat or pressure	issue.symptom.uneven_heat_pressure
+246	Moisture	issue.symptom.moisture,issue.cause.moisture
+247	Transfer shift	issue.symptom.transfer_shift
+248	Contamination	issue.symptom.contamination
+249	Substrate defect	issue.symptom.substrate_defect
+250	Design setup	issue.symptom.design_setup
+251	Print supply	issue.symptom.print_supply
+252	Equipment or power	issue.symptom.equipment_power,issue.cause.equipment_power
+253	Interrupted	issue.symptom.interrupted
+254	Other	issue.symptom.other,issue.cause.other
+255	Heat	issue.cause.heat
+256	Time	issue.cause.time
+257	Transfer	issue.cause.transfer
+258	Substrate	issue.cause.substrate
+259	Design	issue.cause.design
+260	Printer, ink, or paper	issue.cause.printer_ink_paper
+261	Operator interruption	issue.cause.operator_interruption
+262	Discard unstarted run	run.discardUnstarted
+263	Discard this unstarted run? No batch record will be created.	run.discardUnstartedConfirm
+264	Enter a valid number.	error.invalidNumber
+265	Issue quantities must cover all reworked and waste units.	error.issueCoverage
+266	Select or create a machine before continuing.	error.machineRequired
+267	Select or create a production setup before continuing.	error.setupRequired
+268	Finish or release the current reserved run before changing this record.	error.activeRunConflict
+269	The run is not in the required state for that action.	error.runState
+270	Local storage needs recovery before this action can continue.	error.storageRecovery
+271	The backup could not be verified or restored.	error.backupRestore
+272	Repeat	stage.repeat
+273	Proven means qualifying operator-entered runs for this exact setup. It is not manufacturer validation, certification, or a safety determination.	setup.provenBoundary
+274	Text size	accessibility.textSize
+275	Managed in iOS Settings	accessibility.systemManaged
+276	Reduce Motion	accessibility.reduceMotion
+277	Differentiate Without Color	accessibility.differentiateWithoutColor
+278	Enabled	accessibility.enabled
+279	Disabled	accessibility.disabled
+280	Open iOS Settings	accessibility.openSettings
+281	Delete Local Data	settings.deleteLocalData
+282	This permanently deletes machines, setups, runs, and local settings from this device. Your App Store purchase is not deleted.	settings.deleteLocalDataMessage
+283	How is this job different?	run.jobDifference
+284	Exact repeat	run.exactRepeat
+285	Same product variant	run.sameProductVariant
+286	Materially different	run.materiallyDifferent
+287	Finish run	run.finishRun
+288	Next item	run.nextItem
+289	You have reached the free limit. Unlock Pro to continue.	error.freeLimit
+290	Sign in failed. Your local data is unchanged.	backup.signInFailed
+291	Makes one test item and records the result before production.	run.mode.test.help
+292	Runs the planned production quantity.	run.mode.production.help
+293	Tap the count as each item is completed.	run.progress.live.help
+294	Enter the completed total when the run ends.	run.progress.final.help
+295	Use the same material, transfer, machine, and process.	run.reuse.exactRepeat.help
+296	Use the same process for a different size, color, or quantity.	run.reuse.sameProductVariant.help
+297	Create a new setup because the process or materials changed.	run.reuse.materiallyDifferent.help
+298	Discard unsaved changes?	editor.discardChanges
+299	Discard changes	editor.discard
+300	Process settings are locked for this variant.	setup.processLocked
+301	Advanced process settings	setup.advanced
+302	Complete the required setup fields to continue.	setup.completeRequired
+303	Test runs make one item.	run.testQuantityHelp
+304	Unlock PressBench Pro	upgrade.title
+305	Unlimited presses, no ads, and PDF or XLSX reports. Renews monthly until canceled.	upgrade.body
+306	Subscribe	upgrade.unlock
+307	Restore purchase	upgrade.restore
+308	Back up your data	backup.optionalTitle
+309	Sign in with Apple to back up and restore your PressBench data. This is optional.	backup.optionalBody
+310	Continue without signing in	backup.continueWithout
+311	Complete all required checks to continue.	onboarding.completeChecks
+312	Edit	common.edit
+313	Archive setup	setup.archive
+314	More	common.more
+315	Back up now	backup.backupNow
+316	Restore backup	backup.restore
+317	Sign out	backup.signOut
+318	Restoring replaces the current local data on this device.	backup.restoreReplaces
+319	Rolling back replaces the restored data with the previous local data.	backup.rollbackWarning
+320	Repeat this setup	run.repeatSetup
+321	Correct record	run.correctRecord
+322	Delete record	run.deleteRecord
+323	Reason for correction	run.correctionReason
+324	Archive machine	machine.archive
+325	Complete the timer before continuing.	run.completeTimerFirst
+326	Last successful backup	backup.lastSuccessful
+327	Permanently delete “%1$@”? This cannot be undone.	run.deleteRecordConfirm

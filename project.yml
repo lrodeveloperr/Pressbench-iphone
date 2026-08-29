@@ -1,0 +1,80 @@
+name: PressBench
+options:
+  bundleIdPrefix: com.goodusestudios
+  deploymentTarget:
+    iOS: "17.0"
+packages:
+  GoogleMobileAds:
+    url: https://github.com/googleads/swift-package-manager-google-mobile-ads.git
+    exactVersion: 13.9.0
+  GoogleUserMessagingPlatform:
+    url: https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git
+    exactVersion: 3.1.0
+settings:
+  base:
+    PRODUCT_BUNDLE_IDENTIFIER: com.goodusestudios.pressbench
+    SWIFT_VERSION: 5.10
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 0.21.4
+    GENERATE_INFOPLIST_FILE: NO
+    INFOPLIST_FILE: PressBench/Info.plist
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    DEVELOPMENT_TEAM: 49SQ3XQ68Q
+    CODE_SIGN_STYLE: Automatic
+    OTHER_LDFLAGS: -ObjC
+targets:
+  PressBench:
+    type: application
+    platform: iOS
+    sources:
+      - path: PressBench
+        excludes:
+          - Resources
+      - path: PressBench/Resources
+        buildPhase: resources
+    dependencies:
+      - package: GoogleMobileAds
+      - package: GoogleUserMessagingPlatform
+    settings:
+      base:
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: NO
+        CODE_SIGN_ENTITLEMENTS: PressBench/PressBench.entitlements
+      configs:
+        Release:
+          SWIFT_COMPILATION_MODE: wholemodule
+          SWIFT_OPTIMIZATION_LEVEL: -O
+
+  PressBenchTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: PressBenchTests
+    dependencies:
+      - target: PressBench
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        DEVELOPMENT_TEAM: 49SQ3XQ68Q
+
+  PressBenchUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: PressBenchUITests
+    dependencies:
+      - target: PressBench
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        DEVELOPMENT_TEAM: 49SQ3XQ68Q
+
+schemes:
+  PressBench:
+    build:
+      targets:
+        PressBench: all
+    test:
+      targets:
+        - PressBenchTests
+        - PressBenchUITests
