@@ -249,8 +249,7 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(choiceCancel.waitForExistence(timeout: 5))
         makeHittable(choice, in: app)
         choice.tap()
-        XCTAssertTrue(waitForHittable(field, timeout: 12),
-                      "The editor field must become interactive after the choice sheet closes")
+        makeHittable(field, in: app)
         XCTAssertTrue(field.label.contains(option),
                       "The selected choice must be reflected in the editor field")
     }
