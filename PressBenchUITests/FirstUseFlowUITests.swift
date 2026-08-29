@@ -256,7 +256,9 @@ final class FirstUseFlowUITests: XCTestCase {
     }
 
     private func scrollForward(in app: XCUIApplication) {
-        let setupForm = app.descendants(matching: .any)["pb.setup.form"].firstMatch
+        let setupForm = app.collectionViews
+            .containing(.textField, identifier: "pb.setup.title")
+            .firstMatch
         if setupForm.exists, setupForm.isHittable {
             setupForm.swipeUp()
             return
