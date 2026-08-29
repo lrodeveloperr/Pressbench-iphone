@@ -102,7 +102,7 @@ final class FirstUseFlowUITests: XCTestCase {
         app.buttons["Save"].tap()
 
         XCTAssertTrue(app.navigationBars["Setup"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.textFields["pb.setup.title"].exists)
+        XCTAssertFalse(app.textFields["pb.setup.title"].exists)
         capture("05-chained-setup-editor")
 
         choose("pb.choice.material", option: "100% cotton T-shirt", app: app)

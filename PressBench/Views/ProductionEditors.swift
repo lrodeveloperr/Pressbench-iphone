@@ -238,11 +238,6 @@ struct SetupEditorView: View {
                             cancelTitle: t("common.cancel")
                         )
                     }
-                    TextField(t("setup.title"), text: $draft.title, prompt: Text(suggestedSetupTitle))
-                        .accessibilityIdentifier("pb.setup.title")
-                }
-                Section {
-                    TextField(t("setup.defaultQuantity") + " *", text: $draft.defaultQuantity).keyboardType(.numberPad)
                 }
                 if mode == .sameProductVariant {
                     Section(t("setup.processLocked")) {
@@ -331,14 +326,6 @@ struct SetupEditorView: View {
                     }
                     .disabled(mode == .sameProductVariant)
                 }
-                if mode != .sameProductVariant {
-                    Section {
-                        Button { draft.stages.append(SetupStageDraft(temperatureUnit: unit)) } label: {
-                            Label(t("stage.add"), systemImage: "plus.circle.fill")
-                        }
-                        .frame(minHeight: PBTheme.minimumTarget)
-                    }
-                }
                 Section(t("report.instructionSource")) {
                     PBChoiceField(
                         title: t("report.instructionSource") + " *",
@@ -352,9 +339,21 @@ struct SetupEditorView: View {
                     TextField(t("common.reference") + " *", text: $draft.sourceReference)
                         .accessibilityIdentifier("pb.setup.sourceReference")
                 }
+                if mode != .sameProductVariant {
+                    Section {
+                        Button { draft.stages.append(SetupStageDraft(temperatureUnit: unit)) } label: {
+                            Label(t("stage.add"), systemImage: "plus.circle.fill")
+                        }
+                        .frame(minHeight: PBTheme.minimumTarget)
+                    }
+                }
                 }
                 Section {
                     DisclosureGroup(t("common.more")) {
+                        TextField(t("setup.title"), text: $draft.title, prompt: Text(suggestedSetupTitle))
+                            .accessibilityIdentifier("pb.setup.title")
+                        TextField(t("setup.defaultQuantity") + " *", text: $draft.defaultQuantity)
+                            .keyboardType(.numberPad)
                         Text(t("common.notes"))
                             .font(.caption)
                             .foregroundStyle(PBTheme.secondary)
