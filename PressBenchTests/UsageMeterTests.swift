@@ -46,4 +46,22 @@ final class UsageMeterTests: XCTestCase {
 
         XCTAssertEqual(meter.completedPresses, 1)
     }
+
+    func testNonAdjacentDuplicateCannotBeCountedTwice() {
+        let meter = PBUsageMeter(defaults: defaults)
+        meter.recordCompletedPress(batchID: "batch-a")
+        meter.recordCompletedPress(batchID: "batch-b")
+        meter.recordCompletedPress(batchID: "batch-a")
+
+        XCTAssertEqual(meter.completedPresses, 2)
+        XCTAssertEqual(meter.freePressesRemaining, 3)
+    }
+
+    func testCounterNeverExceedsTheFreeLimit() {
+        let meter = PBUsageMeter(defaults: defaults)
+        for index in 0..<20 { meter.recordCompletedPress(batchID: "batch-\(index)") }
+
+        XCTAssertEqual(meter.completedPresses, PBUsageMeter.freePressLimit)
+        XCTAssertEqual(meter.freePressesRemaining, 0)
+    }
 }

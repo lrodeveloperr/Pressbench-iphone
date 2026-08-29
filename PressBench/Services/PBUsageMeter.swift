@@ -7,6 +7,7 @@ struct PBUsageMeter {
 
     private static let completedKey = "pressbench.usage.completedPresses"
     private static let lastCreditedBatchKey = "pressbench.usage.lastCreditedBatchID"
+    private static let creditedBatchIDsKey = "pressbench.usage.creditedBatchIDs"
 
     private let defaults: UserDefaults
 
@@ -15,7 +16,7 @@ struct PBUsageMeter {
     }
 
     var completedPresses: Int {
-        max(0, defaults.integer(forKey: Self.completedKey))
+        min(Self.freePressLimit, max(0, defaults.integer(forKey: Self.completedKey)))
     }
 
     var freePressesRemaining: Int {
@@ -34,9 +35,14 @@ struct PBUsageMeter {
     }
 
     func recordCompletedPress(batchID: String) {
-        guard !batchID.isEmpty,
-              defaults.string(forKey: Self.lastCreditedBatchKey) != batchID else { return }
-        defaults.set(completedPresses + 1, forKey: Self.completedKey)
+        guard !batchID.isEmpty, completedPresses < Self.freePressLimit else { return }
+        var creditedIDs = Set(defaults.stringArray(forKey: Self.creditedBatchIDsKey) ?? [])
+        if let legacyID = defaults.string(forKey: Self.lastCreditedBatchKey), !legacyID.isEmpty {
+            creditedIDs.insert(legacyID)
+        }
+        guard creditedIDs.insert(batchID).inserted else { return }
+        defaults.set(min(Self.freePressLimit, completedPresses + 1), forKey: Self.completedKey)
+        defaults.set(Array(creditedIDs.sorted().prefix(Self.freePressLimit)), forKey: Self.creditedBatchIDsKey)
         defaults.set(batchID, forKey: Self.lastCreditedBatchKey)
     }
 }

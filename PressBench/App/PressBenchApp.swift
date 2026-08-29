@@ -40,18 +40,23 @@ struct PressBenchApp: App {
 #if DEBUG
 private enum PressBenchUITestBootstrap {
     static func resetIfRequested() {
-        guard ProcessInfo.processInfo.arguments.contains("--pressbench-ui-test-reset") else { return }
-        if let bundleID = Bundle.main.bundleIdentifier {
-            UserDefaults.standard.removePersistentDomain(forName: bundleID)
-        }
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let pressBenchDirectory = appSupport.appendingPathComponent("PressBench", isDirectory: true)
-        do {
-            if FileManager.default.fileExists(atPath: pressBenchDirectory.path) {
-                try FileManager.default.removeItem(at: pressBenchDirectory)
+        let arguments = ProcessInfo.processInfo.arguments
+        if arguments.contains("--pressbench-ui-test-reset") {
+            if let bundleID = Bundle.main.bundleIdentifier {
+                UserDefaults.standard.removePersistentDomain(forName: bundleID)
             }
-        } catch {
-            fatalError("UI-test reset failed: \(error)")
+            let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            let pressBenchDirectory = appSupport.appendingPathComponent("PressBench", isDirectory: true)
+            do {
+                if FileManager.default.fileExists(atPath: pressBenchDirectory.path) {
+                    try FileManager.default.removeItem(at: pressBenchDirectory)
+                }
+            } catch {
+                fatalError("UI-test reset failed: \(error)")
+            }
+        }
+        if arguments.contains("--pressbench-ui-test-limit-reached") {
+            UserDefaults.standard.set(PBUsageMeter.freePressLimit, forKey: "pressbench.usage.completedPresses")
         }
     }
 }

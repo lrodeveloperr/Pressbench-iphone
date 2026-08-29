@@ -89,6 +89,8 @@ struct SetupCard: View {
     @Environment(\.locale) private var locale
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var showingDifference = false
+    @State private var showingUpgrade = false
+    @State private var resumeStartAfterUpgrade = false
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
     private func cleanRunText() -> String {
@@ -171,13 +173,23 @@ struct SetupCard: View {
                 }
 
                 PBPrimaryButton(title: t("setup.startRun"), icon: "arrow.clockwise") {
-                    showingDifference = true
+                    requestStart()
                 }
                 .disabled(store.activeRun != nil || setup.status == .draft || setup.status == .archived)
                 .opacity(store.activeRun == nil && setup.status != .draft && setup.status != .archived ? 1 : 0.45)
             }
         }
         .sheet(isPresented: $showingDifference) { JobDifferenceSheet(setup: setup).environmentObject(store) }
+        .sheet(isPresented: $showingUpgrade, onDismiss: {
+            guard resumeStartAfterUpgrade else { return }
+            resumeStartAfterUpgrade = false
+            if store.isPro { showingDifference = true }
+        }) { ProUpgradeView().environmentObject(store).pbEditorSheetStyle() }
+    }
+
+    private func requestStart() {
+        if store.canStartAnotherRun { showingDifference = true }
+        else { resumeStartAfterUpgrade = true; showingUpgrade = true }
     }
 
     private var metricDivider: some View {

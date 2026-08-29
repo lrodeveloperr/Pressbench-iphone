@@ -20,6 +20,9 @@ assert.equal(P.operationalReadiness(settings).ready, true);
 
 let entitlement = E.normalizeEntitlement({});
 let context = {machines:[], recipes:[], setups:[], batches:[], settings, session:null, entitlement, storageMode:'native'};
+assert.equal(P.ARCHITECTURE_REQUIREMENTS.trackingSdk, false);
+assert.equal(P.ARCHITECTURE_REQUIREMENTS.advertisingSdk, 'google_mobile_ads_test_only');
+assert.equal(P.ARCHITECTURE_REQUIREMENTS.routineNetworkBoundary, 'store_entitlement_and_consent_gated_test_ads');
 
 // A fabricated local boolean must never create paid access.
 assert.equal(E.evaluateEntitlement({paidAccess:true, productId:'pressbench_unlimited_monthly_ios'}, now).paidAccess, false);
@@ -36,6 +39,17 @@ let purchaseResult = E.applyStoreEvent(entitlement, purchasedEvent, now);
 entitlement = purchaseResult.entitlement;
 assert.equal(E.evaluateEntitlement(entitlement, now).paidAccess, true);
 assert.equal(E.evaluateEntitlement(entitlement, iso(32 * 24 * 60 * 60)).paidAccess, false);
+context.entitlement = entitlement;
+
+// Renewal and explicit restore extend/recover the same verified subscription.
+const renewedEvent = {...purchasedEvent, action:'automatic_refresh', userInitiated:false,
+  transactionId:'1000000000003', nativeVerificationId:'storekit2:1000000000003:1000000000001:pressbench_unlimited_monthly_ios:1789833600',
+  storeEventAt:iso(30 * 24 * 60 * 60), expiresAt:iso(61 * 24 * 60 * 60)};
+entitlement = E.applyStoreEvent(entitlement, renewedEvent, iso(30 * 24 * 60 * 60)).entitlement;
+assert.equal(E.evaluateEntitlement(entitlement, iso(45 * 24 * 60 * 60)).paidAccess, true);
+const restoredEvent = {...renewedEvent, action:'explicit_restore', userInitiated:true, storeEventAt:iso(40 * 24 * 60 * 60)};
+entitlement = E.applyStoreEvent(entitlement, restoredEvent, iso(40 * 24 * 60 * 60)).entitlement;
+assert.equal(E.evaluateEntitlement(entitlement, iso(45 * 24 * 60 * 60)).paidAccess, true);
 context.entitlement = entitlement;
 
 // Existing lifetime buyers stay grandfathered after the subscription migration.
@@ -257,9 +271,10 @@ assert.equal(P.planReport(context, 'pdf', context.batches, now).allowed, true);
 assert.equal(P.planReport(context, 'xlsx', context.batches, now).allowed, true);
 
 // Revocation is terminal and removes premium access.
-const revokedEvent = {...purchasedEvent, action:'automatic_refresh', userInitiated:false, purchaseState:'revoked', storeEventAt:iso(3600)};
-const revoked = E.applyStoreEvent(entitlement, revokedEvent, iso(3600)).entitlement;
-assert.equal(E.evaluateEntitlement(revoked, iso(3600)).paidAccess, false);
+const revokedAt = iso(50 * 24 * 60 * 60);
+const revokedEvent = {...renewedEvent, action:'automatic_refresh', userInitiated:false, purchaseState:'revoked', storeEventAt:revokedAt};
+const revoked = E.applyStoreEvent(entitlement, revokedEvent, revokedAt).entitlement;
+assert.equal(E.evaluateEntitlement(revoked, revokedAt).paidAccess, false);
 
 // Destructive local-data planning is explicit and never claims to erase the
 // App Store entitlement, which remains wrapper-owned.

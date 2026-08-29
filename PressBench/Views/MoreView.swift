@@ -5,6 +5,7 @@ struct MoreView: View {
     @AppStorage("pressbench.onboarding.completed") private var onboardingCompleted = true
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
+    @State private var showingUpgrade = false
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
@@ -36,7 +37,19 @@ struct MoreView: View {
                         Divider().opacity(0.35)
                         ExternalMenuLink(titleKey: "common.safetyNotice", icon: "exclamationmark.triangle", url: PressBenchPolicyLinks.safety)
                         Divider().opacity(0.35)
-                        ExternalMenuLink(titleKey: "common.purchasesPro", icon: "creditcard", url: PressBenchPolicyLinks.purchases)
+                        if store.isPro {
+                            ExternalMenuLink(titleKey: "common.purchasesPro", icon: "creditcard", url: PressBenchPolicyLinks.purchases)
+                        } else {
+                            Button { showingUpgrade = true } label: { menuRow("common.purchasesPro", icon: "creditcard") }
+                                .buttonStyle(.plain)
+                        }
+                        Divider().opacity(0.35)
+                        ExternalMenuLink(titleKey: "ads.report", icon: "exclamationmark.bubble", url: PressBenchPolicyLinks.reportAd)
+                        Divider().opacity(0.35)
+                        Button { Task { await PBAdvertising.presentPrivacyOptions() } } label: {
+                            menuRow("common.privacyPolicy", icon: "checkmark.shield")
+                        }
+                        .buttonStyle(.plain)
                         Divider().opacity(0.35)
                         ExternalMenuLink(titleKey: "common.localDataBackups", icon: "externaldrive", url: PressBenchPolicyLinks.dataChoices)
                         Divider().opacity(0.35)
@@ -72,6 +85,7 @@ struct MoreView: View {
         }
         .background(PBTheme.canvasGradient)
         .toolbar(.hidden, for: .navigationBar)
+        .sheet(isPresented: $showingUpgrade) { ProUpgradeView().environmentObject(store).pbEditorSheetStyle() }
     }
 
     private func menuRow(_ key: String, icon: String) -> some View {

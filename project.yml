@@ -7,18 +7,17 @@ packages:
   GoogleMobileAds:
     url: https://github.com/googleads/swift-package-manager-google-mobile-ads.git
     exactVersion: 13.9.0
+  GoogleUserMessagingPlatform:
+    url: https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git
+    exactVersion: 3.1.0
 settings:
   base:
     PRODUCT_BUNDLE_IDENTIFIER: com.goodusestudios.pressbench
     SWIFT_VERSION: 5.10
     CURRENT_PROJECT_VERSION: 1
     MARKETING_VERSION: 0.21.4
-    GENERATE_INFOPLIST_FILE: YES
-    INFOPLIST_KEY_CFBundleDisplayName: PressBench
-    INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
-    INFOPLIST_KEY_UILaunchScreen_Generation: YES
-    INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.business
-    INFOPLIST_KEY_GADApplicationIdentifier: ca-app-pub-3940256099942544~1458002511
+    GENERATE_INFOPLIST_FILE: NO
+    INFOPLIST_FILE: PressBench/Info.plist
     ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     DEVELOPMENT_TEAM: 49SQ3XQ68Q
     CODE_SIGN_STYLE: Automatic
@@ -35,6 +34,7 @@ targets:
         buildPhase: resources
     dependencies:
       - package: GoogleMobileAds
+      - package: GoogleUserMessagingPlatform
     settings:
       base:
         TARGETED_DEVICE_FAMILY: "1"

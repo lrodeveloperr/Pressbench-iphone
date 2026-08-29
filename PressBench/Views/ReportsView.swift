@@ -10,6 +10,7 @@ struct ReportsView: View {
     @State private var generating = false
     @State private var showingShare = false
     @State private var showingUpgrade = false
+    @State private var pendingFormat: String?
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
@@ -17,9 +18,7 @@ struct ReportsView: View {
         List {
             Section {
                 exportButton(format: "PDF", systemImage: "doc.richtext")
-                    .disabled(!store.isPro)
                 exportButton(format: "XLSX", systemImage: "tablecells.badge.ellipsis")
-                    .disabled(!store.isPro)
             } header: {
                 Text(t("common.exports"))
             } footer: {
@@ -64,7 +63,11 @@ struct ReportsView: View {
         .sheet(isPresented: $showingShare) {
             if let exportURL { ActivityShareView(items: [exportURL as Any]) }
         }
-        .sheet(isPresented: $showingUpgrade) {
+        .sheet(isPresented: $showingUpgrade, onDismiss: {
+            guard store.isPro, let format = pendingFormat else { pendingFormat = nil; return }
+            pendingFormat = nil
+            startExport(format)
+        }) {
             ProUpgradeView().environmentObject(store).pbEditorSheetStyle()
         }
         .alert("PressBench", isPresented: $failed) { Button(t("common.ok"), role: .cancel) {} } message: { Text(t("common.actionFailed")) }
@@ -72,12 +75,13 @@ struct ReportsView: View {
 
     private func exportButton(format: String, systemImage: String) -> some View {
         Button {
-            startExport(format)
+            if store.isPro { startExport(format) }
+            else { pendingFormat = format; showingUpgrade = true }
         } label: {
             HStack {
                 Label(format, systemImage: systemImage)
                 Spacer()
-                Image(systemName: "chevron.forward").foregroundStyle(PBTheme.secondary)
+                Image(systemName: store.isPro ? "chevron.forward" : "lock.fill").foregroundStyle(PBTheme.secondary)
             }
         }
         .disabled(generating)

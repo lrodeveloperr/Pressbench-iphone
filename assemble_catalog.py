@@ -18,13 +18,15 @@ ADDITIONAL_KEYS = [
 ]
 RESIDUAL_KEYS = ['backup.lastSuccessful', 'run.deleteRecordConfirm']
 RECOVERY_KEYS = ['run.discardRejected', 'run.discardRejectedConfirm']
+MONETIZATION_TRANSLATIONS = json.loads((root/'monetization_translations.json').read_text(encoding='utf-8'))
+MONETIZATION_KEYS = set(MONETIZATION_TRANSLATIONS)
 DIRECT_NEW_KEYS = {
   'run.finishRun', 'run.nextItem', 'error.freeLimit', 'backup.signInFailed',
   'run.mode.test.help', 'run.mode.production.help',
   'run.progress.live.help', 'run.progress.final.help',
   'run.reuse.exactRepeat.help', 'run.reuse.sameProductVariant.help',
   'run.reuse.materiallyDifferent.help'
-} | set(ADDITIONAL_KEYS) | set(RESIDUAL_KEYS) | set(RECOVERY_KEYS)
+} | set(ADDITIONAL_KEYS) | set(RESIDUAL_KEYS) | set(RECOVERY_KEYS) | MONETIZATION_KEYS
 
 # unique source phrase order
 phrases=[]; seen=set()
@@ -356,7 +358,9 @@ for key in keys:
     source=meta[key]['source']
     item={'context':meta[key]['context'],'source':runtime_placeholders(source),'translations':{}}
     for lang in languages:
-        if key in OPERATOR_KEYS:
+        if key in MONETIZATION_KEYS:
+            text = MONETIZATION_TRANSLATIONS[key][lang]
+        elif key in OPERATOR_KEYS:
             text = OPERATOR_TRANSLATIONS[lang][key]
         elif key in ADDITIONAL_KEYS:
             text = ADDITIONAL_TRANSLATIONS[lang][key]
@@ -367,7 +371,9 @@ for key in keys:
         else:
             text = translations[lang][source]
         item['translations'][lang]=runtime_placeholders(text)
-    if key in OPERATOR_KEYS:
+    if key in MONETIZATION_KEYS:
+        zhh_text = MONETIZATION_TRANSLATIONS[key]['zh-Hant']
+    elif key in OPERATOR_KEYS:
         zhh_text = OPERATOR_TRANSLATIONS['zh-Hant'][key]
     elif key in ADDITIONAL_KEYS:
         zhh_text = ADDITIONAL_TRANSLATIONS['zh-Hant'][key]

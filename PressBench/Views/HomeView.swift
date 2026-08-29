@@ -7,8 +7,10 @@ struct HomeView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var showingMachineEditor = false
     @State private var showingStarter = false
+    @State private var showingUpgrade = false
     @State private var showingSetupEditor = false
     @State private var continueToSetup = false
+    @State private var resumeStartAfterUpgrade = false
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
@@ -36,6 +38,11 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showingSetupEditor) { SetupEditorView(draft: store.setupDraft(for: nil)).environmentObject(store) }
         .sheet(isPresented: $showingStarter) { StartRunSheet().environmentObject(store) }
+        .sheet(isPresented: $showingUpgrade, onDismiss: {
+            guard resumeStartAfterUpgrade else { return }
+            resumeStartAfterUpgrade = false
+            if store.isPro { showingStarter = true }
+        }) { ProUpgradeView().environmentObject(store).pbEditorSheetStyle() }
     }
 
     private var needsFirstUseSetup: Bool {
@@ -83,7 +90,8 @@ struct HomeView: View {
     private var startRunCard: some View {
         Button {
             if let active = store.activeRun { store.activeRunRouteID = active.id; store.selectedTab = 2 }
-            else { showingStarter = true }
+            else if store.canStartAnotherRun { showingStarter = true }
+            else { resumeStartAfterUpgrade = true; showingUpgrade = true }
         } label: {
             HStack(spacing: 16) {
                 Image(systemName: "plus")
@@ -96,6 +104,14 @@ struct HomeView: View {
                         PBFormat.integer($0.processed, locale: locale) as NSString,
                         PBFormat.integer($0.planned, locale: locale) as NSString) } ?? t("home.startRun.body"))
                         .font(.subheadline.weight(.semibold))
+                    if store.activeRun == nil && !store.isPro {
+                        Text(PBL10n.format(
+                            "usage.freeRunsRemaining", language: language, locale: locale,
+                            PBFormat.integer(store.freePressesRemaining, locale: locale) as NSString,
+                            PBFormat.integer(PBUsageMeter.freePressLimit, locale: locale) as NSString
+                        ))
+                        .font(.caption.weight(.bold))
+                    }
                 }
                 Spacer()
                 Image(systemName: "chevron.forward").font(.headline)

@@ -10,6 +10,8 @@ struct SetupDetailView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var editing = false
     @State private var showingDifference = false
+    @State private var showingUpgrade = false
+    @State private var resumeStartAfterUpgrade = false
     @State private var showingArchive = false
     @State private var failed = false
 
@@ -39,7 +41,7 @@ struct SetupDetailView: View {
                     evidence
                     if !setup.notes.isEmpty { notesCard }
                     PBPrimaryButton(title: t("setup.startRun"), icon: "play.fill") {
-                        showingDifference = true
+                        requestStart()
                     }
                     .disabled(store.activeRun != nil || setup.status == .draft || setup.status == .archived)
                     .opacity(store.activeRun == nil && setup.status != .draft && setup.status != .archived ? 1 : 0.45)
@@ -64,6 +66,11 @@ struct SetupDetailView: View {
         }
         .sheet(isPresented: $editing) { SetupEditorView(draft: store.setupDraft(for: setup.id)).environmentObject(store) }
         .sheet(isPresented: $showingDifference) { JobDifferenceSheet(setup: setup).environmentObject(store) }
+        .sheet(isPresented: $showingUpgrade, onDismiss: {
+            guard resumeStartAfterUpgrade else { return }
+            resumeStartAfterUpgrade = false
+            if store.isPro { showingDifference = true }
+        }) { ProUpgradeView().environmentObject(store).pbEditorSheetStyle() }
         .confirmationDialog(t("setup.archive"), isPresented: $showingArchive, titleVisibility: .visible) {
             Button(t("setup.archive"), role: .destructive) {
                 do { try store.archiveSetup(id: setup.id); dismiss() } catch { failed = true }
@@ -71,6 +78,11 @@ struct SetupDetailView: View {
             Button(t("common.cancel"), role: .cancel) {}
         }
         .alert("PressBench", isPresented: $failed) { Button(t("common.ok"), role: .cancel) {} } message: { Text(t("common.actionFailed")) }
+    }
+
+    private func requestStart() {
+        if store.canStartAnotherRun { showingDifference = true }
+        else { resumeStartAfterUpgrade = true; showingUpgrade = true }
     }
 
     private var header: some View {

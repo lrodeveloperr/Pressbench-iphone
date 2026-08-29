@@ -109,6 +109,29 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Permanently delete “Quick Tee”? This cannot be undone."].waitForExistence(timeout: 3))
         capture("10-identified-delete-warning")
         app.buttons["Cancel"].firstMatch.tap()
+
+        app.terminate()
+        app.launchArguments = [
+            "--pressbench-ui-test-limit-reached",
+            "--pressbench-ui-test-product-unavailable",
+            "-AppleLanguages", "(en)", "-AppleLocale", "en_US"
+        ]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Free run credits left: 0 of 5"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.otherElements["pb.ad.banner"].waitForExistence(timeout: 5))
+        app.staticTexts["Start New Run"].tap()
+        XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["The subscription is unavailable right now. Try again in a moment."].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["Subscribe"].isEnabled)
+        capture("11-sixth-run-upgrade")
+
+        app.terminate()
+        app.launchArguments = ["--pressbench-ui-test-pro", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Start New Run"].waitForExistence(timeout: 8))
+        XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)
+        XCTAssertFalse(app.staticTexts["Free run credits left: 0 of 5"].exists)
+        capture("12-pro-removes-ads-and-cap")
     }
 
     private func enter(_ value: String, in field: XCUIElement, app: XCUIApplication) {

@@ -166,6 +166,9 @@ final class PressBenchStore: ObservableObject {
     }
 
     var isPro: Bool {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--pressbench-ui-test-pro") { return true }
+        #endif
         do {
             let evaluated = try bridge.dictionary(
                 bridge.entitlement("evaluateEntitlement", [currentEntitlement, Self.isoNow()]), context: "entitlement evaluation"
@@ -175,10 +178,12 @@ final class PressBenchStore: ObservableObject {
     }
 
     var productDisplayPrice: String? { purchases.product?.displayPrice }
+    var purchaseState: PurchaseManager.PurchaseState { purchases.state }
     var freePressesRemaining: Int {
         usageMeter.reconcile(existingCompletedRuns: rawBatches.count)
         return usageMeter.freePressesRemaining
     }
+    var canStartAnotherRun: Bool { isPro || freePressesRemaining > 0 }
     var hasRestoreRecovery: Bool { state["preRestoreRecovery"] is [String: Any] }
     var hasRejectedRun: Bool { state["rejectedSession"] is [String: Any] }
     var hasSetupDraft: Bool { (state["session"] as? [String: Any])?["setupDraft"] is [String: Any] }
@@ -704,7 +709,9 @@ final class PressBenchStore: ObservableObject {
             removeOperatorIssues(runID: string(run["id"]))
         }
         lastCompletedBatchID = committedID.isEmpty ? string(run["resultId"]) : committedID
-        usageMeter.recordCompletedPress(batchID: lastCompletedBatchID ?? "")
+        if plan["alreadyCommitted"] as? Bool != true {
+            usageMeter.recordCompletedPress(batchID: lastCompletedBatchID ?? "")
+        }
         activeRunRouteID = lastCompletedBatchID
     }
 
@@ -835,6 +842,7 @@ final class PressBenchStore: ObservableObject {
 
     func purchasePro() async { await purchases.purchase() }
     func restorePurchases() async { await purchases.restore() }
+    func reloadPurchases() async { await purchases.reloadProduct() }
 
     private func applyStoreEvent(_ event: [String: Any]) {
         do {
@@ -983,7 +991,7 @@ final class PressBenchStore: ObservableObject {
 
     func errorLocalizationKey(_ error: Error? = nil) -> String {
         let code = (error.map { String(describing: $0) } ?? lastErrorCode ?? "").lowercased()
-        if code.contains("capacity_required") { return "error.freeLimit" }
+        if code.contains("capacity_required") || code.contains("presslimitreached") { return "error.freeLimit" }
         if code.contains("timer_plan_incomplete") || code.contains("timer_stage_incomplete") { return "run.completeTimerFirst" }
         if code.contains("qc_required") { return "qc.due" }
         if code.contains("invalid_number") || code.contains("invalidnumber") { return "error.invalidNumber" }
@@ -1000,7 +1008,9 @@ final class PressBenchStore: ObservableObject {
     }
 
     func requiresUpgrade(_ error: Error) -> Bool {
-        String(describing: error).lowercased().contains("capacity_required")
+        if let storeError = error as? StoreError, case .pressLimitReached = storeError { return true }
+        let code = String(describing: error).lowercased()
+        return code.contains("capacity_required") || code.contains("presslimitreached")
     }
 
     // MARK: - Projection helpers

@@ -1335,6 +1335,34 @@
     "context": "Purchase restore action",
     "source": "Restore purchase"
   },
+  "usage.freeRunsRemaining": {
+    "context": "Free usage status",
+    "source": "Free run credits left: %1$@ of %2$@"
+  },
+  "upgrade.pricePerMonthFormat": {
+    "context": "Monthly subscription price",
+    "source": "%1$@ per month"
+  },
+  "purchase.pending": {
+    "context": "Pending purchase status",
+    "source": "Purchase pending. Apple will finish it after approval."
+  },
+  "purchase.notFound": {
+    "context": "Restore purchase status",
+    "source": "No active PressBench Pro purchase was found for this Apple Account."
+  },
+  "purchase.unavailable": {
+    "context": "Subscription availability status",
+    "source": "The subscription is unavailable right now. Try again in a moment."
+  },
+  "common.retry": {
+    "context": "Retry action",
+    "source": "Try again"
+  },
+  "ads.report": {
+    "context": "Ad safety action",
+    "source": "Report an ad"
+  },
   "backup.optionalTitle": {
     "context": "Optional backup title",
     "source": "Back up your data"

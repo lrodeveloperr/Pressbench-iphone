@@ -7,6 +7,8 @@ struct RunsView: View {
     @Environment(\.locale) private var locale
     @State private var filter: RunState? = nil
     @State private var showingStarter = false
+    @State private var showingUpgrade = false
+    @State private var resumeStartAfterUpgrade = false
     @State private var search = ""
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
@@ -23,7 +25,7 @@ struct RunsView: View {
                 PBPageHeader(
                     title: t("runs.title"),
                     addAccessibilityLabel: t("setup.startRun"),
-                    addAction: store.activeRun != nil || store.setups.isEmpty ? nil : { showingStarter = true }
+                    addAction: store.activeRun != nil || store.setups.isEmpty ? nil : { requestStart() }
                 )
 
                 PBSearchField(prompt: t("setups.search"), text: $search)
@@ -41,7 +43,7 @@ struct RunsView: View {
                     VStack(spacing: 18) {
                         ContentUnavailableView(t("runs.title"), systemImage: "play.circle", description: Text(t("onboarding.ready.run.body")))
                         PBPrimaryButton(title: t(store.setups.contains { $0.status != .draft && $0.status != .archived } ? "setup.startRun" : "onboarding.ready.setup.title"), icon: "plus.circle.fill") {
-                            if store.setups.contains(where: { $0.status != .draft && $0.status != .archived }) { showingStarter = true }
+                            if store.setups.contains(where: { $0.status != .draft && $0.status != .archived }) { requestStart() }
                             else { store.selectedTab = 1 }
                         }
                         .disabled(store.activeRun != nil)
@@ -65,6 +67,11 @@ struct RunsView: View {
         .background(PBTheme.canvasGradient)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showingStarter) { StartRunSheet().environmentObject(store) }
+        .sheet(isPresented: $showingUpgrade, onDismiss: {
+            guard resumeStartAfterUpgrade else { return }
+            resumeStartAfterUpgrade = false
+            if store.isPro { showingStarter = true }
+        }) { ProUpgradeView().environmentObject(store).pbEditorSheetStyle() }
         .navigationDestination(item: $store.activeRunRouteID) { id in
             if store.activeRun?.id == id {
                 ActiveRunView(runID: id)
@@ -74,6 +81,11 @@ struct RunsView: View {
                 ContentUnavailableView(t("runs.title"), systemImage: "exclamationmark.triangle")
             }
         }
+    }
+
+    private func requestStart() {
+        if store.canStartAnotherRun { showingStarter = true }
+        else { resumeStartAfterUpgrade = true; showingUpgrade = true }
     }
 }
 

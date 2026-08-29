@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import hashlib, json, re, sys
+import hashlib, json, re, shutil, subprocess, sys, tempfile
 
 root = Path(__file__).resolve().parents[1]
 failures=[]
@@ -10,7 +10,7 @@ def require(condition, message):
 
 logic = root/'PressBench/Resources/PressBenchLogic.js'
 logic_hash = hashlib.sha256(logic.read_bytes()).hexdigest()
-require(logic_hash == '35edd9df10e39ffc354421047653c150131760357767799947ca294b8cef2417', f'logic hash changed: {logic_hash}')
+require(logic_hash == '3e2cef1d33b0d10986f838dad29ed71ddeedd064cd4a1c0b40fb8793c157c22c', f'logic hash changed: {logic_hash}')
 text = logic.read_text(encoding='utf-8')
 require(all(marker in text for marker in ['pressbench_unlimited_monthly_ios', 'pressbench_unlimited_lifetime_ios',
         'productType: "auto_renewable_subscription"', 'recurring: true', 'baseAmountMinor: 999']),
@@ -23,6 +23,7 @@ require('function completedTimerPlan' in text and text.count('if (!completedTime
         'first-piece or production counting can bypass the complete timer plan')
 
 project=(root/'project.yml').read_text(encoding='utf-8')
+info_plist=(root/'PressBench/Info.plist').read_text(encoding='utf-8')
 require('com.goodusestudios.pressbench' in project, 'production bundle id mismatch')
 require('49SQ3XQ68Q' in project, 'Apple team id mismatch')
 require('path: PressBench/Resources\n        buildPhase: resources' in project,
@@ -32,8 +33,11 @@ require('PressBenchUITests:' in project and 'type: bundle.ui-testing' in project
 require('CODE_SIGN_ENTITLEMENTS: PressBench/PressBench.entitlements' in project,
         'production entitlements are not assigned to the app target')
 require(all(marker in project for marker in ['GoogleMobileAds:', 'exactVersion: 13.9.0',
-        'ca-app-pub-3940256099942544~1458002511']),
-        'pinned Google test-ad SDK or official demo application id is missing')
+        'GoogleUserMessagingPlatform:', 'exactVersion: 3.1.0',
+        'INFOPLIST_FILE: PressBench/Info.plist']) and
+        'ca-app-pub-3940256099942544~1458002511' in info_plist and
+        '<key>GADApplicationIdentifier</key>' in info_plist,
+        'pinned Google ad/consent SDK or explicit official demo application id is missing')
 
 approved_logo_hash = '03ee625d3c2c6a1efb8e49b4cc060c5b0c61e6397fc0b39633f66151ac2a6a8b'
 brand_logo = root/'PressBench/Assets.xcassets/BrandLogo.imageset/BrandLogo.png'
@@ -257,14 +261,15 @@ require(all(marker in purchase_source for marker in ['pressbench_unlimited_month
 require(all(marker in ad_source for marker in ['ca-app-pub-3940256099942544/2435281174',
         'BannerView(adSize: AdSizeBanner)', 'frame(width: 320', 'slotHeight: CGFloat = 50',
         'maxAdContentRating = GADMaxAdContentRating.general',
-        'publisherPrivacyPersonalizationState = .disabled']),
-        'fixed official Google demo banner is missing')
-require('pbTestBanner(visible: !store.isPro)' in root_tabs and root_tabs.count('.pbTestBanner') == 4,
-        'test banner is not fixed across all free-user tabs or does not disappear for Pro')
+        'publisherPrivacyPersonalizationState = .disabled',
+        'requestConsentInfoUpdate', 'loadAndPresentIfRequired', 'ConsentInformation.shared.canRequestAds']),
+        'fixed official Google demo banner or required UMP consent gate is missing')
+require('pbTestBanner(visible: !store.isPro && store.activeRun == nil)' in root_tabs and root_tabs.count('.pbTestBanner') == 1,
+        'one persistent free-user test banner is not fixed outside the active press flow or does not disappear for Pro')
 require(all(marker in usage_source for marker in ['freePressLimit = 5', 'completedPresses',
-        'lastCreditedBatchID', 'canStartFreePress']) and
+        'lastCreditedBatchID', 'creditedBatchIDs', 'canStartFreePress']) and
         all(marker in store_source for marker in ['usageMeter.canStartFreePress', 'recordCompletedPress',
-                                                   'case .pressLimitReached']),
+                                                   'case .pressLimitReached', 'alreadyCommitted']),
         'monotonic five-completed-press limit is missing or deletion can recreate free usage')
 require('PressBenchReportExporter.pdf' in (root/'PressBench/Views/ReportsView.swift').read_text(), 'native PDF report not wired')
 require('PressBenchReportExporter.xlsx' in (root/'PressBench/Views/ReportsView.swift').read_text(), 'native XLSX report not wired')
@@ -323,10 +328,14 @@ require('--pressbench-ui-test-reset' in ui_test and '--pressbench-ui-test-reset'
         'removePersistentDomain' in app_source and 'state-v5' not in app_source and
         '-pressbench.onboarding.completed' not in ui_test,
         'UI test does not request a deterministic pre-store persistence reset')
+require(all(marker in ui_test for marker in ['--pressbench-ui-test-limit-reached',
+        '--pressbench-ui-test-product-unavailable', '--pressbench-ui-test-pro',
+        'Free run credits left: 0 of 5', 'pb.ad.banner', 'Unlock PressBench Pro']),
+        'UI test does not cover the sixth-run paywall, unavailable product, or Pro ad removal')
 
 catalog=json.loads((root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8'))
 require(len(catalog.get('languages',[])) == 31, 'language choice count is not 31')
-require(len(catalog.get('strings',{})) == 354, 'reviewed localization catalog must contain 354 keys')
+require(len(catalog.get('strings',{})) == 361, 'reviewed localization catalog must contain 361 keys')
 boundary = catalog.get('strings',{}).get('setup.provenBoundary',{})
 require(bool(boundary), 'localized Proven evidence boundary is missing')
 boundary_source = boundary.get('source','').lower()
@@ -344,7 +353,7 @@ for key, item in metadata.items():
 build_l10n=(root/'build_l10n.py').read_text(encoding='utf-8')
 assemble=(root/'assemble_catalog.py').read_text(encoding='utf-8')
 require('setup.provenBoundary' in build_l10n and 'raise SystemExit(\'Legacy' not in build_l10n,
-        'build_l10n.py is not the live 354-key canonical generator')
+        'build_l10n.py is not the live 361-key canonical generator')
 require("assert len(phrases)==286" in assemble and 'DIRECT_NEW_KEYS' in assemble and
         'OPERATOR_TRANSLATIONS' in assemble and 'ADDITIONAL_TRANSLATIONS' in assemble and
         'RESIDUAL_TRANSLATIONS' in assemble and
@@ -369,6 +378,23 @@ for code in [item for item in catalog['languages'] if item != 'en'] + ['zh-Hant'
 for key, entry in catalog.get('strings',{}).items():
     for code in catalog['languages'] + ['zh-Hant']:
         require(bool(entry.get('translations',{}).get(code,'').strip()), f'missing localization {key}:{code}')
+
+# Rebuild localization artifacts in isolation so checked-in subscription copy
+# cannot silently drift back to an earlier one-time-purchase model.
+with tempfile.TemporaryDirectory(prefix='pressbench-l10n-') as temp_name:
+    temp = Path(temp_name)
+    for filename in ['build_l10n.py', 'assemble_catalog.py', 'phrases.tsv', 'monetization_translations.json']:
+        shutil.copy2(root/filename, temp/filename)
+    shutil.copytree(root/'translations', temp/'translations')
+    (temp/'PressBench/Resources').mkdir(parents=True)
+    generated = subprocess.run([sys.executable, 'build_l10n.py'], cwd=temp, capture_output=True, text=True)
+    require(generated.returncode == 0, f'isolated build_l10n.py failed: {generated.stderr.strip()}')
+    if generated.returncode == 0:
+        generated = subprocess.run([sys.executable, 'assemble_catalog.py'], cwd=temp, capture_output=True, text=True)
+        require(generated.returncode == 0, f'isolated assemble_catalog.py failed: {generated.stderr.strip()}')
+    generated_catalog = temp/'PressBench/Resources/Localizations.json'
+    require(generated_catalog.exists() and generated_catalog.read_bytes() == (root/'PressBench/Resources/Localizations.json').read_bytes(),
+            'checked-in localization catalog differs from a clean canonical rebuild')
 
 if failures:
     print('RELEASE INTEGRITY: FAIL')

@@ -31,14 +31,8 @@ This follows [App Review Guideline 3.1.2](https://developer.apple.com/app-store/
 
 ## Ad release gate
 
-The current code deliberately uses only Google’s official demo app and banner IDs, disables ad personalization, and requests General-rated creative. It is suitable for development testing, not an App Store production release.
+The current code deliberately uses only Google’s official demo app and banner IDs, disables ad personalization, and requests General-rated creative. Google UMP 3.1.0 is pinned with Google Mobile Ads 13.9.0. At launch, the app requests current consent information, presents any required form, and checks `canRequestAds` before starting Mobile Ads or sending an ad request. More includes privacy choices and a direct Report an ad action.
 
-Before replacing the demo IDs or submitting for App Review:
-
-1. Add Google UMP and obtain the required consent decision before SDK initialization or an ad request.
-2. Add Google’s current SKAdNetwork identifiers.
-3. Reconcile App Store privacy labels and the privacy policy with the SDK’s actual data use.
-4. Configure AdMob blocking/content controls and retain the in-app Support route for reporting inappropriate ads.
-5. Replace both demo IDs together and update the integrity gate so a mixed test/live configuration cannot ship.
+Before external TestFlight or App Store distribution, configure Google Privacy & messaging for the final application ID, add Google’s current SKAdNetwork identifiers, and reconcile App Store privacy answers with the SDK’s actual data use. Replacing the demo IDs remains a separate reviewed release task; both IDs and the integrity gate must change together so a mixed test/live configuration cannot ship.
 
 References: [Google iOS quick start](https://developers.google.com/admob/ios/quick-start), [banner guide and official test ID](https://developers.google.com/admob/ios/banner), [privacy/UMP](https://developers.google.com/admob/ios/privacy), and [ad targeting/content rating](https://developers.google.com/admob/ios/targeting).

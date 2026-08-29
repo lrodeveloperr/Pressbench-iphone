@@ -26,7 +26,13 @@ final class PurchaseManager: ObservableObject {
                 await self?.consume(result: result, action: "automatic_refresh")
             }
         }
-        await loadProduct()
+        guard await loadProduct() else { return }
+        await refresh(action: "automatic_refresh", userInitiated: false)
+    }
+
+    func reloadProduct() async {
+        state = .loading
+        guard await loadProduct() else { return }
         await refresh(action: "automatic_refresh", userInitiated: false)
     }
 
@@ -94,7 +100,15 @@ final class PurchaseManager: ObservableObject {
         }
     }
 
-    private func loadProduct() async {
+    @discardableResult
+    private func loadProduct() async -> Bool {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--pressbench-ui-test-product-unavailable") {
+            product = nil
+            state = .unavailable
+            return false
+        }
+        #endif
         do {
             let candidate = try await Product.products(for: [Self.productID]).first
             guard candidate?.type == .autoRenewable,
@@ -102,11 +116,14 @@ final class PurchaseManager: ObservableObject {
                   candidate?.subscription?.subscriptionPeriod.value == 1 else {
                 product = nil
                 state = .unavailable
-                return
+                return false
             }
             product = candidate
+            return true
         } catch {
+            product = nil
             state = .failed(String(describing: error))
+            return false
         }
     }
 

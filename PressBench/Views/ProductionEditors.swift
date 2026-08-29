@@ -604,6 +604,7 @@ struct RunConfigurationView: View {
     @State private var failed = false
     @State private var failureMessageKey = "common.actionFailed"
     @State private var showingUpgrade = false
+    @State private var resumeRunAfterUpgrade = false
 
     init(setup: Setup, onStarted: @escaping () -> Void) {
         self.setup = setup
@@ -691,7 +692,11 @@ struct RunConfigurationView: View {
         }
         .pbEditorSheetStyle()
         .onChange(of: draft.runMode) { _, mode in if mode == "test" { draft.quantity = "1" } }
-        .sheet(isPresented: $showingUpgrade) { ProUpgradeView().environmentObject(store).pbEditorSheetStyle() }
+        .sheet(isPresented: $showingUpgrade, onDismiss: {
+            guard resumeRunAfterUpgrade else { return }
+            resumeRunAfterUpgrade = false
+            if store.isPro { start() }
+        }) { ProUpgradeView().environmentObject(store).pbEditorSheetStyle() }
     }
 
     private var isReady: Bool {
@@ -706,7 +711,7 @@ struct RunConfigurationView: View {
             onStarted()
             dismiss()
         } catch {
-            if store.requiresUpgrade(error) { showingUpgrade = true }
+            if store.requiresUpgrade(error) { resumeRunAfterUpgrade = true; showingUpgrade = true }
             else { failureMessageKey = store.errorLocalizationKey(error); failed = true }
             PBFeedback.error()
         }
@@ -718,29 +723,115 @@ struct ProUpgradeView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
+    @State private var actionInProgress = false
+    @State private var showingFailure = false
+    @State private var restoreFoundNothing = false
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 18) {
-                Image(systemName: "infinity.circle.fill").font(.system(size: 64)).foregroundStyle(PBTheme.primary)
-                Text(t("upgrade.title")).font(.title.bold()).multilineTextAlignment(.center)
-                Text(t("upgrade.body")).foregroundStyle(PBTheme.secondary).multilineTextAlignment(.center)
-                PBPrimaryButton(title: store.productDisplayPrice.map { "\(t("upgrade.unlock")) · \($0)" } ?? t("upgrade.unlock"), icon: "lock.open.fill") {
-                    Task { await store.purchasePro(); if store.isPro { dismiss() } }
+            ScrollView {
+                VStack(spacing: 18) {
+                    Image(systemName: "infinity.circle.fill").font(.system(size: 64)).foregroundStyle(PBTheme.primary)
+                    Text(t("upgrade.title")).font(.title.bold()).multilineTextAlignment(.center)
+                    Text(t("upgrade.body")).foregroundStyle(PBTheme.secondary).multilineTextAlignment(.center)
+                    if !store.isPro {
+                        Text(PBL10n.format(
+                            "usage.freeRunsRemaining", language: language, locale: locale,
+                            PBFormat.integer(store.freePressesRemaining, locale: locale) as NSString,
+                            PBFormat.integer(PBUsageMeter.freePressLimit, locale: locale) as NSString
+                        ))
+                        .font(.headline).foregroundStyle(PBTheme.text).multilineTextAlignment(.center)
+                    }
+                    if actionInProgress { ProgressView().controlSize(.large) }
+                    if store.purchaseState == .pending {
+                        Label(t("purchase.pending"), systemImage: "clock.fill")
+                            .font(.subheadline.weight(.semibold)).foregroundStyle(PBTheme.warningInk)
+                            .multilineTextAlignment(.center)
+                    }
+                    if store.productDisplayPrice == nil && store.purchaseState != .loading {
+                        Label(t("purchase.unavailable"), systemImage: "exclamationmark.triangle.fill")
+                            .font(.subheadline.weight(.semibold)).foregroundStyle(PBTheme.warningInk)
+                            .multilineTextAlignment(.center)
+                        Button(t("common.retry")) { retryProduct() }
+                            .font(.headline).frame(minHeight: PBTheme.minimumTarget)
+                            .disabled(actionInProgress)
+                    }
+                    PBPrimaryButton(title: subscribeTitle, icon: "creditcard.fill") { purchase() }
+                        .disabled(actionInProgress || store.purchaseState == .pending || store.productDisplayPrice == nil)
+                    Button(t("upgrade.restore")) { restore() }
+                        .font(.headline).frame(minHeight: PBTheme.minimumTarget)
+                        .disabled(actionInProgress)
+                    if restoreFoundNothing {
+                        Text(t("purchase.notFound"))
+                            .font(.subheadline).foregroundStyle(PBTheme.secondary).multilineTextAlignment(.center)
+                    }
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 20) { policyLinks }
+                        VStack(spacing: 12) { policyLinks }
+                    }
+                    .font(.footnote.weight(.semibold))
                 }
-                Button(t("upgrade.restore")) { Task { await store.restorePurchases(); if store.isPro { dismiss() } } }
-                    .font(.headline).frame(minHeight: PBTheme.minimumTarget)
-                HStack(spacing: 20) {
-                    Link(t("common.termsOfUse"), destination: PressBenchPolicyLinks.terms)
-                    Link(t("common.privacyPolicy"), destination: PressBenchPolicyLinks.privacy)
-                }
-                .font(.footnote.weight(.semibold))
-                Spacer()
+                .frame(maxWidth: .infinity)
+                .padding(PBTheme.pagePadding)
             }
-            .padding(PBTheme.pagePadding).background(PBTheme.canvasGradient.ignoresSafeArea())
+            .background(PBTheme.canvasGradient.ignoresSafeArea())
             .navigationTitle(t("upgrade.title")).navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(t("common.cancel")) { dismiss() } } }
+            .alert("PressBench", isPresented: $showingFailure) {
+                Button(t("common.ok"), role: .cancel) {}
+            } message: { Text(t("common.actionFailed")) }
+        }
+    }
+
+    @ViewBuilder private var policyLinks: some View {
+        Link(t("common.termsOfUse"), destination: PressBenchPolicyLinks.terms)
+        Link(t("common.privacyPolicy"), destination: PressBenchPolicyLinks.privacy)
+    }
+
+    private var subscribeTitle: String {
+        guard let price = store.productDisplayPrice else { return t("upgrade.unlock") }
+        let monthlyPrice = PBL10n.format("upgrade.pricePerMonthFormat", language: language, locale: locale, price as NSString)
+        return "\(t("upgrade.unlock")) · \(monthlyPrice)"
+    }
+
+    private func purchase() {
+        restoreFoundNothing = false
+        actionInProgress = true
+        Task { @MainActor in
+            await store.purchasePro()
+            actionInProgress = false
+            if store.isPro { dismiss(); return }
+            switch store.purchaseState {
+            case .pending, .free: break
+            case .loading, .unavailable, .failed: showingFailure = true
+            case .purchased: dismiss()
+            }
+        }
+    }
+
+    private func restore() {
+        restoreFoundNothing = false
+        actionInProgress = true
+        Task { @MainActor in
+            await store.restorePurchases()
+            actionInProgress = false
+            if store.isPro { dismiss(); return }
+            switch store.purchaseState {
+            case .free: restoreFoundNothing = true
+            case .pending: break
+            case .loading, .unavailable, .failed: showingFailure = true
+            case .purchased: dismiss()
+            }
+        }
+    }
+
+    private func retryProduct() {
+        actionInProgress = true
+        Task { @MainActor in
+            await store.reloadPurchases()
+            actionInProgress = false
+            if store.productDisplayPrice == nil { showingFailure = true }
         }
     }
 }
