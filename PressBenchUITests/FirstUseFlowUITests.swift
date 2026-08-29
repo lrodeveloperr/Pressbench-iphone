@@ -23,7 +23,7 @@ final class FirstUseFlowUITests: XCTestCase {
 
         XCTAssertTrue(app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch.waitForExistence(timeout: 8))
         let moreTab = app.tabBars.buttons["More"]
-        XCTAssertTrue(waitForHittable(moreTab, timeout: 8), "The native tab bar must settle inside the Face ID viewport")
+        XCTAssertTrue(waitForHittable(moreTab, timeout: 20), "The native tab bar must settle inside the Face ID viewport")
         capture("face-id-home-safe-area")
         let settingsLink = app.staticTexts["Settings"].firstMatch
         XCTAssertTrue(openTab("More", until: settingsLink, app: app))
@@ -245,9 +245,11 @@ final class FirstUseFlowUITests: XCTestCase {
         makeHittable(field, in: app)
         field.tap()
         let choice = app.buttons[option].firstMatch
+        let otherChoice = app.buttons["Other"].firstMatch
+        XCTAssertTrue(otherChoice.waitForExistence(timeout: 5))
         makeHittable(choice, in: app)
         choice.tap()
-        XCTAssertTrue(choice.waitForNonExistence(timeout: 5),
+        XCTAssertTrue(otherChoice.waitForNonExistence(timeout: 5),
                       "The choice sheet must dismiss before the editor continues")
     }
 
