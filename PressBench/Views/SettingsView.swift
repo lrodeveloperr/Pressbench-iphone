@@ -97,7 +97,7 @@ struct SettingsView: View {
 
             Section {
                 NavigationLink { ReportsView() } label: {
-                    Label { Text(t("common.exports")) } icon: { Image(systemName: "square.and.arrow.up") }
+                    Label { Text(t("report.productionReport")) } icon: { Image(systemName: "doc.richtext") }
                 }
                 if !appleUserID.isEmpty {
                     Button { createBackup() } label: {

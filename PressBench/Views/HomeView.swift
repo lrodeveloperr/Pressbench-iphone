@@ -110,7 +110,7 @@ struct HomeView: View {
                             PBFormat.integer(store.freePressesRemaining, locale: locale) as NSString,
                             PBFormat.integer(PBUsageMeter.freePressLimit, locale: locale) as NSString
                         ))
-                        .font(.caption.weight(.bold))
+                        .font(.subheadline.weight(.bold))
                     }
                 }
                 Spacer()

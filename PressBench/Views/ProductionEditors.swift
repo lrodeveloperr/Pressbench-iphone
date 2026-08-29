@@ -725,6 +725,7 @@ struct ProUpgradeView: View {
     @Environment(\.locale) private var locale
     @State private var actionInProgress = false
     @State private var showingFailure = false
+    @State private var failureMessageKey = "purchase.failed"
     @State private var restoreFoundNothing = false
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
@@ -780,7 +781,7 @@ struct ProUpgradeView: View {
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(t("common.cancel")) { dismiss() } } }
             .alert("PressBench", isPresented: $showingFailure) {
                 Button(t("common.ok"), role: .cancel) {}
-            } message: { Text(t("common.actionFailed")) }
+            } message: { Text(t(failureMessageKey)) }
         }
     }
 
@@ -797,6 +798,7 @@ struct ProUpgradeView: View {
 
     private func purchase() {
         restoreFoundNothing = false
+        failureMessageKey = "purchase.failed"
         actionInProgress = true
         Task { @MainActor in
             await store.purchasePro()
@@ -812,6 +814,7 @@ struct ProUpgradeView: View {
 
     private func restore() {
         restoreFoundNothing = false
+        failureMessageKey = "restore.failed"
         actionInProgress = true
         Task { @MainActor in
             await store.restorePurchases()

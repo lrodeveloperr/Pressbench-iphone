@@ -22,5 +22,10 @@ final class PolicyLinksTests: XCTestCase {
             XCTAssertEqual(url.host, "lrodeveloperr.github.io")
             XCTAssertEqual(url.absoluteString, expected[url])
         }
+
+        XCTAssertEqual(
+            PressBenchPolicyLinks.manageSubscription.absoluteString,
+            "https://apps.apple.com/account/subscriptions"
+        )
     }
 }

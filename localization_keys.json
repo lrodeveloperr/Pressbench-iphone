@@ -1337,7 +1337,7 @@
   },
   "usage.freeRunsRemaining": {
     "context": "Free usage status",
-    "source": "Free run credits left: %1$@ of %2$@"
+    "source": "Free runs left: %1$@ of %2$@"
   },
   "upgrade.pricePerMonthFormat": {
     "context": "Monthly subscription price",
@@ -1362,6 +1362,26 @@
   "ads.report": {
     "context": "Ad safety action",
     "source": "Report an ad"
+  },
+  "ads.privacyChoices": {
+    "context": "Ad privacy action",
+    "source": "Ad privacy choices"
+  },
+  "ads.bannerLabel": {
+    "context": "Advertisement accessibility label",
+    "source": "Advertisement"
+  },
+  "purchase.failed": {
+    "context": "Purchase failure message",
+    "source": "Purchase couldn’t be completed. Try again."
+  },
+  "restore.failed": {
+    "context": "Purchase restore failure message",
+    "source": "Restore couldn’t be completed. Try again."
+  },
+  "upgrade.manage": {
+    "context": "Subscription management action",
+    "source": "Manage subscription"
   },
   "backup.optionalTitle": {
     "context": "Optional backup title",

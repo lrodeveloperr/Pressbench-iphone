@@ -14,8 +14,13 @@ enum PBAdConfiguration {
 
 @MainActor
 enum PBAdvertising {
+    static let consentDidChange = Notification.Name("PressBenchAdvertisingConsentDidChange")
     private static var started = false
     private static var preparationTask: Task<Bool, Never>?
+
+    static var privacyOptionsRequired: Bool {
+        ConsentInformation.shared.privacyOptionsRequirementStatus == .required
+    }
 
     static func prepareForAds() async -> Bool {
         if let preparationTask { return await preparationTask.value }
@@ -35,9 +40,17 @@ enum PBAdvertising {
         return await task.value
     }
 
-    static func presentPrivacyOptions() async {
+    static func presentPrivacyOptions() async -> Bool {
         _ = await prepareForAds()
-        try? await ConsentForm.presentPrivacyOptionsForm(from: nil)
+        guard privacyOptionsRequired else { return false }
+        do {
+            try await ConsentForm.presentPrivacyOptionsForm(from: nil)
+            preparationTask = nil
+            NotificationCenter.default.post(name: consentDidChange, object: nil)
+            return true
+        } catch {
+            return false
+        }
     }
 
     private static func startIfNeeded() {
@@ -51,28 +64,62 @@ enum PBAdvertising {
 
 struct PBTestBannerSlot: View {
     @State private var canRequestAds = false
+    @State private var consentResolved = false
+    @State private var bannerLoadResolved = false
+    @State private var bannerLoaded = false
+    @Environment(\.pbLanguage) private var language
+    @Environment(\.locale) private var locale
 
     var body: some View {
         Group {
-            if canRequestAds { PBTestBannerView() }
-            else { Color.clear.accessibilityHidden(true) }
+            if canRequestAds {
+                PBTestBannerView { loaded in
+                    bannerLoaded = loaded
+                    bannerLoadResolved = true
+                }
+                    .frame(width: 320, height: bannerLoadResolved && !bannerLoaded ? 0 : PBAdConfiguration.slotHeight)
+                    .frame(maxWidth: .infinity,
+                           minHeight: bannerLoadResolved && !bannerLoaded ? 0 : PBAdConfiguration.slotHeight,
+                           maxHeight: bannerLoadResolved && !bannerLoaded ? 0 : PBAdConfiguration.slotHeight)
+                    .clipped()
+                    .background(PBTheme.paper)
+                    .overlay(alignment: .top) { Divider() }
+                    .accessibilityIdentifier("pb.ad.banner")
+                    .accessibilityElement(children: .contain)
+                    .accessibilityLabel(PBL10n.text("ads.bannerLabel", language: language, locale: locale))
+                    .accessibilityHidden(bannerLoadResolved && !bannerLoaded)
+            } else if !consentResolved {
+                Color.clear
+                    .frame(maxWidth: .infinity, minHeight: PBAdConfiguration.slotHeight,
+                           maxHeight: PBAdConfiguration.slotHeight)
+                    .accessibilityHidden(true)
+            }
         }
-            .frame(width: 320, height: PBAdConfiguration.slotHeight)
-            .frame(maxWidth: .infinity, minHeight: PBAdConfiguration.slotHeight,
-                   maxHeight: PBAdConfiguration.slotHeight)
-            .background(PBTheme.paper)
-            .overlay(alignment: .top) { Divider() }
-            .accessibilityIdentifier("pb.ad.banner")
-            .accessibilityElement(children: .contain)
-            .task { canRequestAds = await PBAdvertising.prepareForAds() }
+        .task {
+            canRequestAds = await PBAdvertising.prepareForAds()
+            consentResolved = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: PBAdvertising.consentDidChange)) { _ in
+            Task { @MainActor in
+                bannerLoadResolved = false
+                bannerLoaded = false
+                canRequestAds = await PBAdvertising.prepareForAds()
+                consentResolved = true
+            }
+        }
     }
 }
 
 private struct PBTestBannerView: UIViewRepresentable {
+    let onLoadStateChange: (Bool) -> Void
+
+    func makeCoordinator() -> Coordinator { Coordinator(onLoadStateChange: onLoadStateChange) }
+
     func makeUIView(context: Context) -> BannerView {
         let banner = BannerView(adSize: AdSizeBanner)
         banner.adUnitID = PBAdConfiguration.testBannerUnitID
         banner.rootViewController = Self.activeRootViewController()
+        banner.delegate = context.coordinator
         banner.load(Request())
         return banner
     }
@@ -88,6 +135,22 @@ private struct PBTestBannerView: UIViewRepresentable {
             .compactMap { $0 as? UIWindowScene }
             .first(where: { $0.activationState == .foregroundActive })
         return scene?.windows.first(where: \.isKeyWindow)?.rootViewController
+    }
+
+    final class Coordinator: NSObject, BannerViewDelegate {
+        let onLoadStateChange: (Bool) -> Void
+
+        init(onLoadStateChange: @escaping (Bool) -> Void) {
+            self.onLoadStateChange = onLoadStateChange
+        }
+
+        func bannerViewDidReceiveAd(_ bannerView: BannerView) {
+            onLoadStateChange(true)
+        }
+
+        func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: Error) {
+            onLoadStateChange(false)
+        }
     }
 }
 

@@ -20,7 +20,7 @@ struct ReportsView: View {
                 exportButton(format: "PDF", systemImage: "doc.richtext")
                 exportButton(format: "XLSX", systemImage: "tablecells.badge.ellipsis")
             } header: {
-                Text(t("common.exports"))
+                Text(t("report.productionReport"))
             } footer: {
                 Text(t("report.operatorValuesNotice"))
             }
@@ -37,10 +37,14 @@ struct ReportsView: View {
                             HStack {
                                 Text(t("common.unlockPro"))
                                 Spacer()
-                                if let price = store.productDisplayPrice { Text(price) }
+                                if let price = store.productDisplayPrice {
+                                    Text(PBL10n.format(
+                                        "upgrade.pricePerMonthFormat", language: language, locale: locale,
+                                        price as NSString
+                                    ))
+                                }
                             }
                         }
-                        Button(t("common.restorePurchases")) { Task { await store.restorePurchases() } }
                     }
                     .padding(.vertical, 6)
                 }
@@ -58,7 +62,7 @@ struct ReportsView: View {
         .scrollContentBackground(.hidden)
         .background(PBTheme.canvasGradient)
         .tint(PBTheme.primary)
-        .navigationTitle(t("common.exports"))
+        .navigationTitle(t("report.productionReport"))
         .overlay { if generating { ProgressView().controlSize(.large) } }
         .sheet(isPresented: $showingShare) {
             if let exportURL { ActivityShareView(items: [exportURL as Any]) }

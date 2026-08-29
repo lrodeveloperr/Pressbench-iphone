@@ -99,6 +99,8 @@ struct CompletedRunDetailView: View {
     @State private var showingCorrection = false
     @State private var showingDelete = false
     @State private var showingRepeat = false
+    @State private var showingRepeatUpgrade = false
+    @State private var resumeRepeatAfterUpgrade = false
     @State private var failed = false
     @State private var failureMessageKey = "common.actionFailed"
     init(run: BatchRun) { runID = run.id; initialRun = run }
@@ -211,9 +213,8 @@ struct CompletedRunDetailView: View {
                     }
                 }
                 if let setup = store.setups.first(where: { $0.id == run.setupID && $0.status != .archived }) {
-                    PBPrimaryButton(title: t("run.repeatSetup"), icon: "arrow.clockwise") { showingRepeat = true }
+                    PBPrimaryButton(title: t("run.repeatSetup"), icon: "arrow.clockwise") { requestRepeat() }
                         .disabled(store.activeRun != nil)
-                    .sheet(isPresented: $showingRepeat) { JobDifferenceSheet(setup: setup).environmentObject(store) }
                 }
                 Button(t("run.correctRecord")) { showingCorrection = true }
                     .font(.headline).frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
@@ -226,6 +227,16 @@ struct CompletedRunDetailView: View {
         .background(PBTheme.canvasGradient)
         .navigationTitle(t("report.batch"))
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingRepeat) {
+            if let setup = store.setups.first(where: { $0.id == run.setupID && $0.status != .archived }) {
+                JobDifferenceSheet(setup: setup).environmentObject(store)
+            }
+        }
+        .sheet(isPresented: $showingRepeatUpgrade, onDismiss: {
+            guard resumeRepeatAfterUpgrade else { return }
+            resumeRepeatAfterUpgrade = false
+            if store.isPro { showingRepeat = true }
+        }) { ProUpgradeView().environmentObject(store).pbEditorSheetStyle() }
         .sheet(isPresented: $showingCorrection) {
             BatchCorrectionView(run: run) { jobReference, planned, processed, notes, issues, reason in
                 do {
@@ -247,6 +258,11 @@ struct CompletedRunDetailView: View {
             Text(PBL10n.format("run.deleteRecordConfirm", language: language, locale: locale, run.title as NSString))
         }
         .alert("PressBench", isPresented: $failed) { Button(t("common.ok"), role: .cancel) {} } message: { Text(t(failureMessageKey)) }
+    }
+
+    private func requestRepeat() {
+        if store.canStartAnotherRun { showingRepeat = true }
+        else { resumeRepeatAfterUpgrade = true; showingRepeatUpgrade = true }
     }
 
     @ViewBuilder

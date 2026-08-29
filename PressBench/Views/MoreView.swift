@@ -6,6 +6,8 @@ struct MoreView: View {
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
     @State private var showingUpgrade = false
+    @State private var privacyOptionsAvailable = false
+    @State private var privacyOptionsFailed = false
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
@@ -20,7 +22,7 @@ struct MoreView: View {
 
                 PBCard {
                     VStack(spacing: 0) {
-                        NavigationLink { ReportsView() } label: { menuRow("common.exports", icon: "square.and.arrow.up") }
+                        NavigationLink { ReportsView() } label: { menuRow("report.productionReport", icon: "doc.richtext") }
                             .buttonStyle(.plain)
                         Divider().opacity(0.35)
                         Button { store.selectedTab = 2 } label: { menuRow("common.batchHistory", icon: "list.clipboard") }.buttonStyle(.plain)
@@ -37,19 +39,31 @@ struct MoreView: View {
                         Divider().opacity(0.35)
                         ExternalMenuLink(titleKey: "common.safetyNotice", icon: "exclamationmark.triangle", url: PressBenchPolicyLinks.safety)
                         Divider().opacity(0.35)
-                        if store.isPro {
+                        if store.canManageMonthlySubscription {
+                            ExternalMenuLink(titleKey: "upgrade.manage", icon: "creditcard", url: PressBenchPolicyLinks.manageSubscription)
+                        } else if store.isPro {
                             ExternalMenuLink(titleKey: "common.purchasesPro", icon: "creditcard", url: PressBenchPolicyLinks.purchases)
                         } else {
                             Button { showingUpgrade = true } label: { menuRow("common.purchasesPro", icon: "creditcard") }
                                 .buttonStyle(.plain)
                         }
-                        Divider().opacity(0.35)
-                        ExternalMenuLink(titleKey: "ads.report", icon: "exclamationmark.bubble", url: PressBenchPolicyLinks.reportAd)
-                        Divider().opacity(0.35)
-                        Button { Task { await PBAdvertising.presentPrivacyOptions() } } label: {
-                            menuRow("common.privacyPolicy", icon: "checkmark.shield")
+                        if !store.isPro {
+                            Divider().opacity(0.35)
+                            ExternalMenuLink(titleKey: "ads.report", icon: "exclamationmark.bubble", url: PressBenchPolicyLinks.reportAd)
+                            if privacyOptionsAvailable {
+                                Divider().opacity(0.35)
+                                Button {
+                                    Task {
+                                        let shown = await PBAdvertising.presentPrivacyOptions()
+                                        privacyOptionsAvailable = PBAdvertising.privacyOptionsRequired
+                                        privacyOptionsFailed = !shown
+                                    }
+                                } label: {
+                                    menuRow("ads.privacyChoices", icon: "checkmark.shield")
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
-                        .buttonStyle(.plain)
                         Divider().opacity(0.35)
                         ExternalMenuLink(titleKey: "common.localDataBackups", icon: "externaldrive", url: PressBenchPolicyLinks.dataChoices)
                         Divider().opacity(0.35)
@@ -86,6 +100,16 @@ struct MoreView: View {
         .background(PBTheme.canvasGradient)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showingUpgrade) { ProUpgradeView().environmentObject(store).pbEditorSheetStyle() }
+        .task {
+            guard store.adEligibilityResolved, !store.isPro else { return }
+            _ = await PBAdvertising.prepareForAds()
+            privacyOptionsAvailable = PBAdvertising.privacyOptionsRequired
+        }
+        .alert("PressBench", isPresented: $privacyOptionsFailed) {
+            Button(t("common.ok"), role: .cancel) {}
+        } message: {
+            Text(t("common.actionFailed"))
+        }
     }
 
     private func menuRow(_ key: String, icon: String) -> some View {

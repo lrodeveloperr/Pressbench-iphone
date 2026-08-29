@@ -73,6 +73,7 @@ final class FirstUseFlowUITests: XCTestCase {
 
         let confirmInstructions = app.buttons["Confirm instructions"]
         XCTAssertTrue(confirmInstructions.waitForExistence(timeout: 8))
+        XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)
         capture("06-run-preflight")
         confirmInstructions.tap()
         let startTimer = app.buttons["Start timer"]
@@ -117,7 +118,7 @@ final class FirstUseFlowUITests: XCTestCase {
             "-AppleLanguages", "(en)", "-AppleLocale", "en_US"
         ]
         app.launch()
-        XCTAssertTrue(app.staticTexts["Free run credits left: 0 of 5"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["Free runs left: 0 of 5"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.otherElements["pb.ad.banner"].waitForExistence(timeout: 5))
         app.staticTexts["Start New Run"].tap()
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
@@ -125,13 +126,24 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Subscribe"].isEnabled)
         capture("11-sixth-run-upgrade")
 
+        app.buttons["Cancel"].firstMatch.tap()
+        app.buttons["Runs"].tap()
+        let cappedRun = app.staticTexts["Quick Tee"].firstMatch
+        XCTAssertTrue(cappedRun.waitForExistence(timeout: 5))
+        cappedRun.tap()
+        let repeatSetup = app.buttons["Repeat this setup"]
+        XCTAssertTrue(repeatSetup.waitForExistence(timeout: 5))
+        repeatSetup.tap()
+        XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
+        capture("12-capped-repeat-upgrade")
+
         app.terminate()
         app.launchArguments = ["--pressbench-ui-test-pro", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         XCTAssertTrue(app.staticTexts["Start New Run"].waitForExistence(timeout: 8))
         XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)
-        XCTAssertFalse(app.staticTexts["Free run credits left: 0 of 5"].exists)
-        capture("12-pro-removes-ads-and-cap")
+        XCTAssertFalse(app.staticTexts["Free runs left: 0 of 5"].exists)
+        capture("13-pro-removes-ads-and-cap")
     }
 
     private func enter(_ value: String, in field: XCUIElement, app: XCUIApplication) {
