@@ -331,7 +331,8 @@ require('--pressbench-ui-test-reset' in ui_test and '--pressbench-ui-test-reset'
 require(all(marker in ui_test for marker in ['--pressbench-ui-test-limit-reached',
         '--pressbench-ui-test-product-unavailable', '--pressbench-ui-test-pro',
         'Free runs left: 0 of 5', 'pb.ad.banner', 'Unlock PressBench Pro',
-        'Repeat this setup', 'capped-repeat-upgrade']),
+        'Repeat this setup', 'capped-repeat-upgrade', 'app.tabBars.buttons["Runs"]',
+        'pb.runs.screen']),
         'UI test does not cover the sixth-run paywall, capped Repeat, active-run ad removal, or Pro ad removal')
 require(ui_test.count('XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)') >= 2,
         'UI test does not verify both active-run and Pro banner removal')

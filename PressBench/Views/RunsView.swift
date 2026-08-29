@@ -64,6 +64,7 @@ struct RunsView: View {
             .padding(.horizontal, PBTheme.pagePadding)
             .padding(.bottom, 24)
         }
+        .accessibilityIdentifier("pb.runs.screen")
         .background(PBTheme.canvasGradient)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $showingStarter) { StartRunSheet().environmentObject(store) }

@@ -127,12 +127,27 @@ final class FirstUseFlowUITests: XCTestCase {
         capture("11-sixth-run-upgrade")
 
         app.buttons["Cancel"].firstMatch.tap()
-        app.buttons["Runs"].tap()
+        let runsTab = app.tabBars.buttons["Runs"]
+        guard runsTab.waitForExistence(timeout: 5), runsTab.isHittable else {
+            XCTFail("Runs tab is not available after closing the paywall")
+            return
+        }
+        runsTab.tap()
+        guard app.scrollViews["pb.runs.screen"].waitForExistence(timeout: 5) else {
+            XCTFail("Runs screen did not open")
+            return
+        }
         let cappedRun = app.staticTexts["Quick Tee"].firstMatch
-        XCTAssertTrue(cappedRun.waitForExistence(timeout: 5))
+        guard cappedRun.waitForExistence(timeout: 5) else {
+            XCTFail("Completed run was not visible")
+            return
+        }
         cappedRun.tap()
         let repeatSetup = app.buttons["Repeat this setup"]
-        XCTAssertTrue(repeatSetup.waitForExistence(timeout: 5))
+        guard repeatSetup.waitForExistence(timeout: 5) else {
+            XCTFail("Completed-run Repeat action was not visible")
+            return
+        }
         repeatSetup.tap()
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
         capture("12-capped-repeat-upgrade")
