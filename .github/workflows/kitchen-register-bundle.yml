@@ -1,0 +1,54 @@
+name: Register Kitchen Bundle ID
+
+on:
+  push:
+    branches:
+      - kitchen-testflight-builder
+    paths:
+      - .github/workflows/kitchen-register-bundle.yml
+
+permissions:
+  contents: read
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Register or verify bundle ID
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+          IOS_BUNDLE_ID: studio.gooduse.kitchenprep
+        run: |
+          set -euo pipefail
+          key="$RUNNER_TEMP/AuthKey_${ASC_KEY_ID}.p8"
+          umask 077
+          printf '%s' "$ASC_PRIVATE_KEY" > "$key"
+          jwt="$(ruby scripts/app-store-connect-jwt.rb "$key" "$ASC_KEY_ID" "$ASC_ISSUER_ID")"
+          auth="Authorization: Bearer $jwt"
+          current="$RUNNER_TEMP/current.json"
+          curl --fail-with-body --silent --show-error --get -H "$auth" \
+            --data-urlencode "filter[identifier]=$IOS_BUNDLE_ID" \
+            --data-urlencode 'limit=2' \
+            'https://api.appstoreconnect.apple.com/v1/bundleIds' -o "$current"
+          count="$(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1])).get("data",[])))' "$current")"
+          if [[ "$count" == "0" ]]; then
+            payload="$RUNNER_TEMP/payload.json"
+            python3 - "$payload" <<'PY'
+          import json,sys
+          json.dump({"data":{"type":"bundleIds","attributes":{"identifier":"studio.gooduse.kitchenprep","name":"Kitchen Prep Board","platform":"IOS"}}},open(sys.argv[1],"w"))
+          PY
+            curl --fail-with-body --silent --show-error -X POST \
+              -H "$auth" -H 'Content-Type: application/json' \
+              --data-binary @"$payload" \
+              'https://api.appstoreconnect.apple.com/v1/bundleIds' -o "$RUNNER_TEMP/created.json"
+            echo 'BUNDLE_ID_CREATED=studio.gooduse.kitchenprep'
+          elif [[ "$count" == "1" ]]; then
+            echo 'BUNDLE_ID_ALREADY_EXISTS=studio.gooduse.kitchenprep'
+          else
+            echo 'Bundle ID lookup was ambiguous.' >&2
+            exit 1
+          fi
