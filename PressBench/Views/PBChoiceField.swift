@@ -62,12 +62,10 @@ struct PBChoiceField: View {
                 choose: { value in
                     selection = value
                     customMode = false
-                    showingChoices = false
                 },
                 chooseOther: {
                     if choices.contains(selection) { selection = "" }
                     customMode = true
-                    showingChoices = false
                 }
             )
         }
