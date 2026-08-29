@@ -1325,11 +1325,11 @@
   },
   "upgrade.body": {
     "context": "Upgrade explanation",
-    "source": "Save more setups and runs, and export PDF or XLSX reports."
+    "source": "Unlimited presses, no ads, and PDF or XLSX reports. Renews monthly until canceled."
   },
   "upgrade.unlock": {
     "context": "Upgrade action",
-    "source": "Unlock Pro"
+    "source": "Subscribe"
   },
   "upgrade.restore": {
     "context": "Purchase restore action",

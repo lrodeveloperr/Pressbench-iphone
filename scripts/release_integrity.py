@@ -10,10 +10,14 @@ def require(condition, message):
 
 logic = root/'PressBench/Resources/PressBenchLogic.js'
 logic_hash = hashlib.sha256(logic.read_bytes()).hexdigest()
-require(logic_hash == '581a4a3e4fc9c612d73f165d5b6dd2890cb3e2403cd197dd6d61ad2857562bda', f'logic hash changed: {logic_hash}')
+require(logic_hash == '35edd9df10e39ffc354421047653c150131760357767799947ca294b8cef2417', f'logic hash changed: {logic_hash}')
 text = logic.read_text(encoding='utf-8')
-require('pressbench_unlimited_lifetime_ios' in text, 'iOS product id missing from deterministic engine')
-require('FREE_RECIPE_LIMIT = 3' in text and 'FREE_BATCH_LIMIT = 10' in text, 'free capacity constants changed')
+require(all(marker in text for marker in ['pressbench_unlimited_monthly_ios', 'pressbench_unlimited_lifetime_ios',
+        'productType: "auto_renewable_subscription"', 'recurring: true', 'baseAmountMinor: 999']),
+        'monthly iOS subscription or grandfathered lifetime entitlement is missing')
+require('FREE_RECIPE_LIMIT = D.MAX_RECORDS' in text and 'FREE_BATCH_LIMIT = 5' in text and
+        'setup_capacity_required' not in text,
+        'five-press free allowance or unrestricted setup library changed')
 require('function completedTimerPlan' in text and text.count('if (!completedTimerPlan(run.timer))') >= 2 and
         'TIMER_RESTART_PLAN' in text,
         'first-piece or production counting can bypass the complete timer plan')
@@ -27,6 +31,9 @@ require('PressBenchUITests:' in project and 'type: bundle.ui-testing' in project
         'first-use UI regression target is missing')
 require('CODE_SIGN_ENTITLEMENTS: PressBench/PressBench.entitlements' in project,
         'production entitlements are not assigned to the app target')
+require(all(marker in project for marker in ['GoogleMobileAds:', 'exactVersion: 13.9.0',
+        'ca-app-pub-3940256099942544~1458002511']),
+        'pinned Google test-ad SDK or official demo application id is missing')
 
 approved_logo_hash = '03ee625d3c2c6a1efb8e49b4cc060c5b0c61e6397fc0b39633f66151ac2a6a8b'
 brand_logo = root/'PressBench/Assets.xcassets/BrandLogo.imageset/BrandLogo.png'
@@ -241,7 +248,24 @@ require('Button(action: {})' not in joined and 'action: {}' not in joined, 'dead
 require('max(186' not in joined and '0.968' not in joined and '0.017' not in joined, 'known preview metric fallback found')
 require('PressBenchStore.production()' in (root/'PressBench/App/PressBenchApp.swift').read_text(), 'app is not using production store')
 require('StoreKit' in (root/'PressBench/Services/PurchaseManager.swift').read_text(), 'StoreKit2 adapter missing')
-require('pressbench_unlimited_lifetime_ios' in (root/'PressBench/Services/PurchaseManager.swift').read_text(), 'native purchase id mismatch')
+purchase_source=(root/'PressBench/Services/PurchaseManager.swift').read_text()
+ad_source=(root/'PressBench/Services/PBAdvertising.swift').read_text()
+usage_source=(root/'PressBench/Services/PBUsageMeter.swift').read_text()
+require(all(marker in purchase_source for marker in ['pressbench_unlimited_monthly_ios',
+        'pressbench_unlimited_lifetime_ios', '.autoRenewable', 'subscriptionPeriod.unit == .month',
+        'transaction.expirationDate']), 'native subscription verification or lifetime grandfathering is incomplete')
+require(all(marker in ad_source for marker in ['ca-app-pub-3940256099942544/2435281174',
+        'BannerView(adSize: AdSizeBanner)', 'frame(width: 320', 'slotHeight: CGFloat = 50',
+        'maxAdContentRating = GADMaxAdContentRating.general',
+        'publisherPrivacyPersonalizationState = .disabled']),
+        'fixed official Google demo banner is missing')
+require('pbTestBanner(visible: !store.isPro)' in root_tabs and root_tabs.count('.pbTestBanner') == 4,
+        'test banner is not fixed across all free-user tabs or does not disappear for Pro')
+require(all(marker in usage_source for marker in ['freePressLimit = 5', 'completedPresses',
+        'lastCreditedBatchID', 'canStartFreePress']) and
+        all(marker in store_source for marker in ['usageMeter.canStartFreePress', 'recordCompletedPress',
+                                                   'case .pressLimitReached']),
+        'monotonic five-completed-press limit is missing or deletion can recreate free usage')
 require('PressBenchReportExporter.pdf' in (root/'PressBench/Views/ReportsView.swift').read_text(), 'native PDF report not wired')
 require('PressBenchReportExporter.xlsx' in (root/'PressBench/Views/ReportsView.swift').read_text(), 'native XLSX report not wired')
 reports_view=(root/'PressBench/Views/ReportsView.swift').read_text(encoding='utf-8')

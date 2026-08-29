@@ -20,6 +20,8 @@ The Apple Developer team configured in the workflow is:
 
 `49SQ3XQ68Q`
 
+Before purchase testing, create the one-month auto-renewable subscription `pressbench_unlimited_monthly_ios` in a `PressBench Pro` subscription group and set the US storefront price to US$9.99. Add localized name/description, review screenshot, privacy policy, and terms. The retired lifetime product remains code-recognized for existing buyers but is not offered for sale. See `MONETIZATION.md`.
+
 ## 3. App Store Connect API key
 
 Use a **Team API key** with sufficient App Manager / Developer access for build upload and automatic signing. The `.p8` key itself must remain private.

@@ -22,6 +22,7 @@ final class PressBenchStore: ObservableObject {
 
     private let bridge: PressBenchLogicBridge
     private let persistence: PressBenchPersistence
+    private let usageMeter: PBUsageMeter
     private var state: [String: Any]
     private var persistenceBlocked = false
     private var pendingReusedSetups: [String: PendingSetupReuse] = [:]
@@ -34,10 +35,12 @@ final class PressBenchStore: ObservableObject {
 
     init(
         bridge: PressBenchLogicBridge? = nil,
-        persistence: PressBenchPersistence? = nil
+        persistence: PressBenchPersistence? = nil,
+        usageDefaults: UserDefaults = .standard
     ) throws {
         self.bridge = try bridge ?? PressBenchLogicBridge()
         self.persistence = persistence ?? PressBenchPersistence()
+        self.usageMeter = PBUsageMeter(defaults: usageDefaults)
 
         let defaultSettings = try self.bridge.dictionary(
             self.bridge.domain("defaultSettings"), context: "default settings"
@@ -101,6 +104,7 @@ final class PressBenchStore: ObservableObject {
         purchaseObservation = purchases.objectWillChange.sink { [weak self] _ in
             self?.objectWillChange.send()
         }
+        usageMeter.reconcile(existingCompletedRuns: (state["batches"] as? [[String: Any]] ?? []).count)
     }
 
     func start() async {
@@ -171,6 +175,10 @@ final class PressBenchStore: ObservableObject {
     }
 
     var productDisplayPrice: String? { purchases.product?.displayPrice }
+    var freePressesRemaining: Int {
+        usageMeter.reconcile(existingCompletedRuns: rawBatches.count)
+        return usageMeter.freePressesRemaining
+    }
     var hasRestoreRecovery: Bool { state["preRestoreRecovery"] is [String: Any] }
     var hasRejectedRun: Bool { state["rejectedSession"] is [String: Any] }
     var hasSetupDraft: Bool { (state["session"] as? [String: Any])?["setupDraft"] is [String: Any] }
@@ -508,6 +516,9 @@ final class PressBenchStore: ObservableObject {
     }
 
     func startRun(_ draft: RunStartDraft) throws {
+        guard isPro || usageMeter.canStartFreePress(existingCompletedRuns: rawBatches.count) else {
+            throw StoreError.pressLimitReached
+        }
         guard let raw = rawRecipes.first(where: { ($0["id"] as? String) == draft.setupID }) else { throw StoreError.setupMissing }
         guard let quantity = Int(draft.quantity), quantity > 0 else { throw StoreError.invalidNumber }
         let plan = try bridge.dictionary(bridge.process("authorizeRun", [context, raw, [
@@ -693,6 +704,7 @@ final class PressBenchStore: ObservableObject {
             removeOperatorIssues(runID: string(run["id"]))
         }
         lastCompletedBatchID = committedID.isEmpty ? string(run["resultId"]) : committedID
+        usageMeter.recordCompletedPress(batchID: lastCompletedBatchID ?? "")
         activeRunRouteID = lastCompletedBatchID
     }
 
@@ -795,6 +807,7 @@ final class PressBenchStore: ObservableObject {
             state["operatorIssueDrafts"] = [String: Any]()
             state["preRestoreRecovery"] = recovery
         }
+        usageMeter.reconcile(existingCompletedRuns: rawBatches.count)
     }
 
     func rollbackRestore() throws {
@@ -812,6 +825,7 @@ final class PressBenchStore: ObservableObject {
             state["operatorIssueDrafts"] = [String: Any]()
             state["preRestoreRecovery"] = NSNull()
         }
+        usageMeter.reconcile(existingCompletedRuns: rawBatches.count)
     }
 
     var canonicalReportBatches: [[String: Any]] { rawBatches }
@@ -1277,7 +1291,7 @@ final class PressBenchStore: ObservableObject {
     }
 
     enum StoreError: LocalizedError {
-        case invalidMachine, machineInUse, invalidNumber, invalidIssue, invalidSetup, setupMissing, activeRunConflict, activeRunMissing, exportFailed, persistenceBlocked, invalidReuseClass
+        case invalidMachine, machineInUse, invalidNumber, invalidIssue, invalidSetup, setupMissing, activeRunConflict, activeRunMissing, exportFailed, persistenceBlocked, invalidReuseClass, pressLimitReached
         var errorDescription: String? {
             switch self {
             case .invalidMachine: return "machine_required"
@@ -1291,6 +1305,7 @@ final class PressBenchStore: ObservableObject {
             case .exportFailed: return "export_failed"
             case .persistenceBlocked: return "persistence_recovery_required"
             case .invalidReuseClass: return "reuse_class"
+            case .pressLimitReached: return "batch_capacity_required"
             }
         }
     }

@@ -2,7 +2,7 @@
 const assert = require('assert');
 const path = require('path');
 const core = require(path.resolve(__dirname, '../PressBench/Resources/PressBenchLogic.js'));
-const D = core.domain, E = core.entitlement, P = core.process;
+const D = core.domain, B = core.business, E = core.entitlement, P = core.process;
 
 const baseMs = Date.now() + 60_000;
 const iso = (seconds) => new Date(baseMs + seconds * 1000).toISOString();
@@ -22,19 +22,32 @@ let entitlement = E.normalizeEntitlement({});
 let context = {machines:[], recipes:[], setups:[], batches:[], settings, session:null, entitlement, storageMode:'native'};
 
 // A fabricated local boolean must never create paid access.
-assert.equal(E.evaluateEntitlement({paidAccess:true, productId:'pressbench_unlimited_lifetime_ios'}, now).paidAccess, false);
+assert.equal(E.evaluateEntitlement({paidAccess:true, productId:'pressbench_unlimited_monthly_ios'}, now).paidAccess, false);
 
 // Verified StoreKit purchase must unlock only the exact product.
 const purchasedEvent = {
   action:'purchase', platform:'ios', userInitiated:true, nativeAdapterVerified:true,
-  verificationSource:'storekit2', productId:'pressbench_unlimited_lifetime_ios', purchaseState:'purchased',
-  transactionId:'1000000000001', nativeVerificationId:'storekit2:1000000000001:1000000000001:pressbench_unlimited_lifetime_ios:1787155200',
-  storeEventAt:now
+  verificationSource:'storekit2', productId:'pressbench_unlimited_monthly_ios',
+  productType:'auto_renewable_subscription', purchaseState:'purchased',
+  transactionId:'1000000000001', nativeVerificationId:'storekit2:1000000000001:1000000000001:pressbench_unlimited_monthly_ios:1787155200',
+  storeEventAt:now, expiresAt:iso(31 * 24 * 60 * 60)
 };
 let purchaseResult = E.applyStoreEvent(entitlement, purchasedEvent, now);
 entitlement = purchaseResult.entitlement;
 assert.equal(E.evaluateEntitlement(entitlement, now).paidAccess, true);
+assert.equal(E.evaluateEntitlement(entitlement, iso(32 * 24 * 60 * 60)).paidAccess, false);
 context.entitlement = entitlement;
+
+// Existing lifetime buyers stay grandfathered after the subscription migration.
+const legacyEvent = {...purchasedEvent, productId:'pressbench_unlimited_lifetime_ios', productType:'non_consumable',
+  transactionId:'1000000000002', nativeVerificationId:'storekit2:1000000000002:1000000000002:pressbench_unlimited_lifetime_ios:1787155200'};
+delete legacyEvent.expiresAt;
+const legacyEntitlement = E.applyStoreEvent(E.normalizeEntitlement({}), legacyEvent, now).entitlement;
+assert.equal(E.evaluateEntitlement(legacyEntitlement, iso(400 * 24 * 60 * 60)).paidAccess, true);
+
+assert.equal(B.FREE_BATCH_LIMIT, 5);
+assert.equal(B.MONETIZATION_MODEL.ios.pricing.baseAmountMinor, 999);
+assert.equal(E.capabilities(E.normalizeEntitlement({}), {setups:10, batches:0}, now).canCreateSetup, true);
 
 let wrongFailed = false;
 try { E.applyStoreEvent(E.normalizeEntitlement({}), {...purchasedEvent, productId:'wrong_product'}, now); } catch (_) { wrongFailed = true; }
@@ -235,9 +248,10 @@ assert.equal(correctedProduction.quantityWaste, 1);
 assert.equal(correctedProduction.issues.length, 1);
 assert.equal(correctedProduction.corrections.length, 1);
 
-// Report gating: core exports are available free; premium reports require trusted entitlement.
+// Raw interchange formats are unavailable; premium reports require trusted entitlement.
 const freeContext = {...context, entitlement:E.normalizeEntitlement({})};
-assert.equal(P.planReport(freeContext, 'json', context.batches, now).allowed, true);
+assert.equal(P.planReport(freeContext, 'json', context.batches, now).allowed, false);
+assert.equal(P.planReport(freeContext, 'csv', context.batches, now).allowed, false);
 assert.equal(P.planReport(freeContext, 'pdf', context.batches, now).allowed, false);
 assert.equal(P.planReport(context, 'pdf', context.batches, now).allowed, true);
 assert.equal(P.planReport(context, 'xlsx', context.batches, now).allowed, true);

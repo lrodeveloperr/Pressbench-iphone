@@ -3,7 +3,9 @@ import StoreKit
 
 @MainActor
 final class PurchaseManager: ObservableObject {
-    static let productID = "pressbench_unlimited_lifetime_ios"
+    static let productID = "pressbench_unlimited_monthly_ios"
+    static let legacyLifetimeProductID = "pressbench_unlimited_lifetime_ios"
+    static let recognizedProductIDs: Set<String> = [productID, legacyLifetimeProductID]
 
     enum PurchaseState: Equatable {
         case loading, free, purchased, pending, unavailable, failed(String)
@@ -66,15 +68,16 @@ final class PurchaseManager: ObservableObject {
         var found = false
         for await result in Transaction.currentEntitlements {
             switch result {
-            case .verified(let transaction) where transaction.productID == Self.productID:
+            case .verified(let transaction) where Self.recognizedProductIDs.contains(transaction.productID):
                 found = true
                 await consumeVerified(transaction, action: action, userInitiated: userInitiated)
-            case .unverified(let transaction, _ ) where transaction.productID == Self.productID:
+            case .unverified(let transaction, _ ) where Self.recognizedProductIDs.contains(transaction.productID):
                 found = true
                 state = .free
                 onStoreEvent?(event(
                     action: action, userInitiated: userInitiated, purchaseState: "unverified",
-                    transactionID: String(transaction.id), nativeID: nativeIdentity(transaction), eventDate: Date()
+                    productID: transaction.productID, transactionID: String(transaction.id),
+                    nativeID: nativeIdentity(transaction), eventDate: Date(), expirationDate: transaction.expirationDate
                 ))
             default:
                 continue
@@ -91,8 +94,15 @@ final class PurchaseManager: ObservableObject {
 
     private func loadProduct() async {
         do {
-            product = try await Product.products(for: [Self.productID]).first
-            if product == nil { state = .unavailable }
+            let candidate = try await Product.products(for: [Self.productID]).first
+            guard candidate?.type == .autoRenewable,
+                  candidate?.subscription?.subscriptionPeriod.unit == .month,
+                  candidate?.subscription?.subscriptionPeriod.value == 1 else {
+                product = nil
+                state = .unavailable
+                return
+            }
+            product = candidate
         } catch {
             state = .failed(String(describing: error))
         }
@@ -101,26 +111,29 @@ final class PurchaseManager: ObservableObject {
     private func consume(result: VerificationResult<Transaction>, action: String) async {
         switch result {
         case .verified(let transaction):
-            guard transaction.productID == Self.productID else { return }
+            guard Self.recognizedProductIDs.contains(transaction.productID) else { return }
             await consumeVerified(transaction, action: action, userInitiated: action != "automatic_refresh")
             await transaction.finish()
         case .unverified(let transaction, _):
-            guard transaction.productID == Self.productID else { return }
+            guard Self.recognizedProductIDs.contains(transaction.productID) else { return }
             state = .free
             onStoreEvent?(event(
                 action: action, userInitiated: action != "automatic_refresh", purchaseState: "unverified",
-                transactionID: String(transaction.id), nativeID: nativeIdentity(transaction), eventDate: Date()
+                productID: transaction.productID, transactionID: String(transaction.id),
+                nativeID: nativeIdentity(transaction), eventDate: Date(), expirationDate: transaction.expirationDate
             ))
         }
     }
 
     private func consumeVerified(_ transaction: Transaction, action: String, userInitiated: Bool) async {
-        let terminal = transaction.revocationDate != nil
-        let purchaseState = terminal ? "revoked" : "purchased"
-        let eventDate = transaction.revocationDate ?? Date()
+        let now = Date()
+        let expired = transaction.expirationDate.map { $0 <= now } ?? false
+        let terminal = transaction.revocationDate != nil || transaction.isUpgraded || expired
+        let purchaseState = transaction.revocationDate != nil ? "revoked" : terminal ? "expired" : "purchased"
         onStoreEvent?(event(
             action: action, userInitiated: userInitiated, purchaseState: purchaseState,
-            transactionID: String(transaction.id), nativeID: nativeIdentity(transaction), eventDate: eventDate
+            productID: transaction.productID, transactionID: String(transaction.id),
+            nativeID: nativeIdentity(transaction), eventDate: now, expirationDate: transaction.expirationDate
         ))
         state = terminal ? .free : .purchased
     }
@@ -136,21 +149,28 @@ final class PurchaseManager: ObservableObject {
         action: String,
         userInitiated: Bool,
         purchaseState: String,
+        productID: String = Self.productID,
         transactionID: String,
         nativeID: String,
-        eventDate: Date
+        eventDate: Date,
+        expirationDate: Date? = nil
     ) -> [String: Any] {
-        [
+        var output: [String: Any] = [
             "action": action,
             "platform": "ios",
             "userInitiated": userInitiated,
             "nativeAdapterVerified": true,
             "verificationSource": "storekit2",
-            "productId": Self.productID,
+            "productId": productID,
+            "productType": productID == Self.legacyLifetimeProductID ? "non_consumable" : "auto_renewable_subscription",
             "purchaseState": purchaseState,
             "transactionId": transactionID,
             "nativeVerificationId": nativeID,
             "storeEventAt": ISO8601DateFormatter().string(from: eventDate)
         ]
+        if let expirationDate {
+            output["expiresAt"] = ISO8601DateFormatter().string(from: expirationDate)
+        }
+        return output
     }
 }

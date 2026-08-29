@@ -2456,17 +2456,19 @@
   "use strict";
 
   const D = root.PressBenchDomain;
-  const FREE_RECIPE_LIMIT = 3;
-  const FREE_BATCH_LIMIT = 10;
+  const FREE_RECIPE_LIMIT = D.MAX_RECORDS;
+  const FREE_BATCH_LIMIT = 5;
   const MAX_DETAILED_REPORT_ROWS = 12000;
   const STARTER_TEMPLATE_VERSION = "APP-018-STRUCTURES-v5";
   const STARTER_PREFIX = "starter-template-";
   const MONETIZATION_MODEL = Object.freeze({
-    free: { savedSetups: FREE_RECIPE_LIMIT, savedBatches: FREE_BATCH_LIMIT, timedTrial: false },
+    free: { savedSetups: FREE_RECIPE_LIMIT, completedPresses: FREE_BATCH_LIMIT, timedTrial: false },
     ios: Object.freeze({
-      productId: "pressbench_unlimited_lifetime_ios",
-      productType: "non_consumable", recurring: false, restoreAction: true,
-      pricing: Object.freeze({ baseStorefront: "US", baseCurrency: "USD", baseAmountMinor: 499, geoPriced: true })
+      productId: "pressbench_unlimited_monthly_ios",
+      legacyProductIds: Object.freeze(["pressbench_unlimited_lifetime_ios"]),
+      productType: "auto_renewable_subscription", recurring: true, period: "P1M", restoreAction: true,
+      benefits: Object.freeze(["unlimited_presses", "no_ads", "pdf_xlsx_reports"]),
+      pricing: Object.freeze({ baseStorefront: "US", baseCurrency: "USD", baseAmountMinor: 999, geoPriced: true })
     }),
     android: Object.freeze({
       productId: "pressbench_unlimited_lifetime_android",
@@ -2794,11 +2796,11 @@
   const ENTITLEMENT_SCHEMA_VERSION = 2;
   const OFFLINE_CONTINUITY_MS = 30 * 24 * 60 * 60 * 1000;
   const PLATFORMS = new Set(["none", "ios", "android"]);
-  const PRODUCT_TYPES = new Set(["free", "non_consumable"]);
-  const STATUSES = new Set(["free", "pending", "active", "refunded", "revoked", "unverified"]);
-  const PURCHASE_STATES = new Set(["not_purchased", "pending", "purchased", "refunded", "revoked", "unverified"]);
+  const PRODUCT_TYPES = new Set(["free", "non_consumable", "auto_renewable_subscription"]);
+  const STATUSES = new Set(["free", "pending", "active", "expired", "refunded", "revoked", "unverified"]);
+  const PURCHASE_STATES = new Set(["not_purchased", "pending", "purchased", "expired", "refunded", "revoked", "unverified"]);
   const STORES = new Set(["none", "app_store", "google_play"]);
-  const NEGATIVE = new Set(["refunded", "revoked", "pending", "free", "unverified"]);
+  const NEGATIVE = new Set(["expired", "refunded", "revoked", "pending", "free", "unverified"]);
   const VERIFICATION_SOURCES = new Set(["none", "storekit2", "play_billing"]);
   const STORE_EVENT_ACTIONS = new Set(["automatic_refresh", "explicit_restore", "purchase"]);
   const ENTITLEMENT_TRUST_BOUNDARY = Object.freeze({
@@ -2822,6 +2824,7 @@
     const status = STATUSES.has(source.status) ? source.status : "free";
     const clockFloor = instant(source.clockFloor);
     const verifiedAt = instant(source.verifiedAt);
+    const expiresAt = instant(source.expiresAt);
     const legacyAcknowledged = source.schemaVersion !== ENTITLEMENT_SCHEMA_VERSION && platform === "android" &&
       status === "active" && source.storeVerified === true;
     let continuityUntil = instant(source.continuityUntil);
@@ -2832,6 +2835,9 @@
       const maximumContinuity = new Date(new Date(verifiedAt).getTime() + OFFLINE_CONTINUITY_MS).toISOString();
       if (new Date(continuityUntil).getTime() > new Date(maximumContinuity).getTime()) continuityUntil = maximumContinuity;
     }
+    if (continuityUntil && expiresAt && new Date(continuityUntil).getTime() > new Date(expiresAt).getTime()) {
+      continuityUntil = expiresAt;
+    }
     return Object.freeze({
       schemaVersion: ENTITLEMENT_SCHEMA_VERSION,
       platform: platform,
@@ -2839,7 +2845,7 @@
       status: status,
       purchaseState: PURCHASE_STATES.has(source.purchaseState) ? source.purchaseState :
         status === "active" ? "purchased" : status === "pending" ? "pending" :
-          status === "refunded" ? "refunded" : status === "revoked" ? "revoked" :
+          status === "expired" ? "expired" : status === "refunded" ? "refunded" : status === "revoked" ? "revoked" :
             status === "unverified" ? "unverified" : "not_purchased",
       sourceStore: STORES.has(source.sourceStore) ? source.sourceStore : "none",
       productId: D.text(source.productId, 180),
@@ -2852,18 +2858,23 @@
       terminalTransactionIdHash: D.text(source.terminalTransactionIdHash, 100),
       nativeVerificationIdHash: D.text(source.nativeVerificationIdHash, 100),
       storeEventAt: instant(source.storeEventAt),
+      expiresAt: expiresAt,
       continuityUntil: continuityUntil,
       clockFloor: clockFloor
     });
   }
 
   function matchesCurrentProduct(entitlement) {
-    return entitlement.productType === "non_consumable" && (
-      entitlement.platform === "ios" && entitlement.sourceStore === "app_store" &&
-        entitlement.productId === B.MONETIZATION_MODEL.ios.productId && entitlement.verificationSource === "storekit2" ||
+    const currentIos = entitlement.platform === "ios" && entitlement.sourceStore === "app_store" &&
+      entitlement.productType === "auto_renewable_subscription" &&
+      entitlement.productId === B.MONETIZATION_MODEL.ios.productId && entitlement.verificationSource === "storekit2";
+    const legacyIos = entitlement.platform === "ios" && entitlement.sourceStore === "app_store" &&
+      entitlement.productType === "non_consumable" &&
+      B.MONETIZATION_MODEL.ios.legacyProductIds.includes(entitlement.productId) && entitlement.verificationSource === "storekit2";
+    const currentAndroid = entitlement.productType === "non_consumable" &&
       entitlement.platform === "android" && entitlement.sourceStore === "google_play" &&
-        entitlement.productId === B.MONETIZATION_MODEL.android.productId && entitlement.verificationSource === "play_billing"
-    );
+        entitlement.productId === B.MONETIZATION_MODEL.android.productId && entitlement.verificationSource === "play_billing";
+    return currentIos || legacyIos || currentAndroid;
   }
 
   function evaluateEntitlement(value, at) {
@@ -2880,12 +2891,14 @@
     let requiresVerification = false;
 
     const exactProduct = matchesCurrentProduct(entitlement);
+    const subscriptionCurrent = entitlement.productType !== "auto_renewable_subscription" ||
+      Boolean(entitlement.expiresAt && new Date(entitlement.expiresAt).getTime() > now.getTime());
     const adapterProvenance = Boolean(entitlement.storeTransactionIdHash && entitlement.nativeVerificationIdHash && entitlement.storeEventAt);
     const androidAcknowledged = entitlement.platform !== "android" || entitlement.acknowledged === true;
-    if (trustedVerification && adapterProvenance && exactProduct && androidAcknowledged && entitlement.storeVerified === true &&
+    if (trustedVerification && adapterProvenance && exactProduct && subscriptionCurrent && androidAcknowledged && entitlement.storeVerified === true &&
         entitlement.status === "active" && !NEGATIVE.has(entitlement.status)) {
       paidAccess = true; basis = entitlement.platform === "ios" ? "ios_paid" : "android_paid";
-    } else if (trustedVerification && adapterProvenance && exactProduct && androidAcknowledged && entitlement.storeVerified === true &&
+    } else if (trustedVerification && adapterProvenance && exactProduct && subscriptionCurrent && androidAcknowledged && entitlement.storeVerified === true &&
         entitlement.status === "unverified" && entitlement.continuityUntil &&
         new Date(entitlement.continuityUntil).getTime() >= now.getTime()) {
       paidAccess = true; basis = entitlement.platform === "ios" ? "ios_cached_paid" : "android_cached_paid";
@@ -2918,10 +2931,16 @@
     const sourceStore = platform === "ios" ? "app_store" : "google_play";
     const productId = D.text(event.productId, 180);
     const expectedProductId = platform === "ios" ? B.MONETIZATION_MODEL.ios.productId : B.MONETIZATION_MODEL.android.productId;
+    const supportedProductIds = platform === "ios" ?
+      [expectedProductId].concat(B.MONETIZATION_MODEL.ios.legacyProductIds) : [expectedProductId];
     const purchaseState = PURCHASE_STATES.has(event.purchaseState) ? event.purchaseState : "not_purchased";
-    if (["purchased", "pending", "unverified", "refunded", "revoked"].includes(purchaseState) && productId !== expectedProductId) {
+    if (["purchased", "pending", "unverified", "expired", "refunded", "revoked"].includes(purchaseState) &&
+        !supportedProductIds.includes(productId)) {
       throw new Error("store_product_mismatch");
     }
+    const productType = platform === "ios" && productId === B.MONETIZATION_MODEL.ios.productId ?
+      "auto_renewable_subscription" : "non_consumable";
+    if (event.productType && event.productType !== productType) throw new Error("store_product_type");
     const now = instant(at === undefined ? Date.now() : at);
     if (!now) throw new Error("entitlement_now");
     const storeEventAt = instant(event.storeEventAt || now);
@@ -2934,14 +2953,19 @@
     const currentEventMs = current.storeEventAt ? new Date(current.storeEventAt).getTime() : -Infinity;
     const eventMs = new Date(storeEventAt).getTime();
     if (eventMs < currentEventMs) throw new Error("store_event_stale");
+    const expiresAt = instant(event.expiresAt);
+    if (productType === "auto_renewable_subscription" && purchaseState === "purchased" &&
+        (!expiresAt || new Date(expiresAt).getTime() <= eventMs)) throw new Error("subscription_expiration");
+    let continuityUntil = new Date(new Date(now).getTime() + OFFLINE_CONTINUITY_MS).toISOString();
+    if (expiresAt && new Date(expiresAt).getTime() < new Date(continuityUntil).getTime()) continuityUntil = expiresAt;
     let next;
     if (purchaseState === "unverified") {
       if (current.platform !== platform || !matchesCurrentProduct(current) || !current.verifiedAt ||
           !current.storeTransactionIdHash || !current.nativeVerificationIdHash) {
         next = normalizeEntitlement({ platform: platform, status: "unverified", purchaseState: "unverified",
-          sourceStore: sourceStore, productType: "non_consumable", productId: expectedProductId,
+          sourceStore: sourceStore, productType: productType, productId: productId,
           verificationSource: verificationSource, nativeVerificationIdHash: nativeVerificationIdHash,
-          storeEventAt: storeEventAt, clockFloor: now });
+          storeEventAt: storeEventAt, expiresAt: expiresAt, clockFloor: now });
       } else {
         next = normalizeEntitlement(Object.assign({}, current, { status: "unverified", purchaseState: "unverified",
           nativeVerificationIdHash: nativeVerificationIdHash, storeEventAt: storeEventAt, clockFloor: now }));
@@ -2949,32 +2973,35 @@
     } else if (purchaseState === "purchased") {
       if (!transactionIdentity) throw new Error("store_transaction_identity");
       if (current.terminalTransactionIdHash === transactionHash ||
-          ["refunded", "revoked"].includes(current.purchaseState) && current.storeTransactionIdHash === transactionHash) {
+          ["expired", "refunded", "revoked"].includes(current.purchaseState) && current.storeTransactionIdHash === transactionHash) {
         throw new Error("terminal_transaction_replay");
       }
       if (current.storeTransactionIdHash && current.storeTransactionIdHash !== transactionHash && eventMs <= currentEventMs) {
         throw new Error("store_event_stale");
       }
       const acknowledged = platform === "ios" || event.acknowledged === true;
-      next = normalizeEntitlement({ platform: platform, productType: "non_consumable",
+      next = normalizeEntitlement({ platform: platform, productType: productType,
         status: acknowledged ? "active" : "pending", purchaseState: "purchased", sourceStore: sourceStore,
-        productId: expectedProductId, verificationSource: verificationSource, storeVerified: true,
+        productId: productId, verificationSource: verificationSource, storeVerified: true,
         verifiedAt: now, acknowledged: acknowledged, acknowledgedAt: acknowledged ? now : "",
         storeTransactionIdHash: transactionHash, terminalTransactionIdHash: current.terminalTransactionIdHash,
         nativeVerificationIdHash: nativeVerificationIdHash,
-        storeEventAt: storeEventAt,
-        continuityUntil: new Date(new Date(now).getTime() + OFFLINE_CONTINUITY_MS).toISOString(), clockFloor: now });
+        storeEventAt: storeEventAt, expiresAt: expiresAt,
+        continuityUntil: continuityUntil, clockFloor: now });
     } else if (purchaseState === "pending") {
-      next = normalizeEntitlement({ platform: platform, productType: "non_consumable", status: "pending",
-        purchaseState: "pending", sourceStore: sourceStore, productId: expectedProductId,
+      next = normalizeEntitlement({ platform: platform, productType: productType, status: "pending",
+        purchaseState: "pending", sourceStore: sourceStore, productId: productId,
         verificationSource: verificationSource, storeVerified: true, verifiedAt: now,
         terminalTransactionIdHash: current.terminalTransactionIdHash,
-        nativeVerificationIdHash: nativeVerificationIdHash, storeEventAt: storeEventAt, clockFloor: now });
-    } else if (purchaseState === "refunded" || purchaseState === "revoked") {
+        nativeVerificationIdHash: nativeVerificationIdHash, storeEventAt: storeEventAt,
+        expiresAt: expiresAt, clockFloor: now });
+    } else if (purchaseState === "expired" || purchaseState === "refunded" || purchaseState === "revoked") {
       if (!transactionHash) throw new Error("store_transaction_identity");
-      if (!current.storeTransactionIdHash || transactionHash !== current.storeTransactionIdHash) throw new Error("store_transaction_mismatch");
-      next = normalizeEntitlement(Object.assign({}, current, { platform: platform, status: purchaseState,
-        purchaseState: purchaseState, sourceStore: sourceStore, productId: expectedProductId,
+      if (current.storeTransactionIdHash && transactionHash !== current.storeTransactionIdHash) throw new Error("store_transaction_mismatch");
+      const terminalBase = current.storeTransactionIdHash ? current : { productType: productType,
+        storeTransactionIdHash: transactionHash, expiresAt: expiresAt };
+      next = normalizeEntitlement(Object.assign({}, terminalBase, { platform: platform, status: purchaseState,
+        purchaseState: purchaseState, sourceStore: sourceStore, productId: productId,
         verificationSource: verificationSource, storeVerified: true, verifiedAt: now,
         terminalTransactionIdHash: transactionHash,
         nativeVerificationIdHash: nativeVerificationIdHash, storeEventAt: storeEventAt,
@@ -3003,15 +3030,15 @@
     const batchCount = Math.max(0, Number(counts.batches) || 0);
     return Object.freeze({
       evaluation: evaluation,
-      canCreateSetup: setupCount < B.FREE_RECIPE_LIMIT || evaluation.paidAccess,
+      canCreateSetup: setupCount < D.MAX_RECORDS,
       canReserveBatch: batchCount < B.FREE_BATCH_LIMIT || evaluation.paidAccess,
       canView: true,
       canSearch: true,
       canCorrect: true,
       canDelete: true,
-      canCsv: true,
-      canJsonBackup: true,
-      canJsonRestore: true,
+      canCsv: false,
+      canJsonBackup: false,
+      canJsonRestore: false,
       existingRecordAccess: true,
       canPremiumReports: evaluation.paidAccess,
       canAdvancedAnalytics: evaluation.paidAccess
@@ -3187,9 +3214,8 @@
     if (usage.batches >= domain.MAX_RECORDS || ((permit.setupSlotReserved || permit.variantSlotReserved) &&
         usage.setups >= domain.MAX_RECORDS)) throw new Error("record_limit");
     const evaluated = access.evaluateEntitlement(entitlement, now === undefined ? run.reservedAt : now);
-    const requiresPaid = usage.batches >= business.FREE_BATCH_LIMIT ||
-      ((permit.setupSlotReserved === true || permit.variantSlotReserved === true) && usage.setups >= business.FREE_RECIPE_LIMIT);
-    if (requiresPaid && !evaluated.paidAccess) throw new Error(usage.batches >= business.FREE_BATCH_LIMIT ? "batch_capacity_required" : "setup_capacity_required");
+    const requiresPaid = usage.batches >= business.FREE_BATCH_LIMIT;
+    if (requiresPaid && !evaluated.paidAccess) throw new Error("batch_capacity_required");
     const expectedBasis = requiresPaid ? evaluated.authorizationBasis : "free";
     if (permit.authorizationBasis !== expectedBasis) throw new Error("run_permit_invalid");
   }
@@ -4498,8 +4524,6 @@
     const existing = current.find(function (setup) { return setup.id === suppliedId; }) || null;
     if (!existing) requireOperationalReadiness(value.settings);
     if (!existing && current.length >= D.MAX_RECORDS) throw new Error("setup_physical_limit");
-    const access = E.evaluateEntitlement(value.entitlement, now);
-    if (!existing && current.length >= B.FREE_RECIPE_LIMIT && !access.paidAccess) throw new Error("setup_capacity_required");
     let source = Object.assign({}, setupValue, { customerJob: "", jobReference: "" });
     if (!existing && D.SYSTEM_STARTER_IDS.has(suppliedId)) source = Object.assign({}, setupValue, { id: undefined,
       customerJob: "", jobReference: "",
@@ -4727,15 +4751,12 @@
     const existingSetup = recipes.some(function (item) { return item.id === setup.id; });
     if (batches.length >= D.MAX_RECORDS) throw new Error("batch_physical_limit");
     if (!existingSetup && recipes.length >= D.MAX_RECORDS) throw new Error("setup_physical_limit");
-    if (!existingSetup && usage.setups >= B.FREE_RECIPE_LIMIT && !evaluation.paidAccess) throw new Error("setup_capacity_required");
     if (usage.batches >= B.FREE_BATCH_LIMIT && !evaluation.paidAccess) throw new Error("batch_capacity_required");
     const runSetup = frozenRunSetup(setup);
     const runId = D.uuid(); const resultId = D.uuid(); const setupFingerprint = D.exactSetupFingerprint(runSetup);
     const sourceSetupId = setup.id;
-    const variantSlotReserved = existingSetup && recipes.length < D.MAX_RECORDS &&
-      (usage.setups < B.FREE_RECIPE_LIMIT || evaluation.paidAccess) && source.reserveVariantSlot === true;
-    const requiresPaidCapacity = usage.batches >= B.FREE_BATCH_LIMIT ||
-      ((!existingSetup || variantSlotReserved) && usage.setups >= B.FREE_RECIPE_LIMIT);
+    const variantSlotReserved = existingSetup && recipes.length < D.MAX_RECORDS && source.reserveVariantSlot === true;
+    const requiresPaidCapacity = usage.batches >= B.FREE_BATCH_LIMIT;
     const authorizationBasis = requiresPaidCapacity ? evaluation.authorizationBasis : "free";
     const quantity = runMode === "test" ? 1 : integer(source.quantity === undefined ? setup.defaultQuantity : source.quantity, 1, 999999, "quantity");
     const reservationBytes = D.MAX_RECORD_BYTES + (!existingSetup || variantSlotReserved ? MAX_SETUP_RESERVATION_BYTES : 0);
@@ -5949,7 +5970,7 @@
 
   function reportCapability(context, format, recordsOrFilter, now) {
     const kind = String(format || "").toLowerCase();
-    if (["csv", "json"].includes(kind)) return { allowed: true, reason: "core_export" };
+    if (["csv", "json"].includes(kind)) return { allowed: false, reason: "unsupported_format" };
     if (!["xlsx", "pdf"].includes(kind)) return { allowed: false, reason: "unsupported_format" };
     if (!E.capabilities(context && context.entitlement, usageOf(context || {}), now).canPremiumReports) return { allowed: false, reason: "paid_access_required" };
     if (typeof recordsOrFilter === "number") return { allowed: false, reason: "dataset_required" };

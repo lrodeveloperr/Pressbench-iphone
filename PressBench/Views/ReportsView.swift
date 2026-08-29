@@ -9,6 +9,7 @@ struct ReportsView: View {
     @State private var failed = false
     @State private var generating = false
     @State private var showingShare = false
+    @State private var showingUpgrade = false
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
@@ -32,7 +33,7 @@ struct ReportsView: View {
                         Text([t("report.productionReport"), "PDF / XLSX"].joined(separator: " · "))
                             .font(.subheadline).foregroundStyle(PBTheme.secondary)
                         Button {
-                            Task { await store.purchasePro() }
+                            showingUpgrade = true
                         } label: {
                             HStack {
                                 Text(t("common.unlockPro"))
@@ -62,6 +63,9 @@ struct ReportsView: View {
         .overlay { if generating { ProgressView().controlSize(.large) } }
         .sheet(isPresented: $showingShare) {
             if let exportURL { ActivityShareView(items: [exportURL as Any]) }
+        }
+        .sheet(isPresented: $showingUpgrade) {
+            ProUpgradeView().environmentObject(store).pbEditorSheetStyle()
         }
         .alert("PressBench", isPresented: $failed) { Button(t("common.ok"), role: .cancel) {} } message: { Text(t("common.actionFailed")) }
     }

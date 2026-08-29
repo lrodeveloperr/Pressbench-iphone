@@ -14,15 +14,19 @@ struct RootTabView: View {
             } else {
                 TabView(selection: $store.selectedTab) {
                     NavigationStack { HomeView() }
+                        .pbTestBanner(visible: !store.isPro)
                         .tabItem { Label(t("tab.home"), systemImage: "house") }
                         .tag(0)
                     NavigationStack { SetupsView() }
+                        .pbTestBanner(visible: !store.isPro)
                         .tabItem { Label(t("tab.setups"), systemImage: "list.clipboard") }
                         .tag(1)
                     NavigationStack { RunsView() }
+                        .pbTestBanner(visible: !store.isPro)
                         .tabItem { Label(t("tab.runs"), systemImage: "play.circle") }
                         .tag(2)
                     NavigationStack { MoreView() }
+                        .pbTestBanner(visible: !store.isPro)
                         .tabItem { Label(t("tab.more"), systemImage: "ellipsis") }
                         .tag(3)
                 }

@@ -302,8 +302,8 @@
 302	Complete the required setup fields to continue.	setup.completeRequired
 303	Test runs make one item.	run.testQuantityHelp
 304	Unlock PressBench Pro	upgrade.title
-305	Save more setups and runs, and export PDF or XLSX reports.	upgrade.body
-306	Unlock Pro	upgrade.unlock
+305	Unlimited presses, no ads, and PDF or XLSX reports. Renews monthly until canceled.	upgrade.body
+306	Subscribe	upgrade.unlock
 307	Restore purchase	upgrade.restore
 308	Back up your data	backup.optionalTitle
 309	Sign in with Apple to back up and restore your PressBench data. This is optional.	backup.optionalBody

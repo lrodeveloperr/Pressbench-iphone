@@ -731,6 +731,11 @@ struct ProUpgradeView: View {
                 }
                 Button(t("upgrade.restore")) { Task { await store.restorePurchases(); if store.isPro { dismiss() } } }
                     .font(.headline).frame(minHeight: PBTheme.minimumTarget)
+                HStack(spacing: 20) {
+                    Link(t("common.termsOfUse"), destination: PressBenchPolicyLinks.terms)
+                    Link(t("common.privacyPolicy"), destination: PressBenchPolicyLinks.privacy)
+                }
+                .font(.footnote.weight(.semibold))
                 Spacer()
             }
             .padding(PBTheme.pagePadding).background(PBTheme.canvasGradient.ignoresSafeArea())
