@@ -249,8 +249,8 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(choiceCancel.waitForExistence(timeout: 5))
         makeHittable(choice, in: app)
         choice.tap()
-        let editorSave = app.buttons.matching(identifier: "Save").firstMatch
-        XCTAssertTrue(waitForHittable(editorSave, timeout: 12),
+        let editorTitle = identifier == "pb.choice.platen" ? "Machines" : "Setup"
+        XCTAssertTrue(app.navigationBars[editorTitle].waitForExistence(timeout: 12),
                       "The editor must return after the choice sheet closes")
     }
 
