@@ -261,7 +261,9 @@ struct SetupEditorView: View {
                             Text(t("stage.postpress")).tag("postpress")
                         }
                         HStack {
-                            TextField(t("common.temperature") + (stage.stageType == "press" ? " *" : ""), text: $stage.temperature).keyboardType(.decimalPad)
+                            TextField(t("common.temperature") + (stage.stageType == "press" ? " *" : ""), text: $stage.temperature)
+                                .keyboardType(.decimalPad)
+                                .accessibilityIdentifier("pb.stage.temperature")
                             Text("°\(stage.temperatureUnit)").foregroundStyle(PBTheme.secondary)
                         }
                         Picker(t("settings.temperatureUnit"), selection: $stage.temperatureUnit) {
@@ -270,7 +272,9 @@ struct SetupEditorView: View {
                         }
                         .pickerStyle(.segmented)
                         .frame(minHeight: PBTheme.minimumTarget)
-                        TextField(t("common.durationSeconds") + (stage.stageType == "press" ? " *" : ""), text: $stage.durationSeconds).keyboardType(.numberPad)
+                        TextField(t("common.durationSeconds") + (stage.stageType == "press" ? " *" : ""), text: $stage.durationSeconds)
+                            .keyboardType(.numberPad)
+                            .accessibilityIdentifier("pb.stage.duration")
                         PBChoiceField(
                             title: t("common.pressure") + (stage.stageType == "press" ? " *" : ""),
                             selection: $stage.pressure,
@@ -346,6 +350,7 @@ struct SetupEditorView: View {
                         cancelTitle: t("common.cancel")
                     )
                     TextField(t("common.reference") + " *", text: $draft.sourceReference)
+                        .accessibilityIdentifier("pb.setup.sourceReference")
                 }
                 }
                 Section {

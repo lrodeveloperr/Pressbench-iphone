@@ -108,11 +108,11 @@ final class FirstUseFlowUITests: XCTestCase {
 
         choose("pb.choice.material", option: "100% cotton T-shirt", app: app)
         choose("pb.choice.transfer", option: "Direct-to-film transfer (DTF)", app: app)
-        enter("325", in: app.textFields["Temperature *"], app: app)
-        enter("1", in: app.textFields["Duration (seconds) *"], app: app)
+        enter("325", in: app.textFields["pb.stage.temperature"], app: app)
+        enter("1", in: app.textFields["pb.stage.duration"], app: app)
         choose("pb.choice.pressure", option: "Medium", app: app)
         choose("pb.choice.source", option: "Supplier instructions", app: app)
-        enter("S-1", in: app.textFields["Reference *"], app: app)
+        enter("S-1", in: app.textFields["pb.setup.sourceReference"], app: app)
         let saveSetup = app.buttons.matching(identifier: "Save").firstMatch
         makeHittable(saveSetup, in: app)
         saveSetup.tap()
