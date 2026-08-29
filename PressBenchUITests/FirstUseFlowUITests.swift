@@ -7,44 +7,66 @@ final class FirstUseFlowUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.staticTexts["Welcome to PressBench"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.descendants(matching: .any)["pb.onboarding.temperatureUnit"].exists)
+        XCTAssertTrue(app.buttons["°F"].exists)
+        XCTAssertTrue(app.buttons["°C"].exists)
+        XCTAssertTrue(app.buttons["°F"].isSelected)
         capture("01-onboarding")
-        for label in [
-            "I agree to the Terms of Use",
-            "I have read and acknowledge the Safety Notice",
-            "I have reviewed the Privacy Policy"
-        ] {
-            let acknowledgement = app.buttons[label]
-            makeHittable(acknowledgement, in: app)
-            acknowledgement.tap()
-        }
 
-        let continueWithoutBackup = app.buttons["Continue without signing in"]
+        let preferencesContinue = app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch
+        XCTAssertTrue(preferencesContinue.waitForExistence(timeout: 3))
+        preferencesContinue.tap()
+        let acknowledgement = app.buttons.matching(identifier: "pb.onboarding.accept").firstMatch
+        XCTAssertTrue(acknowledgement.waitForExistence(timeout: 3))
+        acknowledgement.tap()
+        let legalContinue = app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch
+        XCTAssertTrue(legalContinue.isEnabled)
+        legalContinue.tap()
+
+        let continueWithoutBackup = app.buttons.matching(identifier: "pb.onboarding.skipBackup").firstMatch
         XCTAssertTrue(continueWithoutBackup.waitForExistence(timeout: 3))
-        makeHittable(continueWithoutBackup, in: app)
         continueWithoutBackup.tap()
         if app.alerts.firstMatch.waitForExistence(timeout: 2) {
             app.alerts.firstMatch.buttons.firstMatch.tap()
         }
 
-        XCTAssertTrue(app.staticTexts["Ready to build your first setup"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.staticTexts["1. Add your first machine"].exists)
-        XCTAssertFalse(app.staticTexts["2. Create a setup"].exists)
-        XCTAssertFalse(app.staticTexts["3. Record a run"].exists)
+        let firstUseAction = app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch
+        XCTAssertTrue(firstUseAction.waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["Add your first machine"].exists)
+        XCTAssertFalse(app.staticTexts["Ready to build your first setup"].exists)
         capture("02-next-action-only")
 
-        app.staticTexts["1. Add your first machine"].tap()
-        let name = app.textFields["Name *"]
+        let moreTab = app.tabBars.buttons["More"]
+        XCTAssertTrue(moreTab.waitForExistence(timeout: 3))
+        moreTab.tap()
+        let settingsLink = app.buttons.matching(identifier: "pb.more.settings").firstMatch
+        XCTAssertTrue(settingsLink.waitForExistence(timeout: 3))
+        settingsLink.tap()
+        let plan = app.descendants(matching: .any)["pb.settings.plan"]
+        XCTAssertTrue(plan.waitForExistence(timeout: 4))
+        XCTAssertTrue(plan.isHittable)
+        XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].exists)
+        XCTAssertTrue(app.staticTexts["Free runs left: 5 of 5"].exists)
+        let backup = app.descendants(matching: .any)["pb.settings.backup"]
+        XCTAssertTrue(backup.exists)
+        XCTAssertTrue(backup.isHittable, "Backup must remain in the first Settings viewport")
+        XCTAssertTrue(app.staticTexts["Back up your data"].exists)
+        XCTAssertFalse(app.staticTexts["Production Report"].exists)
+        capture("03-prioritized-settings")
+
+        app.tabBars.buttons["Home"].tap()
+        app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch.tap()
+        let name = app.textFields["Name"]
         XCTAssertTrue(name.waitForExistence(timeout: 4))
-        capture("03-machine-required-fields")
-        enter("Main Press", in: name, app: app)
+        capture("04-machine-required-fields")
         choose("pb.choice.platen", option: "15 × 15 in", app: app)
+        XCTAssertEqual(name.value as? String, "15 × 15 in")
         app.buttons["Save"].tap()
 
         XCTAssertTrue(app.navigationBars["Setup"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.textFields["Setup *"].exists)
-        capture("04-chained-setup-editor")
+        XCTAssertTrue(app.textFields["Setup"].exists)
+        capture("05-chained-setup-editor")
 
-        enter("Quick Tee", in: app.textFields["Setup *"], app: app)
         choose("pb.choice.material", option: "100% cotton T-shirt", app: app)
         choose("pb.choice.transfer", option: "Direct-to-film transfer (DTF)", app: app)
         enter("325", in: app.textFields["Temperature *"], app: app)
@@ -56,11 +78,12 @@ final class FirstUseFlowUITests: XCTestCase {
         makeHittable(saveSetup, in: app)
         saveSetup.tap()
 
+        let generatedSetupTitle = "100% cotton T-shirt · Direct-to-film transfer (DTF) · 15 × 15 in"
         let startNewRun = app.staticTexts["Start New Run"]
         XCTAssertTrue(startNewRun.waitForExistence(timeout: 8))
-        capture("05-ready-to-run")
+        capture("06-ready-to-run")
         startNewRun.tap()
-        let setup = app.staticTexts["Quick Tee"].firstMatch
+        let setup = app.staticTexts[generatedSetupTitle].firstMatch
         XCTAssertTrue(setup.waitForExistence(timeout: 5))
         setup.tap()
         let exactRepeat = app.staticTexts["Exact repeat"]
@@ -74,7 +97,7 @@ final class FirstUseFlowUITests: XCTestCase {
         let confirmInstructions = app.buttons["Confirm instructions"]
         XCTAssertTrue(confirmInstructions.waitForExistence(timeout: 8))
         XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)
-        capture("06-run-preflight")
+        capture("07-run-preflight")
         confirmInstructions.tap()
         let startTimer = app.buttons["Start timer"]
         XCTAssertTrue(startTimer.waitForExistence(timeout: 5))
@@ -86,12 +109,12 @@ final class FirstUseFlowUITests: XCTestCase {
 
         let recordResult = app.buttons["Record result"]
         XCTAssertTrue(recordResult.waitForExistence(timeout: 5))
-        capture("07-clean-result")
+        capture("08-clean-result")
         recordResult.tap()
         let correctRecord = app.buttons["Correct record"]
         XCTAssertTrue(correctRecord.waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["1. Press"].exists)
-        capture("08-completed-history")
+        capture("09-completed-history")
 
         correctRecord.tap()
         let reason = app.textViews.matching(identifier: "pb.correction.reason").firstMatch
@@ -101,14 +124,14 @@ final class FirstUseFlowUITests: XCTestCase {
         let discardCorrection = app.buttons.matching(identifier: "pb.correction.discard").firstMatch
         XCTAssertTrue(discardCorrection.waitForExistence(timeout: 3))
         XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 2))
-        capture("09-correction-discard-guard")
+        capture("10-correction-discard-guard")
         discardCorrection.tap()
 
         let deleteRecord = app.buttons["Delete record"]
         XCTAssertTrue(deleteRecord.waitForExistence(timeout: 5))
         deleteRecord.tap()
-        XCTAssertTrue(app.staticTexts["Permanently delete “Quick Tee”? This cannot be undone."].waitForExistence(timeout: 3))
-        capture("10-identified-delete-warning")
+        XCTAssertTrue(app.staticTexts["Permanently delete “\(generatedSetupTitle)”? This cannot be undone."].waitForExistence(timeout: 3))
+        capture("11-identified-delete-warning")
         app.buttons["Cancel"].firstMatch.tap()
 
         app.terminate()
@@ -124,7 +147,7 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["The subscription is unavailable right now. Try again in a moment."].waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["Subscribe"].isEnabled)
-        capture("11-sixth-run-upgrade")
+        capture("12-sixth-run-upgrade")
 
         app.buttons["Cancel"].firstMatch.tap()
         let runsTab = app.tabBars.buttons["Runs"]
@@ -137,7 +160,7 @@ final class FirstUseFlowUITests: XCTestCase {
             XCTFail("Runs screen did not open")
             return
         }
-        let cappedRun = app.staticTexts["Quick Tee"].firstMatch
+        let cappedRun = app.staticTexts[generatedSetupTitle].firstMatch
         guard cappedRun.waitForExistence(timeout: 5) else {
             XCTFail("Completed run was not visible")
             return
@@ -150,7 +173,7 @@ final class FirstUseFlowUITests: XCTestCase {
         }
         repeatSetup.tap()
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
-        capture("12-capped-repeat-upgrade")
+        capture("13-capped-repeat-upgrade")
 
         app.terminate()
         app.launchArguments = ["--pressbench-ui-test-pro", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
@@ -158,7 +181,11 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Start New Run"].waitForExistence(timeout: 8))
         XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)
         XCTAssertFalse(app.staticTexts["Free runs left: 0 of 5"].exists)
-        capture("13-pro-removes-ads-and-cap")
+        app.tabBars.buttons["More"].tap()
+        app.buttons.matching(identifier: "pb.more.settings").firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Purchases & Pro Access"].waitForExistence(timeout: 4))
+        XCTAssertTrue(app.staticTexts["Manage subscription"].exists)
+        capture("14-pro-removes-ads-and-cap")
     }
 
     private func enter(_ value: String, in field: XCUIElement, app: XCUIApplication) {

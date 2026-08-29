@@ -158,9 +158,11 @@ private struct PBTestBannerModifier: ViewModifier {
     let visible: Bool
 
     func body(content: Content) -> some View {
-        VStack(spacing: 0) {
-            content
-            if visible { PBTestBannerSlot() }
+        content.safeAreaInset(edge: .bottom, spacing: 0) {
+            if visible {
+                PBTestBannerSlot()
+                    .background(PBTheme.paper.ignoresSafeArea(edges: .bottom))
+            }
         }
     }
 }

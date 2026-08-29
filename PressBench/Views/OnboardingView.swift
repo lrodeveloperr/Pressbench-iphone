@@ -3,75 +3,50 @@ import SwiftUI
 import UIKit
 
 struct OnboardingFlowView: View {
+    private enum Step {
+        case preferences
+        case legal
+        case backup
+    }
+
     @Binding var completed: Bool
     @EnvironmentObject private var store: PressBenchStore
     @AppStorage(AppLanguageStorage.key) private var languageRaw = AppLanguage.detected().rawValue
     @AppStorage("pressbench.temperature.unit") private var temperatureUnitRaw = Locale.current.measurementSystem == .us ? "F" : "C"
-    @State private var acceptedTerms = false
-    @State private var acknowledgedSafety = false
-    @State private var viewedPrivacy = false
+    @State private var step: Step = .preferences
+    @State private var acceptedPolicies = false
     @State private var failed = false
     @State private var failureMessageKey = "common.actionFailed"
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
-    private var ready: Bool { acceptedTerms && acknowledgedSafety && viewedPrivacy }
 
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 16) {
-                BrandLogo(size: 92)
-                Text(t("onboarding.welcome.title"))
-                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                    .multilineTextAlignment(.center).foregroundStyle(PBTheme.navy)
-                Text(t("onboarding.welcome.subtitle"))
-                    .font(.subheadline).multilineTextAlignment(.center).foregroundStyle(PBTheme.secondary)
+        GeometryReader { proxy in
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 18) {
+                    Spacer(minLength: 8)
+                    BrandLogo(size: 76)
 
-                PBCard {
-                    VStack(spacing: 12) {
-                        LanguageDropdown(selection: selectedLanguage, titleKey: "common.language", systemImage: "globe")
-                        Divider()
-                        Picker(t("settings.temperatureUnit"), selection: $temperatureUnitRaw) {
-                            Text("°F").tag("F"); Text("°C").tag("C")
+                    Group {
+                        switch step {
+                        case .preferences:
+                            preferencesStep
+                        case .legal:
+                            legalStep
+                        case .backup:
+                            backupStep
                         }
-                        .pickerStyle(.segmented).frame(minHeight: PBTheme.minimumTarget)
                     }
-                }
+                    .transition(.opacity.combined(with: .move(edge: .trailing)))
 
-                PBCard {
-                    VStack(spacing: 0) {
-                        PolicyLinkRow(titleKey: "common.termsOfUse", icon: "doc.text", url: PressBenchPolicyLinks.terms)
-                        Divider().opacity(0.35)
-                        PolicyLinkRow(titleKey: "common.heatPressSafetyNotice", icon: "exclamationmark.triangle", url: PressBenchPolicyLinks.safety)
-                        Divider().opacity(0.35)
-                        PolicyLinkRow(titleKey: "common.privacyPolicy", icon: "hand.raised", url: PressBenchPolicyLinks.privacy)
-                    }
+                    Spacer(minLength: 8)
                 }
-
-                VStack(spacing: 8) {
-                    AcknowledgementRow(isOn: $acceptedTerms, titleKey: "onboarding.legal.acceptTerms")
-                    AcknowledgementRow(isOn: $acknowledgedSafety, titleKey: "onboarding.legal.ackSafety")
-                    AcknowledgementRow(isOn: $viewedPrivacy, titleKey: "onboarding.legal.reviewPrivacy")
-                }.padding(.horizontal, 4)
-
-                if ready {
-                    VStack(spacing: 10) {
-                        Text(t("backup.optionalTitle")).font(.headline).foregroundStyle(PBTheme.navy)
-                        Text(t("backup.optionalBody")).font(.caption).foregroundStyle(PBTheme.secondary)
-                            .multilineTextAlignment(.center)
-                        SignInWithAppleButton(.continue, onRequest: { $0.requestedScopes = [] }, onCompletion: handleAppleSignIn)
-                            .signInWithAppleButtonStyle(.black).frame(height: 54)
-                        Button(t("backup.continueWithout")) { finishOnboarding() }
-                            .font(.headline).frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
-                    }
-                } else {
-                    Label(t("onboarding.completeChecks"), systemImage: "checkmark.square")
-                        .font(.subheadline.weight(.semibold)).foregroundStyle(PBTheme.warningInk)
-                        .frame(maxWidth: .infinity, minHeight: 54)
-                }
+                .padding(.horizontal, PBTheme.pagePadding)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, minHeight: proxy.size.height)
             }
-            .padding(.horizontal, PBTheme.pagePadding).padding(.vertical, 18)
         }
         .background(PBTheme.canvasGradient.ignoresSafeArea()).tint(PBTheme.primary)
         .alert("PressBench", isPresented: $failed) {
@@ -80,6 +55,88 @@ struct OnboardingFlowView: View {
             }
             Button(t("common.ok"), role: .cancel) {}
         } message: { Text(t(failureMessageKey)) }
+    }
+
+    private var preferencesStep: some View {
+        VStack(spacing: 16) {
+            Text(t("onboarding.welcome.title"))
+                .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(PBTheme.navy)
+
+            PBCard {
+                VStack(spacing: 10) {
+                    LanguageDropdown(selection: selectedLanguage, titleKey: "common.language", systemImage: "globe")
+                    Divider().opacity(0.35)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label(t("settings.temperatureUnit"), systemImage: "thermometer.medium")
+                            .font(.headline)
+                        Picker(t("settings.temperatureUnit"), selection: $temperatureUnitRaw) {
+                            Text("°F").tag("F")
+                            Text("°C").tag("C")
+                        }
+                        .pickerStyle(.segmented)
+                        .frame(minHeight: PBTheme.minimumTarget)
+                        .accessibilityIdentifier("pb.onboarding.temperatureUnit")
+                    }
+                }
+            }
+
+            PBPrimaryButton(title: t("common.continue")) {
+                withAnimation(.easeInOut) { step = .legal }
+            }
+            .accessibilityIdentifier("pb.onboarding.continue")
+        }
+    }
+
+    private var legalStep: some View {
+        VStack(spacing: 16) {
+            Text(t("onboarding.legal.title"))
+                .font(.system(.title, design: .rounded, weight: .bold))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(PBTheme.navy)
+
+            PBCard {
+                VStack(spacing: 0) {
+                    PolicyLinkRow(titleKey: "common.termsOfUse", icon: "doc.text", url: PressBenchPolicyLinks.terms)
+                    Divider().opacity(0.35)
+                    PolicyLinkRow(titleKey: "common.privacyPolicy", icon: "hand.raised", url: PressBenchPolicyLinks.privacy)
+                    Divider().opacity(0.35)
+                    PolicyLinkRow(titleKey: "common.heatPressSafetyNotice", icon: "exclamationmark.triangle", url: PressBenchPolicyLinks.safety)
+                }
+            }
+
+            CombinedPolicyAcknowledgement(isOn: $acceptedPolicies)
+
+            PBPrimaryButton(title: t("common.continue")) {
+                withAnimation(.easeInOut) { step = .backup }
+            }
+            .disabled(!acceptedPolicies)
+            .accessibilityIdentifier("pb.onboarding.continue")
+        }
+    }
+
+    private var backupStep: some View {
+        VStack(spacing: 14) {
+            Image(systemName: "icloud.and.arrow.up")
+                .font(.system(size: 42, weight: .semibold))
+                .foregroundStyle(PBTheme.primary)
+            Text(t("backup.optionalTitle"))
+                .font(.system(.title, design: .rounded, weight: .bold))
+                .foregroundStyle(PBTheme.navy)
+            Text(t("backup.optionalBody"))
+                .font(.subheadline)
+                .foregroundStyle(PBTheme.secondary)
+                .multilineTextAlignment(.center)
+            SignInWithAppleButton(.continue, onRequest: { $0.requestedScopes = [] }, onCompletion: handleAppleSignIn)
+                .signInWithAppleButtonStyle(.black)
+                .frame(height: 54)
+                .accessibilityIdentifier("pb.onboarding.appleBackup")
+            Button(t("backup.continueWithout")) { finishOnboarding() }
+                .font(.headline)
+                .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
+                .accessibilityIdentifier("pb.onboarding.skipBackup")
+        }
     }
 
     private var selectedLanguage: Binding<AppLanguage> {
@@ -137,8 +194,8 @@ private struct PolicyLinkRow: View {
     }
 }
 
-private struct AcknowledgementRow: View {
-    @Binding var isOn: Bool; let titleKey: String
+private struct CombinedPolicyAcknowledgement: View {
+    @Binding var isOn: Bool
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
     var body: some View {
@@ -146,9 +203,23 @@ private struct AcknowledgementRow: View {
             HStack(alignment: .top, spacing: 12) {
                 Image(systemName: isOn ? "checkmark.square.fill" : "square").font(.title3)
                     .foregroundStyle(isOn ? PBTheme.primary : PBTheme.secondary)
-                Text(PBL10n.text(titleKey, language: language, locale: locale)).font(.subheadline.weight(.medium)).multilineTextAlignment(.leading)
+                Text([
+                    PBL10n.text("onboarding.legal.acceptTerms", language: language, locale: locale),
+                    PBL10n.text("common.privacyPolicy", language: language, locale: locale),
+                    PBL10n.text("common.safetyNotice", language: language, locale: locale)
+                ].joined(separator: " · "))
+                .font(.subheadline.weight(.medium))
+                .multilineTextAlignment(.leading)
                 Spacer()
             }.frame(minHeight: PBTheme.minimumTarget)
-        }.buttonStyle(.plain)
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("pb.onboarding.accept")
+        .accessibilityAddTraits(isOn ? .isSelected : [])
+        .accessibilityValue(PBL10n.text(
+            isOn ? "accessibility.enabled" : "accessibility.disabled",
+            language: language,
+            locale: locale
+        ))
     }
 }

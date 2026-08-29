@@ -5,6 +5,10 @@ final class PrefillCatalogTests: XCTestCase {
     func testCatalogIsBroadBoundedAndDuplicateFree() {
         XCTAssertEqual(PBPrefillCatalog.choiceCount, 98)
         XCTAssertEqual(PBPrefillCatalog.groups.count, 7)
+        XCTAssertFalse(PBPrefillCatalog.provenance.containsExternalManufacturerData)
+        XCTAssertFalse(PBPrefillCatalog.provenance.source.isEmpty)
+        XCTAssertFalse(PBPrefillCatalog.provenance.permittedUseBasis.isEmpty)
+        XCTAssertEqual(PBPrefillCatalog.provenance.verifiedOn, "2026-08-29")
 
         for (name, choices) in PBPrefillCatalog.groups {
             XCTAssertGreaterThanOrEqual(choices.count, 5, name)
@@ -38,5 +42,34 @@ final class PrefillCatalogTests: XCTestCase {
             XCTAssertFalse(value.contains("™"), value)
             XCTAssertFalse(value.localizedCaseInsensitiveContains("http"), value)
         }
+    }
+
+    func testRecentChoicesAreFirstWithoutAddingDuplicatesOrRecipes() {
+        let choices = ["Cotton", "Polyester", "Canvas"]
+        let recent = [" canvas ", "COTTON", "User-entered material", ""]
+
+        XCTAssertEqual(
+            PBPrefillCatalog.prioritized(choices, recent: recent),
+            [" canvas ", "COTTON", "User-entered material", "Polyester"]
+        )
+    }
+
+    func testUntranslatedBundledEnglishIsNotExposedInOtherLanguages() {
+        XCTAssertEqual(
+            PBPrefillCatalog.customerVisibleChoices(
+                PBPrefillCatalog.materials,
+                recent: ["Valeur saisie par l’utilisateur"],
+                language: .fr
+            ),
+            ["Valeur saisie par l’utilisateur"]
+        )
+        XCTAssertEqual(
+            PBPrefillCatalog.customerVisibleChoices(
+                ["Bundled English"],
+                recent: ["Recent value"],
+                language: .en
+            ),
+            ["Recent value", "Bundled English"]
+        )
     }
 }

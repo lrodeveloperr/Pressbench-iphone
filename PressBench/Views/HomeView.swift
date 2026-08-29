@@ -50,32 +50,27 @@ struct HomeView: View {
     }
 
     private var firstUseCard: some View {
-        PBCard {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(spacing: 12) {
-                    BrandLogo(size: 48)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(t("onboarding.ready.title"))
-                            .font(.headline)
-                            .foregroundStyle(PBTheme.navy)
-                        Text(t("onboarding.ready.body"))
-                            .font(.subheadline)
-                            .foregroundStyle(PBTheme.secondary)
-                    }
+        Group {
+            if !store.machines.contains(where: { $0.active }) {
+                PBPrimaryButton(title: firstUseTitle("onboarding.ready.machine.title"), icon: "plus.circle.fill") {
+                    showingMachineEditor = true
                 }
-
-                Divider().opacity(0.35)
-                if !store.machines.contains(where: { $0.active }) {
-                    FirstUseAction(icon: "rectangle.stack.fill", titleKey: "onboarding.ready.machine.title", subtitleKey: "onboarding.ready.machine.body") {
-                        showingMachineEditor = true
-                    }
-                } else {
-                    FirstUseAction(icon: "list.clipboard.fill", titleKey: "onboarding.ready.setup.title", subtitleKey: "onboarding.ready.setup.body") {
-                        showingSetupEditor = true
-                    }
+                .accessibilityIdentifier("pb.home.firstUseAction")
+            } else {
+                PBPrimaryButton(title: firstUseTitle("onboarding.ready.setup.title"), icon: "plus.circle.fill") {
+                    showingSetupEditor = true
                 }
+                .accessibilityIdentifier("pb.home.firstUseAction")
             }
         }
+        .frame(minHeight: PBTheme.minimumTarget)
+    }
+
+    private func firstUseTitle(_ key: String) -> String {
+        let value = t(key)
+        guard let separator = value.firstIndex(of: "."),
+              value[..<separator].allSatisfy(\.isNumber) else { return value }
+        return value[value.index(after: separator)...].trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private var header: some View {
@@ -195,40 +190,5 @@ private struct MetricTile: View {
         .background(PBTheme.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay { RoundedRectangle(cornerRadius: 18).stroke(PBTheme.line, lineWidth: 1) }
         .shadow(color: PBTheme.cardShadow, radius: 10, x: 0, y: 5)
-    }
-}
-
-private struct FirstUseAction: View {
-    let icon: String
-    let titleKey: String
-    let subtitleKey: String
-    let action: () -> Void
-    @Environment(\.pbLanguage) private var language
-    @Environment(\.locale) private var locale
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 13) {
-                Image(systemName: icon)
-                    .font(.headline.weight(.semibold))
-                    .foregroundStyle(PBTheme.primary)
-                    .frame(width: 42, height: 42)
-                    .background(PBTheme.primarySoft, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(PBL10n.text(titleKey, language: language, locale: locale))
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.primary)
-                    Text(PBL10n.text(subtitleKey, language: language, locale: locale))
-                        .font(.caption)
-                        .foregroundStyle(PBTheme.secondary)
-                }
-                Spacer(minLength: 8)
-                Image(systemName: "chevron.forward")
-                    .foregroundStyle(PBTheme.secondary)
-            }
-            .frame(minHeight: PBTheme.minimumTarget)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(PBTactileButtonStyle())
     }
 }

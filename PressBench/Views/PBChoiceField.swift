@@ -17,7 +17,10 @@ struct PBChoiceField: View {
 
     var body: some View {
         Group {
-            if customMode {
+            if choices.isEmpty {
+                TextField(title, text: $selection)
+                    .accessibilityIdentifier(identifier)
+            } else if customMode {
                 HStack(spacing: 10) {
                     TextField(title, text: $selection)
                     Button { showingChoices = true } label: {

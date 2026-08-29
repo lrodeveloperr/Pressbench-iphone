@@ -273,13 +273,19 @@ final class PressBenchStore: ObservableObject {
 
     @discardableResult
     func saveMachine(_ draft: MachineDraft) throws -> String {
+        let brand = draft.brand.trimmingCharacters(in: .whitespacesAndNewlines)
+        let model = draft.model.trimmingCharacters(in: .whitespacesAndNewlines)
+        let platen = draft.platen.trimmingCharacters(in: .whitespacesAndNewlines)
+        let enteredNickname = draft.nickname.trimmingCharacters(in: .whitespacesAndNewlines)
+        let identity = [brand, model].filter { !$0.isEmpty }.joined(separator: " ")
+        let nickname = enteredNickname.isEmpty ? (identity.isEmpty ? platen : identity) : enteredNickname
         var raw: [String: Any] = [
-            "nickname": draft.nickname.trimmingCharacters(in: .whitespacesAndNewlines),
-            "brand": draft.brand.trimmingCharacters(in: .whitespacesAndNewlines),
-            "model": draft.model.trimmingCharacters(in: .whitespacesAndNewlines),
+            "nickname": nickname,
+            "brand": brand,
+            "model": model,
             "pressureMethod": "",
             "pressureScale": "",
-            "platenOrZone": draft.platen.trimmingCharacters(in: .whitespacesAndNewlines),
+            "platenOrZone": platen,
             "lastExternalCheckDate": "",
             "notes": draft.notes,
             "archived": false
@@ -310,7 +316,16 @@ final class PressBenchStore: ObservableObject {
 
     func setupDraft(for id: String?) -> SetupDraft {
         guard let id, let raw = rawRecipes.first(where: { ($0["id"] as? String) == id }) else {
-            return SetupDraft(machineID: rawMachines.first(where: { $0["archived"] as? Bool != true })?["id"] as? String ?? "",
+            let activeMachineIDs = Set(rawMachines.compactMap { machine in
+                machine["archived"] as? Bool == true ? nil : machine["id"] as? String
+            })
+            let recentMachineID = rawRecipes
+                .filter { $0["archived"] as? Bool != true && activeMachineIDs.contains(string($0["machineProfileId"])) }
+                .max { (date($0["lastUsedAt"]) ?? .distantPast) < (date($1["lastUsedAt"]) ?? .distantPast) }
+                .map { string($0["machineProfileId"]) }
+            let firstActiveMachineID = rawMachines.first(where: { $0["archived"] as? Bool != true })?["id"] as? String
+            let defaultMachineID = recentMachineID ?? firstActiveMachineID ?? ""
+            return SetupDraft(machineID: defaultMachineID,
                               stages: [SetupStageDraft(temperatureUnit: temperatureUnit)])
         }
         return setupDraft(from: raw)
@@ -395,8 +410,14 @@ final class PressBenchStore: ObservableObject {
         guard let machine = rawMachines.first(where: { ($0["id"] as? String) == draft.machineID }) else {
             throw StoreError.invalidMachine
         }
+        let enteredTitle = draft.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let generatedTitle = [draft.material, draft.transferMedium, string(machine["nickname"])]
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " · ")
+        let title = enteredTitle.isEmpty ? generatedTitle : enteredTitle
         guard let quantity = Int(draft.defaultQuantity), quantity > 0 else { throw StoreError.invalidNumber }
-        guard !draft.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+        guard !title.isEmpty,
               !draft.material.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               !draft.transferMedium.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               !draft.sourceName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
@@ -413,7 +434,7 @@ final class PressBenchStore: ObservableObject {
         } else {
             raw = try bridge.dictionary(bridge.domain("emptySetup", [temperatureUnit]), context: "empty setup")
         }
-        raw["title"] = draft.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        raw["title"] = title
         raw["blankMaterial"] = draft.material.trimmingCharacters(in: .whitespacesAndNewlines)
         raw["transferMedium"] = draft.transferMedium.trimmingCharacters(in: .whitespacesAndNewlines)
         raw["processStructure"] = "other"

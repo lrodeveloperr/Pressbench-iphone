@@ -5,7 +5,6 @@ struct PressBenchApp: App {
     @StateObject private var store: PressBenchStore
     @AppStorage("pressbench.onboarding.completed") private var onboardingCompleted = false
     @AppStorage(AppLanguageStorage.key) private var languageRaw = AppLanguage.detected().rawValue
-    @AppStorage(PBAppearancePreference.storageKey) private var appearanceRaw = PBAppearancePreference.system.rawValue
 
     init() {
         #if DEBUG
@@ -30,7 +29,7 @@ struct PressBenchApp: App {
             .environment(\.pbLanguage, language)
             .environment(\.locale, locale)
             .environment(\.layoutDirection, language.isRTL ? .rightToLeft : .leftToRight)
-            .preferredColorScheme((PBAppearancePreference(rawValue: appearanceRaw) ?? .system).colorScheme)
+            .preferredColorScheme(.light)
             .tint(PBTheme.primary)
             .task { await store.start() }
         }

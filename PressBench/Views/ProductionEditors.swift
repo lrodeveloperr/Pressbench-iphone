@@ -10,12 +10,14 @@ struct MachineEditorView: View {
     @State private var failed = false
     @State private var showingDiscard = false
     @State private var failureMessageKey = "common.actionFailed"
+    @State private var nicknameWasEdited: Bool
 
     let onSaved: ((String) -> Void)?
 
     init(draft: MachineDraft = MachineDraft(), onSaved: ((String) -> Void)? = nil) {
         _draft = State(initialValue: draft)
         _originalDraft = State(initialValue: draft)
+        _nicknameWasEdited = State(initialValue: !draft.nickname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         self.onSaved = onSaved
     }
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
@@ -24,25 +26,56 @@ struct MachineEditorView: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField(t("common.name") + " *", text: $draft.nickname)
-                    TextField(t("common.brand"), text: $draft.brand)
-                    TextField(t("common.model"), text: $draft.model)
+                    if knownBrands.isEmpty {
+                        TextField(t("common.brand"), text: $draft.brand)
+                    } else {
+                        PBChoiceField(
+                            title: t("common.brand"),
+                            selection: $draft.brand,
+                            choices: knownBrands,
+                            identifier: "pb.choice.machineBrand",
+                            tapToSelectTitle: t("common.tapToSelect"),
+                            otherTitle: t("issue.symptom.other"),
+                            cancelTitle: t("common.cancel")
+                        )
+                    }
+                    if knownModels.isEmpty {
+                        TextField(t("common.model"), text: $draft.model)
+                    } else {
+                        PBChoiceField(
+                            title: t("common.model"),
+                            selection: $draft.model,
+                            choices: knownModels,
+                            identifier: "pb.choice.machineModel",
+                            tapToSelectTitle: t("common.tapToSelect"),
+                            otherTitle: t("issue.symptom.other"),
+                            cancelTitle: t("common.cancel")
+                        )
+                    }
                     PBChoiceField(
                         title: t("common.platen") + " *",
                         selection: $draft.platen,
-                        choices: PBPrefillCatalog.platenSizes,
+                        choices: knownPlatens,
                         identifier: "pb.choice.platen",
                         tapToSelectTitle: t("common.tapToSelect"),
                         otherTitle: t("issue.symptom.other"),
                         cancelTitle: t("common.cancel")
                     )
+                    TextField(t("common.name"), text: nicknameBinding)
                     if !machineReady {
                         Label(t("error.machineRequired"), systemImage: "asterisk")
                             .font(.caption).foregroundStyle(PBTheme.warningInk)
                     }
                 }
-                Section(t("common.notes")) {
-                    TextEditor(text: $draft.notes).frame(minHeight: 100)
+                Section {
+                    DisclosureGroup(t("common.more")) {
+                        Text(t("common.notes"))
+                            .font(.caption)
+                            .foregroundStyle(PBTheme.secondary)
+                        TextEditor(text: $draft.notes)
+                            .frame(minHeight: 100)
+                            .accessibilityLabel(t("common.notes"))
+                    }
                 }
             }
             .environment(\.defaultMinListRowHeight, PBTheme.minimumTarget)
@@ -69,17 +102,66 @@ struct MachineEditorView: View {
         }
         .pbEditorSheetStyle()
         .interactiveDismissDisabled(draft != originalDraft)
+        .onChange(of: draft.brand) { _, _ in applySuggestedNickname() }
+        .onChange(of: draft.model) { _, _ in applySuggestedNickname() }
+        .onChange(of: draft.platen) { _, _ in applySuggestedNickname() }
     }
 
     private var machineReady: Bool {
-        !draft.nickname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !draft.platen.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    private var knownBrands: [String] {
+        PBPrefillCatalog.prioritized([], recent: store.machines.map(\.brand))
+    }
+    private var knownModels: [String] {
+        let matchingMachines = store.machines.filter {
+            draft.brand.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+            $0.brand.compare(draft.brand, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
+        }
+        return PBPrefillCatalog.prioritized([], recent: matchingMachines.map(\.model))
+    }
+    private var knownPlatens: [String] {
+        PBPrefillCatalog.customerVisibleChoices(
+            PBPrefillCatalog.platenSizes,
+            recent: store.machines.map(\.platen),
+            language: language
+        )
+    }
+    private var nicknameBinding: Binding<String> {
+        Binding(
+            get: { draft.nickname },
+            set: { value in
+                nicknameWasEdited = true
+                draft.nickname = value
+            }
+        )
+    }
+    private var suggestedNickname: String {
+        let identity = [draft.brand, draft.model]
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+        return identity.isEmpty ? draft.platen.trimmingCharacters(in: .whitespacesAndNewlines) : identity
+    }
+    private func applySuggestedNickname() {
+        guard !nicknameWasEdited else { return }
+        draft.nickname = suggestedNickname
     }
     private func cancel() {
         if draft == originalDraft { dismiss() } else { showingDiscard = true }
     }
     private func save() {
-        do { let id = try store.saveMachine(draft); originalDraft = draft; onSaved?(id); dismiss() }
+        do {
+            var prepared = draft
+            if prepared.nickname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                prepared.nickname = suggestedNickname
+            }
+            let id = try store.saveMachine(prepared)
+            draft = prepared
+            originalDraft = prepared
+            onSaved?(id)
+            dismiss()
+        }
         catch { failureMessageKey = store.errorLocalizationKey(error); failed = true }
     }
 }
@@ -129,12 +211,18 @@ struct SetupEditorView: View {
                     }
                 }
                 Section {
-                    TextField(t("setup.title") + " *", text: $draft.title)
                     if mode != .sameProductVariant {
+                        if activeMachines.count == 1, let machine = activeMachines.first {
+                            LabeledContent(t("machines.title"), value: machine.nickname)
+                        } else {
+                            Picker(t("machines.title") + " *", selection: $draft.machineID) {
+                                ForEach(activeMachines) { machine in Text(machine.nickname).tag(machine.id) }
+                            }
+                        }
                         PBChoiceField(
                             title: t("common.material") + " *",
                             selection: $draft.material,
-                            choices: PBPrefillCatalog.materials,
+                            choices: prioritizedMaterials,
                             identifier: "pb.choice.material",
                             tapToSelectTitle: t("common.tapToSelect"),
                             otherTitle: t("issue.symptom.other"),
@@ -143,16 +231,14 @@ struct SetupEditorView: View {
                         PBChoiceField(
                             title: t("common.transferMedium") + " *",
                             selection: $draft.transferMedium,
-                            choices: PBPrefillCatalog.transferMedia,
+                            choices: prioritizedTransferMedia,
                             identifier: "pb.choice.transfer",
                             tapToSelectTitle: t("common.tapToSelect"),
                             otherTitle: t("issue.symptom.other"),
                             cancelTitle: t("common.cancel")
                         )
-                        Picker(t("machines.title") + " *", selection: $draft.machineID) {
-                            ForEach(store.machines.filter { $0.active }) { machine in Text(machine.nickname).tag(machine.id) }
-                        }
                     }
+                    TextField(t("setup.title"), text: $draft.title, prompt: Text(suggestedSetupTitle))
                 }
                 Section {
                     TextField(t("setup.defaultQuantity") + " *", text: $draft.defaultQuantity).keyboardType(.numberPad)
@@ -187,7 +273,7 @@ struct SetupEditorView: View {
                         PBChoiceField(
                             title: t("common.pressure") + (stage.stageType == "press" ? " *" : ""),
                             selection: $stage.pressure,
-                            choices: PBPrefillCatalog.pressureDescriptions,
+                            choices: prioritizedPressureDescriptions,
                             identifier: "pb.choice.pressure",
                             tapToSelectTitle: t("common.tapToSelect"),
                             otherTitle: t("issue.symptom.other"),
@@ -200,7 +286,7 @@ struct SetupEditorView: View {
                             PBChoiceField(
                                 title: t("stage.placementAction"),
                                 selection: $stage.placementAction,
-                                choices: PBPrefillCatalog.placementActions,
+                                choices: prioritizedPlacementActions,
                                 identifier: "pb.choice.placement",
                                 tapToSelectTitle: t("common.tapToSelect"),
                                 otherTitle: t("issue.symptom.other"),
@@ -209,7 +295,7 @@ struct SetupEditorView: View {
                             PBChoiceField(
                                 title: t("stage.finishAction"),
                                 selection: $stage.finishAction,
-                                choices: PBPrefillCatalog.finishActions,
+                                choices: prioritizedFinishActions,
                                 identifier: "pb.choice.finish",
                                 tapToSelectTitle: t("common.tapToSelect"),
                                 otherTitle: t("issue.symptom.other"),
@@ -252,7 +338,7 @@ struct SetupEditorView: View {
                     PBChoiceField(
                         title: t("report.instructionSource") + " *",
                         selection: $draft.sourceName,
-                        choices: PBPrefillCatalog.instructionSources,
+                        choices: prioritizedInstructionSources,
                         identifier: "pb.choice.source",
                         tapToSelectTitle: t("common.tapToSelect"),
                         otherTitle: t("issue.symptom.other"),
@@ -261,8 +347,15 @@ struct SetupEditorView: View {
                     TextField(t("common.reference") + " *", text: $draft.sourceReference)
                 }
                 }
-                Section(t("common.notes")) {
-                    TextEditor(text: $draft.notes).frame(minHeight: 100)
+                Section {
+                    DisclosureGroup(t("common.more")) {
+                        Text(t("common.notes"))
+                            .font(.caption)
+                            .foregroundStyle(PBTheme.secondary)
+                        TextEditor(text: $draft.notes)
+                            .frame(minHeight: 100)
+                            .accessibilityLabel(t("common.notes"))
+                    }
                 }
                 if !isReady {
                     Section {
@@ -308,19 +401,107 @@ struct SetupEditorView: View {
         .pbEditorSheetStyle()
         .interactiveDismissDisabled(draft != originalDraft && !saved)
         .sheet(isPresented: $showingUpgrade) { ProUpgradeView().environmentObject(store).pbEditorSheetStyle() }
+        .onAppear { applyNewDraftDefaults() }
         .onDisappear {
             if !saved, !draft.id.isEmpty { store.discardPreparedSetupReuse(id: draft.id) }
         }
     }
 
+    private var activeMachines: [MachineProfile] {
+        let machines = store.machines.filter(\.active)
+        guard let recentNickname = store.recentSetups.first?.machineNickname,
+              let index = machines.firstIndex(where: { $0.nickname == recentNickname }) else { return machines }
+        var prioritized = machines
+        let recent = prioritized.remove(at: index)
+        prioritized.insert(recent, at: 0)
+        return prioritized
+    }
+
+    private var prioritizedMaterials: [String] {
+        PBPrefillCatalog.customerVisibleChoices(
+            PBPrefillCatalog.materials,
+            recent: store.recentSetups.map(\.material),
+            language: language
+        )
+    }
+
+    private var prioritizedTransferMedia: [String] {
+        PBPrefillCatalog.customerVisibleChoices(
+            PBPrefillCatalog.transferMedia,
+            recent: store.recentSetups.map(\.transferMedium),
+            language: language
+        )
+    }
+
+    private var prioritizedPressureDescriptions: [String] {
+        PBPrefillCatalog.customerVisibleChoices(
+            PBPrefillCatalog.pressureDescriptions,
+            recent: store.recentSetups.map(\.pressure),
+            language: language
+        )
+    }
+
+    private var prioritizedInstructionSources: [String] {
+        PBPrefillCatalog.customerVisibleChoices(
+            PBPrefillCatalog.instructionSources,
+            recent: store.recentSetups.map { store.setupDraft(for: $0.id).sourceName },
+            language: language
+        )
+    }
+
+    private var prioritizedPlacementActions: [String] {
+        PBPrefillCatalog.customerVisibleChoices(
+            PBPrefillCatalog.placementActions,
+            recent: store.recentSetups.flatMap(\.stages).map(\.placementAction),
+            language: language
+        )
+    }
+
+    private var prioritizedFinishActions: [String] {
+        PBPrefillCatalog.customerVisibleChoices(
+            PBPrefillCatalog.finishActions,
+            recent: store.recentSetups.flatMap(\.stages).map(\.finishAction),
+            language: language
+        )
+    }
+
+    private var suggestedSetupTitle: String {
+        let machine = activeMachines.first(where: { $0.id == draft.machineID })?.nickname ?? ""
+        return [draft.material, draft.transferMedium, machine]
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " · ")
+    }
+
+    private var effectiveSetupTitle: String {
+        let entered = draft.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        return entered.isEmpty ? suggestedSetupTitle : entered
+    }
+
+    private func applyNewDraftDefaults() {
+        guard draft.id.isEmpty else { return }
+        var changed = false
+        if !activeMachines.contains(where: { $0.id == draft.machineID }), let machine = activeMachines.first {
+            draft.machineID = machine.id
+            changed = true
+        }
+        for index in draft.stages.indices where
+            draft.stages[index].temperature.isEmpty &&
+            draft.stages[index].durationSeconds.isEmpty &&
+            draft.stages[index].pressure.isEmpty &&
+            draft.stages[index].temperatureUnit != unit {
+            draft.stages[index].temperatureUnit = unit
+            changed = true
+        }
+        if changed { originalDraft = draft }
+    }
+
     private var isReady: Bool {
         if mode == .sameProductVariant {
-            return !draft.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-                (Int(draft.defaultQuantity).map { $0 > 0 } == true)
+            return !effectiveSetupTitle.isEmpty && (Int(draft.defaultQuantity).map { $0 > 0 } == true)
         }
         let hasPressStage = draft.stages.contains(where: { $0.stageType == "press" })
-        return !draft.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !draft.material.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        return !draft.material.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !draft.transferMedium.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !draft.machineID.isEmpty && hasPressStage && draft.stages.allSatisfy { stage in
             let repeatReady = Int(stage.repeatCount.isEmpty ? "1" : stage.repeatCount).map { $0 > 0 } == true
@@ -339,7 +520,6 @@ struct SetupEditorView: View {
         func missing(_ value: String, _ label: String) {
             if value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { fields.append(label) }
         }
-        missing(draft.title, t("setup.title"))
         if Int(draft.defaultQuantity).map({ $0 > 0 }) != true { fields.append(t("setup.defaultQuantity")) }
         guard mode != .sameProductVariant else { return fields }
         missing(draft.material, t("common.material"))
@@ -364,6 +544,9 @@ struct SetupEditorView: View {
     private func save() {
         do {
             var prepared = draft
+            if prepared.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                prepared.title = suggestedSetupTitle
+            }
             if mode != .sameProductVariant {
                 guard let primary = prepared.stages.first(where: { $0.stageType == "press" }) ?? prepared.stages.first else {
                     failed = true

@@ -80,10 +80,10 @@ editors=(root/'PressBench/Views/ProductionEditors.swift').read_text(encoding='ut
 models_source=(root/'PressBench/Models/Models.swift').read_text(encoding='utf-8')
 prefill_source=(root/'PressBench/Models/PBPrefillCatalog.swift').read_text(encoding='utf-8')
 choice_field_source=(root/'PressBench/Views/PBChoiceField.swift').read_text(encoding='utf-8')
-require('preferredColorScheme' in app and 'PBAppearancePreference.storageKey' in app,
-        'system/light/dark appearance preference is not applied at the app root')
-require('settings.appearance' in settings_view and 'AccessibilitySettingsView' in settings_view,
-        'GoodUse appearance or in-app accessibility settings are missing')
+require('.preferredColorScheme(.light)' in app and 'settings.appearance' not in settings_view,
+        'light-only presentation is not fixed at the app root or the obsolete appearance picker remains')
+require('AccessibilitySettingsView' in settings_view,
+        'in-app accessibility settings are missing')
 for marker in ['backup.backupNow', 'backup.restore', 'backup.signOut', 'settings.rollbackRestore',
                'pressbench.notifications.enabled', 'pressbench.haptics.enabled', 'pressbench.sound.enabled',
                'syncPresentationPreferences', 'settings.storageRecoveryRequired']:
@@ -125,7 +125,9 @@ require(all(marker in prefill_source for marker in [
             'static let platenSizes', 'static let materials', 'static let transferMedia',
             'static let pressureDescriptions', 'static let instructionSources',
             'static let placementActions', 'static let finishActions',
-            'static var choiceCount']) and
+            'static var choiceCount', 'static let provenance',
+            'containsExternalManufacturerData: false',
+            'Original work bundled with PressBench']) and
         all(marker in editors for marker in [
             'PBPrefillCatalog.platenSizes', 'PBPrefillCatalog.materials', 'PBPrefillCatalog.transferMedia',
             'PBPrefillCatalog.pressureDescriptions', 'PBPrefillCatalog.instructionSources',
@@ -134,8 +136,30 @@ require(all(marker in prefill_source for marker in [
         'offline prefilled choices or the Other/custom escape path are missing')
 prefill_test=(root/'PressBenchTests/PrefillCatalogTests.swift').read_text(encoding='utf-8')
 require('XCTAssertEqual(PBPrefillCatalog.choiceCount, 98)' in prefill_test and
-        'testCatalogContainsNoOperatingRecipeValuesOrCopiedBrandMarkers' in prefill_test,
+        'testCatalogContainsNoOperatingRecipeValuesOrCopiedBrandMarkers' in prefill_test and
+        'testRecentChoicesAreFirstWithoutAddingDuplicatesOrRecipes' in prefill_test and
+        'testUntranslatedBundledEnglishIsNotExposedInOtherLanguages' in prefill_test,
         'prefill breadth, uniqueness, or no-operating-values regression coverage is missing')
+streamlining_test=(root/'PressBenchTests/DataEntryStreamliningTests.swift').read_text(encoding='utf-8')
+require('testMachineNicknameAndSetupTitleAreDerivedWithoutInventingOperatingValues' in streamlining_test and
+        'XCTAssertEqual(draft.stages.first?.temperature, "")' in streamlining_test and
+        '100% cotton T-shirt · Direct-to-film transfer (DTF) · 15 × 15 in' in streamlining_test and
+        'testFrenchGeneratedTitleContainsOnlyOperatorOwnedDisplayValues' in streamlining_test and
+        'T-shirt en coton · Transfert DTF · Presse principale' in streamlining_test,
+        'no-typing derivation or blank operating-value regression coverage is missing')
+require('static func prioritized' in prefill_source and
+        'static func customerVisibleChoices' in prefill_source and
+        'language == .en ? bundled : []' in prefill_source and
+        editors.count('PBPrefillCatalog.customerVisibleChoices(') == 7 and
+        'choices: PBPrefillCatalog.' not in editors and
+        'if choices.isEmpty {' in choice_field_source and
+        r'recent: store.recentSetups.map(\.material)' in editors and
+        r'recent: store.recentSetups.map(\.transferMedium)' in editors,
+        'recent operator-owned choices are not safely prioritized or raw English catalog labels can leak into other locales')
+require('let nickname = enteredNickname.isEmpty ?' in store_source and
+        'let title = enteredTitle.isEmpty ? generatedTitle : enteredTitle' in store_source and
+        'private var suggestedSetupTitle' in editors,
+        'machine nickname or setup title still requires avoidable typing')
 require('locale: Locale = .current' in store_source and 'decimal(primaryPressStage.temperature, locale: locale)' in store_source and
         'primaryTemperatureUnit' in store_source and 'primaryPressStage.pressure' in store_source and
         'locale: locale, reuseClass:' in editors,
@@ -162,6 +186,12 @@ require('.frame(minHeight: PBTheme.minimumTarget)' in language_dropdown,
 require(home_view.count('.frame(minHeight: PBTheme.minimumTarget)') >= 2 and
         onboarding_view.count('.frame(minHeight: PBTheme.minimumTarget)') >= 3,
         'Home or onboarding text-link/first-use controls dropped below the 48-point target')
+require(all(marker in onboarding_view for marker in [
+            'case preferences', 'case legal', 'case backup',
+            'CombinedPolicyAcknowledgement', 'pb.onboarding.accept',
+            'pb.onboarding.temperatureUnit', 'pb.onboarding.skipBackup']) and
+        'AcknowledgementRow' not in onboarding_view and 'ProUpgradeView' not in onboarding_view,
+        'progressive onboarding, one combined acknowledgement, visible unit choice, or optional backup regressed')
 require(setup_detail.count('.frame(width: PBTheme.minimumTarget, height: PBTheme.minimumTarget)') >= 1 and 'Menu {' in setup_detail,
         'Setup detail toolbar controls dropped below the 48-point target')
 require(re.search(r'plus\.circle\.fill[\s\S]{0,260}frame\(width: PBTheme\.minimumTarget, height: PBTheme\.minimumTarget\)', active_run_view) and
@@ -290,11 +320,16 @@ ui_test=(root/'PressBenchUITests/FirstUseFlowUITests.swift').read_text(encoding=
 app_source=(root/'PressBench/App/PressBenchApp.swift').read_text(encoding='utf-8')
 workflow=(root/'.github/workflows/validate-ios.yml').read_text(encoding='utf-8')
 require('testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup' in ui_test and
-        'Continue without signing in' in ui_test and 'XCTAssertFalse' in ui_test and
-        '10-identified-delete-warning' in ui_test and 'First piece passed' in ui_test and
+        'XCTAssertFalse' in ui_test and
+        '11-identified-delete-warning' in ui_test and 'First piece passed' in ui_test and
         all(marker in ui_test for marker in ['choose("pb.choice.platen"', 'choose("pb.choice.material"',
                                               'choose("pb.choice.transfer"', 'choose("pb.choice.pressure"',
                                               'choose("pb.choice.source"']) and
+        'pb.onboarding.accept' in ui_test and 'pb.onboarding.skipBackup' in ui_test and
+        'pb.more.settings' in ui_test and 'pb.settings.plan' in ui_test and 'pb.settings.backup' in ui_test and
+        'Backup must remain in the first Settings viewport' in ui_test and
+        'generatedSetupTitle' in ui_test and 'enter("Main Press"' not in ui_test and
+        'enter("Quick Tee"' not in ui_test and
         'matching(identifier: "pb.correction.reason")' in ui_test and
         re.search(r'matching\(identifier: "pb\.correction\.discard"\)[\s\S]{0,350}'
                   r'app\.keyboards\.firstMatch\.waitForNonExistence\(timeout: 2\)', ui_test) and
@@ -307,6 +342,12 @@ require('-resultBundlePath' in workflow and 'xcresulttool export attachments' in
         'UI audit screenshots are not exported from the Xcode result bundle')
 require('simctl bootstatus' in workflow,
         'UI test runner does not pre-boot the selected simulator')
+require(all(marker in workflow for marker in [
+            'iPhone SE (3rd generation)', 'PB_SE_UDID', 'PB_FACE_UDID',
+            'PressBenchSETests.xcresult', 'PressBenchFaceIDTests.xcresult',
+            '-only-testing:PressBenchUITests/FirstUseFlowUITests']) and
+        workflow.count('xcrun simctl bootstatus') == 2,
+        'native layout audit does not run and retain screenshots on both iPhone SE and Face ID devices')
 require('requestPermissionIfNeeded' not in onboarding_view and
         'private var notificationsEnabled = false' in settings_view and
         'private var notificationsEnabled = false' in active_run_view,
@@ -339,18 +380,31 @@ require(ui_test.count('XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)'
 
 advertising=(root/'PressBench/Services/PBAdvertising.swift').read_text(encoding='utf-8')
 more_view=(root/'PressBench/Views/MoreView.swift').read_text(encoding='utf-8')
+require(settings_view.index('planSection') < settings_view.index('backupSection') and
+        all(marker in settings_view for marker in [
+            'pb.settings.plan', 'pb.settings.backup', 'usage.freeRunsRemaining',
+            'common.unlockPro', 'upgrade.manage', 'backup.optionalTitle',
+            'PreferencesSettingsView', 'settings.legalSupport', 'common.maintenance']) and
+        'ReportsView()' not in settings_view,
+        'Settings no longer enforces the reviewed plan, backup, preferences, legal, maintenance hierarchy')
+require(all(marker in more_view for marker in ['ReportsView()', 'MachinesView()', 'SettingsView()', 'pb.more.settings']) and
+        all(marker not in more_view for marker in [
+            'ProUpgradeView', 'SignInWithAppleButton', 'PressBenchPolicyLinks',
+            'more.viewOnboarding', 'PBAdvertising.presentPrivacyOptions']),
+        'More duplicates commercial, backup, onboarding, or legal controls owned by Settings')
 require('privacyOptionsRequirementStatus == .required' in advertising and
-        'privacyOptionsAvailable = PBAdvertising.privacyOptionsRequired' in more_view and
-        'let shown = await PBAdvertising.presentPrivacyOptions()' in more_view and
-        'guard store.adEligibilityResolved, !store.isPro else { return }' in more_view and
-        'if !store.isPro {' in more_view,
+        'privacyOptionsAvailable = PBAdvertising.privacyOptionsRequired' in settings_view and
+        'let shown = await PBAdvertising.presentPrivacyOptions()' in settings_view and
+        'guard store.adEligibilityResolved, !store.isPro else { return }' in settings_view and
+        'if !store.isPro {' in settings_view,
         'ad privacy choices must only be offered when required and must report presentation failure')
 require('BannerViewDelegate' in advertising and 'didFailToReceiveAdWithError' in advertising and
         'bannerLoadResolved && !bannerLoaded ? 0' in advertising,
         'failed banner loads must collapse instead of leaving a blank fixed strip')
-require('VStack(spacing: 0)' in advertising and
-        'content.safeAreaInset(edge: .bottom' not in advertising,
-        'fixed banner must not push the primary tab bar off-screen')
+require('content.safeAreaInset(edge: .bottom, spacing: 0)' in advertising and
+        'PBTheme.paper.ignoresSafeArea(edges: .bottom)' in advertising and
+        'VStack(spacing: 0)' not in advertising,
+        'banner does not use native iPhone bottom-safe-area placement')
 
 catalog=json.loads((root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8'))
 require(len(catalog.get('languages',[])) == 31, 'language choice count is not 31')
@@ -385,7 +439,7 @@ root_tabs=(root/'PressBench/Views/RootTabView.swift').read_text(encoding='utf-8'
 require('@Published private(set) var entitlementsResolved = false' in purchase_manager and
         'entitlementsResolved = true' in purchase_manager and
         'store.adEligibilityResolved && !store.isPro' in root_tabs and
-        'guard store.adEligibilityResolved, !store.isPro else { return }' in more_view,
+        'guard store.adEligibilityResolved, !store.isPro else { return }' in settings_view,
         'ads must stay disabled until the current StoreKit entitlement scan resolves')
 require("assert len(phrases)==286" in assemble and 'DIRECT_NEW_KEYS' in assemble and
         'OPERATOR_TRANSLATIONS' in assemble and 'ADDITIONAL_TRANSLATIONS' in assemble and
