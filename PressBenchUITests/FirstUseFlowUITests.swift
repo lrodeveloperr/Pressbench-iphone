@@ -108,11 +108,11 @@ final class FirstUseFlowUITests: XCTestCase {
 
         choose("pb.choice.material", option: "100% cotton T-shirt", app: app)
         choose("pb.choice.transfer", option: "Direct-to-film transfer (DTF)", app: app)
-        enter("325", in: app.textFields["pb.stage.temperature"], app: app)
-        enter("1", in: app.textFields["pb.stage.duration"], app: app)
+        enter("325", in: app.descendants(matching: .any)["pb.stage.temperature"].firstMatch, app: app)
+        enter("1", in: app.descendants(matching: .any)["pb.stage.duration"].firstMatch, app: app)
         choose("pb.choice.pressure", option: "Medium", app: app)
         choose("pb.choice.source", option: "Supplier instructions", app: app)
-        enter("S-1", in: app.textFields["pb.setup.sourceReference"], app: app)
+        enter("S-1", in: app.descendants(matching: .any)["pb.setup.sourceReference"].firstMatch, app: app)
         let saveSetup = app.buttons.matching(identifier: "Save").firstMatch
         makeHittable(saveSetup, in: app)
         saveSetup.tap()
@@ -230,7 +230,7 @@ final class FirstUseFlowUITests: XCTestCase {
     }
 
     private func enter(_ value: String, in field: XCUIElement, app: XCUIApplication) {
-        for _ in 0..<8 where !field.exists { app.swipeUp() }
+        for _ in 0..<8 where !field.exists { scrollForward(in: app) }
         XCTAssertTrue(field.waitForExistence(timeout: 4))
         makeHittable(field, in: app)
         field.tap()
@@ -252,8 +252,22 @@ final class FirstUseFlowUITests: XCTestCase {
     }
 
     private func makeHittable(_ element: XCUIElement, in app: XCUIApplication) {
-        for _ in 0..<6 where !element.isHittable { app.swipeUp() }
+        for _ in 0..<6 where !element.isHittable { scrollForward(in: app) }
         XCTAssertTrue(element.isHittable)
+    }
+
+    private func scrollForward(in app: XCUIApplication) {
+        let form = app.collectionViews.firstMatch
+        if form.exists, form.isHittable {
+            form.swipeUp()
+            return
+        }
+        let scrollView = app.scrollViews.firstMatch
+        if scrollView.exists, scrollView.isHittable {
+            scrollView.swipeUp()
+            return
+        }
+        app.swipeUp()
     }
 
     private func waitForHittable(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
