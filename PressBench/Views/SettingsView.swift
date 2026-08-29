@@ -130,6 +130,7 @@ struct SettingsView: View {
         .listRowSpacing(4)
         .tint(PBTheme.primary)
         .navigationTitle(t("settings.title"))
+        .toolbar(.visible, for: .navigationBar)
         .sheet(isPresented: $showingUpgrade) {
             ProUpgradeView().environmentObject(store).pbEditorSheetStyle()
         }

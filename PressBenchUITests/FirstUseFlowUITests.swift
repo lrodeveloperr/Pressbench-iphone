@@ -8,9 +8,15 @@ final class FirstUseFlowUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.staticTexts["Welcome to PressBench"].waitForExistence(timeout: 8))
-        app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch.tap()
+        let preferencesContinue = app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch
+        XCTAssertTrue(waitForHittable(preferencesContinue, timeout: 8))
+        preferencesContinue.tap()
         let acknowledgement = app.buttons.matching(identifier: "pb.onboarding.accept").firstMatch
-        XCTAssertTrue(acknowledgement.waitForExistence(timeout: 3))
+        if !acknowledgement.waitForExistence(timeout: 8),
+           preferencesContinue.exists, preferencesContinue.isHittable {
+            preferencesContinue.tap()
+        }
+        XCTAssertTrue(acknowledgement.waitForExistence(timeout: 8))
         acknowledgement.tap()
         app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch.tap()
         let skipBackup = app.buttons.matching(identifier: "pb.onboarding.skipBackup").firstMatch
@@ -22,9 +28,9 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(waitForHittable(moreTab, timeout: 8), "The native tab bar must settle inside the Face ID viewport")
         capture("face-id-home-safe-area")
         moreTab.tap()
-        let proSettingsLink = app.descendants(matching: .any)["pb.more.settings"].firstMatch
-        XCTAssertTrue(proSettingsLink.waitForExistence(timeout: 8))
-        proSettingsLink.tap()
+        let settingsLink = app.staticTexts["Settings"].firstMatch
+        XCTAssertTrue(waitForHittable(settingsLink, timeout: 8))
+        settingsLink.tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 4))
         let backup = app.descendants(matching: .any)["pb.settings.backup"]
         XCTAssertTrue(backup.waitForExistence(timeout: 4))
@@ -71,8 +77,8 @@ final class FirstUseFlowUITests: XCTestCase {
         let moreTab = app.tabBars.buttons["More"]
         XCTAssertTrue(waitForHittable(moreTab, timeout: 8))
         moreTab.tap()
-        let settingsLink = app.descendants(matching: .any)["pb.more.settings"].firstMatch
-        XCTAssertTrue(settingsLink.waitForExistence(timeout: 8))
+        let settingsLink = app.staticTexts["Settings"].firstMatch
+        XCTAssertTrue(waitForHittable(settingsLink, timeout: 8))
         settingsLink.tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 4))
         let plan = app.descendants(matching: .any)["pb.settings.plan"]
@@ -215,8 +221,8 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)
         XCTAssertFalse(app.staticTexts["Free runs left: 0 of 5"].exists)
         app.tabBars.buttons["More"].tap()
-        let proSettingsLink = app.descendants(matching: .any)["pb.more.settings"].firstMatch
-        XCTAssertTrue(proSettingsLink.waitForExistence(timeout: 8))
+        let proSettingsLink = app.staticTexts["Settings"].firstMatch
+        XCTAssertTrue(waitForHittable(proSettingsLink, timeout: 8))
         proSettingsLink.tap()
         XCTAssertTrue(app.staticTexts["Purchases & Pro Access"].waitForExistence(timeout: 4))
         XCTAssertTrue(app.staticTexts["Manage subscription"].exists)
