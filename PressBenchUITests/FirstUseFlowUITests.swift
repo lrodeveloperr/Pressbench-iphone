@@ -247,6 +247,8 @@ final class FirstUseFlowUITests: XCTestCase {
         let choice = app.buttons[option].firstMatch
         makeHittable(choice, in: app)
         choice.tap()
+        XCTAssertTrue(choice.waitForNonExistence(timeout: 5),
+                      "The choice sheet must dismiss before the editor continues")
     }
 
     private func makeHittable(_ element: XCUIElement, in app: XCUIApplication) {
