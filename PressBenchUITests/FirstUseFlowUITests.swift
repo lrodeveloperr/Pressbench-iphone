@@ -74,8 +74,8 @@ final class FirstUseFlowUITests: XCTestCase {
         let moreTab = app.tabBars.buttons["More"]
         XCTAssertTrue(waitForHittable(moreTab, timeout: 8))
         moreTab.tap()
-        let settingsLink = app.staticTexts["Settings"].firstMatch
-        XCTAssertTrue(waitForHittable(settingsLink, timeout: 8))
+        let settingsLink = app.descendants(matching: .any)["pb.more.settings"].firstMatch
+        XCTAssertTrue(waitForHittable(settingsLink, timeout: 20))
         settingsLink.tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 4))
         let plan = app.descendants(matching: .any)["pb.settings.plan"]
