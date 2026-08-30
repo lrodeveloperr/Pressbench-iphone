@@ -75,7 +75,9 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(waitForHittable(moreTab, timeout: 8))
         let settingsLink = app.descendants(matching: .any)["pb.more.settings"].firstMatch
         XCTAssertTrue(openTab("More", until: settingsLink, app: app))
-        settingsLink.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let settingsLabel = app.staticTexts["Settings"].firstMatch
+        XCTAssertTrue(waitForHittable(settingsLabel, timeout: 20))
+        settingsLabel.tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 20))
         let plan = app.descendants(matching: .any)["pb.settings.plan"]
         XCTAssertTrue(plan.waitForExistence(timeout: 4))
@@ -221,7 +223,9 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Free runs left: 0 of 5"].exists)
         let proSettingsLink = app.descendants(matching: .any)["pb.more.settings"].firstMatch
         XCTAssertTrue(openTab("More", until: proSettingsLink, app: app))
-        proSettingsLink.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let proSettingsLabel = app.staticTexts["Settings"].firstMatch
+        XCTAssertTrue(waitForHittable(proSettingsLabel, timeout: 20))
+        proSettingsLabel.tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 20))
         XCTAssertTrue(app.staticTexts["Purchases & Pro Access"].waitForExistence(timeout: 4))
         XCTAssertTrue(app.staticTexts["Manage subscription"].exists)
