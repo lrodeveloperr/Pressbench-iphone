@@ -1,5 +1,7 @@
 name: Upload PressBench App Store Screenshots
 
+# Uploads the approved 6.5-inch marketing set only; it never submits for review.
+
 on:
   pull_request:
     paths:
