@@ -122,8 +122,8 @@ struct HomeView: View {
     private var metrics: some View {
         let m = store.metrics
         return LazyVGrid(columns: dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())] : [GridItem(.flexible()), GridItem(.flexible())], spacing: 9) {
-            MetricTile(titleKey: "home.metric.setups", value: PBFormat.integer(m.setups, locale: locale), icon: "slider.horizontal.3")
-            MetricTile(titleKey: "home.metric.batches", value: PBFormat.integer(m.batches, locale: locale), icon: "square.stack.3d.up")
+            MetricTile(titleKey: m.setups == 1 ? "setup.title" : "home.metric.setups", value: PBFormat.integer(m.setups, locale: locale), icon: "slider.horizontal.3")
+            MetricTile(titleKey: m.batches == 1 ? "runs.batch" : "home.metric.batches", value: PBFormat.integer(m.batches, locale: locale), icon: "square.stack.3d.up")
             MetricTile(titleKey: "home.metric.firstPass", value: PBFormat.percent(m.firstPassYield, locale: locale), icon: "chart.line.uptrend.xyaxis")
             MetricTile(titleKey: "home.metric.waste", value: PBFormat.percent(m.wasteRate, locale: locale), icon: "trash")
         }
