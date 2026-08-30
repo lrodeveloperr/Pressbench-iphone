@@ -131,7 +131,8 @@ struct ActiveRunView: View {
             Text(run.title).font(.title2.bold()).foregroundStyle(PBTheme.navy)
             HStack(spacing: 8) {
                 Text(t("runs.batch"))
-                Text(String(run.id.prefix(12))).monospaced()
+                Text(run.jobReference.isEmpty ? String(run.id.prefix(12)) : run.jobReference)
+                    .monospaced()
                 Spacer()
                 Label(PBFormat.clock(seconds: run.elapsed, locale: locale), systemImage: "clock")
             }
@@ -347,6 +348,7 @@ struct ActiveRunView: View {
                         HStack(spacing: 10) {
                             TextField(t("report.quantity"), text: $customCycleQuantity)
                                 .keyboardType(.numberPad).textFieldStyle(.roundedBorder).frame(maxWidth: 110)
+                                .accessibilityIdentifier("pb.run.cycleQuantity")
                             Button {
                                 guard let quantity = Int(customCycleQuantity), quantity > 0 else {
                                     failureMessageKey = "error.invalidNumber"; failed = true; return
@@ -357,6 +359,7 @@ struct ActiveRunView: View {
                                 .font(.headline).frame(maxWidth: .infinity, minHeight: 50)
                                 .foregroundStyle(.white).background(PBTheme.primaryActionFill, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
                             }
+                            .accessibilityIdentifier("pb.run.countItems")
                             .buttonStyle(PBTactileButtonStyle())
                             .disabled(!timerPlanReady(run) || qcDue(run) || (Int(customCycleQuantity).map { $0 <= 0 || run.processed + $0 > run.planned } ?? true))
                         }
