@@ -141,7 +141,7 @@ jobs:
           by_name = {item["name"]: item["identifier"] for item in types}
           se = by_name.get("iPhone SE (3rd generation)")
           face = next((by_name.get(name) for name in (
-              "iPhone 17 Pro", "iPhone 16 Pro", "iPhone 15 Pro", "iPhone 14 Pro"
+              "iPhone 17 Pro Max", "iPhone 17 Pro", "iPhone 16 Pro Max", "iPhone 15 Pro Max", "iPhone 14 Pro Max"
           ) if by_name.get(name)), None)
           if not se or not face:
               raise SystemExit("Required iPhone SE and Face ID simulator device types are unavailable")
@@ -191,6 +191,7 @@ jobs:
             -resultBundlePath "$result_bundle" \
             CODE_SIGNING_ALLOWED=NO \
             -only-testing:PressBenchUITests/FirstUseFlowUITests/testFaceIDFirstViewportLayout \
+            -only-testing:PressBenchUITests/FirstUseFlowUITests/testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup \
             test
 
       - name: Export UI audit screenshots
