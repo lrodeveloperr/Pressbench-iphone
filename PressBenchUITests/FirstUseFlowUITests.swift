@@ -104,7 +104,7 @@ final class FirstUseFlowUITests: XCTestCase {
         capture("05-chained-setup-editor")
 
         choose("pb.choice.material", option: "100% cotton T-shirt", app: app)
-        choose("pb.choice.transfer", option: "Direct-to-film transfer (DTF)", app: app)
+        choose("pb.choice.transfer", option: "Heat transfer vinyl (HTV)", app: app)
         enter("325", in: app.descendants(matching: .any)["pb.stage.temperature"].firstMatch, app: app)
         enter("1", in: app.descendants(matching: .any)["pb.stage.duration"].firstMatch, app: app)
         choose("pb.choice.pressure", option: "Medium", app: app)
@@ -114,7 +114,7 @@ final class FirstUseFlowUITests: XCTestCase {
         makeHittable(saveSetup, in: app)
         saveSetup.tap()
 
-        let generatedSetupTitle = "100% cotton T-shirt · Direct-to-film transfer (DTF) · 15 × 15 in"
+        let generatedSetupTitle = "100% cotton T-shirt · Heat transfer vinyl (HTV) · 15 × 15 in"
         let startNewRun = app.staticTexts["Start New Run"]
         XCTAssertTrue(startNewRun.waitForExistence(timeout: 8))
         capture("06-ready-to-run")
