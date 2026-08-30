@@ -197,9 +197,10 @@ struct SettingsView: View {
                     ))
                     .font(.subheadline.weight(.bold))
                     Button { showingUpgrade = true } label: {
-                        Label(t("common.unlockPro"), systemImage: "arrow.up.circle.fill")
+                        Text(t("common.unlockPro"))
                             .font(.headline)
-                            .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
+                            .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .center)
+                            .multilineTextAlignment(.center)
                     }
                     .buttonStyle(.borderedProminent)
                     .accessibilityIdentifier("pb.settings.plan")
