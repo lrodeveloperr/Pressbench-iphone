@@ -27,7 +27,7 @@ jobs:
           mkdir -p "$screenshot_dir"
           for source in .app-store/screenshots/en-CA/*.jpg.b64; do
             output="$screenshot_dir/$(basename "$source" .b64)"
-            base64 --decode "$source" > "$output"
+            base64 -D -i "$source" -o "$output"
             dimensions="$(sips -g pixelWidth -g pixelHeight "$output")"
             grep -Fq 'pixelWidth: 1320' <<< "$dimensions"
             grep -Fq 'pixelHeight: 2868' <<< "$dimensions"
