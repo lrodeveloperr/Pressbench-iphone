@@ -181,6 +181,9 @@ active_run_view=(root/'PressBench/Views/ActiveRunView.swift').read_text(encoding
 require('dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())]' in home_view and
         'dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())]' in active_run_view,
         'dashboard or active-run facts do not collapse to one column at Accessibility text sizes')
+require('m.setups == 1 ? "setup.title" : "home.metric.setups"' in home_view and
+        'm.batches == 1 ? "runs.batch" : "home.metric.batches"' in home_view,
+        'Home setup and batch metrics do not use localized singular labels only for a count of one')
 language_dropdown=(root/'PressBench/Views/LanguageDropdown.swift').read_text(encoding='utf-8')
 onboarding_view=(root/'PressBench/Views/OnboardingView.swift').read_text(encoding='utf-8')
 require('.frame(minHeight: PBTheme.minimumTarget)' in language_dropdown,
