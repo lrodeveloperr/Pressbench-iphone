@@ -88,6 +88,7 @@ struct MachineEditorView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(t("common.cancel")) { cancel() }
+                        .accessibilityIdentifier("pb.editor.cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(t("common.save")) { save() }
@@ -382,7 +383,10 @@ struct SetupEditorView: View {
             .tint(PBTheme.primary)
             .navigationTitle(t("setup.title"))
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button(t("common.cancel")) { cancel() } }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(t("common.cancel")) { cancel() }
+                        .accessibilityIdentifier("pb.editor.cancel")
+                }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(t("common.save")) { save() }
                         .disabled(!isReady)
