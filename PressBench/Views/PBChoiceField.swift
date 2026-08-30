@@ -14,6 +14,7 @@ struct PBChoiceField: View {
 
     @State private var showingChoices = false
     @State private var customMode = false
+    @State private var choosingOther = false
 
     var body: some View {
         Group {
@@ -51,6 +52,14 @@ struct PBChoiceField: View {
             }
         }
         .onAppear { customMode = !selection.isEmpty && !choices.contains(selection) }
+        .onChange(of: selection) { _, newValue in
+            if choosingOther {
+                choosingOther = false
+                customMode = true
+            } else {
+                customMode = !newValue.isEmpty && !choices.contains(newValue)
+            }
+        }
         .sheet(isPresented: $showingChoices) {
             PBChoicePickerSheet(
                 title: title,
@@ -65,8 +74,13 @@ struct PBChoiceField: View {
                     customMode = false
                 },
                 chooseOther: {
-                    if choices.contains(selection) { selection = "" }
                     customMode = true
+                    if choices.contains(selection) {
+                        choosingOther = true
+                        selection = ""
+                    } else {
+                        choosingOther = false
+                    }
                 }
             )
         }

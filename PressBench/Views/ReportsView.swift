@@ -11,6 +11,7 @@ struct ReportsView: View {
     @State private var showingShare = false
     @State private var showingUpgrade = false
     @State private var pendingFormat: String?
+    @State private var exportTask: Task<Void, Never>?
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
@@ -74,6 +75,11 @@ struct ReportsView: View {
         }) {
             ProUpgradeView().environmentObject(store).pbEditorSheetStyle()
         }
+        .onDisappear {
+            exportTask?.cancel()
+            exportTask = nil
+            generating = false
+        }
         .alert("PressBench", isPresented: $failed) { Button(t("common.ok"), role: .cancel) {} } message: { Text(t("common.actionFailed")) }
     }
 
@@ -92,14 +98,28 @@ struct ReportsView: View {
     }
 
     private func startExport(_ format: String) {
+        exportTask?.cancel()
         generating = true
-        Task { @MainActor in
+        exportTask = Task { @MainActor in
             await Task.yield()
-            defer { generating = false }
+            defer {
+                generating = false
+                exportTask = nil
+            }
             do {
                 let work = try prepareExport(format)
-                exportURL = try await Task.detached(priority: .userInitiated) { try work.generate() }.value
+                try Task.checkCancellation()
+                let worker = Task.detached(priority: .userInitiated) { try work.generate() }
+                let url = try await withTaskCancellationHandler {
+                    try await worker.value
+                } onCancel: {
+                    worker.cancel()
+                }
+                try Task.checkCancellation()
+                exportURL = url
                 showingShare = true
+            } catch is CancellationError {
+                return
             } catch {
                 failed = true
             }
@@ -122,10 +142,12 @@ private struct ReportExportWork: @unchecked Sendable {
     let localeIdentifier: String
 
     func generate() throws -> URL {
+        try Task.checkCancellation()
         guard let plan = try JSONSerialization.jsonObject(with: payload) as? [String: Any],
               let setupRows = try JSONSerialization.jsonObject(with: setups) as? [[String: Any]] else {
             throw PressBenchReportExporter.ExportError.encoding
         }
+        try Task.checkCancellation()
         let locale = Locale(identifier: localeIdentifier)
         switch format {
         case "PDF": return try PressBenchReportExporter.pdf(plan: plan, setups: setupRows, language: language, locale: locale)

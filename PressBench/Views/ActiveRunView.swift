@@ -75,6 +75,7 @@ struct ActiveRunView: View {
                     store.saveOperatorIssues(issues, runID: run.id)
                 }
                 .onReceive(ticker) { _ in
+                    guard let activeRun = store.activeRun, activeRun.phase != "completed" else { return }
                     store.tickStageTimer()
                     if store.activeRun?.timerCompleted == true && !announcedTimerCompletion {
                         announcedTimerCompletion = true
@@ -93,12 +94,20 @@ struct ActiveRunView: View {
         .background(PBTheme.pageBackground.ignoresSafeArea())
         .pbKeyboardDismissToolbar(t("common.ok"))
         .sheet(isPresented: $showingQC) { QCCheckSheet().environmentObject(store).pbEditorSheetStyle() }
-        .sheet(isPresented: $showingIssue) { IssueCaptureSheet(issues: $result.issues).pbEditorSheetStyle() }
+        .sheet(isPresented: $showingIssue) {
+            IssueCaptureSheet { issue in
+                var updated = result.issues
+                updated.append(issue)
+                try store.commitOperatorIssues(updated, runID: runID)
+                result.issues = updated
+            }
+            .environmentObject(store)
+            .pbEditorSheetStyle()
+        }
         .sheet(item: $firstPieceAction) { action in
             FirstPieceEvidenceSheet(action: action) { note in
-                PBTimerNotification.cancel()
-                if action == .adjust { store.recordFirstPieceAdjustment(note: note) }
-                else { store.stopAfterFirstPiece(note: note) }
+                if action == .adjust { try store.recordFirstPieceAdjustment(note: note) }
+                else { try store.stopAfterFirstPiece(note: note) }
             }
             .environmentObject(store)
             .pbEditorSheetStyle()
@@ -610,11 +619,14 @@ struct ActiveRunView: View {
 
 private struct FirstPieceEvidenceSheet: View {
     let action: FirstPieceEvidenceAction
-    let onCommit: (String) -> Void
+    let onCommit: (String) throws -> Void
+    @EnvironmentObject private var store: PressBenchStore
     @Environment(\.dismiss) private var dismiss
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
     @State private var note = ""
+    @State private var failed = false
+    @State private var failureMessageKey = "common.actionFailed"
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
     var body: some View {
@@ -631,9 +643,16 @@ private struct FirstPieceEvidenceSheet: View {
                     }
                 }
                 Button {
-                    onCommit(note.trimmingCharacters(in: .whitespacesAndNewlines))
-                    action == .adjust ? PBFeedback.warning() : PBFeedback.error()
-                    dismiss()
+                    do {
+                        try onCommit(note.trimmingCharacters(in: .whitespacesAndNewlines))
+                        PBTimerNotification.cancel()
+                        action == .adjust ? PBFeedback.warning() : PBFeedback.error()
+                        dismiss()
+                    } catch {
+                        failureMessageKey = store.errorLocalizationKey(error)
+                        failed = true
+                        PBFeedback.error()
+                    }
                 } label: {
                     Label(t(action == .adjust ? "run.saveAdjustmentRetry" : "run.saveNoteStop"), systemImage: "checkmark.circle.fill")
                         .font(.headline).frame(maxWidth: .infinity, minHeight: 58)
@@ -647,6 +666,11 @@ private struct FirstPieceEvidenceSheet: View {
             .pbKeyboardDismissToolbar(t("common.ok"))
             .navigationTitle(t("onboarding.process.firstPiece"))
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(t("common.cancel")) { dismiss() } } }
+        }
+        .alert("PressBench", isPresented: $failed) {
+            Button(t("common.ok"), role: .cancel) {}
+        } message: {
+            Text(t(failureMessageKey))
         }
     }
 }
@@ -685,6 +709,8 @@ private struct QCCheckSheet: View {
     @Environment(\.locale) private var locale
     @State private var note = ""
     @State private var showingEndEarlyConfirmation = false
+    @State private var failed = false
+    @State private var failureMessageKey = "common.actionFailed"
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
     var body: some View {
@@ -718,6 +744,11 @@ private struct QCCheckSheet: View {
             Button(t("qc.endEarly"), role: .destructive) { commitQC("end_early") }
             Button(t("common.cancel"), role: .cancel) {}
         }
+        .alert("PressBench", isPresented: $failed) {
+            Button(t("common.ok"), role: .cancel) {}
+        } message: {
+            Text(t(failureMessageKey))
+        }
     }
 
     private func qcButton(_ key: String, icon: String, color: Color, result: String) -> some View {
@@ -733,18 +764,27 @@ private struct QCCheckSheet: View {
     }
 
     private func commitQC(_ result: String) {
-        store.recordQC(result: result, note: note)
-        result == "pass" ? PBFeedback.success() : PBFeedback.warning()
-        dismiss()
+        do {
+            try store.recordQC(result: result, note: note)
+            result == "pass" ? PBFeedback.success() : PBFeedback.warning()
+            dismiss()
+        } catch {
+            failureMessageKey = store.errorLocalizationKey(error)
+            failed = true
+            PBFeedback.error()
+        }
     }
 }
 
 private struct IssueCaptureSheet: View {
-    @Binding var issues: [IssueDraftInput]
+    let onCommit: (IssueDraftInput) throws -> Void
+    @EnvironmentObject private var store: PressBenchStore
     @Environment(\.dismiss) private var dismiss
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
     @State private var issue = IssueDraftInput()
+    @State private var failed = false
+    @State private var failureMessageKey = "common.actionFailed"
     private let symptoms = ["unknown", "color_shift", "ghosting", "edge_lift", "adhesion", "scorch", "alignment", "incomplete_transfer", "uneven_heat_pressure", "moisture", "transfer_shift", "contamination", "substrate_defect", "design_setup", "print_supply", "equipment_power", "interrupted", "other"]
     private let causes = ["unknown", "heat", "pressure", "time", "moisture", "placement", "transfer", "substrate", "design", "printer_ink_paper", "equipment_power", "operator_interruption", "other"]
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
@@ -762,7 +802,17 @@ private struct IssueCaptureSheet: View {
                         Picker(t("report.symptom"), selection: $issue.symptom) { ForEach(symptoms, id: \.self) { Text(t("issue.symptom.\($0)")).tag($0) } }.pickerStyle(.menu)
                         Picker(t("report.suspectedCause"), selection: $issue.suspectedCause) { ForEach(causes, id: \.self) { Text(t("issue.cause.\($0)")).tag($0) } }.pickerStyle(.menu)
                         TextField(t("report.note") + " *", text: $issue.note).textFieldStyle(.roundedBorder)
-                        Button { issues.append(issue); PBFeedback.success(); dismiss() } label: {
+                        Button {
+                            do {
+                                try onCommit(issue)
+                                PBFeedback.success()
+                                dismiss()
+                            } catch {
+                                failureMessageKey = store.errorLocalizationKey(error)
+                                failed = true
+                                PBFeedback.error()
+                            }
+                        } label: {
                             Label(t("issue.add"), systemImage: "checkmark.circle.fill").font(.headline).frame(maxWidth: .infinity, minHeight: 58)
                                 .foregroundStyle(.white).background(PBTheme.primaryActionFill, in: RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous))
                         }.buttonStyle(PBTactileButtonStyle())
@@ -775,6 +825,11 @@ private struct IssueCaptureSheet: View {
             .pbKeyboardDismissToolbar(t("common.ok"))
             .navigationTitle(t("report.issuesExceptions")).navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(t("common.cancel")) { dismiss() } } }
+        }
+        .alert("PressBench", isPresented: $failed) {
+            Button(t("common.ok"), role: .cancel) {}
+        } message: {
+            Text(t(failureMessageKey))
         }
     }
 }

@@ -571,12 +571,18 @@ final class PressBenchStore: ObservableObject {
 
     func confirmInstructions() { transition(event: ["type": "CONFIRM_INSTRUCTIONS", "confirmed": true]) }
     func recordFirstPiecePass() { transition(event: ["type": "RECORD_FIRST_PIECE", "outcome": "pass", "note": ""]) }
-    func recordFirstPieceAdjustment(note: String = "") { transition(event: ["type": "RECORD_FIRST_PIECE", "outcome": "adjust_retry", "note": note]) }
-    func stopAfterFirstPiece(note: String = "") { transition(event: ["type": "RECORD_FIRST_PIECE", "outcome": "stop", "note": note]) }
+    func recordFirstPieceAdjustment(note: String = "") throws {
+        try transitionThrowing(event: ["type": "RECORD_FIRST_PIECE", "outcome": "adjust_retry", "note": note])
+    }
+    func stopAfterFirstPiece(note: String = "") throws {
+        try transitionThrowing(event: ["type": "RECORD_FIRST_PIECE", "outcome": "stop", "note": note])
+    }
     func startProduction() { transition(event: ["type": "START_PRODUCTION"]) }
     func completeCycle(items: Int) { transition(event: ["type": "COMPLETE_CYCLE", "cycleComplete": true, "items": items]) }
     func undoCycle() { transition(event: ["type": "UNDO_CYCLE"]) }
-    func recordQC(result: String, note: String) { transition(event: ["type": "RECORD_QC", "result": result, "note": note]) }
+    func recordQC(result: String, note: String) throws {
+        try transitionThrowing(event: ["type": "RECORD_QC", "result": result, "note": note])
+    }
     func pauseRun(reason: String = "operator_pause") { transition(event: ["type": "PAUSE", "reason": reason]) }
     func resumeRun() { transition(event: ["type": "RESUME"]) }
     func endRun(early: Bool = false) {
@@ -628,21 +634,24 @@ final class PressBenchStore: ObservableObject {
     }
 
     func saveOperatorIssues(_ issues: [IssueDraftInput], runID: String) {
-        do {
-            try withStateTransaction {
-                var all = state["operatorIssueDrafts"] as? [String: Any] ?? [:]
-                if issues.isEmpty {
-                    all.removeValue(forKey: runID)
-                } else {
-                    all[runID] = issues.map { issue in
-                        ["id": issue.id.uuidString, "quantity": issue.quantity,
-                         "symptom": issue.symptom, "suspectedCause": issue.suspectedCause,
-                         "disposition": issue.disposition, "note": issue.note]
-                    }
+        do { try commitOperatorIssues(issues, runID: runID) }
+        catch { record(error) }
+    }
+
+    func commitOperatorIssues(_ issues: [IssueDraftInput], runID: String) throws {
+        try withStateTransaction {
+            var all = state["operatorIssueDrafts"] as? [String: Any] ?? [:]
+            if issues.isEmpty {
+                all.removeValue(forKey: runID)
+            } else {
+                all[runID] = issues.map { issue in
+                    ["id": issue.id.uuidString, "quantity": issue.quantity,
+                     "symptom": issue.symptom, "suspectedCause": issue.suspectedCause,
+                     "disposition": issue.disposition, "note": issue.note]
                 }
-                state["operatorIssueDrafts"] = all
             }
-        } catch { record(error) }
+            state["operatorIssueDrafts"] = all
+        }
     }
 
     func clearOperatorIssues(runID: String) {
@@ -723,7 +732,7 @@ final class PressBenchStore: ObservableObject {
         do {
             plan = try bridge.dictionary(bridge.process("planResultCommit", [context, run]), context: "result commit plan")
         } catch {
-            quarantineIfPermitInvalid(error)
+            quarantineActiveRun(error)
             throw error
         }
         let committedID = string((plan["batch"] as? [String: Any])?["id"])
@@ -907,11 +916,14 @@ final class PressBenchStore: ObservableObject {
     }
 
     private func transition(event: [String: Any]) {
-        do {
-            guard let run = activeRunDictionary else { throw StoreError.activeRunMissing }
-            let next = try transitionRun(run, event: event)
-            try withStateTransaction { replaceActiveRun(next) }
-        } catch { record(error) }
+        do { try transitionThrowing(event: event) }
+        catch { record(error) }
+    }
+
+    private func transitionThrowing(event: [String: Any]) throws {
+        guard let run = activeRunDictionary else { throw StoreError.activeRunMissing }
+        let next = try transitionRun(run, event: event)
+        try withStateTransaction { replaceActiveRun(next) }
     }
 
     private func transitionRun(_ run: [String: Any], event: [String: Any]) throws -> [String: Any] {
@@ -941,11 +953,13 @@ final class PressBenchStore: ObservableObject {
     }
 
     private func quarantineActiveRun(_ error: Error) {
-        guard let session = state["session"] as? [String: Any] else { return }
+        guard let session = state["session"] as? [String: Any],
+              let run = session["activeRun"] as? [String: Any] else { return }
         state["rejectedSession"] = session
         var safeSession = session
         safeSession["activeRun"] = NSNull()
         state["session"] = safeSession["setupDraft"] is [String: Any] ? safeSession : NSNull()
+        removeOperatorIssues(runID: string(run["id"]))
         do {
             try persistence.save(state)
             persistenceBlocked = true

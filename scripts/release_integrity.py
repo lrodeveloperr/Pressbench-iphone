@@ -36,7 +36,8 @@ require(all(marker in project for marker in ['GoogleMobileAds:', 'exactVersion: 
         'GoogleUserMessagingPlatform:', 'exactVersion: 3.1.0',
         'INFOPLIST_FILE: PressBench/Info.plist']) and
         'ca-app-pub-3940256099942544~1458002511' in info_plist and
-        '<key>GADApplicationIdentifier</key>' in info_plist,
+        '<key>GADApplicationIdentifier</key>' in info_plist and
+        '<key>ITSAppUsesNonExemptEncryption</key>\n    <false/>' in info_plist,
         'pinned Google ad/consent SDK or explicit official demo application id is missing')
 
 approved_logo_hash = '03ee625d3c2c6a1efb8e49b4cc060c5b0c61e6397fc0b39633f66151ac2a6a8b'
@@ -210,6 +211,14 @@ for marker in ['timerPlanReady(run)', 'run.finishRun', 'run.nextItem', 'qcDue(ru
     require(marker in active_run_view, f'impatient-operator run guard missing: {marker}')
 require('requestPermissionIfNeeded' not in active_run_view,
         'notification authorization can interrupt a timed production action')
+require(all(marker in active_run_view for marker in [
+            'guard let activeRun = store.activeRun, activeRun.phase != "completed"',
+            'try store.recordFirstPieceAdjustment', 'try store.stopAfterFirstPiece',
+            'try store.recordQC', 'try store.commitOperatorIssues',
+            'failureMessageKey = store.errorLocalizationKey(error)']) and
+        active_run_view.count('.alert("PressBench", isPresented: $failed)') >= 4 and
+        'guard let total = run.timerTotal, total > 0' in active_run_view,
+        'active-run sheets can dismiss failed writes or timer progress can divide by zero')
 error_event_test=(root/'PressBenchTests/ErrorEventTests.swift').read_text(encoding='utf-8')
 require('@Published private(set) var errorEventID' in store_source and 'errorEventID &+= 1' in store_source and
         '.onChange(of: store.errorEventID)' in active_run_view and
@@ -218,7 +227,8 @@ require('@Published private(set) var errorEventID' in store_source and 'errorEve
 require(all(marker in store_source for marker in ['"rejectedSession"', 'hasRejectedRun', 'quarantineActiveRun',
                                                    'func discardRejectedRun', 'loadedActiveRun', 'migratedActiveRun',
                                                    'safeSession["activeRun"] = NSNull()', 'hasSetupDraft']) and
-        store_source.count('quarantineIfPermitInvalid(error)') >= 3 and
+        store_source.count('quarantineIfPermitInvalid(error)') >= 2 and
+        store_source.count('quarantineActiveRun(error)') >= 2 and
         store_source.count('guard !hasRejectedRun else { throw StoreError.persistenceBlocked }') >= 2 and
         all(marker in settings_view for marker in ['showingRejectedRunDiscardConfirmation',
                                                     'store.hasRejectedRun', 'discardRejectedRun()',
@@ -308,6 +318,11 @@ reports_view=(root/'PressBench/Views/ReportsView.swift').read_text(encoding='utf
 report_exporter=(root/'PressBench/Reports/PressBenchReportExporter.swift').read_text(encoding='utf-8')
 require('Task.detached(priority: .userInitiated)' in reports_view and '@MainActor\nenum PressBenchReportExporter' not in report_exporter,
         'PDF/XLSX generation can still block the main actor')
+require(all(marker in reports_view for marker in [
+            '@State private var exportTask: Task<Void, Never>?', 'exportTask?.cancel()',
+            'withTaskCancellationHandler', 'catch is CancellationError',
+            'try Task.checkCancellation()']),
+        'report generation is not cancelled safely when its view disappears')
 require('format: "CSV"' not in reports_view and 'format: "JSON"' not in reports_view and
         'func csvExport' not in store_source and 'static func json(' not in report_exporter and
         'CSV_SCHEMA_VERSION' not in text and 'function toCsv' not in text,
@@ -317,6 +332,13 @@ require('pressbench.backup.lastSuccessAt' in settings_view and 'pressbench.backu
         'successful Apple backup has no persistent visible confirmation')
 require('object["setups"]' in settings_view,
         'Apple restore preview does not count setups from the backup schema')
+require('store.updateTemperatureUnit(resetTemperatureUnit)' in settings_view,
+        'deleting local data can leave the persisted and displayed temperature units inconsistent')
+choice_field=(root/'PressBench/Views/PBChoiceField.swift').read_text(encoding='utf-8')
+require(all(marker in choice_field for marker in [
+            '@State private var choosingOther = false', '.onChange(of: selection)',
+            'if choosingOther {', 'choosingOther = true']),
+        'choice fields do not distinguish an external clear from an intentional Other selection')
 ui_test=(root/'PressBenchUITests/FirstUseFlowUITests.swift').read_text(encoding='utf-8')
 app_source=(root/'PressBench/App/PressBenchApp.swift').read_text(encoding='utf-8')
 workflow=(root/'.github/workflows/validate-ios.yml').read_text(encoding='utf-8')

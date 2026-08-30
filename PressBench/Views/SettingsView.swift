@@ -263,10 +263,12 @@ struct SettingsView: View {
 
     private func deleteLocalData() {
         do {
+            let resetTemperatureUnit = Locale.current.measurementSystem == .us ? "F" : "C"
             try store.deleteAllLocalData()
+            store.updateTemperatureUnit(resetTemperatureUnit)
             store.selectedTab = 0
             languageRaw = AppLanguage.detected().rawValue
-            temperatureUnitRaw = Locale.current.measurementSystem == .us ? "F" : "C"
+            temperatureUnitRaw = resetTemperatureUnit
             appearanceRaw = PBAppearancePreference.light.rawValue
             notificationsEnabled = false
             hapticsEnabled = true
