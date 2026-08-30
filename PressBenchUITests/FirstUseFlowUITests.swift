@@ -219,10 +219,10 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Start New Run"].waitForExistence(timeout: 8))
         XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)
         XCTAssertFalse(app.staticTexts["Free runs left: 0 of 5"].exists)
-        app.tabBars.buttons["More"].tap()
-        let proSettingsLink = app.staticTexts["Settings"].firstMatch
-        XCTAssertTrue(waitForHittable(proSettingsLink, timeout: 8))
-        proSettingsLink.tap()
+        let proSettingsLink = app.descendants(matching: .any)["pb.more.settings"].firstMatch
+        XCTAssertTrue(openTab("More", until: proSettingsLink, app: app))
+        proSettingsLink.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 20))
         XCTAssertTrue(app.staticTexts["Purchases & Pro Access"].waitForExistence(timeout: 4))
         XCTAssertTrue(app.staticTexts["Manage subscription"].exists)
         capture("14-pro-removes-ads-and-cap")
