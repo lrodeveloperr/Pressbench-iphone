@@ -104,7 +104,7 @@ final class FirstUseFlowUITests: XCTestCase {
         capture("05-chained-setup-editor")
 
         choose("pb.choice.material", option: "100% cotton T-shirt", app: app)
-        choose("pb.choice.transfer", option: "Heat transfer vinyl (HTV)", app: app)
+        choose("pb.choice.transfer", option: "Direct-to-film transfer (DTF)", app: app)
         enter("325", in: app.descendants(matching: .any)["pb.stage.temperature"].firstMatch, app: app)
         enter("1", in: app.descendants(matching: .any)["pb.stage.duration"].firstMatch, app: app)
         choose("pb.choice.pressure", option: "Medium", app: app)
@@ -114,7 +114,7 @@ final class FirstUseFlowUITests: XCTestCase {
         makeHittable(saveSetup, in: app)
         saveSetup.tap()
 
-        let generatedSetupTitle = "100% cotton T-shirt · Heat transfer vinyl (HTV) · 15 × 15 in"
+        let generatedSetupTitle = "100% cotton T-shirt · Direct-to-film transfer (DTF) · 15 × 15 in"
         let startNewRun = app.staticTexts["Start New Run"]
         XCTAssertTrue(startNewRun.waitForExistence(timeout: 8))
         capture("06-ready-to-run")
@@ -250,7 +250,9 @@ final class FirstUseFlowUITests: XCTestCase {
         let choiceCancel = app.buttons.matching(identifier: "\(identifier).cancel").firstMatch
         XCTAssertTrue(choiceCancel.waitForExistence(timeout: 5))
         makeHittable(choice, in: app)
-        choice.tap()
+        let visibleChoice = app.buttons[option].firstMatch
+        XCTAssertTrue(waitForHittable(visibleChoice, timeout: 3))
+        visibleChoice.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         let editorCancel = app.buttons.matching(identifier: "pb.editor.cancel").firstMatch
         XCTAssertTrue(waitForHittable(editorCancel, timeout: 12),
                       "The editor must return after the choice sheet closes")
