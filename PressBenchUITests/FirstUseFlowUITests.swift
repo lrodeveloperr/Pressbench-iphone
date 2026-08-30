@@ -155,7 +155,9 @@ final class FirstUseFlowUITests: XCTestCase {
         correctRecord.tap()
         let reason = app.descendants(matching: .any)
             .matching(identifier: "pb.correction.reason").firstMatch
+        for _ in 0..<8 where !reason.exists { scrollForward(in: app) }
         XCTAssertTrue(reason.waitForExistence(timeout: 5))
+        makeHittable(reason, in: app)
         reason.tap(); reason.typeText("Audit check")
         app.buttons["Cancel"].firstMatch.tap()
         let discardCorrection = app.buttons.matching(identifier: "pb.correction.discard").firstMatch
