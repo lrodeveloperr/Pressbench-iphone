@@ -2,7 +2,7 @@
 
 ## Customer model
 
-- Free: a fixed 320 × 50 Google test banner and five successfully completed press runs.
+- Free: a fixed 320 × 50 Google banner and five successfully completed press runs.
 - PressBench Pro: US$9.99 per month in the US storefront, with unlimited presses, no ads, and PDF/XLSX reports while subscribed.
 - Setups, machines, search, existing records, corrections, and deletion are not artificially capped.
 - A failed, canceled, or unsaved run does not consume a free press. Deleting data does not restore free presses.
@@ -29,10 +29,10 @@ Use this accurate wording in App Review Notes:
 
 This follows [App Review Guideline 3.1.2](https://developer.apple.com/app-store/review/guidelines/#subscriptions): the subscription lasts at least seven days, supplies ongoing value, uses in-app purchase for digital access, clearly explains the benefits and renewal, works across the user’s devices through StoreKit entitlement, and preserves any former lifetime purchase.
 
-## Ad release gate
+## Ad configuration
 
-The current code deliberately uses only Google’s official demo app and banner IDs, disables ad personalization, and requests General-rated creative. Google UMP 3.1.0 is pinned with Google Mobile Ads 13.9.0. At launch, the app requests current consent information, presents any required form, and checks `canRequestAds` before starting Mobile Ads or sending an ad request. More includes privacy choices and a direct Report an ad action.
+The release uses the PressBench production AdMob app and banner IDs, disables ad personalization, and requests General-rated creative. Google UMP 3.1.0 is pinned with Google Mobile Ads 13.9.0. At launch, the app requests current consent information, presents any required form, and checks `canRequestAds` before starting Mobile Ads or sending an ad request. More includes privacy choices and a direct Report an ad action.
 
-Before external TestFlight or App Store distribution, configure Google Privacy & messaging for the final application ID, add Google’s current SKAdNetwork identifiers, and reconcile App Store privacy answers with the SDK’s actual data use. Replacing the demo IDs remains a separate reviewed release task; both IDs and the integrity gate must change together so a mixed test/live configuration cannot ship.
+Google Privacy & messaging for the final application ID, Google’s current SKAdNetwork guidance, the public privacy policy, and App Store privacy answers must remain consistent with the SDK’s actual data use. The release-integrity gate rejects Google demo IDs so a mixed test/production configuration cannot ship.
 
-References: [Google iOS quick start](https://developers.google.com/admob/ios/quick-start), [banner guide and official test ID](https://developers.google.com/admob/ios/banner), [privacy/UMP](https://developers.google.com/admob/ios/privacy), and [ad targeting/content rating](https://developers.google.com/admob/ios/targeting).
+References: [Google iOS quick start](https://developers.google.com/admob/ios/quick-start), [banner guide](https://developers.google.com/admob/ios/banner), [privacy/UMP](https://developers.google.com/admob/ios/privacy), and [ad targeting/content rating](https://developers.google.com/admob/ios/targeting).

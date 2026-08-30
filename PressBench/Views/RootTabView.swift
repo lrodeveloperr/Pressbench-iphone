@@ -26,7 +26,7 @@ struct RootTabView: View {
                         .tabItem { Label(t("tab.more"), systemImage: "ellipsis") }
                         .tag(3)
                 }
-                .pbTestBanner(visible: store.adEligibilityResolved && !store.isPro && store.activeRun == nil)
+                .pbBanner(visible: store.adEligibilityResolved && !store.isPro && store.activeRun == nil)
                 .toolbarBackground(PBTheme.paper, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
                 .tint(PBTheme.primary)

@@ -21,8 +21,8 @@ assert.equal(P.operationalReadiness(settings).ready, true);
 let entitlement = E.normalizeEntitlement({});
 let context = {machines:[], recipes:[], setups:[], batches:[], settings, session:null, entitlement, storageMode:'native'};
 assert.equal(P.ARCHITECTURE_REQUIREMENTS.trackingSdk, false);
-assert.equal(P.ARCHITECTURE_REQUIREMENTS.advertisingSdk, 'google_mobile_ads_test_only');
-assert.equal(P.ARCHITECTURE_REQUIREMENTS.routineNetworkBoundary, 'store_entitlement_and_consent_gated_test_ads');
+assert.equal(P.ARCHITECTURE_REQUIREMENTS.advertisingSdk, 'google_mobile_ads_non_personalized');
+assert.equal(P.ARCHITECTURE_REQUIREMENTS.routineNetworkBoundary, 'store_entitlement_and_consent_gated_ads');
 
 // A fabricated local boolean must never create paid access.
 assert.equal(E.evaluateEntitlement({paidAccess:true, productId:'pressbench_unlimited_monthly_ios'}, now).paidAccess, false);

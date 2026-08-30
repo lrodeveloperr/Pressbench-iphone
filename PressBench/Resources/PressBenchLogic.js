@@ -4316,8 +4316,8 @@
   const PROGRESS_MODES = new Set(["final_confirmation", "live_cycles"]);
   const ARCHITECTURE_REQUIREMENTS = Object.freeze({
     operationalDataLocation: "device_only", publisherOperationalDataAccess: false, accountRequired: false,
-    publisherCloudSync: false, trackingSdk: false, advertisingSdk: "google_mobile_ads_test_only", remotePushToken: false,
-    routineNetworkBoundary: "store_entitlement_and_consent_gated_test_ads", automaticOsBackupForOperationalDatabase: "excluded",
+    publisherCloudSync: false, trackingSdk: false, advertisingSdk: "google_mobile_ads_non_personalized", remotePushToken: false,
+    routineNetworkBoundary: "store_entitlement_and_consent_gated_ads", automaticOsBackupForOperationalDatabase: "excluded",
     nativeStoreVerificationRequired: true, entitlementPortableBackup: false,
     manualJsonBackupEncrypted: false, notificationContent: "generic_no_job_reference",
     equipmentControlOrMeasurement: false

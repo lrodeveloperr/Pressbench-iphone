@@ -10,10 +10,12 @@ def require(condition, message):
 
 logic = root/'PressBench/Resources/PressBenchLogic.js'
 logic_hash = hashlib.sha256(logic.read_bytes()).hexdigest()
-require(logic_hash == '3e2cef1d33b0d10986f838dad29ed71ddeedd064cd4a1c0b40fb8793c157c22c', f'logic hash changed: {logic_hash}')
+require(logic_hash == '6e32a2a6d12d6e74a6a1da2f6046acf4cac51b9022012ce97f2047647b4f8840', f'logic hash changed: {logic_hash}')
 text = logic.read_text(encoding='utf-8')
 require(all(marker in text for marker in ['pressbench_unlimited_monthly_ios', 'pressbench_unlimited_lifetime_ios',
-        'productType: "auto_renewable_subscription"', 'recurring: true', 'baseAmountMinor: 999']),
+        'productType: "auto_renewable_subscription"', 'recurring: true', 'baseAmountMinor: 999',
+        'advertisingSdk: "google_mobile_ads_non_personalized"',
+        'routineNetworkBoundary: "store_entitlement_and_consent_gated_ads"']),
         'monthly iOS subscription or grandfathered lifetime entitlement is missing')
 require('FREE_RECIPE_LIMIT = D.MAX_RECORDS' in text and 'FREE_BATCH_LIMIT = 5' in text and
         'setup_capacity_required' not in text,
@@ -35,10 +37,10 @@ require('CODE_SIGN_ENTITLEMENTS: PressBench/PressBench.entitlements' in project,
 require(all(marker in project for marker in ['GoogleMobileAds:', 'exactVersion: 13.9.0',
         'GoogleUserMessagingPlatform:', 'exactVersion: 3.1.0',
         'INFOPLIST_FILE: PressBench/Info.plist']) and
-        'ca-app-pub-3940256099942544~1458002511' in info_plist and
+        'ca-app-pub-8054612600809568~7417376420' in info_plist and
         '<key>GADApplicationIdentifier</key>' in info_plist and
         '<key>ITSAppUsesNonExemptEncryption</key>\n    <false/>' in info_plist,
-        'pinned Google ad/consent SDK or explicit official demo application id is missing')
+        'pinned Google ad/consent SDK or production application id is missing')
 
 approved_logo_hash = '03ee625d3c2c6a1efb8e49b4cc060c5b0c61e6397fc0b39633f66151ac2a6a8b'
 brand_logo = root/'PressBench/Assets.xcassets/BrandLogo.imageset/BrandLogo.png'
@@ -298,18 +300,26 @@ require('PressBenchStore.production()' in (root/'PressBench/App/PressBenchApp.sw
 require('StoreKit' in (root/'PressBench/Services/PurchaseManager.swift').read_text(), 'StoreKit2 adapter missing')
 purchase_source=(root/'PressBench/Services/PurchaseManager.swift').read_text()
 ad_source=(root/'PressBench/Services/PBAdvertising.swift').read_text()
+info_plist=(root/'PressBench/Info.plist').read_text()
 usage_source=(root/'PressBench/Services/PBUsageMeter.swift').read_text()
 require(all(marker in purchase_source for marker in ['pressbench_unlimited_monthly_ios',
         'pressbench_unlimited_lifetime_ios', '.autoRenewable', 'subscriptionPeriod.unit == .month',
         'transaction.expirationDate']), 'native subscription verification or lifetime grandfathering is incomplete')
-require(all(marker in ad_source for marker in ['ca-app-pub-3940256099942544/2435281174',
+require('ca-app-pub-8054612600809568~7417376420' in info_plist and
+        'ca-app-pub-8054612600809568/2671767469' in ad_source and
+        'ca-app-pub-3940256099942544/2435281174' in ad_source and
+        '#if DEBUG' in ad_source and '#else' in ad_source and '#endif' in ad_source and
+        ad_source.index('ca-app-pub-3940256099942544/2435281174') < ad_source.index('#else') <
+        ad_source.index('ca-app-pub-8054612600809568/2671767469') and
+        'ca-app-pub-3940256099942544' not in info_plist and
+        all(marker in ad_source for marker in [
         'BannerView(adSize: AdSizeBanner)', 'frame(width: 320', 'slotHeight: CGFloat = 50',
         'maxAdContentRating = GADMaxAdContentRating.general',
         'publisherPrivacyPersonalizationState = .disabled',
         'requestConsentInfoUpdate', 'loadAndPresentIfRequired', 'ConsentInformation.shared.canRequestAds']),
-        'fixed official Google demo banner or required UMP consent gate is missing')
-require('pbTestBanner(visible: store.adEligibilityResolved && !store.isPro && store.activeRun == nil)' in root_tabs and root_tabs.count('.pbTestBanner') == 1,
-        'one persistent free-user test banner is not fixed outside the active press flow or does not disappear for Pro')
+        'release AdMob identifiers, debug-only demo protection, or required UMP consent gate is missing')
+require('pbBanner(visible: store.adEligibilityResolved && !store.isPro && store.activeRun == nil)' in root_tabs and root_tabs.count('.pbBanner') == 1,
+        'one persistent free-user banner is not fixed outside the active press flow or does not disappear for Pro')
 require(all(marker in usage_source for marker in ['freePressLimit = 5', 'completedPresses',
         'lastCreditedBatchID', 'creditedBatchIDs', 'canStartFreePress']) and
         all(marker in store_source for marker in ['usageMeter.canStartFreePress', 'recordCompletedPress',
@@ -416,6 +426,10 @@ require(settings_view.index('planSection') < settings_view.index('backupSection'
             'PreferencesSettingsView', 'settings.legalSupport', 'common.maintenance']) and
         'ReportsView()' not in settings_view,
         'Settings no longer enforces the reviewed plan, backup, preferences, legal, maintenance hierarchy')
+require('Text(t("common.unlockPro"))' in settings_view and
+        'frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .center)' in settings_view and
+        'Label(t("common.unlockPro"), systemImage:' not in settings_view,
+        'Unlock Pro CTA must remain icon-free with centered text')
 require(all(marker in more_view for marker in ['ReportsView()', 'MachinesView()', 'SettingsView()', 'pb.more.settings']) and
         all(marker not in more_view for marker in [
             'ProUpgradeView', 'SignInWithAppleButton', 'PressBenchPolicyLinks',
@@ -430,7 +444,7 @@ require('privacyOptionsRequirementStatus == .required' in advertising and
 require('BannerViewDelegate' in advertising and 'didFailToReceiveAdWithError' in advertising and
         'bannerLoadResolved && !bannerLoaded ? 0' in advertising,
         'failed banner loads must collapse instead of leaving a blank fixed strip')
-banner_modifier = advertising.split('private struct PBTestBannerModifier', 1)[-1].split('extension View', 1)[0]
+banner_modifier = advertising.split('private struct PBBannerModifier', 1)[-1].split('extension View', 1)[0]
 require('VStack(spacing: 0)' in banner_modifier and
         'content\n            if visible {' in banner_modifier and
         'PBTheme.paper.ignoresSafeArea(edges: .bottom)' in banner_modifier and

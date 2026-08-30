@@ -6,10 +6,12 @@ import UserMessagingPlatform
 enum PBAdConfiguration {
     static let slotHeight: CGFloat = 50
 
-    // Google's official iOS demo unit. Live ad IDs are intentionally rejected
-    // until production consent, privacy-label, and reporting work is complete.
-    static let testBannerUnitID = "ca-app-pub-3940256099942544/2435281174"
-    static let testApplicationID = "ca-app-pub-3940256099942544~1458002511"
+    #if DEBUG
+    // Google's official demo banner prevents invalid production traffic during local development.
+    static let bannerUnitID = "ca-app-pub-3940256099942544/2435281174"
+    #else
+    static let bannerUnitID = "ca-app-pub-8054612600809568/2671767469"
+    #endif
 }
 
 @MainActor
@@ -70,7 +72,7 @@ enum PBAdvertising {
     }
 }
 
-struct PBTestBannerSlot: View {
+struct PBBannerSlot: View {
     @State private var canRequestAds = false
     @State private var consentResolved = false
     @State private var bannerLoadResolved = false
@@ -92,7 +94,7 @@ struct PBTestBannerSlot: View {
                     .accessibilityElement()
                     .accessibilityLabel(PBL10n.text("ads.bannerLabel", language: language, locale: locale))
             } else if canRequestAds {
-                PBTestBannerView { loaded in
+                PBBannerView { loaded in
                     bannerLoaded = loaded
                     bannerLoadResolved = true
                 }
@@ -130,14 +132,14 @@ struct PBTestBannerSlot: View {
     }
 }
 
-private struct PBTestBannerView: UIViewRepresentable {
+private struct PBBannerView: UIViewRepresentable {
     let onLoadStateChange: (Bool) -> Void
 
     func makeCoordinator() -> Coordinator { Coordinator(onLoadStateChange: onLoadStateChange) }
 
     func makeUIView(context: Context) -> BannerView {
         let banner = BannerView(adSize: AdSizeBanner)
-        banner.adUnitID = PBAdConfiguration.testBannerUnitID
+        banner.adUnitID = PBAdConfiguration.bannerUnitID
         banner.rootViewController = Self.activeRootViewController()
         banner.delegate = context.coordinator
         banner.load(Request())
@@ -174,14 +176,14 @@ private struct PBTestBannerView: UIViewRepresentable {
     }
 }
 
-private struct PBTestBannerModifier: ViewModifier {
+private struct PBBannerModifier: ViewModifier {
     let visible: Bool
 
     func body(content: Content) -> some View {
         VStack(spacing: 0) {
             content
             if visible {
-                PBTestBannerSlot()
+                PBBannerSlot()
                     .background(PBTheme.paper)
             }
         }
@@ -190,7 +192,7 @@ private struct PBTestBannerModifier: ViewModifier {
 }
 
 extension View {
-    func pbTestBanner(visible: Bool) -> some View {
-        modifier(PBTestBannerModifier(visible: visible))
+    func pbBanner(visible: Bool) -> some View {
+        modifier(PBBannerModifier(visible: visible))
     }
 }

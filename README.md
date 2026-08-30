@@ -32,6 +32,6 @@ The reviewed production source uses the GoodUse Studios Ocean Pearl system: adap
 
 The TestFlight workflow requires the literal confirmation `UPLOAD TESTFLIGHT` and fails closed before upload on any error.
 
-The current iOS monetization test profile is a fixed Google demo banner plus five completed free press runs. The US subscription target is $9.99/month for unlimited presses, no ads, and PDF/XLSX reports. See `MONETIZATION.md` for the StoreKit product, App Review wording, lifetime-purchase migration, and the production-ad privacy gate.
+The iOS monetization profile is a fixed Google banner plus five completed free press runs. Ad personalization is disabled and UMP resolves any required consent before the app requests an ad. The US subscription target is $9.99/month for unlimited presses, no ads, and PDF/XLSX reports. See `MONETIZATION.md` for the StoreKit product, App Review wording, lifetime-purchase migration, and ad-privacy controls.
 
 See `TESTFLIGHT_SETUP.md` for the one-time Apple secret setup.
