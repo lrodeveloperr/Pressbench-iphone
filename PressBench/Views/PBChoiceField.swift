@@ -57,6 +57,7 @@ struct PBChoiceField: View {
                 selection: selection,
                 choices: choices,
                 identifier: identifier,
+                isPresented: $showingChoices,
                 otherTitle: otherTitle,
                 cancelTitle: cancelTitle,
                 choose: { value in
@@ -77,18 +78,18 @@ private struct PBChoicePickerSheet: View {
     let selection: String
     let choices: [String]
     let identifier: String
+    @Binding var isPresented: Bool
     let otherTitle: String
     let cancelTitle: String
     let choose: (String) -> Void
     let chooseOther: () -> Void
-    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
             List {
                 ForEach(choices, id: \.self) { value in
                     Button {
-                        dismiss()
+                        isPresented = false
                         choose(value)
                     } label: {
                         HStack {
@@ -103,7 +104,7 @@ private struct PBChoicePickerSheet: View {
                     .buttonStyle(.plain)
                 }
                 Button {
-                    dismiss()
+                    isPresented = false
                     chooseOther()
                 } label: {
                     HStack {
@@ -123,7 +124,7 @@ private struct PBChoicePickerSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(cancelTitle) { dismiss() }
+                    Button(cancelTitle) { isPresented = false }
                         .accessibilityIdentifier("\(identifier).cancel")
                 }
             }
