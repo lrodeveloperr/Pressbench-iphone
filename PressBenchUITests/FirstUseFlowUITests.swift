@@ -4,7 +4,10 @@ final class FirstUseFlowUITests: XCTestCase {
     func testFaceIDFirstViewportLayout() {
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.launchArguments += ["--pressbench-ui-test-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launchArguments += [
+            "--pressbench-ui-test-reset", "--pressbench-marketing-capture",
+            "-AppleLanguages", "(en)", "-AppleLocale", "en_US"
+        ]
         app.launch()
 
         XCTAssertTrue(app.staticTexts["Welcome to PressBench"].waitForExistence(timeout: 8))
@@ -38,7 +41,10 @@ final class FirstUseFlowUITests: XCTestCase {
     func testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup() {
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.launchArguments += ["--pressbench-ui-test-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launchArguments += [
+            "--pressbench-ui-test-reset", "--pressbench-marketing-capture",
+            "-AppleLanguages", "(en)", "-AppleLocale", "en_US"
+        ]
         app.launch()
 
         XCTAssertTrue(app.staticTexts["Welcome to PressBench"].waitForExistence(timeout: 8))
@@ -107,7 +113,7 @@ final class FirstUseFlowUITests: XCTestCase {
         choose("pb.choice.material", option: "100% cotton T-shirt", app: app)
         choose("pb.choice.transfer", option: "Heat transfer vinyl (HTV)", app: app)
         enter("325", in: app.descendants(matching: .any)["pb.stage.temperature"].firstMatch, app: app)
-        enter("1", in: app.descendants(matching: .any)["pb.stage.duration"].firstMatch, app: app)
+        enter("15", in: app.descendants(matching: .any)["pb.stage.duration"].firstMatch, app: app)
         choose("pb.choice.pressure", option: "Medium", app: app)
         choose("pb.choice.source", option: "Supplier instructions", app: app)
         enter("S-1", in: app.descendants(matching: .any)["pb.setup.sourceReference"].firstMatch, app: app)
@@ -127,6 +133,14 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(exactRepeat.waitForExistence(timeout: 5))
         exactRepeat.tap()
         app.buttons["Continue"].tap()
+        let productionMode = app.buttons["Production run"].firstMatch
+        XCTAssertTrue(productionMode.waitForExistence(timeout: 5))
+        productionMode.tap()
+        replace("24", in: app.descendants(matching: .any)["pb.run.quantity"].firstMatch, app: app)
+        enter("STAFF-TEE-024", in: app.descendants(matching: .any)["pb.run.jobReference"].firstMatch, app: app)
+        let unprovenConfirmation = app.descendants(matching: .any)["pb.run.confirmUnproven"].firstMatch
+        XCTAssertTrue(unprovenConfirmation.waitForExistence(timeout: 5))
+        unprovenConfirmation.tap()
         let startRun = app.buttons.matching(identifier: "Start Run").firstMatch
         XCTAssertTrue(startRun.waitForExistence(timeout: 5))
         startRun.tap()
@@ -139,19 +153,25 @@ final class FirstUseFlowUITests: XCTestCase {
         let startTimer = app.buttons["Start timer"]
         XCTAssertTrue(startTimer.waitForExistence(timeout: 5))
         startTimer.tap()
+        capture("08-active-timer")
         let firstPiecePassed = app.buttons["First piece passed"]
         expectation(for: NSPredicate(format: "exists == true AND enabled == true"), evaluatedWith: firstPiecePassed)
-        waitForExpectations(timeout: 8)
+        waitForExpectations(timeout: 20)
         firstPiecePassed.tap()
+
+        enter("23", in: app.descendants(matching: .any)["pb.run.cycleQuantity"].firstMatch, app: app)
+        let countItems = app.descendants(matching: .any)["pb.run.countItems"].firstMatch
+        XCTAssertTrue(waitForHittable(countItems, timeout: 5))
+        countItems.tap()
 
         let recordResult = app.buttons["Record result"]
         XCTAssertTrue(recordResult.waitForExistence(timeout: 5))
-        capture("08-clean-result")
+        capture("09-clean-result")
         recordResult.tap()
         let correctRecord = app.buttons["Correct record"]
         XCTAssertTrue(correctRecord.waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["1. Press"].exists)
-        capture("09-completed-history")
+        capture("10-completed-history")
 
         correctRecord.tap()
         let reason = app.descendants(matching: .any)
@@ -241,6 +261,18 @@ final class FirstUseFlowUITests: XCTestCase {
         let dismissKeyboard = app.buttons.matching(identifier: "pb.keyboard.dismiss").firstMatch
         XCTAssertTrue(dismissKeyboard.waitForExistence(timeout: 2))
         XCTAssertTrue(dismissKeyboard.isHittable)
+        dismissKeyboard.tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 2))
+    }
+
+    private func replace(_ value: String, in field: XCUIElement, app: XCUIApplication) {
+        XCTAssertTrue(field.waitForExistence(timeout: 4))
+        makeHittable(field, in: app)
+        field.tap()
+        field.typeText(XCUIKeyboardKey.delete.rawValue)
+        field.typeText(value)
+        let dismissKeyboard = app.buttons.matching(identifier: "pb.keyboard.dismiss").firstMatch
+        XCTAssertTrue(dismissKeyboard.waitForExistence(timeout: 2))
         dismissKeyboard.tap()
         XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 2))
     }

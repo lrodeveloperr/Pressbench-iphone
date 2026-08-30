@@ -26,6 +26,14 @@ enum PBAdvertising {
         #endif
     }
 
+    static var isMarketingCapture: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.arguments.contains("--pressbench-marketing-capture")
+        #else
+        false
+        #endif
+    }
+
     static var privacyOptionsRequired: Bool {
         ConsentInformation.shared.privacyOptionsRequirementStatus == .required
     }
@@ -181,8 +189,10 @@ private struct PBTestBannerModifier: ViewModifier {
         VStack(spacing: 0) {
             content
             if visible {
-                PBTestBannerSlot()
-                    .background(PBTheme.paper)
+                if !PBAdvertising.isMarketingCapture {
+                    PBTestBannerSlot()
+                        .background(PBTheme.paper)
+                }
             }
         }
         .background(PBTheme.paper.ignoresSafeArea(edges: .bottom))

@@ -829,6 +829,7 @@ struct RunConfigurationView: View {
                                 Text(t("run.mode.test")).tag("test")
                                 Text(t("run.mode.production")).tag("production")
                             }
+                            .accessibilityIdentifier("pb.run.mode")
                             .pickerStyle(.segmented)
                             .frame(minHeight: PBTheme.minimumTarget)
                             Text(t(draft.runMode == "test" ? "run.mode.test.help" : "run.mode.production.help"))
@@ -838,12 +839,14 @@ struct RunConfigurationView: View {
                                     .keyboardType(.numberPad)
                                     .multilineTextAlignment(.trailing)
                                     .disabled(draft.runMode == "test")
+                                    .accessibilityIdentifier("pb.run.quantity")
                             }
                             if draft.runMode == "test" { Text(t("run.testQuantityHelp")).font(.caption).foregroundStyle(PBTheme.secondary) }
                             Divider()
                             LabeledContent(t("run.jobReference")) {
                                 TextField(t("run.jobReference"), text: $draft.jobReference)
                                     .multilineTextAlignment(.trailing)
+                                    .accessibilityIdentifier("pb.run.jobReference")
                             }
                             Divider()
                             Picker(t("run.progressTracking"), selection: $draft.progressMode) {
@@ -859,6 +862,7 @@ struct RunConfigurationView: View {
                                         .font(.subheadline.weight(.semibold))
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
+                                .accessibilityIdentifier("pb.run.confirmUnproven")
                                 .tint(PBTheme.warningInk)
                             }
                         }
