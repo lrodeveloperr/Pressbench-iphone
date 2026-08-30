@@ -4,10 +4,15 @@ on:
   pull_request:
     paths:
       - .app-store/screenshots/**
+      - .app-store/fastlane/**
       - .github/workflows/upload-app-store-listing.yml
 
 permissions:
   contents: read
+
+concurrency:
+  group: pressbench-app-store-screenshot-upload
+  cancel-in-progress: true
 
 jobs:
   upload:
@@ -29,8 +34,8 @@ jobs:
             output="$screenshot_dir/$(basename "$source" .b64)"
             base64 -D -i "$source" -o "$output"
             dimensions="$(sips -g pixelWidth -g pixelHeight "$output")"
-            grep -Fq 'pixelWidth: 1320' <<< "$dimensions"
-            grep -Fq 'pixelHeight: 2868' <<< "$dimensions"
+            grep -Fq 'pixelWidth: 1284' <<< "$dimensions"
+            grep -Fq 'pixelHeight: 2778' <<< "$dimensions"
           done
           [[ "$(find "$screenshot_dir" -type f -name '*.jpg' | wc -l | tr -d ' ')" == 3 ]]
           echo "PB_SCREENSHOT_DIR=$RUNNER_TEMP/screenshots" >> "$GITHUB_ENV"
@@ -70,16 +75,5 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          fastlane deliver \
-            --api_key_path "$PB_ASC_KEY_JSON" \
-            --app_identifier com.goodusestudios.pressbench \
-            --platform ios \
-            --app_version 1.0 \
-            --screenshots_path "$PB_SCREENSHOT_DIR" \
-            --skip_binary_upload true \
-            --skip_metadata true \
-            --skip_app_version_update true \
-            --overwrite_screenshots true \
-            --run_precheck_before_submit false \
-            --submit_for_review false \
-            --force true
+          cd .app-store
+          fastlane ios upload_pressbench_screenshots
