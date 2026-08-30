@@ -1,0 +1,99 @@
+name: Capture PressBench App Store Screenshots
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: macos-26
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -d /Applications/Xcode_26.6.app ]]; then
+            sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
+          fi
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v xcodegen >/dev/null || brew install xcodegen
+
+      - name: Generate Xcode project
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodegen generate
+
+      - name: Create latest iPhone simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          simulator_tuple="$(python3 - <<'PY'
+          import json, subprocess
+
+          runtimes = json.loads(subprocess.check_output(
+              ["xcrun", "simctl", "list", "runtimes", "available", "-j"], text=True
+          ))["runtimes"]
+          runtime = sorted(
+              (item for item in runtimes if item.get("isAvailable") and item.get("name", "").startswith("iOS")),
+              key=lambda item: tuple(int(part) for part in item["version"].split(".")),
+          )[-1]
+          types = json.loads(subprocess.check_output(
+              ["xcrun", "simctl", "list", "devicetypes", "-j"], text=True
+          ))["devicetypes"]
+          by_name = {item["name"]: item["identifier"] for item in types}
+          device = next((by_name.get(name) for name in (
+              "iPhone 17 Pro Max", "iPhone 17 Pro", "iPhone 16 Pro Max"
+          ) if by_name.get(name)), None)
+          if not device:
+              raise SystemExit("A supported latest-generation iPhone simulator is unavailable")
+          print("\t".join((runtime["identifier"], device)))
+          PY
+          )"
+          IFS=$'\t' read -r runtime_id device_type <<< "$simulator_tuple"
+          udid="$(xcrun simctl create 'PressBench App Store Capture' "$device_type" "$runtime_id")"
+          echo "PB_CAPTURE_UDID=$udid" >> "$GITHUB_ENV"
+
+      - name: Capture native run states
+        shell: bash
+        run: |
+          set -euo pipefail
+          result_bundle="$GITHUB_WORKSPACE/build/PressBenchAppStoreCapture.xcresult"
+          rm -rf "$result_bundle"
+          mkdir -p "$GITHUB_WORKSPACE/build/app-store-captures"
+          xcrun simctl boot "$PB_CAPTURE_UDID"
+          xcrun simctl bootstatus "$PB_CAPTURE_UDID" -b
+          xcodebuild \
+            -project PressBench.xcodeproj \
+            -scheme PressBench \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,id=$PB_CAPTURE_UDID" \
+            -resultBundlePath "$result_bundle" \
+            CODE_SIGNING_ALLOWED=NO \
+            -only-testing:PressBenchUITests/FirstUseFlowUITests/testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup \
+            test
+          xcrun xcresulttool export attachments \
+            --path "$result_bundle" \
+            --output-path "$GITHUB_WORKSPACE/build/app-store-captures"
+
+      - name: Upload App Store captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pressbench-app-store-captures
+          path: build/app-store-captures/**/*.png
+          if-no-files-found: error
+          retention-days: 14
