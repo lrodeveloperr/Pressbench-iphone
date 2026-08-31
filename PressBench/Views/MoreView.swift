@@ -30,11 +30,13 @@ struct MoreView: View {
                     }
                 }
 
-                PBCard {
-                    NavigationLink { SettingsView() } label: { menuRow("common.settings", icon: "gearshape") }
-                        .buttonStyle(.plain)
-                        .accessibilityIdentifier("pb.more.settings")
+                NavigationLink { SettingsView() } label: {
+                    PBCard {
+                        menuRow("common.settings", icon: "gearshape")
+                    }
                 }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("pb.more.settings")
             }
             .padding(.horizontal, PBTheme.pagePadding).padding(.bottom, 24)
         }
