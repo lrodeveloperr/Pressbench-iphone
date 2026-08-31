@@ -75,7 +75,7 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(waitForHittable(moreTab, timeout: 8))
         let settingsLink = app.descendants(matching: .any)["pb.more.settings"].firstMatch
         XCTAssertTrue(openTab("More", until: settingsLink, app: app))
-        settingsLink.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        settingsLink.tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 20))
         let plan = app.descendants(matching: .any)["pb.settings.plan"]
         XCTAssertTrue(plan.waitForExistence(timeout: 4))
