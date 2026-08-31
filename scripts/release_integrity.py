@@ -392,10 +392,15 @@ require('simctl bootstatus' in workflow,
 require(all(marker in workflow for marker in [
             'iPhone SE (3rd generation)', 'PB_SE_UDID', 'PB_FACE_UDID',
             'PressBenchSETests.xcresult', 'PressBenchFaceIDTests.xcresult',
+            "RUN_IPHONE_SE: ${{ github.event_name == 'workflow_dispatch' }}",
+            '- name: Dedicated UI test — iPhone SE',
+            '-only-testing:PressBenchUITests/FirstUseFlowUITests/testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup',
+            '- name: Unit tests — Face ID iPhone',
+            '-only-testing:PressBenchTests',
             '-only-testing:PressBenchUITests/FirstUseFlowUITests/testFaceIDFirstViewportLayout',
-            '- name: UI tests — Face ID iPhone\n        if: ${{ always() && !cancelled() }}']) and
+            "- name: UI tests — Face ID iPhone\n        if: ${{ env.RUN_IPHONE_SE != 'true' }}"]) and
         workflow.count('xcrun simctl bootstatus') == 2,
-        'native layout audit does not run and retain screenshots on both iPhone SE and Face ID devices')
+        'native validation does not keep fast core checks separate from the manual iPhone SE release gate')
 require('requestPermissionIfNeeded' not in onboarding_view and
         'private var notificationsEnabled = false' in settings_view and
         'private var notificationsEnabled = false' in active_run_view,
