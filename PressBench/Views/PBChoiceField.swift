@@ -103,8 +103,8 @@ private struct PBChoicePickerSheet: View {
             List {
                 ForEach(choices, id: \.self) { value in
                     Button {
-                        isPresented = false
                         choose(value)
+                        isPresented = false
                     } label: {
                         HStack {
                             Text(value).foregroundStyle(PBTheme.text)
@@ -118,8 +118,8 @@ private struct PBChoicePickerSheet: View {
                     .buttonStyle(.plain)
                 }
                 Button {
-                    isPresented = false
                     chooseOther()
+                    isPresented = false
                 } label: {
                     HStack {
                         Text(otherTitle).foregroundStyle(PBTheme.text)
