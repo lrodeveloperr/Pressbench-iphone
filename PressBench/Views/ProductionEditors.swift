@@ -621,21 +621,38 @@ struct StartRunSheet: View {
 
     var body: some View {
         NavigationStack {
-            List(availableSetups) { setup in
-                Button {
-                    dismissAfterDifference = false
-                    selectedSetup = setup
-                } label: {
-                    SetupRow(setup: setup, compact: true)
+            ZStack {
+                PBPageBackground()
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        ForEach(availableSetups) { setup in
+                            Button {
+                                dismissAfterDifference = false
+                                selectedSetup = setup
+                            } label: {
+                                SetupRow(setup: setup, compact: true)
+                                    .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        PBTheme.paper,
+                                        in: RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous)
+                                    )
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous)
+                                            .stroke(PBTheme.line, lineWidth: 1)
+                                    }
+                                    .contentShape(Rectangle())
+                            }
+                            .accessibilityLabel(setup.title)
+                            .accessibilityIdentifier("pb.startRun.setup")
+                            .buttonStyle(PBTactileButtonStyle())
+                        }
+                    }
+                    .padding(.horizontal, PBTheme.pagePadding)
+                    .padding(.vertical, 12)
                 }
-                .accessibilityLabel(setup.title)
-                .accessibilityIdentifier("pb.startRun.setup")
-                .buttonStyle(.plain)
             }
-            .environment(\.defaultMinListRowHeight, 64)
-            .scrollContentBackground(.hidden)
-            .background(PBTheme.canvasGradient)
-            .tint(PBTheme.primary)
             .searchable(text: $search, prompt: t("setups.search"))
             .overlay {
                 if availableSetups.isEmpty {
