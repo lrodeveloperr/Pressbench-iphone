@@ -6,8 +6,7 @@ struct HomeView: View {
     @Environment(\.locale) private var locale
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var showingMachineEditor = false
-    @State private var showingStarter = false
-    @State private var selectedStartSetup: Setup?
+    @State private var startRoute: HomeStartRoute?
     @State private var showingUpgrade = false
     @State private var showingSetupEditor = false
     @State private var continueToSetup = false
@@ -38,9 +37,13 @@ struct HomeView: View {
             MachineEditorView { _ in continueToSetup = true }.environmentObject(store)
         }
         .sheet(isPresented: $showingSetupEditor) { SetupEditorView(draft: store.setupDraft(for: nil)).environmentObject(store) }
-        .sheet(isPresented: $showingStarter) { StartRunSheet().environmentObject(store) }
-        .sheet(item: $selectedStartSetup) { setup in
-            JobDifferenceSheet(setup: setup).environmentObject(store)
+        .sheet(item: $startRoute) { route in
+            switch route {
+            case .setup(let setup):
+                JobDifferenceSheet(setup: setup).environmentObject(store)
+            case .picker:
+                StartRunSheet().environmentObject(store)
+            }
         }
         .sheet(isPresented: $showingUpgrade, onDismiss: {
             guard resumeStartAfterUpgrade else { return }
@@ -59,9 +62,9 @@ struct HomeView: View {
 
     private func beginRunSelection() {
         if runnableSetups.count == 1 {
-            selectedStartSetup = runnableSetups[0]
+            startRoute = .setup(runnableSetups[0])
         } else {
-            showingStarter = true
+            startRoute = .picker
         }
     }
 
@@ -172,6 +175,18 @@ struct HomeView: View {
         .navigationDestination(for: Setup.self) { SetupDetailView(setup: $0) }
     }
 
+}
+
+private enum HomeStartRoute: Identifiable {
+    case setup(Setup)
+    case picker
+
+    var id: String {
+        switch self {
+        case .setup(let setup): return "setup-\(setup.id)"
+        case .picker: return "picker"
+        }
+    }
 }
 
 private struct MetricTile: View {

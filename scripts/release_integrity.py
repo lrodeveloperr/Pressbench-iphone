@@ -281,8 +281,14 @@ require('run.deleteRecordConfirm' in runs_view,
         'completed-record deletion lacks an identified irreversible warning')
 require('missingRequiredFields' in editors and 'ForEach(missingRequiredFields' in editors,
         'setup validation no longer identifies the required fields that are incomplete')
-require('showingStarter = true' in home_view and 'StartRunSheet().environmentObject(store)' in home_view,
-        'Home start-run affordance no longer launches the run workflow directly')
+require('@State private var startRoute: HomeStartRoute?' in home_view and
+        '.sheet(item: $startRoute)' in home_view and
+        'startRoute = .setup(runnableSetups[0])' in home_view and
+        'JobDifferenceSheet(setup: setup).environmentObject(store)' in home_view and
+        'startRoute = .picker' in home_view and
+        'StartRunSheet().environmentObject(store)' in home_view and
+        'showingStarter' not in home_view and 'directStartSetup' not in home_view,
+        'Home start-run routing is no longer atomic or bypasses the direct single-setup workflow')
 machines_view=(root/'PressBench/Views/MachinesView.swift').read_text(encoding='utf-8')
 require('machineIcon(machine)' in machines_view and 'facts.contains("mug")' in machines_view and
         'facts.contains("hat")' in machines_view and 'facts.contains("auto")' in machines_view,
@@ -393,8 +399,10 @@ require(all(marker in workflow for marker in [
             'iPhone SE (3rd generation)', 'PB_SE_UDID', 'PB_FACE_UDID',
             'PressBenchSETests.xcresult', 'PressBenchFaceIDTests.xcresult',
             '-only-testing:PressBenchUITests/FirstUseFlowUITests/testFaceIDFirstViewportLayout',
-            '- name: UI tests — Face ID iPhone\n        if: ${{ always() && !cancelled() }}']) and
-        workflow.count('xcrun simctl bootstatus') == 2,
+            '- name: UI tests — Face ID iPhone\n        if: ${{ always() && !cancelled() && env.PB_FOCUSED_SE != \'true\' }}',
+            'Focused single-setup start — iPhone SE ×3',
+            '-only-testing:PressBenchUITests/FirstUseFlowUITests/testSingleRunnableSetupStartsDirectlyOnIPhoneSE']) and
+        workflow.count('xcrun simctl bootstatus') >= 2,
         'native layout audit does not run and retain screenshots on both iPhone SE and Face ID devices')
 require('requestPermissionIfNeeded' not in onboarding_view and
         'private var notificationsEnabled = false' in settings_view and

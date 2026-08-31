@@ -1,6 +1,42 @@
 import XCTest
 
 final class FirstUseFlowUITests: XCTestCase {
+    func testSingleRunnableSetupStartsDirectlyOnIPhoneSE() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "--pressbench-ui-test-reset",
+            "--pressbench-ui-test-single-setup",
+            "-AppleLanguages", "(en)",
+            "-AppleLocale", "en_US"
+        ]
+        app.launch()
+
+        let startNewRun = app.buttons.matching(identifier: "pb.home.startRun").firstMatch
+        XCTAssertTrue(waitForInteractable(startNewRun, timeout: 8))
+        startNewRun.tap()
+
+        let exactRepeat = app.buttons.matching(identifier: "pb.jobDifference.exact_repeat").firstMatch
+        XCTAssertTrue(waitForInteractable(exactRepeat, timeout: 8))
+        XCTAssertFalse(app.buttons.matching(identifier: "pb.startRun.setup").firstMatch.exists,
+                       "One runnable setup must not add a redundant selection step")
+        exactRepeat.tap()
+
+        let continueRun = app.buttons["Continue"].firstMatch
+        makeHittable(continueRun, in: app)
+        XCTAssertTrue(waitForInteractable(continueRun, timeout: 5))
+        continueRun.tap()
+
+        let startRun = app.buttons["Start Run"].firstMatch
+        makeHittable(startRun, in: app)
+        XCTAssertTrue(waitForInteractable(startRun, timeout: 5))
+        startRun.tap()
+
+        let confirmInstructions = app.buttons["Confirm instructions"].firstMatch
+        XCTAssertTrue(waitForInteractable(confirmInstructions, timeout: 8))
+        capture("focused-se-single-setup-preflight")
+    }
+
     func testFaceIDFirstViewportLayout() {
         continueAfterFailure = false
         let app = XCUIApplication()
@@ -118,16 +154,18 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(waitForInteractable(startNewRun, timeout: 8))
         capture("06-ready-to-run")
         startNewRun.tap()
-        let exactRepeat = app.staticTexts["Exact repeat"]
-        XCTAssertTrue(waitForHittable(exactRepeat, timeout: 8),
+        let exactRepeat = app.buttons.matching(identifier: "pb.jobDifference.exact_repeat").firstMatch
+        XCTAssertTrue(waitForInteractable(exactRepeat, timeout: 8),
                       "A single runnable setup must bypass redundant setup selection")
         XCTAssertFalse(app.buttons.matching(identifier: "pb.startRun.setup").firstMatch.exists)
         capture("06a-single-setup-direct-start")
         exactRepeat.tap()
         let continueRun = app.buttons["Continue"].firstMatch
+        makeHittable(continueRun, in: app)
         XCTAssertTrue(waitForInteractable(continueRun, timeout: 5))
         continueRun.tap()
         let startRun = app.buttons.matching(identifier: "Start Run").firstMatch
+        makeHittable(startRun, in: app)
         XCTAssertTrue(waitForInteractable(startRun, timeout: 5))
         startRun.tap()
 
@@ -268,11 +306,15 @@ final class FirstUseFlowUITests: XCTestCase {
 
     private func choose(_ identifier: String, option: String, app: XCUIApplication) {
         let field = app.buttons.matching(identifier: identifier).firstMatch
-        makeHittable(field, in: app)
-        field.tap()
         let choice = app.buttons[option].firstMatch
         let choiceCancel = app.buttons.matching(identifier: "\(identifier).cancel").firstMatch
-        XCTAssertTrue(choiceCancel.waitForExistence(timeout: 5))
+        var presented = false
+        for _ in 0..<3 where !presented {
+            makeHittable(field, in: app)
+            field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            presented = choiceCancel.waitForExistence(timeout: 5) || choice.waitForExistence(timeout: 1)
+        }
+        XCTAssertTrue(presented, "The \(identifier) choice sheet must appear after a settled field tap")
         makeHittable(choice, in: app)
         choice.tap()
         let editorCancel = app.buttons.matching(identifier: "pb.editor.cancel").firstMatch

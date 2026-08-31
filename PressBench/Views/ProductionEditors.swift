@@ -711,6 +711,7 @@ struct JobDifferenceSheet: View {
                             title: t(reuseClass.localizationKey),
                             subtitle: t("run.reuse.\(reuseClass.rawValue).help"),
                             icon: reuseClass.systemImage,
+                            identifier: "pb.jobDifference.\(reuseClass.rawValue)",
                             selected: selectedReuseClass == reuseClass
                         ) {
                             selectedReuseClass = reuseClass
@@ -1061,6 +1062,7 @@ private struct JobDifferenceOption: View {
     let title: String
     let subtitle: String
     let icon: String
+    let identifier: String
     let selected: Bool
     let action: () -> Void
 
@@ -1090,6 +1092,7 @@ private struct JobDifferenceOption: View {
             .shadow(color: PBTheme.cardShadow, radius: 8, x: 0, y: 4)
         }
         .buttonStyle(PBTactileButtonStyle())
+        .accessibilityIdentifier(identifier)
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }
