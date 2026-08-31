@@ -114,40 +114,45 @@ final class FirstUseFlowUITests: XCTestCase {
         saveSetup.tap()
 
         let generatedSetupTitle = "100% cotton T-shirt · Heat transfer vinyl (HTV) · 15 × 15 in"
-        let startNewRun = app.staticTexts["Start New Run"]
-        XCTAssertTrue(startNewRun.waitForExistence(timeout: 8))
+        let startNewRun = app.buttons.matching(identifier: "pb.home.startRun").firstMatch
+        XCTAssertTrue(waitForInteractable(startNewRun, timeout: 8))
         capture("06-ready-to-run")
         startNewRun.tap()
         let setupRow = app.staticTexts[generatedSetupTitle].firstMatch
         XCTAssertTrue(waitForHittable(setupRow, timeout: 5))
         setupRow.tap()
         let exactRepeat = app.staticTexts["Exact repeat"]
-        XCTAssertTrue(exactRepeat.waitForExistence(timeout: 5))
+        XCTAssertTrue(waitForHittable(exactRepeat, timeout: 5))
         exactRepeat.tap()
-        app.buttons["Continue"].tap()
+        let continueRun = app.buttons["Continue"].firstMatch
+        XCTAssertTrue(waitForInteractable(continueRun, timeout: 5))
+        continueRun.tap()
         let startRun = app.buttons.matching(identifier: "Start Run").firstMatch
-        XCTAssertTrue(startRun.waitForExistence(timeout: 5))
+        XCTAssertTrue(waitForInteractable(startRun, timeout: 5))
         startRun.tap()
 
         let confirmInstructions = app.buttons["Confirm instructions"]
-        XCTAssertTrue(confirmInstructions.waitForExistence(timeout: 8))
+        XCTAssertTrue(waitForInteractable(confirmInstructions, timeout: 8))
         XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)
         capture("07-run-preflight")
         confirmInstructions.tap()
         let startTimer = app.buttons["Start timer"]
-        XCTAssertTrue(startTimer.waitForExistence(timeout: 5))
+        XCTAssertTrue(waitForInteractable(startTimer, timeout: 5))
         startTimer.tap()
         let firstPiecePassed = app.buttons["First piece passed"]
-        expectation(for: NSPredicate(format: "exists == true AND enabled == true"), evaluatedWith: firstPiecePassed)
-        waitForExpectations(timeout: 8)
+        XCTAssertTrue(waitForInteractable(firstPiecePassed, timeout: 8))
         firstPiecePassed.tap()
 
         let recordResult = app.buttons["Record result"]
         XCTAssertTrue(recordResult.waitForExistence(timeout: 5))
+        makeHittable(recordResult, in: app)
+        XCTAssertTrue(waitForInteractable(recordResult, timeout: 5))
         capture("08-clean-result")
         recordResult.tap()
         let correctRecord = app.buttons["Correct record"]
         XCTAssertTrue(correctRecord.waitForExistence(timeout: 8))
+        makeHittable(correctRecord, in: app)
+        XCTAssertTrue(waitForInteractable(correctRecord, timeout: 5))
         XCTAssertTrue(app.staticTexts["1. Press"].exists)
         capture("09-completed-history")
 
@@ -158,15 +163,18 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(reason.waitForExistence(timeout: 5))
         makeHittable(reason, in: app)
         reason.tap(); reason.typeText("Audit check")
-        app.buttons["Cancel"].firstMatch.tap()
+        let cancelCorrection = app.buttons["Cancel"].firstMatch
+        XCTAssertTrue(waitForHittable(cancelCorrection, timeout: 5))
+        cancelCorrection.tap()
         let discardCorrection = app.buttons.matching(identifier: "pb.correction.discard").firstMatch
-        XCTAssertTrue(discardCorrection.waitForExistence(timeout: 3))
+        XCTAssertTrue(waitForHittable(discardCorrection, timeout: 5))
         XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 2))
         capture("10-correction-discard-guard")
         discardCorrection.tap()
 
         let deleteRecord = app.buttons["Delete record"]
         XCTAssertTrue(deleteRecord.waitForExistence(timeout: 5))
+        makeHittable(deleteRecord, in: app)
         deleteRecord.tap()
         XCTAssertTrue(app.staticTexts["Permanently delete “\(generatedSetupTitle)”? This cannot be undone."].waitForExistence(timeout: 3))
         capture("11-identified-delete-warning")
@@ -181,7 +189,9 @@ final class FirstUseFlowUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.staticTexts["Free runs left: 0 of 5"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.otherElements["pb.ad.banner"].waitForExistence(timeout: 5))
-        app.staticTexts["Start New Run"].tap()
+        let cappedStartRun = app.buttons.matching(identifier: "pb.home.startRun").firstMatch
+        XCTAssertTrue(waitForInteractable(cappedStartRun, timeout: 8))
+        cappedStartRun.tap()
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["The subscription is unavailable right now. Try again in a moment."].waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["Subscribe"].isEnabled)
@@ -199,7 +209,7 @@ final class FirstUseFlowUITests: XCTestCase {
             return
         }
         let cappedRun = app.staticTexts[generatedSetupTitle].firstMatch
-        guard cappedRun.waitForExistence(timeout: 5) else {
+        guard waitForHittable(cappedRun, timeout: 5) else {
             XCTFail("Completed run was not visible")
             return
         }
@@ -209,6 +219,11 @@ final class FirstUseFlowUITests: XCTestCase {
             XCTFail("Completed-run Repeat action was not visible")
             return
         }
+        makeHittable(repeatSetup, in: app)
+        guard waitForInteractable(repeatSetup, timeout: 5) else {
+            XCTFail("Completed-run Repeat action was not tappable")
+            return
+        }
         repeatSetup.tap()
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
         capture("13-capped-repeat-upgrade")
@@ -216,14 +231,13 @@ final class FirstUseFlowUITests: XCTestCase {
         app.terminate()
         app.launchArguments = ["--pressbench-ui-test-pro", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
-        XCTAssertTrue(app.staticTexts["Start New Run"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.buttons.matching(identifier: "pb.home.startRun").firstMatch.waitForExistence(timeout: 8))
         XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)
         XCTAssertFalse(app.staticTexts["Free runs left: 0 of 5"].exists)
         let proSettingsLink = app.descendants(matching: .any)["pb.more.settings"].firstMatch
         XCTAssertTrue(openTab("More", until: proSettingsLink, app: app))
-        let proSettingsLabel = app.staticTexts["Settings"].firstMatch
-        XCTAssertTrue(waitForHittable(proSettingsLabel, timeout: 20))
-        proSettingsLabel.tap()
+        XCTAssertTrue(waitForHittable(proSettingsLink, timeout: 20))
+        proSettingsLink.tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 20))
         XCTAssertTrue(app.staticTexts["Purchases & Pro Access"].waitForExistence(timeout: 4))
         XCTAssertTrue(app.staticTexts["Manage subscription"].exists)
@@ -289,6 +303,12 @@ final class FirstUseFlowUITests: XCTestCase {
 
     private func waitForHittable(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
         let predicate = NSPredicate(format: "exists == true AND hittable == true")
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
+        return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
+    }
+
+    private func waitForInteractable(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
+        let predicate = NSPredicate(format: "exists == true AND hittable == true AND enabled == true")
         let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
         return XCTWaiter.wait(for: [expectation], timeout: timeout) == .completed
     }
