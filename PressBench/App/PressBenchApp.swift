@@ -63,6 +63,7 @@ private enum PressBenchUITestBootstrap {
         }
     }
 
+    @MainActor
     static func seedIfRequested(_ store: PressBenchStore) {
         guard ProcessInfo.processInfo.arguments.contains("--pressbench-ui-test-single-setup") else { return }
         do {
