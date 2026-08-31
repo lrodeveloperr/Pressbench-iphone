@@ -40,6 +40,10 @@ final class DataEntryStreamliningTests: XCTestCase {
             setup.title,
             "100% cotton T-shirt · Direct-to-film transfer (DTF) · 15 × 15 in"
         )
+        XCTAssertEqual(setup.status, .trial, "A complete setup must be immediately runnable")
+        XCTAssertEqual(setup.stages.first?.canonicalLocalizationKey, "stage.press")
+        XCTAssertEqual(store.setupDraft(for: setupID).stages.first?.name, "",
+                       "Canonical stage names stay implicit in the localized editor")
     }
 
     func testFrenchGeneratedTitleContainsOnlyOperatorOwnedDisplayValues() throws {
