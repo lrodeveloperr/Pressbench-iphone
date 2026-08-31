@@ -7,7 +7,7 @@ struct HomeView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var showingMachineEditor = false
     @State private var showingStarter = false
-    @State private var selectedStartSetup: Setup?
+    @State private var directStartSetup: Setup?
     @State private var showingUpgrade = false
     @State private var showingSetupEditor = false
     @State private var continueToSetup = false
@@ -38,9 +38,12 @@ struct HomeView: View {
             MachineEditorView { _ in continueToSetup = true }.environmentObject(store)
         }
         .sheet(isPresented: $showingSetupEditor) { SetupEditorView(draft: store.setupDraft(for: nil)).environmentObject(store) }
-        .sheet(isPresented: $showingStarter) { StartRunSheet().environmentObject(store) }
-        .sheet(item: $selectedStartSetup) { setup in
-            JobDifferenceSheet(setup: setup).environmentObject(store)
+        .sheet(isPresented: $showingStarter, onDismiss: { directStartSetup = nil }) {
+            if let setup = directStartSetup {
+                JobDifferenceSheet(setup: setup).environmentObject(store)
+            } else {
+                StartRunSheet().environmentObject(store)
+            }
         }
         .sheet(isPresented: $showingUpgrade, onDismiss: {
             guard resumeStartAfterUpgrade else { return }
@@ -59,10 +62,11 @@ struct HomeView: View {
 
     private func beginRunSelection() {
         if runnableSetups.count == 1 {
-            selectedStartSetup = runnableSetups[0]
+            directStartSetup = runnableSetups[0]
         } else {
-            showingStarter = true
+            directStartSetup = nil
         }
+        showingStarter = true
     }
 
     private var firstUseCard: some View {
