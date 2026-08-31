@@ -629,6 +629,7 @@ struct StartRunSheet: View {
                     SetupRow(setup: setup, compact: true)
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("pb.startRun.setup")
             }
             .environment(\.defaultMinListRowHeight, 64)
             .scrollContentBackground(.hidden)

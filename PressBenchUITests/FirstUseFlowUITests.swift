@@ -120,10 +120,10 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(startNewRun.waitForExistence(timeout: 8))
         capture("06-ready-to-run")
         startNewRun.tap()
-        let setup = app.staticTexts[generatedSetupTitle].firstMatch
-        XCTAssertTrue(setup.waitForExistence(timeout: 5))
-        makeHittable(setup, in: app)
-        setup.tap()
+        XCTAssertTrue(app.staticTexts[generatedSetupTitle].firstMatch.waitForExistence(timeout: 5))
+        let setupRow = app.buttons.matching(identifier: "pb.startRun.setup").firstMatch
+        XCTAssertTrue(setupRow.waitForExistence(timeout: 5))
+        setupRow.tap()
         let exactRepeat = app.staticTexts["Exact repeat"]
         XCTAssertTrue(exactRepeat.waitForExistence(timeout: 5))
         exactRepeat.tap()
