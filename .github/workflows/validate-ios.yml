@@ -202,8 +202,6 @@ jobs:
           cd "$PB_SOURCE_ROOT"
           result_bundle="$GITHUB_WORKSPACE/build/PressBenchFaceIDTests.xcresult"
           rm -rf "$result_bundle"
-          xcrun simctl boot "$PB_FACE_UDID"
-          xcrun simctl bootstatus "$PB_FACE_UDID" -b
           xcodebuild \
             -project PressBench.xcodeproj \
             -scheme "$SCHEME" \
