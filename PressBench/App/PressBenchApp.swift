@@ -10,7 +10,11 @@ struct PressBenchApp: App {
         #if DEBUG
         PressBenchUITestBootstrap.resetIfRequested()
         #endif
-        _store = StateObject(wrappedValue: PressBenchStore.production())
+        let store = PressBenchStore.production()
+        #if DEBUG
+        PressBenchUITestBootstrap.seedIfRequested(store)
+        #endif
+        _store = StateObject(wrappedValue: store)
     }
 
     var body: some Scene {
@@ -56,6 +60,16 @@ private enum PressBenchUITestBootstrap {
         }
         if arguments.contains("--pressbench-ui-test-limit-reached") {
             UserDefaults.standard.set(PBUsageMeter.freePressLimit, forKey: "pressbench.usage.completedPresses")
+        }
+    }
+
+    static func seedIfRequested(_ store: PressBenchStore) {
+        guard ProcessInfo.processInfo.arguments.contains("--pressbench-ui-test-single-setup") else { return }
+        do {
+            try store.seedSingleRunnableSetupForUITest()
+            UserDefaults.standard.set(true, forKey: "pressbench.onboarding.completed")
+        } catch {
+            fatalError("Focused UI-test seed failed: \(error)")
         }
     }
 }
