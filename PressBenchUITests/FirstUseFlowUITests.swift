@@ -121,9 +121,9 @@ final class FirstUseFlowUITests: XCTestCase {
         capture("06-ready-to-run")
         startNewRun.tap()
         XCTAssertTrue(app.staticTexts[generatedSetupTitle].firstMatch.waitForExistence(timeout: 5))
-        let setupRow = app.buttons.matching(identifier: "pb.startRun.setup").firstMatch
+        let setupRow = app.descendants(matching: .any)["pb.startRun.setup"].firstMatch
         XCTAssertTrue(setupRow.waitForExistence(timeout: 5))
-        setupRow.tap()
+        setupRow.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         let exactRepeat = app.staticTexts["Exact repeat"]
         XCTAssertTrue(exactRepeat.waitForExistence(timeout: 5))
         exactRepeat.tap()
