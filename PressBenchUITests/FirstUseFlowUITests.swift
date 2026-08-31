@@ -1,6 +1,41 @@
 import XCTest
 
 final class FirstUseFlowUITests: XCTestCase {
+    func testSingleRunnableSetupStartsDirectlyOnIPhoneSE() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += [
+            "--pressbench-ui-test-reset",
+            "--pressbench-ui-test-single-setup",
+            "-AppleLanguages", "(en)",
+            "-AppleLocale", "en_US"
+        ]
+        app.launch()
+
+        let startNewRun = app.buttons.matching(identifier: "pb.home.startRun").firstMatch
+        XCTAssertTrue(waitForInteractable(startNewRun, timeout: 8))
+        startNewRun.tap()
+
+        let exactRepeat = app.buttons.matching(identifier: "pb.jobDifference.exact_repeat").firstMatch
+        XCTAssertTrue(waitForInteractable(exactRepeat, timeout: 8))
+        XCTAssertFalse(app.buttons.matching(identifier: "pb.startRun.setup").firstMatch.exists,
+                       "One runnable setup must not add a redundant selection step")
+        exactRepeat.tap()
+
+        let continueRun = app.buttons["Continue"].firstMatch
+        XCTAssertTrue(waitForInteractable(continueRun, timeout: 5))
+        continueRun.tap()
+
+        let startRun = app.buttons["Start Run"].firstMatch
+        makeHittable(startRun, in: app)
+        XCTAssertTrue(waitForInteractable(startRun, timeout: 5))
+        startRun.tap()
+
+        let confirmInstructions = app.buttons["Confirm instructions"].firstMatch
+        XCTAssertTrue(waitForInteractable(confirmInstructions, timeout: 8))
+        capture("focused-se-single-setup-preflight")
+    }
+
     func testFaceIDFirstViewportLayout() {
         continueAfterFailure = false
         let app = XCUIApplication()
