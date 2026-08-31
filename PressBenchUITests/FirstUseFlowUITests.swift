@@ -118,11 +118,11 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(waitForInteractable(startNewRun, timeout: 8))
         capture("06-ready-to-run")
         startNewRun.tap()
-        let setupRow = app.buttons.matching(identifier: "pb.startRun.setup").firstMatch
-        XCTAssertTrue(waitForInteractable(setupRow, timeout: 8))
-        setupRow.tap()
         let exactRepeat = app.staticTexts["Exact repeat"]
-        XCTAssertTrue(waitForHittable(exactRepeat, timeout: 5))
+        XCTAssertTrue(waitForHittable(exactRepeat, timeout: 8),
+                      "A single runnable setup must bypass redundant setup selection")
+        XCTAssertFalse(app.buttons.matching(identifier: "pb.startRun.setup").firstMatch.exists)
+        capture("06a-single-setup-direct-start")
         exactRepeat.tap()
         let continueRun = app.buttons["Continue"].firstMatch
         XCTAssertTrue(waitForInteractable(continueRun, timeout: 5))
