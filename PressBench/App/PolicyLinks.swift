@@ -8,7 +8,6 @@ enum PressBenchPolicyLinks {
     static let purchases = URL(string: "https://lrodeveloperr.github.io/pressbench-legal/subscriptions/")!
     static let manageSubscription = URL(string: "https://apps.apple.com/account/subscriptions")!
     static let support = URL(string: "https://lrodeveloperr.github.io/pressbench-legal/support/")!
-    static let reportAd = URL(string: "https://lrodeveloperr.github.io/pressbench-legal/support/#report-an-ad")!
     static let dataChoices = URL(string: "https://lrodeveloperr.github.io/pressbench-legal/data-choices/")!
     static let accessibility = URL(string: "https://lrodeveloperr.github.io/pressbench-legal/accessibility/")!
     static let thirdPartyNotices = URL(string: "https://lrodeveloperr.github.io/pressbench-legal/third-party-notices/")!

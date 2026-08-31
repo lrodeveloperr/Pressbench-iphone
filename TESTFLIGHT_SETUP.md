@@ -22,7 +22,7 @@ The Apple Developer team configured in the workflow is:
 
 Before purchase testing, create the one-month auto-renewable subscription `pressbench_unlimited_monthly_ios` in a `PressBench Pro` subscription group and set the US storefront price to US$9.99. Add localized name/description, review screenshot, privacy policy, and terms. The retired lifetime product remains code-recognized for existing buyers but is not offered for sale. See `MONETIZATION.md`.
 
-Before external testing with the production banner, configure Google Privacy & messaging for the iOS application ID and update App Store Connect privacy answers. Source code gates every ad request through UMP, disables ad personalization and Google's publisher first-party identifier, and includes Google's current SKAdNetwork list, but the external declarations cannot be completed in the repository.
+The final iOS binary contains no advertising or tracking SDK. Before external testing, ensure App Store Connect privacy answers and the public privacy policy describe only StoreKit and the optional, user-initiated private iCloud backup path; no Google advertising declarations should remain.
 
 ## 3. App Store Connect API key
 

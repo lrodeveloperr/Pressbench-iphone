@@ -13,7 +13,6 @@ final class PurchaseManager: ObservableObject {
 
     @Published private(set) var product: Product?
     @Published private(set) var state: PurchaseState = .loading
-    @Published private(set) var entitlementsResolved = false
 
     private var updatesTask: Task<Void, Never>?
     var onStoreEvent: (([String: Any]) -> Void)?
@@ -21,7 +20,6 @@ final class PurchaseManager: ObservableObject {
     deinit { updatesTask?.cancel() }
 
     func start() async {
-        entitlementsResolved = false
         updatesTask?.cancel()
         updatesTask = Task { [weak self] in
             for await result in Transaction.updates {
@@ -32,7 +30,6 @@ final class PurchaseManager: ObservableObject {
         let productLoadState = state
         await refresh(action: "automatic_refresh", userInitiated: false)
         if !productLoaded, state == .free { state = productLoadState }
-        entitlementsResolved = true
     }
 
     func reloadProduct() async {

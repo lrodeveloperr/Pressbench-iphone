@@ -23,6 +23,7 @@ struct MoreView: View {
                     VStack(spacing: 0) {
                         NavigationLink { ReportsView() } label: { menuRow("report.productionReport", icon: "doc.richtext") }
                             .buttonStyle(.plain)
+                            .accessibilityIdentifier("pb.more.reports")
                         Divider().opacity(0.35)
                         Button { store.selectedTab = 2 } label: { menuRow("common.batchHistory", icon: "list.clipboard") }.buttonStyle(.plain)
                         Divider().opacity(0.35)

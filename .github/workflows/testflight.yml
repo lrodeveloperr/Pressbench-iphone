@@ -286,9 +286,8 @@ jobs:
             [[ "$framework_signature" == *'Signature=adhoc'* ]] || { echo "Embedded framework staging signature is not ad hoc: $framework" >&2; exit 1; }
             staged_frameworks=$((staged_frameworks + 1))
           done < <(find "$app/Frameworks" -depth -type d -name '*.framework' -print0 2>/dev/null || true)
-          (( staged_frameworks > 0 )) || { echo 'No embedded frameworks were staged; Google Ads binaries are missing.' >&2; exit 1; }
-          [[ -d "$app/Frameworks/GoogleMobileAds.framework" ]] || { echo 'GoogleMobileAds.framework is missing.' >&2; exit 1; }
-          [[ -d "$app/Frameworks/UserMessagingPlatform.framework" ]] || { echo 'UserMessagingPlatform.framework is missing.' >&2; exit 1; }
+          [[ ! -d "$app/Frameworks/GoogleMobileAds.framework" ]] || { echo 'GoogleMobileAds.framework must not be present.' >&2; exit 1; }
+          [[ ! -d "$app/Frameworks/UserMessagingPlatform.framework" ]] || { echo 'UserMessagingPlatform.framework must not be present.' >&2; exit 1; }
 
       - name: Export signed IPA
         shell: bash
@@ -345,8 +344,8 @@ jobs:
           [[ "$exported_app_signature" != *'Signature=adhoc'* ]] || { echo 'Exported app is ad hoc signed.' >&2; exit 1; }
           [[ "$exported_app_signature" == *'Authority=Apple Distribution'* ]] || { echo 'Exported app is not distribution signed.' >&2; exit 1; }
           [[ "$exported_app_signature" == *"TeamIdentifier=$APPLE_TEAM_ID"* ]] || { echo 'Exported app signing team mismatch.' >&2; exit 1; }
-          [[ -d "$exported_app/Frameworks/GoogleMobileAds.framework" ]] || { echo 'Exported GoogleMobileAds.framework is missing.' >&2; exit 1; }
-          [[ -d "$exported_app/Frameworks/UserMessagingPlatform.framework" ]] || { echo 'Exported UserMessagingPlatform.framework is missing.' >&2; exit 1; }
+          [[ ! -d "$exported_app/Frameworks/GoogleMobileAds.framework" ]] || { echo 'Exported IPA contains GoogleMobileAds.framework.' >&2; exit 1; }
+          [[ ! -d "$exported_app/Frameworks/UserMessagingPlatform.framework" ]] || { echo 'Exported IPA contains UserMessagingPlatform.framework.' >&2; exit 1; }
           while IFS= read -r framework; do
             codesign --verify --strict --verbose=2 "$framework"
             framework_signature="$(codesign -dvv "$framework" 2>&1)"

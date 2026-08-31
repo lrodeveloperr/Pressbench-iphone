@@ -25,7 +25,6 @@ struct SettingsView: View {
     @State private var showingRollbackConfirmation = false
     @State private var showingRejectedRunDiscardConfirmation = false
     @State private var showingUpgrade = false
-    @State private var privacyOptionsAvailable = false
     @State private var pendingRestoreRaw = ""
     @State private var restoreSummary = ""
 
@@ -88,16 +87,6 @@ struct SettingsView: View {
                     }
                     Link(destination: PressBenchPolicyLinks.terms) {
                         Label(t("common.termsOfUse"), systemImage: "doc.text")
-                    }
-                    if !store.isPro {
-                        Link(destination: PressBenchPolicyLinks.reportAd) {
-                            Label(t("ads.report"), systemImage: "exclamationmark.bubble")
-                        }
-                        if privacyOptionsAvailable {
-                            Button { presentPrivacyOptions() } label: {
-                                Label(t("ads.privacyChoices"), systemImage: "checkmark.shield")
-                            }
-                        }
                     }
                     if language != .en {
                         Text(t("onboarding.legal.policyLanguageNotice"))
@@ -180,11 +169,6 @@ struct SettingsView: View {
             Button(t("common.ok"), role: .cancel) {}
         } message: {
             Text(t("backup.deleteSuccess"))
-        }
-        .task(id: store.adEligibilityResolved) {
-            guard store.adEligibilityResolved, !store.isPro else { return }
-            _ = await PBAdvertising.prepareForAds()
-            privacyOptionsAvailable = PBAdvertising.privacyOptionsRequired
         }
     }
 
@@ -385,17 +369,6 @@ struct SettingsView: View {
             failureMessageKey = "backup.deleteFailed"
             failed = true
             PBFeedback.error()
-        }
-    }
-
-    private func presentPrivacyOptions() {
-        Task {
-            let shown = await PBAdvertising.presentPrivacyOptions()
-            privacyOptionsAvailable = PBAdvertising.privacyOptionsRequired
-            if !shown {
-                failureMessageKey = "common.actionFailed"
-                failed = true
-            }
         }
     }
 

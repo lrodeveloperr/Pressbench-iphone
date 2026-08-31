@@ -2467,7 +2467,7 @@
       productId: "pressbench_unlimited_monthly_ios",
       legacyProductIds: Object.freeze(["pressbench_unlimited_lifetime_ios"]),
       productType: "auto_renewable_subscription", recurring: true, period: "P1M", restoreAction: true,
-      benefits: Object.freeze(["unlimited_presses", "no_ads", "pdf_xlsx_reports"]),
+      benefits: Object.freeze(["unlimited_presses", "pdf_xlsx_reports"]),
       pricing: Object.freeze({ baseStorefront: "US", baseCurrency: "USD", baseAmountMinor: 999, geoPriced: true })
     }),
     android: Object.freeze({
@@ -4316,8 +4316,8 @@
   const PROGRESS_MODES = new Set(["final_confirmation", "live_cycles"]);
   const ARCHITECTURE_REQUIREMENTS = Object.freeze({
     operationalDataLocation: "device_only", publisherOperationalDataAccess: false, accountRequired: false,
-    publisherCloudSync: false, trackingSdk: false, advertisingSdk: "google_mobile_ads_non_personalized", remotePushToken: false,
-    routineNetworkBoundary: "store_entitlement_and_consent_gated_ads", automaticOsBackupForOperationalDatabase: "excluded",
+    publisherCloudSync: false, trackingSdk: false, advertisingSdk: "none", remotePushToken: false,
+    routineNetworkBoundary: "store_entitlement_and_user_initiated_apple_backup", automaticOsBackupForOperationalDatabase: "excluded",
     nativeStoreVerificationRequired: true, entitlementPortableBackup: false,
     manualJsonBackupEncrypted: false, notificationContent: "generic_no_job_reference",
     equipmentControlOrMeasurement: false

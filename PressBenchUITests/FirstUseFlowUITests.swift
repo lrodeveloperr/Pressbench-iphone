@@ -133,7 +133,6 @@ final class FirstUseFlowUITests: XCTestCase {
 
         let confirmInstructions = app.buttons["Confirm instructions"]
         XCTAssertTrue(waitForInteractable(confirmInstructions, timeout: 8))
-        XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)
         capture("07-run-preflight")
         confirmInstructions.tap()
         let startTimer = app.buttons["Start timer"]
@@ -188,7 +187,6 @@ final class FirstUseFlowUITests: XCTestCase {
         ]
         app.launch()
         XCTAssertTrue(app.staticTexts["Free runs left: 0 of 5"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.otherElements["pb.ad.banner"].waitForExistence(timeout: 5))
         let cappedStartRun = app.buttons.matching(identifier: "pb.home.startRun").firstMatch
         XCTAssertTrue(waitForInteractable(cappedStartRun, timeout: 8))
         cappedStartRun.tap()
@@ -228,11 +226,22 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
         capture("13-capped-repeat-upgrade")
 
+        app.buttons["Cancel"].firstMatch.tap()
+        let reportsLink = app.descendants(matching: .any)["pb.more.reports"].firstMatch
+        XCTAssertTrue(openTab("More", until: reportsLink, app: app))
+        XCTAssertTrue(waitForInteractable(reportsLink, timeout: 8))
+        reportsLink.tap()
+        XCTAssertTrue(app.navigationBars["Production Report"].waitForExistence(timeout: 8))
+        let lockedPDF = app.buttons.matching(identifier: "pb.reports.pdf").firstMatch
+        XCTAssertTrue(waitForInteractable(lockedPDF, timeout: 5))
+        lockedPDF.tap()
+        XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
+        capture("14-free-report-requires-pro")
+
         app.terminate()
         app.launchArguments = ["--pressbench-ui-test-pro", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         XCTAssertTrue(app.buttons.matching(identifier: "pb.home.startRun").firstMatch.waitForExistence(timeout: 8))
-        XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)
         XCTAssertFalse(app.staticTexts["Free runs left: 0 of 5"].exists)
         let proSettingsLink = app.descendants(matching: .any)["pb.more.settings"].firstMatch
         XCTAssertTrue(openTab("More", until: proSettingsLink, app: app))
@@ -241,7 +250,7 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 20))
         XCTAssertTrue(app.staticTexts["Purchases & Pro Access"].waitForExistence(timeout: 4))
         XCTAssertTrue(app.staticTexts["Manage subscription"].exists)
-        capture("14-pro-removes-ads-and-cap")
+        capture("15-pro-unlocks-plan")
     }
 
     private func enter(_ value: String, in field: XCUIElement, app: XCUIApplication) {

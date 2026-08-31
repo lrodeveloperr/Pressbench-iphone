@@ -95,6 +95,7 @@ struct ReportsView: View {
             }
         }
         .disabled(generating)
+        .accessibilityIdentifier("pb.reports.\(format.lowercased())")
     }
 
     private func startExport(_ format: String) {

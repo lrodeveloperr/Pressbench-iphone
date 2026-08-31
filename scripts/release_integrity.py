@@ -10,12 +10,12 @@ def require(condition, message):
 
 logic = root/'PressBench/Resources/PressBenchLogic.js'
 logic_hash = hashlib.sha256(logic.read_bytes()).hexdigest()
-require(logic_hash == '6e32a2a6d12d6e74a6a1da2f6046acf4cac51b9022012ce97f2047647b4f8840', f'logic hash changed: {logic_hash}')
+require(logic_hash == 'e7884b7f3a515000b3ea4c7b2b07b1602a917ec90ad22136547a006cd0263740', f'logic hash changed: {logic_hash}')
 text = logic.read_text(encoding='utf-8')
 require(all(marker in text for marker in ['pressbench_unlimited_monthly_ios', 'pressbench_unlimited_lifetime_ios',
         'productType: "auto_renewable_subscription"', 'recurring: true', 'baseAmountMinor: 999',
-        'advertisingSdk: "google_mobile_ads_non_personalized"',
-        'routineNetworkBoundary: "store_entitlement_and_consent_gated_ads"']),
+        'advertisingSdk: "none"',
+        'routineNetworkBoundary: "store_entitlement_and_user_initiated_apple_backup"']),
         'monthly iOS subscription or grandfathered lifetime entitlement is missing')
 require('FREE_RECIPE_LIMIT = D.MAX_RECORDS' in text and 'FREE_BATCH_LIMIT = 5' in text and
         'setup_capacity_required' not in text,
@@ -27,8 +27,6 @@ require('function completedTimerPlan' in text and text.count('if (!completedTime
 project=(root/'project.yml').read_text(encoding='utf-8')
 info_plist=(root/'PressBench/Info.plist').read_text(encoding='utf-8')
 info_values=plistlib.loads(info_plist.encode('utf-8'))
-skadnetwork_ids=[item.get('SKAdNetworkIdentifier') for item in info_values.get('SKAdNetworkItems', [])]
-skadnetwork_hash=hashlib.sha256('\n'.join(identifier or '' for identifier in skadnetwork_ids).encode('utf-8')).hexdigest()
 require('com.goodusestudios.pressbench' in project, 'production bundle id mismatch')
 require('49SQ3XQ68Q' in project, 'Apple team id mismatch')
 require('path: PressBench/Resources\n        buildPhase: resources' in project,
@@ -37,17 +35,11 @@ require('PressBenchUITests:' in project and 'type: bundle.ui-testing' in project
         'first-use UI regression target is missing')
 require('CODE_SIGN_ENTITLEMENTS: PressBench/PressBench.entitlements' in project,
         'production entitlements are not assigned to the app target')
-require(all(marker in project for marker in ['GoogleMobileAds:', 'exactVersion: 13.9.0',
-        'GoogleUserMessagingPlatform:', 'exactVersion: 3.1.0',
-        'INFOPLIST_FILE: PressBench/Info.plist']) and
-        'ca-app-pub-8054612600809568~2608188289' in info_plist and
-        '<key>GADApplicationIdentifier</key>' in info_plist and
-        len(skadnetwork_ids) == 50 and len(set(skadnetwork_ids)) == 50 and
-        'cstr6suwn9.skadnetwork' in skadnetwork_ids and
-        all(identifier and identifier.endswith('.skadnetwork') for identifier in skadnetwork_ids) and
-        skadnetwork_hash == 'd5a612e4ab257db0ed914a204f4ef2ef84d01f601c60051b361f8c549e798e39' and
+require('INFOPLIST_FILE: PressBench/Info.plist' in project and
+        all(marker not in project for marker in ['GoogleMobileAds', 'GoogleUserMessagingPlatform', 'OTHER_LDFLAGS: -ObjC']) and
+        all(marker not in info_plist for marker in ['GADApplicationIdentifier', 'SKAdNetworkItems', 'ca-app-pub-']) and
         '<key>ITSAppUsesNonExemptEncryption</key>\n    <false/>' in info_plist,
-        'pinned Google ad/consent SDK, production application id, or reviewed SKAdNetwork list is missing')
+        'the project still contains an advertising SDK/configuration or lost its encryption declaration')
 
 approved_logo_hash = '03ee625d3c2c6a1efb8e49b4cc060c5b0c61e6397fc0b39633f66151ac2a6a8b'
 brand_logo = root/'PressBench/Assets.xcassets/BrandLogo.imageset/BrandLogo.png'
@@ -321,32 +313,22 @@ require('max(186' not in joined and '0.968' not in joined and '0.017' not in joi
 require('PressBenchStore.production()' in (root/'PressBench/App/PressBenchApp.swift').read_text(), 'app is not using production store')
 require('StoreKit' in (root/'PressBench/Services/PurchaseManager.swift').read_text(), 'StoreKit2 adapter missing')
 purchase_source=(root/'PressBench/Services/PurchaseManager.swift').read_text()
-ad_source=(root/'PressBench/Services/PBAdvertising.swift').read_text()
 info_plist=(root/'PressBench/Info.plist').read_text()
 usage_source=(root/'PressBench/Services/PBUsageMeter.swift').read_text()
 require(all(marker in purchase_source for marker in ['pressbench_unlimited_monthly_ios',
         'pressbench_unlimited_lifetime_ios', '.autoRenewable', 'subscriptionPeriod.unit == .month',
         'transaction.expirationDate']), 'native subscription verification or lifetime grandfathering is incomplete')
-require('ca-app-pub-8054612600809568~2608188289' in info_plist and
-        'ca-app-pub-8054612600809568/3307131638' in ad_source and
-        'ca-app-pub-3940256099942544/2435281174' in ad_source and
-        '#if DEBUG' in ad_source and '#else' in ad_source and '#endif' in ad_source and
-        ad_source.index('ca-app-pub-3940256099942544/2435281174') < ad_source.index('#else') <
-        ad_source.index('ca-app-pub-8054612600809568/3307131638') and
-        'ca-app-pub-3940256099942544' not in info_plist and
-        all(marker in ad_source for marker in [
-        'BannerView(adSize: AdSizeBanner)', 'frame(width: 320', 'slotHeight: CGFloat = 50',
-        'maxAdContentRating = GADMaxAdContentRating.general',
-        'publisherPrivacyPersonalizationState = .disabled',
-        'setPublisherFirstPartyIDEnabled(false)',
-        'requestConsentInfoUpdate', 'loadAndPresentIfRequired', 'ConsentInformation.shared.canRequestAds']),
-        'release AdMob identifiers, debug-only demo protection, or required UMP consent gate is missing')
-require(ad_source.index('publisherPrivacyPersonalizationState = .disabled') <
-        ad_source.index('setPublisherFirstPartyIDEnabled(false)') <
-        ad_source.index('MobileAds.shared.start()'),
-        'non-personalized and publisher first-party ID controls must be set before Mobile Ads starts')
-require('pbBanner(visible: store.adEligibilityResolved && !store.isPro && store.activeRun == nil)' in root_tabs and root_tabs.count('.pbBanner') == 1,
-        'one persistent free-user banner is not fixed outside the active press flow or does not disappear for Pro')
+require(not (root/'PressBench/Services/PBAdvertising.swift').exists(),
+        'obsolete advertising service remains in the application target')
+no_ad_surface = '\n'.join([project, info_plist, joined,
+        (root/'build_l10n.py').read_text(encoding='utf-8'),
+        (root/'monetization_translations.json').read_text(encoding='utf-8'),
+        (root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8')])
+require(all(marker not in no_ad_surface for marker in [
+        'GoogleMobileAds', 'GoogleUserMessagingPlatform', 'GADApplicationIdentifier',
+        'SKAdNetworkItems', 'ca-app-pub-', 'PBAdvertising', 'pbBanner(', 'pb.ad.banner',
+        'ads.report', 'ads.privacyChoices', 'ads.bannerLabel']),
+        'advertising SDK, identifier, UI hook, or localization remains in the iOS release')
 require(all(marker in usage_source for marker in ['freePressLimit = 5', 'completedPresses',
         'lastCreditedBatchID', 'creditedBatchIDs', 'canStartFreePress']) and
         all(marker in store_source for marker in ['usageMeter.canStartFreePress', 'recordCompletedPress',
@@ -437,14 +419,12 @@ require('--pressbench-ui-test-reset' in ui_test and '--pressbench-ui-test-reset'
         'UI test does not request a deterministic pre-store persistence reset')
 require(all(marker in ui_test for marker in ['--pressbench-ui-test-limit-reached',
         '--pressbench-ui-test-product-unavailable', '--pressbench-ui-test-pro',
-        'Free runs left: 0 of 5', 'pb.ad.banner', 'Unlock PressBench Pro',
+        'Free runs left: 0 of 5', 'Unlock PressBench Pro',
         'Repeat this setup', 'capped-repeat-upgrade', 'app.tabBars.buttons["Runs"]',
-        'pb.runs.screen']),
-        'UI test does not cover the sixth-run paywall, capped Repeat, active-run ad removal, or Pro ad removal')
-require(ui_test.count('XCTAssertFalse(app.otherElements["pb.ad.banner"].exists)') >= 2,
-        'UI test does not verify both active-run and Pro banner removal')
+        'pb.runs.screen', 'pb.more.reports', 'pb.reports.pdf',
+        'free-report-requires-pro']),
+        'UI test does not cover the sixth-run paywall, capped Repeat, and free-report paywall')
 
-advertising=(root/'PressBench/Services/PBAdvertising.swift').read_text(encoding='utf-8')
 more_view=(root/'PressBench/Views/MoreView.swift').read_text(encoding='utf-8')
 require(settings_view.index('planSection') < settings_view.index('backupSection') and
         all(marker in settings_view for marker in [
@@ -460,29 +440,18 @@ require('Text(t("common.unlockPro"))' in settings_view and
 require(all(marker in more_view for marker in ['ReportsView()', 'MachinesView()', 'SettingsView()', 'pb.more.settings']) and
         all(marker not in more_view for marker in [
             'ProUpgradeView', 'SignInWithAppleButton', 'PressBenchPolicyLinks',
-            'more.viewOnboarding', 'PBAdvertising.presentPrivacyOptions']),
+            'more.viewOnboarding']),
         'More duplicates commercial, backup, onboarding, or legal controls owned by Settings')
-require('privacyOptionsRequirementStatus == .required' in advertising and
-        'privacyOptionsAvailable = PBAdvertising.privacyOptionsRequired' in settings_view and
-        'let shown = await PBAdvertising.presentPrivacyOptions()' in settings_view and
-        'guard store.adEligibilityResolved, !store.isPro else { return }' in settings_view and
-        'if !store.isPro {' in settings_view,
-        'ad privacy choices must only be offered when required and must report presentation failure')
-require('BannerViewDelegate' in advertising and 'didFailToReceiveAdWithError' in advertising and
-        'bannerLoadResolved && !bannerLoaded ? 0' in advertising,
-        'failed banner loads must collapse instead of leaving a blank fixed strip')
-banner_modifier = advertising.split('private struct PBBannerModifier', 1)[-1].split('extension View', 1)[0]
-require('VStack(spacing: 0)' in banner_modifier and
-        'content\n            if visible {' in banner_modifier and
-        'PBTheme.paper.ignoresSafeArea(edges: .bottom)' in banner_modifier and
-        'safeAreaInset' not in banner_modifier,
-        'banner does not keep the native tab bar above its iPhone bottom slot')
+require(all(marker not in settings_view for marker in [
+        'privacyOptionsAvailable', 'presentPrivacyOptions', 'PBAdvertising',
+        'ads.report', 'ads.privacyChoices']),
+        'Settings still exposes advertising consent or reporting controls')
 
 catalog=json.loads((root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8'))
 require(len(catalog.get('languages',[])) == 31, 'language choice count is not 31')
-require(len(catalog.get('strings',{})) == 370, 'reviewed localization catalog must contain 370 keys')
+require(len(catalog.get('strings',{})) == 367, 'reviewed localization catalog must contain 367 keys')
 language_tests=(root/'PressBenchTests/LanguageSupportTests.swift').read_text(encoding='utf-8')
-require('XCTAssertEqual(PBL10n.catalog.strings.count, 370)' in language_tests,
+require('XCTAssertEqual(PBL10n.catalog.strings.count, 367)' in language_tests,
         'unit-test localization count is stale')
 boundary = catalog.get('strings',{}).get('setup.provenBoundary',{})
 require(bool(boundary), 'localized Proven evidence boundary is missing')
@@ -501,18 +470,16 @@ for key, item in metadata.items():
 build_l10n=(root/'build_l10n.py').read_text(encoding='utf-8')
 assemble=(root/'assemble_catalog.py').read_text(encoding='utf-8')
 require('setup.provenBoundary' in build_l10n and 'raise SystemExit(\'Legacy' not in build_l10n,
-        'build_l10n.py is not the live 370-key canonical generator')
+        'build_l10n.py is not the live 367-key canonical generator')
 purchase_manager=(root/'PressBench/Services/PurchaseManager.swift').read_text(encoding='utf-8')
 require(purchase_manager.count('let productLoaded = await loadProduct()') == 2 and
         purchase_manager.count('if !productLoaded, state == .free { state = productLoadState }') == 2 and
         'guard await loadProduct() else { return }' not in purchase_manager,
         'entitlement refresh must continue when StoreKit product metadata is unavailable')
 root_tabs=(root/'PressBench/Views/RootTabView.swift').read_text(encoding='utf-8')
-require('@Published private(set) var entitlementsResolved = false' in purchase_manager and
-        'entitlementsResolved = true' in purchase_manager and
-        'store.adEligibilityResolved && !store.isPro' in root_tabs and
-        'guard store.adEligibilityResolved, !store.isPro else { return }' in settings_view,
-        'ads must stay disabled until the current StoreKit entitlement scan resolves')
+require('entitlementsResolved' not in purchase_manager and 'adEligibilityResolved' not in store_source and
+        '.pbBanner' not in root_tabs,
+        'obsolete ad-era entitlement or banner state remains')
 require("assert len(phrases)==286" in assemble and 'DIRECT_NEW_KEYS' in assemble and
         'OPERATOR_TRANSLATIONS' in assemble and 'ADDITIONAL_TRANSLATIONS' in assemble and
         'RESIDUAL_TRANSLATIONS' in assemble and

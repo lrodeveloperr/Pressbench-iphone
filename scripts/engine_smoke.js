@@ -21,8 +21,8 @@ assert.equal(P.operationalReadiness(settings).ready, true);
 let entitlement = E.normalizeEntitlement({});
 let context = {machines:[], recipes:[], setups:[], batches:[], settings, session:null, entitlement, storageMode:'native'};
 assert.equal(P.ARCHITECTURE_REQUIREMENTS.trackingSdk, false);
-assert.equal(P.ARCHITECTURE_REQUIREMENTS.advertisingSdk, 'google_mobile_ads_non_personalized');
-assert.equal(P.ARCHITECTURE_REQUIREMENTS.routineNetworkBoundary, 'store_entitlement_and_consent_gated_ads');
+assert.equal(P.ARCHITECTURE_REQUIREMENTS.advertisingSdk, 'none');
+assert.equal(P.ARCHITECTURE_REQUIREMENTS.routineNetworkBoundary, 'store_entitlement_and_user_initiated_apple_backup');
 
 // A fabricated local boolean must never create paid access.
 assert.equal(E.evaluateEntitlement({paidAccess:true, productId:'pressbench_unlimited_monthly_ios'}, now).paidAccess, false);
@@ -267,6 +267,9 @@ const freeContext = {...context, entitlement:E.normalizeEntitlement({})};
 assert.equal(P.planReport(freeContext, 'json', context.batches, now).allowed, false);
 assert.equal(P.planReport(freeContext, 'csv', context.batches, now).allowed, false);
 assert.equal(P.planReport(freeContext, 'pdf', context.batches, now).allowed, false);
+assert.equal(P.planReport(freeContext, 'xlsx', context.batches, now).allowed, false);
+assert.equal(P.planReport(freeContext, 'pdf', context.batches, now).reason, 'paid_access_required');
+assert.equal(P.planReport(freeContext, 'xlsx', context.batches, now).reason, 'paid_access_required');
 assert.equal(P.planReport(context, 'pdf', context.batches, now).allowed, true);
 assert.equal(P.planReport(context, 'xlsx', context.batches, now).allowed, true);
 

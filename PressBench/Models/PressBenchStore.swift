@@ -179,7 +179,6 @@ final class PressBenchStore: ObservableObject {
 
     var productDisplayPrice: String? { purchases.product?.displayPrice }
     var purchaseState: PurchaseManager.PurchaseState { purchases.state }
-    var adEligibilityResolved: Bool { purchases.entitlementsResolved }
     var canManageMonthlySubscription: Bool {
         isPro && string(currentEntitlement["productId"]) == PurchaseManager.productID
     }

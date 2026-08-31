@@ -2,8 +2,8 @@
 
 ## Customer model
 
-- Free: a fixed 320 × 50 Google banner and five successfully completed press runs.
-- PressBench Pro: US$9.99 per month in the US storefront, with unlimited presses, no ads, and PDF/XLSX reports while subscribed.
+- Free: five successfully completed and saved press runs; PDF/XLSX reports require Pro.
+- PressBench Pro: US$9.99 per month in the US storefront, with unlimited press runs and PDF/XLSX reports while subscribed.
 - Setups, machines, search, existing records, corrections, and deletion are not artificially capped.
 - A failed, canceled, or unsaved run does not consume a free press. Deleting data does not restore free presses.
 - The former `pressbench_unlimited_lifetime_ios` entitlement remains recognized for any existing buyer.
@@ -17,7 +17,7 @@ Create this in a `PressBench Pro` subscription group before testing purchases:
 - Duration: one month
 - US price: US$9.99
 - Suggested display name: `PressBench Pro Monthly`
-- Suggested description: `Unlimited press-run logging, an ad-free workspace, and PDF/XLSX production reports while subscribed.`
+- Suggested description: `Unlimited runs and PDF/XLSX reports.`
 
 Add localized product metadata, a subscription review screenshot, the privacy-policy URL, and the terms-of-use URL. The code rejects a StoreKit product that is not an auto-renewable one-month subscription.
 
@@ -25,14 +25,10 @@ Add localized product metadata, a subscription review screenshot, the privacy-po
 
 Use this accurate wording in App Review Notes:
 
-> PressBench Pro provides continuing access to a recurring production workflow: unlimited press-run logging, an ad-free workspace, and ongoing PDF/XLSX production reporting on the customer’s Apple devices while subscribed. Free users may complete five press runs. Existing records remain readable after the subscription ends. The app does not claim cloud storage or new content as subscription value.
+> PressBench Pro provides continuing access to a recurring production workflow: unlimited press-run logging and ongoing PDF/XLSX production reporting on the customer’s Apple devices while subscribed. Free users may complete five press runs. Existing records remain readable after the subscription ends. The app does not claim cloud storage or new content as subscription value.
 
 This follows [App Review Guideline 3.1.2](https://developer.apple.com/app-store/review/guidelines/#subscriptions): the subscription lasts at least seven days, supplies ongoing value, uses in-app purchase for digital access, clearly explains the benefits and renewal, works across the user’s devices through StoreKit entitlement, and preserves any former lifetime purchase.
 
-## Ad configuration
+## Advertising and reports
 
-The release uses the PressBench iOS production AdMob app and banner IDs. Release builds use the production banner; DEBUG builds retain Google's official demo banner to prevent invalid production traffic during local development. Ad personalization and Google's publisher first-party identifier are disabled, and creative is limited to the General rating. Google UMP 3.1.0 is pinned with Google Mobile Ads 13.9.0. At launch, the app requests current consent information, presents any required form, and checks `canRequestAds` before starting Mobile Ads or sending an ad request. More includes privacy choices and a direct Report an ad action.
-
-Google Privacy & messaging for the final application ID, the public privacy policy, and App Store privacy answers must remain consistent with the SDK's actual data use. `Info.plist` includes Google's current Google-and-buyer `SKAdNetworkItems` list for privacy-preserving conversion attribution without requesting ATT or IDFA access. The release-integrity gate rejects a demo application ID, a production build without the reviewed iOS banner ID, an incomplete SKAdNetwork list, or an enabled publisher first-party identifier.
-
-References: [Google iOS quick start](https://developers.google.com/admob/ios/quick-start), [banner guide](https://developers.google.com/admob/ios/banner), [privacy/UMP](https://developers.google.com/admob/ios/privacy), and [ad targeting/content rating](https://developers.google.com/admob/ios/targeting).
+The iOS release contains no advertising, attribution, consent-management, analytics, or tracking SDK. It displays no ads in either tier and does not request App Tracking Transparency permission. Free users cannot generate PDF or XLSX reports; both report formats require a verified PressBench Pro entitlement. The release-integrity gate rejects Google ad packages, advertising identifiers, SKAdNetwork entries, banner code, and ad-only localization.
