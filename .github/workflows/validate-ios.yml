@@ -17,6 +17,7 @@ env:
   SOURCE_ZIP: PressBench-TestFlight-Source-v0.21.4.zip
   SOURCE_B64_GLOB: .source/PressBench-iOS-Approved-UI-v0.21.4.zip.b64.part-*
   SCHEME: PressBench
+  RUN_IPHONE_SE: ${{ github.event_name == 'workflow_dispatch' }}
 
 jobs:
   validate:
@@ -155,7 +156,8 @@ jobs:
           echo "PB_SE_UDID=$se_udid" >> "$GITHUB_ENV"
           echo "PB_FACE_UDID=$face_udid" >> "$GITHUB_ENV"
 
-      - name: Unit and UI tests — iPhone SE
+      - name: Dedicated UI test — iPhone SE
+        if: ${{ env.RUN_IPHONE_SE == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -172,18 +174,34 @@ jobs:
             -destination "platform=iOS Simulator,id=$PB_SE_UDID" \
             -resultBundlePath "$result_bundle" \
             CODE_SIGNING_ALLOWED=NO \
+            -only-testing:PressBenchUITests/FirstUseFlowUITests/testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup \
+            test
+
+      - name: Unit tests — Face ID iPhone
+        if: ${{ env.RUN_IPHONE_SE != 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$PB_SOURCE_ROOT"
+          xcrun simctl boot "$PB_FACE_UDID"
+          xcrun simctl bootstatus "$PB_FACE_UDID" -b
+          xcodebuild \
+            -project PressBench.xcodeproj \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,id=$PB_FACE_UDID" \
+            CODE_SIGNING_ALLOWED=NO \
+            -only-testing:PressBenchTests \
             test
 
       - name: UI tests — Face ID iPhone
-        if: ${{ always() && !cancelled() }}
+        if: ${{ env.RUN_IPHONE_SE != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
           cd "$PB_SOURCE_ROOT"
           result_bundle="$GITHUB_WORKSPACE/build/PressBenchFaceIDTests.xcresult"
           rm -rf "$result_bundle"
-          xcrun simctl boot "$PB_FACE_UDID"
-          xcrun simctl bootstatus "$PB_FACE_UDID" -b
           xcodebuild \
             -project PressBench.xcodeproj \
             -scheme "$SCHEME" \
@@ -202,7 +220,12 @@ jobs:
           screenshot_dir="$GITHUB_WORKSPACE/build/ui-screenshots"
           rm -rf "$screenshot_dir"
           mkdir -p "$screenshot_dir"
-          for device in SE FaceID; do
+          if [[ "$RUN_IPHONE_SE" == "true" ]]; then
+            devices=(SE)
+          else
+            devices=(FaceID)
+          fi
+          for device in "${devices[@]}"; do
             result_bundle="$GITHUB_WORKSPACE/build/PressBench${device}Tests.xcresult"
             output_dir="$screenshot_dir/$device"
             [[ -d "$result_bundle" ]] || { echo "$device Xcode test result bundle is missing." >&2; exit 1; }
