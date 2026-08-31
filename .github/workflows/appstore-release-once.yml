@@ -1,0 +1,253 @@
+name: PressBench App Store Release Prep
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/appstore-release-once.yml"
+
+permissions:
+  contents: read
+
+env:
+  BUNDLE_ID: com.goodusestudios.pressbench
+  VERSION_STRING: "1.0"
+  BUILD_NUMBER: "17"
+  SUBSCRIPTION_PRODUCT_ID: pressbench_unlimited_monthly_ios
+  PROMO_FILE: /tmp/PressBench-Pro-App-Store-Image-1024.jpg
+  ASC_DEFAULT_OUTPUT: json
+  ASC_TIMEOUT: 2m
+  ASC_UPLOAD_TIMEOUT: 10m
+  ASC_TELEMETRY_DISABLED: "1"
+  ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+  ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+  ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+
+jobs:
+  release-prep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up App Store Connect CLI
+        uses: rudrankriyam/setup-asc@v1
+        with:
+          version: latest
+
+      - name: Decode and validate promotional image
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 --decode .release/PressBench-Pro-App-Store-Image-1024.jpg.b64 > "$PROMO_FILE"
+          python3 - <<'PY'
+          from PIL import Image
+          import hashlib, os
+          path = os.environ["PROMO_FILE"]
+          im = Image.open(path)
+          if im.size != (1024, 1024):
+              raise SystemExit(f"Wrong image size: {im.size}")
+          if im.mode != "RGB":
+              raise SystemExit(f"Wrong image mode: {im.mode}")
+          if os.path.getsize(path) > 4 * 1024 * 1024:
+              raise SystemExit("Promotional image exceeds 4 MB")
+          digest = hashlib.sha256(open(path, "rb").read()).hexdigest()
+          if digest != "b24b83f0f9dfefc7d15700923bf45c8276e0021bd1c009873ab60af66e0221c9":
+              raise SystemExit("Promotional image checksum mismatch")
+          print(f"Promotional image valid: 1024x1024 RGB, {os.path.getsize(path)} bytes")
+          PY
+
+      - name: Resolve PressBench app and build 17
+        id: resolve
+        shell: bash
+        run: |
+          set -euo pipefail
+          asc --version
+          APP_JSON="$(asc apps list --bundle-id "$BUNDLE_ID" --limit 2 --output json)"
+          APP_COUNT="$(jq '[.data[] | select(.attributes.bundleId == env.BUNDLE_ID)] | length' <<<"$APP_JSON")"
+          if [ "$APP_COUNT" -ne 1 ]; then
+            echo "Expected exactly one PressBench app for $BUNDLE_ID; found $APP_COUNT" >&2
+            exit 1
+          fi
+          APP_ID="$(jq -r '.data[] | select(.attributes.bundleId == env.BUNDLE_ID) | .id' <<<"$APP_JSON")"
+
+          BUILD_JSON="$(asc builds info --app "$APP_ID" --build-number "$BUILD_NUMBER" --version "$VERSION_STRING" --platform IOS --output json)"
+          BUILD_ID="$(jq -r '.data.id // .id // empty' <<<"$BUILD_JSON")"
+          RESOLVED_BUILD_NUMBER="$(jq -r '.data.attributes.version // .attributes.version // .buildNumber // empty' <<<"$BUILD_JSON")"
+          if [ -z "$BUILD_ID" ]; then
+            echo "Could not resolve App Store Connect build ID for version $VERSION_STRING build $BUILD_NUMBER" >&2
+            echo "$BUILD_JSON" >&2
+            exit 1
+          fi
+          if [ -n "$RESOLVED_BUILD_NUMBER" ] && [ "$RESOLVED_BUILD_NUMBER" != "$BUILD_NUMBER" ]; then
+            echo "Resolved wrong build number: $RESOLVED_BUILD_NUMBER" >&2
+            exit 1
+          fi
+
+          echo "app_id=$APP_ID" >> "$GITHUB_OUTPUT"
+          echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
+          echo "APP_ID=$APP_ID" >> "$GITHUB_ENV"
+          echo "BUILD_ID=$BUILD_ID" >> "$GITHUB_ENV"
+          echo "Resolved PressBench app $APP_ID and build $BUILD_NUMBER ($BUILD_ID)."
+
+      - name: Inspect listing and remove only stale beta promotional copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          LISTING_JSON="$(asc apps info view --app "$APP_ID" --version "$VERSION_STRING" --platform IOS --locale en-US --output json)"
+          COUNT="$(jq '.data | length' <<<"$LISTING_JSON")"
+          if [ "$COUNT" -lt 1 ]; then
+            echo "No en-US App Store version localization found for $VERSION_STRING" >&2
+            exit 1
+          fi
+          PROMO="$(jq -r '.data[0].attributes.promotionalText // ""' <<<"$LISTING_JSON")"
+          DESCRIPTION_LEN="$(jq -r '(.data[0].attributes.description // "") | length' <<<"$LISTING_JSON")"
+          KEYWORDS_LEN="$(jq -r '(.data[0].attributes.keywords // "") | length' <<<"$LISTING_JSON")"
+          SUPPORT_URL="$(jq -r '.data[0].attributes.supportUrl // ""' <<<"$LISTING_JSON")"
+          if [ "$DESCRIPTION_LEN" -eq 0 ] || [ "$KEYWORDS_LEN" -eq 0 ] || [ -z "$SUPPORT_URL" ]; then
+            echo "Required listing metadata is unexpectedly incomplete; refusing to invent replacement copy." >&2
+            exit 1
+          fi
+          if grep -Eiq 'testflight|internal beta|beta build' <<<"$PROMO"; then
+            FINAL_PROMO='Log heat press setups, guide production runs, and capture quality results. Five completed runs are free; optional Pro adds unlimited runs, no ads, and reports.'
+            asc apps info edit --app "$APP_ID" --version "$VERSION_STRING" --platform IOS --locale en-US --promotional-text "$FINAL_PROMO" --output json >/tmp/listing-update.json
+            echo "Removed stale beta wording from en-US promotional text."
+          else
+            echo "Existing en-US listing is complete and contains no stale beta wording; leaving approved copy unchanged."
+          fi
+
+      - name: Resolve PressBench Pro subscription
+        shell: bash
+        run: |
+          set -euo pipefail
+          GROUPS_JSON="$(asc subscriptions groups list --app "$APP_ID" --paginate --output json)"
+          : > /tmp/subscription-matches.jsonl
+          while IFS= read -r GROUP_ID; do
+            [ -n "$GROUP_ID" ] || continue
+            SUBS_JSON="$(asc subscriptions list --group-id "$GROUP_ID" --paginate --output json)"
+            jq -c --arg product "$SUBSCRIPTION_PRODUCT_ID" '.data[] | select(.attributes.productId == $product)' <<<"$SUBS_JSON" >> /tmp/subscription-matches.jsonl
+          done < <(jq -r '.data[].id' <<<"$GROUPS_JSON")
+          MATCH_COUNT="$(wc -l < /tmp/subscription-matches.jsonl | tr -d ' ')"
+          if [ "$MATCH_COUNT" -ne 1 ]; then
+            echo "Expected exactly one subscription with product ID $SUBSCRIPTION_PRODUCT_ID; found $MATCH_COUNT" >&2
+            cat /tmp/subscription-matches.jsonl >&2 || true
+            exit 1
+          fi
+          SUB_ID="$(jq -r '.id' /tmp/subscription-matches.jsonl)"
+          echo "SUB_ID=$SUB_ID" >> "$GITHUB_ENV"
+          echo "Resolved PressBench Pro subscription $SUB_ID."
+
+      - name: Replace PressBench Pro promotional image
+        shell: bash
+        run: |
+          set -euo pipefail
+          BEFORE_JSON="$(asc subscriptions images list --subscription-id "$SUB_ID" --output json)"
+          mapfile -t BEFORE_IDS < <(jq -r '.data[]?.id' <<<"$BEFORE_JSON")
+
+          set +e
+          asc subscriptions images create --subscription-id "$SUB_ID" --file "$PROMO_FILE" --output json >/tmp/new-image.json 2>/tmp/new-image.err
+          CREATE_RC=$?
+          set -e
+
+          if [ "$CREATE_RC" -ne 0 ]; then
+            if grep -Eiq '409|conflict|already exists|maximum|only one' /tmp/new-image.err; then
+              echo "Existing promotional image blocks a second reservation; replacing it."
+              for IMAGE_ID in "${BEFORE_IDS[@]}"; do
+                [ -n "$IMAGE_ID" ] || continue
+                asc subscriptions images delete --id "$IMAGE_ID" --confirm >/dev/null
+              done
+              asc subscriptions images create --subscription-id "$SUB_ID" --file "$PROMO_FILE" --output json >/tmp/new-image.json
+            else
+              cat /tmp/new-image.err >&2
+              exit "$CREATE_RC"
+            fi
+          fi
+
+          NEW_IMAGE_ID="$(jq -r '.data.id // .id // empty' /tmp/new-image.json)"
+          if [ -z "$NEW_IMAGE_ID" ]; then
+            echo "Promotional image upload returned no image ID." >&2
+            cat /tmp/new-image.json >&2
+            exit 1
+          fi
+
+          AFTER_JSON="$(asc subscriptions images list --subscription-id "$SUB_ID" --output json)"
+          if ! jq -e --arg id "$NEW_IMAGE_ID" '.data[]? | select(.id == $id)' <<<"$AFTER_JSON" >/dev/null; then
+            echo "New promotional image is not present after upload." >&2
+            echo "$AFTER_JSON" >&2
+            exit 1
+          fi
+
+          for IMAGE_ID in "${BEFORE_IDS[@]}"; do
+            [ -n "$IMAGE_ID" ] || continue
+            if [ "$IMAGE_ID" != "$NEW_IMAGE_ID" ]; then
+              asc subscriptions images delete --id "$IMAGE_ID" --confirm >/dev/null || true
+            fi
+          done
+
+          FINAL_IMAGES="$(asc subscriptions images list --subscription-id "$SUB_ID" --output json)"
+          FINAL_COUNT="$(jq '.data | length' <<<"$FINAL_IMAGES")"
+          if [ "$FINAL_COUNT" -lt 1 ]; then
+            echo "No PressBench Pro promotional image remains after replacement." >&2
+            exit 1
+          fi
+          echo "NEW_IMAGE_ID=$NEW_IMAGE_ID" >> "$GITHUB_ENV"
+          echo "PressBench Pro promotional image uploaded: $NEW_IMAGE_ID."
+
+      - name: Stage App Store version 1.0 with build 17
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Dry-running release staging first..."
+          asc release stage --app "$APP_ID" --version "$VERSION_STRING" --platform IOS --build "$BUILD_ID" --dry-run --output json >/tmp/release-dry-run.json
+          echo "Applying pre-submit release staging (no review submission)..."
+          asc release stage --app "$APP_ID" --version "$VERSION_STRING" --platform IOS --build "$BUILD_ID" --confirm --output json >/tmp/release-stage.json
+          VERSION_ID="$(jq -r '.versionId // .version_id // .data.id // empty' /tmp/release-stage.json)"
+          if [ -n "$VERSION_ID" ]; then
+            echo "VERSION_ID=$VERSION_ID" >> "$GITHUB_ENV"
+          fi
+          echo "Build 17 staged on App Store version $VERSION_STRING."
+
+      - name: Verify build and listing state
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERIFY_BUILD="$(asc builds info --app "$APP_ID" --build-number "$BUILD_NUMBER" --version "$VERSION_STRING" --platform IOS --output json)"
+          VERIFY_ID="$(jq -r '.data.id // .id // empty' <<<"$VERIFY_BUILD")"
+          if [ "$VERIFY_ID" != "$BUILD_ID" ]; then
+            echo "Build verification mismatch after staging." >&2
+            exit 1
+          fi
+          asc apps info view --app "$APP_ID" --version "$VERSION_STRING" --platform IOS --locale en-US --output json >/tmp/listing-final.json
+          echo "Release preparation verification passed."
+
+      - name: Check submission readiness without submitting
+        shell: bash
+        continue-on-error: true
+        run: |
+          set +e
+          asc validate --app "$APP_ID" --version "$VERSION_STRING" --platform IOS --output table | tee /tmp/readiness.txt
+          RC=${PIPESTATUS[0]}
+          echo "readiness_exit_code=$RC" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Release preparation summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## PressBench App Store release prep"
+            echo "- Version: $VERSION_STRING"
+            echo "- Build: $BUILD_NUMBER"
+            echo "- Bundle ID: $BUNDLE_ID"
+            echo "- Subscription product: $SUBSCRIPTION_PRODUCT_ID"
+            echo "- Review submission: NOT CREATED"
+            if [ -n "${NEW_IMAGE_ID:-}" ]; then echo "- Promotional image ID: $NEW_IMAGE_ID"; fi
+            if [ -f /tmp/readiness.txt ]; then
+              echo ""
+              echo "### Readiness check"
+              echo '```'
+              tail -80 /tmp/readiness.txt
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
