@@ -23,6 +23,7 @@ final class FirstUseFlowUITests: XCTestCase {
         exactRepeat.tap()
 
         let continueRun = app.buttons["Continue"].firstMatch
+        makeHittable(continueRun, in: app)
         XCTAssertTrue(waitForInteractable(continueRun, timeout: 5))
         continueRun.tap()
 
@@ -160,9 +161,11 @@ final class FirstUseFlowUITests: XCTestCase {
         capture("06a-single-setup-direct-start")
         exactRepeat.tap()
         let continueRun = app.buttons["Continue"].firstMatch
+        makeHittable(continueRun, in: app)
         XCTAssertTrue(waitForInteractable(continueRun, timeout: 5))
         continueRun.tap()
         let startRun = app.buttons.matching(identifier: "Start Run").firstMatch
+        makeHittable(startRun, in: app)
         XCTAssertTrue(waitForInteractable(startRun, timeout: 5))
         startRun.tap()
 
@@ -303,11 +306,15 @@ final class FirstUseFlowUITests: XCTestCase {
 
     private func choose(_ identifier: String, option: String, app: XCUIApplication) {
         let field = app.buttons.matching(identifier: identifier).firstMatch
-        makeHittable(field, in: app)
-        field.tap()
         let choice = app.buttons[option].firstMatch
         let choiceCancel = app.buttons.matching(identifier: "\(identifier).cancel").firstMatch
-        XCTAssertTrue(choiceCancel.waitForExistence(timeout: 5))
+        var presented = false
+        for _ in 0..<3 where !presented {
+            makeHittable(field, in: app)
+            field.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            presented = choiceCancel.waitForExistence(timeout: 5) || choice.waitForExistence(timeout: 1)
+        }
+        XCTAssertTrue(presented, "The \(identifier) choice sheet must appear after a settled field tap")
         makeHittable(choice, in: app)
         choice.tap()
         let editorCancel = app.buttons.matching(identifier: "pb.editor.cancel").firstMatch
