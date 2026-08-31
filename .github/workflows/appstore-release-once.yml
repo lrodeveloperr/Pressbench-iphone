@@ -36,26 +36,100 @@ jobs:
         with:
           version: latest
 
-      - name: Decode and validate promotional image
+      - name: Generate and validate PressBench Pro promotional image
         shell: bash
         run: |
           set -euo pipefail
-          base64 --decode .release/PressBench-Pro-App-Store-Image-1024.jpg.b64 > "$PROMO_FILE"
+          python3 -m pip install --quiet pillow
           python3 - <<'PY'
-          from PIL import Image
-          import hashlib, os
+          from PIL import Image, ImageDraw, ImageFont
+          import os
+
           path = os.environ["PROMO_FILE"]
-          im = Image.open(path)
-          if im.size != (1024, 1024):
-              raise SystemExit(f"Wrong image size: {im.size}")
-          if im.mode != "RGB":
-              raise SystemExit(f"Wrong image mode: {im.mode}")
+          W = H = 1024
+          img = Image.new("RGB", (W, H), (7, 21, 34))
+          d = ImageDraw.Draw(img)
+
+          top = (16, 43, 65)
+          bottom = (4, 16, 28)
+          for y in range(H):
+              t = y / (H - 1)
+              c = tuple(int(top[i] * (1 - t) + bottom[i] * t) for i in range(3))
+              d.line((0, y, W, y), fill=c)
+
+          for x in range(0, W, 64):
+              d.line((x, 0, x, H), fill=(19, 55, 72), width=1)
+          for y in range(0, H, 64):
+              d.line((0, y, W, y), fill=(19, 55, 72), width=1)
+
+          d.arc((-200, 180, 440, 820), 285, 85, fill=(117, 65, 35), width=2)
+          d.arc((680, -230, 1220, 300), 100, 250, fill=(117, 65, 35), width=2)
+
+          try:
+              font_bold = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 58)
+          except OSError:
+              font_bold = ImageFont.load_default()
+
+          # Small PRO plaque: distinguishes the promoted subscription from the app icon.
+          d.rounded_rectangle((72, 72, 272, 154), radius=22, fill=(16, 47, 70), outline=(52, 139, 192), width=3)
+          d.text((102, 78), "PRO", font=font_bold, fill=(235, 244, 248))
+
+          # Three feature symbols: repeated runs, no ads, reports.
+          centers = [668, 786, 904]
+          for c in centers:
+              d.ellipse((c - 42, 74, c + 42, 158), fill=(14, 39, 58), outline=(55, 108, 138), width=2)
+
+          c = centers[0]
+          d.arc((c - 24, 95, c + 24, 143), 25, 215, fill=(91, 191, 239), width=6)
+          d.polygon([(c + 17, 98), (c + 28, 101), (c + 22, 112)], fill=(91, 191, 239))
+          d.arc((c - 24, 95, c + 24, 143), 205, 395, fill=(91, 191, 239), width=6)
+          d.polygon([(c - 17, 141), (c - 28, 138), (c - 22, 127)], fill=(91, 191, 239))
+
+          c = centers[1]
+          d.rectangle((c - 22, 99, c + 22, 135), outline=(232, 236, 238), width=4)
+          d.line((c - 31, 91, c + 31, 151), fill=(222, 103, 62), width=7)
+
+          c = centers[2]
+          for i, bar_h in enumerate([20, 32, 46]):
+              x = c - 26 + i * 20
+              d.rectangle((x, 140 - bar_h, x + 12, 140), fill=(93, 188, 139))
+
+          # Heat-press work surface and stacked platens.
+          d.rounded_rectangle((76, 758, 456, 906), radius=24, fill=(29, 51, 65), outline=(61, 94, 111), width=4)
+          d.rounded_rectangle((102, 792, 424, 928), radius=22, fill=(35, 91, 117))
+          d.rounded_rectangle((86, 830, 414, 970), radius=22, fill=(185, 74, 35))
+          d.rounded_rectangle((72, 868, 398, 1006), radius=22, fill=(37, 79, 104))
+
+          # Distinct industrial heat-press illustration.
+          d.rounded_rectangle((678, 570, 780, 970), radius=26, fill=(190, 180, 164), outline=(230, 224, 214), width=3)
+          d.rounded_rectangle((744, 770, 1010, 930), radius=28, fill=(24, 80, 105), outline=(75, 141, 169), width=4)
+          d.rounded_rectangle((782, 810, 1000, 905), radius=18, fill=(35, 102, 133))
+          d.polygon([(724, 646), (994, 560), (1024, 640), (770, 724)], fill=(185, 72, 31), outline=(229, 113, 61))
+          d.ellipse((708, 630, 780, 702), fill=(204, 194, 177), outline=(240, 234, 224), width=3)
+          d.ellipse((730, 652, 758, 680), fill=(13, 28, 37))
+          d.rounded_rectangle((854, 426, 1028, 558), radius=28, fill=(194, 183, 167), outline=(232, 226, 215), width=3)
+          d.polygon([(878, 516), (938, 536), (844, 675), (786, 653)], fill=(176, 165, 149))
+
+          # Production-result markers reinforce that Pro relates to run records/reporting.
+          for i, x in enumerate([500, 562, 624]):
+              d.ellipse((x, 872, x + 46, 918), fill=(14, 42, 58), outline=(67, 124, 150), width=2)
+              if i < 2:
+                  d.line((x + 12, 895, x + 20, 903), fill=(104, 205, 149), width=5)
+                  d.line((x + 20, 903, x + 34, 884), fill=(104, 205, 149), width=5)
+              else:
+                  d.line((x + 13, 881, x + 33, 908), fill=(229, 120, 69), width=5)
+                  d.line((x + 33, 881, x + 13, 908), fill=(229, 120, 69), width=5)
+
+          img.save(path, "JPEG", quality=91, optimize=True, dpi=(72, 72))
+
+          check = Image.open(path)
+          if check.size != (1024, 1024):
+              raise SystemExit(f"Wrong image size: {check.size}")
+          if check.mode != "RGB":
+              raise SystemExit(f"Wrong image mode: {check.mode}")
           if os.path.getsize(path) > 4 * 1024 * 1024:
               raise SystemExit("Promotional image exceeds 4 MB")
-          digest = hashlib.sha256(open(path, "rb").read()).hexdigest()
-          if digest != "b24b83f0f9dfefc7d15700923bf45c8276e0021bd1c009873ab60af66e0221c9":
-              raise SystemExit("Promotional image checksum mismatch")
-          print(f"Promotional image valid: 1024x1024 RGB, {os.path.getsize(path)} bytes")
+          print(f"Promotional image valid: 1024x1024 RGB JPEG, {os.path.getsize(path)} bytes")
           PY
 
       - name: Resolve PressBench app and build 17
