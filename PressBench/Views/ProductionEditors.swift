@@ -677,13 +677,7 @@ struct StartRunSheet: View {
             }
                 .environmentObject(store)
         }
-        .onAppear { openSingleRunnableSetupIfNeeded() }
         .pbEditorSheetStyle()
-    }
-
-    private func openSingleRunnableSetupIfNeeded() {
-        guard selectedSetup == nil, search.isEmpty, availableSetups.count == 1 else { return }
-        selectedSetup = availableSetups[0]
     }
 }
 
