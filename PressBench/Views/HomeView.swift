@@ -117,6 +117,7 @@ struct HomeView: View {
             .shadow(color: PBTheme.controlShadow, radius: 12, x: 0, y: 6)
         }
         .buttonStyle(PBTactileButtonStyle())
+        .accessibilityIdentifier("pb.home.startRun")
     }
 
     private var metrics: some View {
