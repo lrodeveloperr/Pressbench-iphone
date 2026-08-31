@@ -480,10 +480,18 @@ final class PressBenchStore: ObservableObject {
                 stage.pressure.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
                 throw StoreError.invalidSetup
             }
+            let enteredStageName = stage.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            let persistedStageName: String
+            if enteredStageName.isEmpty {
+                guard let canonicalName = canonicalStageName(for: stage.stageType) else { throw StoreError.invalidSetup }
+                persistedStageName = canonicalName
+            } else {
+                persistedStageName = enteredStageName
+            }
             return [
                 "id": stage.id,
                 "stageType": stage.stageType,
-                "name": stage.name.trimmingCharacters(in: .whitespacesAndNewlines),
+                "name": persistedStageName,
                 "instruction": stage.instruction,
                 "machineNickname": string(machineSnapshot["nickname"]),
                 "machineProfileId": draft.machineID,
@@ -1345,6 +1353,18 @@ final class PressBenchStore: ObservableObject {
         case "cool": return normalizedName == "cool"
         case "postpress": return normalizedName == "post-press" || normalizedName == "postpress"
         default: return false
+        }
+    }
+
+    private func canonicalStageName(for type: String) -> String? {
+        switch type.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "placement": return "Placement"
+        case "prepress": return "Pre-press"
+        case "press": return "Press"
+        case "peel": return "Peel"
+        case "cool": return "Cool"
+        case "postpress": return "Post-press"
+        default: return nil
         }
     }
 
