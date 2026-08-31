@@ -125,9 +125,11 @@ final class FirstUseFlowUITests: XCTestCase {
         capture("06a-single-setup-direct-start")
         exactRepeat.tap()
         let continueRun = app.buttons["Continue"].firstMatch
+        makeHittable(continueRun, in: app)
         XCTAssertTrue(waitForInteractable(continueRun, timeout: 5))
         continueRun.tap()
         let startRun = app.buttons.matching(identifier: "Start Run").firstMatch
+        makeHittable(startRun, in: app)
         XCTAssertTrue(waitForInteractable(startRun, timeout: 5))
         startRun.tap()
 
