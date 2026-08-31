@@ -715,6 +715,7 @@ struct JobDifferenceSheet: View {
                         ) {
                             selectedReuseClass = reuseClass
                         }
+                        .accessibilityIdentifier("pb.jobDifference.\(reuseClass.rawValue)")
                     }
 
                     PBPrimaryButton(title: t("common.continue")) { continueRun() }
@@ -1090,6 +1091,7 @@ private struct JobDifferenceOption: View {
             .shadow(color: PBTheme.cardShadow, radius: 8, x: 0, y: 4)
         }
         .buttonStyle(PBTactileButtonStyle())
+        .accessibilityElement(children: .combine)
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }
