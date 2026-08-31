@@ -1,8 +1,8 @@
 import Foundation
 
 /// Human-facing PDF/XLSX report copy uses the same 31-language catalog as the UI.
-/// Report values intentionally remain canonical while human-facing PDF/XLSX
-/// labels use the selected app language.
+/// App-owned report labels and known issue codes use the selected app language.
+/// Operator-entered production values are reproduced exactly as recorded.
 enum PBReportLocalization {
     static let humanReportKeys: [String] = [
         "report.productionReport", "report.generatedBy", "report.reportingPeriod", "report.executiveSummary",

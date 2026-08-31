@@ -8,7 +8,7 @@ final class PrefillCatalogTests: XCTestCase {
         XCTAssertFalse(PBPrefillCatalog.provenance.containsExternalManufacturerData)
         XCTAssertFalse(PBPrefillCatalog.provenance.source.isEmpty)
         XCTAssertFalse(PBPrefillCatalog.provenance.permittedUseBasis.isEmpty)
-        XCTAssertEqual(PBPrefillCatalog.provenance.verifiedOn, "2026-08-29")
+        XCTAssertEqual(PBPrefillCatalog.provenance.verifiedOn, "2026-08-31")
 
         for (name, choices) in PBPrefillCatalog.groups {
             XCTAssertGreaterThanOrEqual(choices.count, 5, name)
@@ -54,22 +54,53 @@ final class PrefillCatalogTests: XCTestCase {
         )
     }
 
-    func testUntranslatedBundledEnglishIsNotExposedInOtherLanguages() {
-        XCTAssertEqual(
-            PBPrefillCatalog.customerVisibleChoices(
-                PBPrefillCatalog.materials,
-                recent: ["Valeur saisie par l’utilisateur"],
-                language: .fr
-            ),
-            ["Valeur saisie par l’utilisateur"]
+    func testEveryPresetGroupIsCompleteAndLocalizedInEveryLanguage() {
+        let englishLocale = Locale(identifier: "en-US")
+        for language in AppLanguage.allCases {
+            let locale = Locale(identifier: language.localeIdentifier(deviceLocale: englishLocale))
+            for group in PBPrefillCatalog.Group.allCases {
+                let english = PBPrefillCatalog.localizedChoices(for: group, language: .en, locale: englishLocale)
+                let localized = PBPrefillCatalog.localizedChoices(for: group, language: language, locale: locale)
+                XCTAssertEqual(localized.count, english.count, "\(group.rawValue)/\(language.rawValue)")
+                XCTAssertTrue(localized.allSatisfy { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
+                XCTAssertEqual(Set(localized.map { $0.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: locale) }).count,
+                               localized.count, "\(group.rawValue)/\(language.rawValue)")
+            }
+        }
+
+        let french = PBPrefillCatalog.customerVisibleChoices(
+            for: .materials,
+            recent: ["Valeur saisie par l’utilisateur"],
+            language: .fr,
+            locale: Locale(identifier: "fr-FR")
         )
-        XCTAssertEqual(
-            PBPrefillCatalog.customerVisibleChoices(
-                ["Bundled English"],
-                recent: ["Recent value"],
-                language: .en
-            ),
-            ["Recent value", "Bundled English"]
+        XCTAssertEqual(french.first, "Valeur saisie par l’utilisateur")
+        XCTAssertEqual(french.count, PBPrefillCatalog.materials.count + 1)
+        XCTAssertNotEqual(Array(french.dropFirst()), PBPrefillCatalog.materials)
+
+        let migratedFrench = PBPrefillCatalog.customerVisibleChoices(
+            for: .materials,
+            recent: ["100% cotton T-shirt"],
+            language: .fr,
+            locale: Locale(identifier: "fr-FR")
         )
+        XCTAssertEqual(migratedFrench.count, PBPrefillCatalog.materials.count)
+        XCTAssertNotEqual(migratedFrench.first, "100% cotton T-shirt")
+        XCTAssertFalse(migratedFrench.contains("100% cotton T-shirt"))
+
+        XCTAssertNotEqual(
+            PBPrefillCatalog.localizedValue(
+                "Peel hot", for: .finishActions, language: .es, locale: Locale(identifier: "es-ES")
+            ),
+            "Peel hot"
+        )
+
+        let simplified = PBPrefillCatalog.localizedChoices(
+            for: .materials, language: .zh, locale: Locale(identifier: "zh-CN")
+        )
+        let traditional = PBPrefillCatalog.localizedChoices(
+            for: .materials, language: .zh, locale: Locale(identifier: "zh-TW")
+        )
+        XCTAssertNotEqual(simplified, traditional)
     }
 }

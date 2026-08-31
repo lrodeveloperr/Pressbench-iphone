@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import hashlib, json, re, shutil, subprocess, sys, tempfile
+import hashlib, json, plistlib, re, shutil, subprocess, sys, tempfile
 
 root = Path(__file__).resolve().parents[1]
 failures=[]
@@ -26,6 +26,9 @@ require('function completedTimerPlan' in text and text.count('if (!completedTime
 
 project=(root/'project.yml').read_text(encoding='utf-8')
 info_plist=(root/'PressBench/Info.plist').read_text(encoding='utf-8')
+info_values=plistlib.loads(info_plist.encode('utf-8'))
+skadnetwork_ids=[item.get('SKAdNetworkIdentifier') for item in info_values.get('SKAdNetworkItems', [])]
+skadnetwork_hash=hashlib.sha256('\n'.join(identifier or '' for identifier in skadnetwork_ids).encode('utf-8')).hexdigest()
 require('com.goodusestudios.pressbench' in project, 'production bundle id mismatch')
 require('49SQ3XQ68Q' in project, 'Apple team id mismatch')
 require('path: PressBench/Resources\n        buildPhase: resources' in project,
@@ -37,10 +40,14 @@ require('CODE_SIGN_ENTITLEMENTS: PressBench/PressBench.entitlements' in project,
 require(all(marker in project for marker in ['GoogleMobileAds:', 'exactVersion: 13.9.0',
         'GoogleUserMessagingPlatform:', 'exactVersion: 3.1.0',
         'INFOPLIST_FILE: PressBench/Info.plist']) and
-        'ca-app-pub-8054612600809568~7417376420' in info_plist and
+        'ca-app-pub-8054612600809568~2608188289' in info_plist and
         '<key>GADApplicationIdentifier</key>' in info_plist and
+        len(skadnetwork_ids) == 50 and len(set(skadnetwork_ids)) == 50 and
+        'cstr6suwn9.skadnetwork' in skadnetwork_ids and
+        all(identifier and identifier.endswith('.skadnetwork') for identifier in skadnetwork_ids) and
+        skadnetwork_hash == 'd5a612e4ab257db0ed914a204f4ef2ef84d01f601c60051b361f8c549e798e39' and
         '<key>ITSAppUsesNonExemptEncryption</key>\n    <false/>' in info_plist,
-        'pinned Google ad/consent SDK or production application id is missing')
+        'pinned Google ad/consent SDK, production application id, or reviewed SKAdNetwork list is missing')
 
 approved_logo_hash = '03ee625d3c2c6a1efb8e49b4cc060c5b0c61e6397fc0b39633f66151ac2a6a8b'
 brand_logo = root/'PressBench/Assets.xcassets/BrandLogo.imageset/BrandLogo.png'
@@ -88,6 +95,7 @@ require('.preferredColorScheme(.light)' in app and 'settings.appearance' not in 
 require('AccessibilitySettingsView' in settings_view,
         'in-app accessibility settings are missing')
 for marker in ['backup.backupNow', 'backup.restore', 'backup.signOut', 'settings.rollbackRestore',
+               'backup.delete', 'backup.deleteConfirm', 'backup.deleteSuccess', 'backup.deleteFailed',
                'pressbench.notifications.enabled', 'pressbench.haptics.enabled', 'pressbench.sound.enabled',
                'syncPresentationPreferences', 'settings.storageRecoveryRequired']:
     require(marker in settings_view, f'restored Settings production control missing: {marker}')
@@ -105,6 +113,11 @@ entitlements=(root/'PressBench/PressBench.entitlements').read_text(encoding='utf
 require('NSUbiquitousKeyValueStore.default' in backup_service and 'owner' in backup_service and
         'com.apple.developer.applesignin' in entitlements and 'com.apple.developer.ubiquity-kvstore-identifier' in entitlements,
         'Sign in with Apple private-backup implementation or entitlements are missing')
+require(all(marker in backup_service for marker in ['static func deleteBackup()',
+        'removeObject(forKey: backupKey)']) and
+        all(marker in settings_view for marker in ['AppleBackupService.deleteBackup()',
+        'pb.settings.deleteICloudBackup']),
+        'private iCloud backup deletion or its reviewed Settings control is missing')
 require('planDeleteAll' in store_source and '"entitlement": entitlement' in store_source,
         'local-data reset does not use the deterministic planner while preserving purchase entitlement')
 require('.presentationDetents([.fraction(0.88), .large])' in theme and editors.count('.pbEditorSheetStyle()') >= 4,
@@ -125,24 +138,26 @@ require('if mode == .sameProductVariant' in editors and 'Int(draft.defaultQuanti
 require('!draft.sourceReference.trimmingCharacters' in editors and 'throw StoreError.invalidSetup' in store_source,
         'setup editor/store can persist a visibly complete but non-runnable setup')
 require(all(marker in prefill_source for marker in [
-            'static let platenSizes', 'static let materials', 'static let transferMedia',
-            'static let pressureDescriptions', 'static let instructionSources',
-            'static let placementActions', 'static let finishActions',
+            'static var platenSizes', 'static var materials', 'static var transferMedia',
+            'static var pressureDescriptions', 'static var instructionSources',
+            'static var placementActions', 'static var finishActions',
             'static var choiceCount', 'static let provenance',
             'containsExternalManufacturerData: false',
-            'Original work bundled with PressBench']) and
+            'Original work bundled with PressBench', 'PrefillLocalizations',
+            'static func localizedChoices(for group: Group']) and
         all(marker in editors for marker in [
-            'PBPrefillCatalog.platenSizes', 'PBPrefillCatalog.materials', 'PBPrefillCatalog.transferMedia',
-            'PBPrefillCatalog.pressureDescriptions', 'PBPrefillCatalog.instructionSources',
-            'PBPrefillCatalog.placementActions', 'PBPrefillCatalog.finishActions']) and
+            'for: .platenSizes', 'for: .materials', 'for: .transferMedia',
+            'for: .pressureDescriptions', 'for: .instructionSources',
+            'for: .placementActions', 'for: .finishActions']) and
         'struct PBChoiceField' in choice_field_source and 'chooseOther' in choice_field_source,
-        'offline prefilled choices or the Other/custom escape path are missing')
+        'localized offline prefilled choices or the Other/custom escape path are missing')
 prefill_test=(root/'PressBenchTests/PrefillCatalogTests.swift').read_text(encoding='utf-8')
 require('XCTAssertEqual(PBPrefillCatalog.choiceCount, 98)' in prefill_test and
         'testCatalogContainsNoOperatingRecipeValuesOrCopiedBrandMarkers' in prefill_test and
         'testRecentChoicesAreFirstWithoutAddingDuplicatesOrRecipes' in prefill_test and
-        'testUntranslatedBundledEnglishIsNotExposedInOtherLanguages' in prefill_test,
-        'prefill breadth, uniqueness, or no-operating-values regression coverage is missing')
+        'testEveryPresetGroupIsCompleteAndLocalizedInEveryLanguage' in prefill_test and
+        'XCTAssertNotEqual(simplified, traditional)' in prefill_test,
+        'prefill breadth, localization, uniqueness, or no-operating-values regression coverage is missing')
 streamlining_test=(root/'PressBenchTests/DataEntryStreamliningTests.swift').read_text(encoding='utf-8')
 require('testMachineNicknameAndSetupTitleAreDerivedWithoutInventingOperatingValues' in streamlining_test and
         'XCTAssertEqual(draft.stages.first?.temperature, "")' in streamlining_test and
@@ -153,13 +168,15 @@ require('testMachineNicknameAndSetupTitleAreDerivedWithoutInventingOperatingValu
         'no-typing derivation or blank operating-value regression coverage is missing')
 require('static func prioritized' in prefill_source and
         'static func customerVisibleChoices' in prefill_source and
-        'language == .en ? bundled : []' in prefill_source and
+        'localizedChoices(for: group, language: language, locale: locale)' in prefill_source and
+        'language == .en ? bundled : []' not in prefill_source and
         editors.count('PBPrefillCatalog.customerVisibleChoices(') == 7 and
+        editors.count('for: .') >= 7 and
         'choices: PBPrefillCatalog.' not in editors and
         'if choices.isEmpty {' in choice_field_source and
         r'recent: store.recentSetups.map(\.material)' in editors and
         r'recent: store.recentSetups.map(\.transferMedium)' in editors,
-        'recent operator-owned choices are not safely prioritized or raw English catalog labels can leak into other locales')
+        'recent operator-owned choices are not safely prioritized or localized presets are bypassed')
 require('let nickname = enteredNickname.isEmpty ?' in store_source and
         'let title = enteredTitle.isEmpty ? generatedTitle : enteredTitle' in store_source and
         'private var suggestedSetupTitle' in editors,
@@ -186,6 +203,11 @@ require('dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())]' in home_
 require('m.setups == 1 ? "setup.title" : "home.metric.setups"' in home_view and
         'm.batches == 1 ? "runs.batch" : "home.metric.batches"' in home_view,
         'Home setup and batch metrics do not use localized singular labels only for a count of one')
+metric_tile = home_view.split('private struct MetricTile', 1)[-1]
+require('VStack(alignment: .center, spacing: 10)' in metric_tile and
+        metric_tile.count('.multilineTextAlignment(.center)') >= 2 and
+        '.frame(maxWidth: .infinity, minHeight: 104, alignment: .center)' in metric_tile,
+        'Home metric icon, label, and value are not centered as one card stack')
 language_dropdown=(root/'PressBench/Views/LanguageDropdown.swift').read_text(encoding='utf-8')
 onboarding_view=(root/'PressBench/Views/OnboardingView.swift').read_text(encoding='utf-8')
 require('.frame(minHeight: PBTheme.minimumTarget)' in language_dropdown,
@@ -305,19 +327,24 @@ usage_source=(root/'PressBench/Services/PBUsageMeter.swift').read_text()
 require(all(marker in purchase_source for marker in ['pressbench_unlimited_monthly_ios',
         'pressbench_unlimited_lifetime_ios', '.autoRenewable', 'subscriptionPeriod.unit == .month',
         'transaction.expirationDate']), 'native subscription verification or lifetime grandfathering is incomplete')
-require('ca-app-pub-8054612600809568~7417376420' in info_plist and
-        'ca-app-pub-8054612600809568/2671767469' in ad_source and
+require('ca-app-pub-8054612600809568~2608188289' in info_plist and
+        'ca-app-pub-8054612600809568/3307131638' in ad_source and
         'ca-app-pub-3940256099942544/2435281174' in ad_source and
         '#if DEBUG' in ad_source and '#else' in ad_source and '#endif' in ad_source and
         ad_source.index('ca-app-pub-3940256099942544/2435281174') < ad_source.index('#else') <
-        ad_source.index('ca-app-pub-8054612600809568/2671767469') and
+        ad_source.index('ca-app-pub-8054612600809568/3307131638') and
         'ca-app-pub-3940256099942544' not in info_plist and
         all(marker in ad_source for marker in [
         'BannerView(adSize: AdSizeBanner)', 'frame(width: 320', 'slotHeight: CGFloat = 50',
         'maxAdContentRating = GADMaxAdContentRating.general',
         'publisherPrivacyPersonalizationState = .disabled',
+        'setPublisherFirstPartyIDEnabled(false)',
         'requestConsentInfoUpdate', 'loadAndPresentIfRequired', 'ConsentInformation.shared.canRequestAds']),
         'release AdMob identifiers, debug-only demo protection, or required UMP consent gate is missing')
+require(ad_source.index('publisherPrivacyPersonalizationState = .disabled') <
+        ad_source.index('setPublisherFirstPartyIDEnabled(false)') <
+        ad_source.index('MobileAds.shared.start()'),
+        'non-personalized and publisher first-party ID controls must be set before Mobile Ads starts')
 require('pbBanner(visible: store.adEligibilityResolved && !store.isPro && store.activeRun == nil)' in root_tabs and root_tabs.count('.pbBanner') == 1,
         'one persistent free-user banner is not fixed outside the active press flow or does not disappear for Pro')
 require(all(marker in usage_source for marker in ['freePressLimit = 5', 'completedPresses',
@@ -453,9 +480,9 @@ require('VStack(spacing: 0)' in banner_modifier and
 
 catalog=json.loads((root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8'))
 require(len(catalog.get('languages',[])) == 31, 'language choice count is not 31')
-require(len(catalog.get('strings',{})) == 366, 'reviewed localization catalog must contain 366 keys')
+require(len(catalog.get('strings',{})) == 370, 'reviewed localization catalog must contain 370 keys')
 language_tests=(root/'PressBenchTests/LanguageSupportTests.swift').read_text(encoding='utf-8')
-require('XCTAssertEqual(PBL10n.catalog.strings.count, 366)' in language_tests,
+require('XCTAssertEqual(PBL10n.catalog.strings.count, 370)' in language_tests,
         'unit-test localization count is stale')
 boundary = catalog.get('strings',{}).get('setup.provenBoundary',{})
 require(bool(boundary), 'localized Proven evidence boundary is missing')
@@ -474,7 +501,7 @@ for key, item in metadata.items():
 build_l10n=(root/'build_l10n.py').read_text(encoding='utf-8')
 assemble=(root/'assemble_catalog.py').read_text(encoding='utf-8')
 require('setup.provenBoundary' in build_l10n and 'raise SystemExit(\'Legacy' not in build_l10n,
-        'build_l10n.py is not the live 366-key canonical generator')
+        'build_l10n.py is not the live 370-key canonical generator')
 purchase_manager=(root/'PressBench/Services/PurchaseManager.swift').read_text(encoding='utf-8')
 require(purchase_manager.count('let productLoaded = await loadProduct()') == 2 and
         purchase_manager.count('if !productLoaded, state == .free { state = productLoadState }') == 2 and

@@ -64,6 +64,20 @@ enum PBFormat {
         value.formatted(.percent.precision(.fractionLength(fractionDigits)).locale(locale))
     }
 
+    static func decimal(_ value: Double, locale: Locale, maximumFractionDigits: Int = 2) -> String {
+        let formatter = NumberFormatter()
+        formatter.locale = locale
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = maximumFractionDigits
+        return formatter.string(from: NSNumber(value: value)) ?? String(value)
+    }
+
+    /// Uses the international SI symbol rather than an English unit word.
+    static func seconds(_ value: Int, locale: Locale) -> String {
+        "\(integer(value, locale: locale)) s"
+    }
+
     static func date(_ value: Date, locale: Locale, time: Bool = false) -> String {
         if time {
             return value.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened).locale(locale))
@@ -104,6 +118,13 @@ extension ProcessStage {
 
 extension BatchRun {
     var canonicalStageLocalizationKey: String? {
+        switch phase.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "preflight": return "stage.placement"
+        case "first_piece": return "onboarding.process.firstPiece"
+        case "result_pending", "committing": return "onboarding.process.result"
+        case "completed": return "runState.completed"
+        default: break
+        }
         let canonical = currentStageType.isEmpty ? stage : currentStageType
         switch canonical.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
         case "placement": return "stage.placement"
@@ -112,6 +133,33 @@ extension BatchRun {
         case "peel": return "stage.peel"
         case "cool": return "stage.cool"
         case "post-press", "postpress": return "stage.postpress"
+        default: return nil
+        }
+    }
+}
+
+extension SetupStageDraft {
+    var canonicalLocalizationKey: String? {
+        let normalizedName = name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let normalizedType = stageType.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let canonicalEnglishNames: [String: Set<String>] = [
+            "placement": ["placement"],
+            "prepress": ["pre-press", "prepress"],
+            "press": ["press"],
+            "peel": ["peel"],
+            "cool": ["cool"],
+            "postpress": ["post-press", "postpress"]
+        ]
+        guard normalizedName.isEmpty || canonicalEnglishNames[normalizedType]?.contains(normalizedName) == true else {
+            return nil
+        }
+        switch normalizedType {
+        case "placement": return "stage.placement"
+        case "prepress": return "stage.prepress"
+        case "press": return "stage.press"
+        case "peel": return "stage.peel"
+        case "cool": return "stage.cool"
+        case "postpress": return "stage.postpress"
         default: return nil
         }
     }

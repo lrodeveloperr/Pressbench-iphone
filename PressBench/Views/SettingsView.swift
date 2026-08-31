@@ -20,6 +20,8 @@ struct SettingsView: View {
     @State private var failed = false
     @State private var failureMessageKey = "common.actionFailed"
     @State private var showingRestoreConfirmation = false
+    @State private var showingBackupDeleteConfirmation = false
+    @State private var showingBackupDeleteSuccess = false
     @State private var showingRollbackConfirmation = false
     @State private var showingRejectedRunDiscardConfirmation = false
     @State private var showingUpgrade = false
@@ -140,6 +142,12 @@ struct SettingsView: View {
         } message: {
             Text(t("backup.restoreReplaces") + "\n" + restoreSummary)
         }
+        .confirmationDialog(t("backup.delete"), isPresented: $showingBackupDeleteConfirmation, titleVisibility: .visible) {
+            Button(t("backup.delete"), role: .destructive) { deleteICloudBackup() }
+            Button(t("common.cancel"), role: .cancel) {}
+        } message: {
+            Text(t("backup.deleteConfirm"))
+        }
         .confirmationDialog(t("settings.rollbackRestore"), isPresented: $showingRollbackConfirmation, titleVisibility: .visible) {
             Button(t("settings.rollbackRestore"), role: .destructive) { rollbackRestore() }
             Button(t("common.cancel"), role: .cancel) {}
@@ -167,6 +175,11 @@ struct SettingsView: View {
             Button(t("common.ok"), role: .cancel) {}
         } message: {
             Text(t(failureMessageKey))
+        }
+        .alert(t("backup.delete"), isPresented: $showingBackupDeleteSuccess) {
+            Button(t("common.ok"), role: .cancel) {}
+        } message: {
+            Text(t("backup.deleteSuccess"))
         }
         .task(id: store.adEligibilityResolved) {
             guard store.adEligibilityResolved, !store.isPro else { return }
@@ -253,6 +266,10 @@ struct SettingsView: View {
                     Button(role: .destructive) { signOutOfBackup() } label: {
                         Label(t("backup.signOut"), systemImage: "person.crop.circle.badge.xmark")
                     }
+                    Button(role: .destructive) { showingBackupDeleteConfirmation = true } label: {
+                        Label(t("backup.delete"), systemImage: "icloud.slash")
+                    }
+                    .accessibilityIdentifier("pb.settings.deleteICloudBackup")
                 } label: {
                     Label(t("common.localDataBackups"), systemImage: "ellipsis.circle")
                 }
@@ -355,6 +372,20 @@ struct SettingsView: View {
         appleUserID = ""
         backupLastSuccessAt = 0
         backupLastSuccessOwner = ""
+    }
+
+    private func deleteICloudBackup() {
+        do {
+            try AppleBackupService.deleteBackup()
+            backupLastSuccessAt = 0
+            backupLastSuccessOwner = ""
+            showingBackupDeleteSuccess = true
+            PBFeedback.success()
+        } catch {
+            failureMessageKey = "backup.deleteFailed"
+            failed = true
+            PBFeedback.error()
+        }
     }
 
     private func presentPrivacyOptions() {

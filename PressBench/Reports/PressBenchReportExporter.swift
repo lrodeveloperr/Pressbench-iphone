@@ -88,8 +88,8 @@ enum PressBenchReportExporter {
             }
 
             section(PBReportLocalization.text("report.runPerformance", language: language, locale: locale))
-            let headers = ["report.date", "report.batch", "report.setup", "report.processed", "report.firstPass", "report.final", "report.outcome"]
-            let widths: [CGFloat] = [55, 76, 132, 55, 66, 58, 74]
+            let headers = ["report.date", "report.batch", "report.setup", "report.processed", "report.firstPass", "report.final"]
+            let widths: [CGFloat] = [60, 80, 177, 60, 70, 69]
             func tableRow(_ values: [String], header: Bool = false) {
                 ensure(31)
                 var x: CGFloat = 42
@@ -116,11 +116,10 @@ enum PressBenchReportExporter {
                 tableRow([
                     shortDate(batch["completedAt"] as? String, locale),
                     batch["id"] as? String ?? "",
-                    recipe["title"] as? String ?? "",
+                    localizedSetupTitle(recipe, language: language, locale: locale),
                     formatInt(processed, locale),
                     formatPercent(firstPass, locale),
-                    formatPercent(finalYield, locale),
-                    batch["outcome"] as? String ?? ""
+                    formatPercent(finalYield, locale)
                 ])
             }
 
@@ -132,9 +131,9 @@ enum PressBenchReportExporter {
                     ensure(44)
                     let line = [
                         batch["id"] as? String ?? "",
-                        issue["symptom"] as? String ?? "",
-                        issue["suspectedCause"] as? String ?? "",
-                        issue["disposition"] as? String ?? "",
+                        localizedIssueValue(issue["symptom"] as? String, prefix: "issue.symptom", language: language, locale: locale),
+                        localizedIssueValue(issue["suspectedCause"] as? String, prefix: "issue.cause", language: language, locale: locale),
+                        localizedIssueValue(issue["disposition"] as? String, prefix: "issue.disposition", language: language, locale: locale),
                         formatInt(int(issue["quantity"]), locale)
                     ].filter { !$0.isEmpty }.joined(separator: " · ")
                     draw(line, font: .systemFont(ofSize: 8), color: .label,
@@ -154,11 +153,11 @@ enum PressBenchReportExporter {
             section(PBReportLocalization.text("report.setupDefinitions", language: language, locale: locale))
             for setup in setups {
                 ensure(76)
-                let titleText = setup["title"] as? String ?? ""
+                let titleText = localizedSetupTitle(setup, language: language, locale: locale)
                 let facts = [
-                    "\(PBReportLocalization.text("report.materialTransfer", language: language, locale: locale)): \(setup["blankMaterial"] as? String ?? "") / \(setup["transferMedium"] as? String ?? "")",
-                    "\(PBReportLocalization.text("report.machinePlaten", language: language, locale: locale)): \(setup["machineNickname"] as? String ?? "") / \(setup["platenZone"] as? String ?? "")",
-                    "\(PBReportLocalization.text("report.instructionSource", language: language, locale: locale)): \((setup["instructionSource"] as? [String: Any])?["name"] as? String ?? "")"
+                    "\(PBReportLocalization.text("report.materialTransfer", language: language, locale: locale)): \(localizedPreset(setup["blankMaterial"] as? String, group: .materials, language: language, locale: locale)) / \(localizedPreset(setup["transferMedium"] as? String, group: .transferMedia, language: language, locale: locale))",
+                    "\(PBReportLocalization.text("report.machinePlaten", language: language, locale: locale)): \(localizedMachineNickname(setup, language: language, locale: locale)) / \(localizedPreset(setup["platenZone"] as? String, group: .platenSizes, language: language, locale: locale))",
+                    "\(PBReportLocalization.text("report.instructionSource", language: language, locale: locale)): \(localizedPreset((setup["instructionSource"] as? [String: Any])?["name"] as? String, group: .instructionSources, language: language, locale: locale))"
                 ]
                 draw(titleText, font: .boldSystemFont(ofSize: 9), color: .label,
                      rect: CGRect(x: 42, y: cursor, width: 528, height: 18))
@@ -205,13 +204,12 @@ enum PressBenchReportExporter {
             [.text(PBReportLocalization.text("report.firstPassYield", language: language, locale: locale)), .number(totals.firstPassYield)],
             [.text(PBReportLocalization.text("report.finalYield", language: language, locale: locale)), .number(totals.finalYield)],
             [.text(PBReportLocalization.text("report.reworkRate", language: language, locale: locale)), .number(totals.reworkRate)],
-            [.text(PBReportLocalization.text("report.wasteRate", language: language, locale: locale)), .number(totals.wasteRate)],
-            [.text("datasetFingerprint"), .text(plan["datasetFingerprint"] as? String ?? "")]
+            [.text(PBReportLocalization.text("report.wasteRate", language: language, locale: locale)), .number(totals.wasteRate)]
         ]
         zip.add("xl/worksheets/sheet1.xml", worksheetXML(summaryRows, percentRows: [5, 6, 7, 8]))
 
         var runRows = [[PBXLSXCell]]()
-        runRows.append(["report.date", "report.batch", "report.setup", "report.processed", "report.firstPass", "report.final", "report.outcome"].map {
+        runRows.append(["report.date", "report.batch", "report.setup", "report.processed", "report.firstPass", "report.final"].map {
             .text(PBReportLocalization.text($0, language: language, locale: locale))
         })
         for batch in records {
@@ -220,11 +218,10 @@ enum PressBenchReportExporter {
             runRows.append([
                 .text(shortDate(batch["completedAt"] as? String, locale)),
                 .text(batch["id"] as? String ?? ""),
-                .text(recipe["title"] as? String ?? ""),
+                .text(localizedSetupTitle(recipe, language: language, locale: locale)),
                 .number(Double(processed)),
                 .number(processed > 0 ? Double(max(0, good - rework)) / Double(processed) : 0),
-                .number(processed > 0 ? Double(good) / Double(processed) : 0),
-                .text(batch["outcome"] as? String ?? "")
+                .number(processed > 0 ? Double(good) / Double(processed) : 0)
             ])
         }
         zip.add("xl/worksheets/sheet2.xml", worksheetXML(runRows, percentColumns: [5, 6]))
@@ -239,13 +236,23 @@ enum PressBenchReportExporter {
         ]]
         for setup in setups {
             let source = setup["instructionSource"] as? [String: Any] ?? [:]
-            let press = [temperatureText(setup), durationText(setup), setup["pressure"] as? String ?? ""].filter { !$0.isEmpty }.joined(separator: " · ")
+            let press = [
+                temperatureText(setup, locale: locale),
+                durationText(setup, locale: locale),
+                localizedPreset(setup["pressure"] as? String, group: .pressureDescriptions, language: language, locale: locale)
+            ].filter { !$0.isEmpty }.joined(separator: " · ")
             setupRows.append([
-                .text(setup["title"] as? String ?? ""),
-                .text([setup["blankMaterial"] as? String ?? "", setup["transferMedium"] as? String ?? ""].filter { !$0.isEmpty }.joined(separator: " / ")),
-                .text([setup["machineNickname"] as? String ?? "", setup["platenZone"] as? String ?? ""].filter { !$0.isEmpty }.joined(separator: " / ")),
+                .text(localizedSetupTitle(setup, language: language, locale: locale)),
+                .text([
+                    localizedPreset(setup["blankMaterial"] as? String, group: .materials, language: language, locale: locale),
+                    localizedPreset(setup["transferMedium"] as? String, group: .transferMedia, language: language, locale: locale)
+                ].filter { !$0.isEmpty }.joined(separator: " / ")),
+                .text([
+                    localizedMachineNickname(setup, language: language, locale: locale),
+                    localizedPreset(setup["platenZone"] as? String, group: .platenSizes, language: language, locale: locale)
+                ].filter { !$0.isEmpty }.joined(separator: " / ")),
                 .text(press),
-                .text(source["name"] as? String ?? ""),
+                .text(localizedPreset(source["name"] as? String, group: .instructionSources, language: language, locale: locale)),
                 .text(source["checkedDate"] as? String ?? "")
             ])
         }
@@ -262,8 +269,10 @@ enum PressBenchReportExporter {
         for batch in records {
             for issue in batch["issues"] as? [[String: Any]] ?? [] {
                 issueRows.append([
-                    .text(batch["id"] as? String ?? ""), .text(issue["symptom"] as? String ?? ""),
-                    .text(issue["suspectedCause"] as? String ?? ""), .text(issue["disposition"] as? String ?? ""),
+                    .text(batch["id"] as? String ?? ""),
+                    .text(localizedIssueValue(issue["symptom"] as? String, prefix: "issue.symptom", language: language, locale: locale)),
+                    .text(localizedIssueValue(issue["suspectedCause"] as? String, prefix: "issue.cause", language: language, locale: locale)),
+                    .text(localizedIssueValue(issue["disposition"] as? String, prefix: "issue.disposition", language: language, locale: locale)),
                     .number(Double(int(issue["quantity"]))), .text(issue["note"] as? String ?? "")
                 ])
             }
@@ -324,13 +333,61 @@ enum PressBenchReportExporter {
         if let value = value as? NSNumber { return value.doubleValue }
         return nil
     }
-    private static func temperatureText(_ setup: [String: Any]) -> String {
+    private static func temperatureText(_ setup: [String: Any], locale: Locale) -> String {
         guard let value = double(setup["temperature"]) else { return "" }
-        let number = value.rounded() == value ? String(Int(value)) : String(value)
+        let number = PBFormat.decimal(value, locale: locale)
         return "\(number)°\(setup["temperatureUnit"] as? String ?? "")"
     }
-    private static func durationText(_ setup: [String: Any]) -> String {
-        let duration = int(setup["pressTimeSeconds"]); return duration > 0 ? "\(duration) sec" : ""
+    private static func durationText(_ setup: [String: Any], locale: Locale) -> String {
+        let duration = int(setup["pressTimeSeconds"])
+        return duration > 0 ? PBFormat.seconds(duration, locale: locale) : ""
+    }
+    private static func localizedPreset(
+        _ value: String?,
+        group: PBPrefillCatalog.Group,
+        language: AppLanguage,
+        locale: Locale
+    ) -> String {
+        PBPrefillCatalog.localizedValue(value ?? "", for: group, language: language, locale: locale)
+    }
+    private static func localizedSetupTitle(
+        _ setup: [String: Any],
+        language: AppLanguage,
+        locale: Locale
+    ) -> String {
+        let title = setup["title"] as? String ?? ""
+        let material = setup["blankMaterial"] as? String ?? ""
+        let transfer = setup["transferMedium"] as? String ?? ""
+        let machine = setup["machineNickname"] as? String ?? ""
+        let generated = [material, transfer, machine].filter { !$0.isEmpty }.joined(separator: " · ")
+        guard !title.isEmpty, title == generated else { return title }
+        return [
+            localizedPreset(material, group: .materials, language: language, locale: locale),
+            localizedPreset(transfer, group: .transferMedia, language: language, locale: locale),
+            localizedMachineNickname(setup, language: language, locale: locale)
+        ].filter { !$0.isEmpty }.joined(separator: " · ")
+    }
+    private static func localizedMachineNickname(
+        _ setup: [String: Any],
+        language: AppLanguage,
+        locale: Locale
+    ) -> String {
+        let nickname = setup["machineNickname"] as? String ?? ""
+        let platen = setup["platenZone"] as? String ?? ""
+        return nickname == platen
+            ? localizedPreset(platen, group: .platenSizes, language: language, locale: locale)
+            : nickname
+    }
+    private static func localizedIssueValue(
+        _ value: String?,
+        prefix: String,
+        language: AppLanguage,
+        locale: Locale
+    ) -> String {
+        guard let value, !value.isEmpty else { return "" }
+        let key = "\(prefix).\(value)"
+        guard PBL10n.catalog.strings[key] != nil else { return value }
+        return PBReportLocalization.text(key, language: language, locale: locale)
     }
 
     private static func write(_ data: Data, name: String) throws -> URL {

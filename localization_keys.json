@@ -1423,6 +1423,22 @@
     "context": "Backup sign-out action",
     "source": "Sign out"
   },
+  "backup.delete": {
+    "context": "iCloud backup deletion action",
+    "source": "Delete iCloud backup"
+  },
+  "backup.deleteConfirm": {
+    "context": "iCloud backup deletion confirmation",
+    "source": "Delete the PressBench backup from iCloud? This cannot be undone. Your data on this iPhone will not be deleted."
+  },
+  "backup.deleteSuccess": {
+    "context": "iCloud backup deletion success",
+    "source": "iCloud backup deleted. Your data on this iPhone is unchanged."
+  },
+  "backup.deleteFailed": {
+    "context": "iCloud backup deletion failure",
+    "source": "PressBench couldn’t confirm that the iCloud backup was deleted. Check your iCloud connection and try again. Your data on this iPhone is unchanged."
+  },
   "backup.restoreReplaces": {
     "context": "Backup restore warning",
     "source": "Restoring replaces the current local data on this device."

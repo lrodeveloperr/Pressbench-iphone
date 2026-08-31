@@ -123,9 +123,10 @@ struct MachineEditorView: View {
     }
     private var knownPlatens: [String] {
         PBPrefillCatalog.customerVisibleChoices(
-            PBPrefillCatalog.platenSizes,
+            for: .platenSizes,
             recent: store.machines.map(\.platen),
-            language: language
+            language: language,
+            locale: locale
         )
     }
     private var nicknameBinding: Binding<String> {
@@ -323,7 +324,7 @@ struct SetupEditorView: View {
                             }
                         }
                     } header: {
-                        Text(stage.name.isEmpty ? t("stage.stage") : stage.name)
+                        Text(stage.canonicalLocalizationKey.map(t) ?? (stage.name.isEmpty ? t("stage.stage") : stage.name))
                     }
                     .disabled(mode == .sameProductVariant)
                 }
@@ -428,49 +429,55 @@ struct SetupEditorView: View {
 
     private var prioritizedMaterials: [String] {
         PBPrefillCatalog.customerVisibleChoices(
-            PBPrefillCatalog.materials,
+            for: .materials,
             recent: store.recentSetups.map(\.material),
-            language: language
+            language: language,
+            locale: locale
         )
     }
 
     private var prioritizedTransferMedia: [String] {
         PBPrefillCatalog.customerVisibleChoices(
-            PBPrefillCatalog.transferMedia,
+            for: .transferMedia,
             recent: store.recentSetups.map(\.transferMedium),
-            language: language
+            language: language,
+            locale: locale
         )
     }
 
     private var prioritizedPressureDescriptions: [String] {
         PBPrefillCatalog.customerVisibleChoices(
-            PBPrefillCatalog.pressureDescriptions,
+            for: .pressureDescriptions,
             recent: store.recentSetups.map(\.pressure),
-            language: language
+            language: language,
+            locale: locale
         )
     }
 
     private var prioritizedInstructionSources: [String] {
         PBPrefillCatalog.customerVisibleChoices(
-            PBPrefillCatalog.instructionSources,
+            for: .instructionSources,
             recent: store.recentSetups.map { store.setupDraft(for: $0.id).sourceName },
-            language: language
+            language: language,
+            locale: locale
         )
     }
 
     private var prioritizedPlacementActions: [String] {
         PBPrefillCatalog.customerVisibleChoices(
-            PBPrefillCatalog.placementActions,
+            for: .placementActions,
             recent: store.recentSetups.flatMap(\.stages).map(\.placementAction),
-            language: language
+            language: language,
+            locale: locale
         )
     }
 
     private var prioritizedFinishActions: [String] {
         PBPrefillCatalog.customerVisibleChoices(
-            PBPrefillCatalog.finishActions,
+            for: .finishActions,
             recent: store.recentSetups.flatMap(\.stages).map(\.finishAction),
-            language: language
+            language: language,
+            locale: locale
         )
     }
 

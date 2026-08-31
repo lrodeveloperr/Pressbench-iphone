@@ -1,0 +1,40 @@
+{
+  "platenSizes": [
+    "6 × 8 in", "9 × 12 in", "11 × 15 in", "12 × 15 in", "15 × 15 in", "15 × 18 in",
+    "16 × 20 in", "20 × 25 in", "25 × 31 in", "30 × 40 in", "38 × 38 cm", "40 × 50 cm",
+    "50 × 60 cm", "Hat/cap platen", "Mug heat press", "Tumbler heat press", "Plate heat press", "Interchangeable platen"
+  ],
+  "materials": [
+    "100% cotton T-shirt", "100% polyester T-shirt", "Cotton/polyester blend", "Tri-blend garment",
+    "Performance polyester", "Polyester-coated fabric", "Hoodie or sweatshirt", "Canvas tote",
+    "Cotton tote", "Cap or hat", "Polyester flag", "Mouse pad", "Ceramic mug", "Coated tumbler",
+    "Coated aluminium panel", "Coated hardboard", "Slate blank", "Glass blank", "Wood blank",
+    "Synthetic leather"
+  ],
+  "transferMedia": [
+    "Heat transfer vinyl (HTV)", "Stretch HTV", "Glitter HTV", "Flock HTV", "Puff HTV",
+    "Reflective HTV", "Printable HTV", "Direct-to-film transfer (DTF)", "Screen-printed transfer",
+    "Sublimation transfer", "Inkjet transfer paper", "Laser transfer paper", "White-toner transfer",
+    "Rhinestone transfer", "Embroidered patch", "Woven patch", "Adhesive patch", "Foil transfer"
+  ],
+  "pressureDescriptions": [
+    "Very light", "Light", "Medium", "Firm", "Very firm"
+  ],
+  "instructionSources": [
+    "Manufacturer instructions", "Supplier instructions", "Technical data sheet",
+    "Verified test result", "Prior successful batch"
+  ],
+  "placementActions": [
+    "Centre on platen", "Align to collar", "Align to seam", "Use alignment ruler", "Use placement jig",
+    "Use pressing pillow", "Use heat-resistant pad", "Use foam pad", "Use lower-platen cover",
+    "Use protective sheet", "Secure with heat tape", "Pre-shape garment", "Thread garment onto lower platen",
+    "Avoid seams and zippers", "Confirm artwork is mirrored", "Confirm correct print side"
+  ],
+  "finishActions": [
+    "Remove transfer backing while hot", "Remove transfer backing while warm", "Remove transfer backing after cooling",
+    "Allow to cool flat", "Press again with protective sheet", "Press again without transfer backing",
+    "Remove transfer backing slowly", "Remove transfer backing quickly", "Inspect the edges", "Inspect the colour",
+    "Inspect the alignment", "Test garment stretch after cooling", "Stack only after cooling", "Hang after cooling",
+    "Move to cooling rack", "Document the first-piece result"
+  ]
+}

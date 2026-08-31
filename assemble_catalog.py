@@ -18,6 +18,7 @@ ADDITIONAL_KEYS = [
 ]
 RESIDUAL_KEYS = ['backup.lastSuccessful', 'run.deleteRecordConfirm']
 RECOVERY_KEYS = ['run.discardRejected', 'run.discardRejectedConfirm']
+ICLOUD_DELETE_KEYS = ['backup.delete', 'backup.deleteConfirm', 'backup.deleteSuccess', 'backup.deleteFailed']
 MONETIZATION_TRANSLATIONS = json.loads((root/'monetization_translations.json').read_text(encoding='utf-8'))
 MONETIZATION_KEYS = set(MONETIZATION_TRANSLATIONS)
 DIRECT_NEW_KEYS = {
@@ -27,6 +28,7 @@ DIRECT_NEW_KEYS = {
   'run.reuse.exactRepeat.help', 'run.reuse.sameProductVariant.help',
   'run.reuse.materiallyDifferent.help'
 } | set(ADDITIONAL_KEYS) | set(RESIDUAL_KEYS) | set(RECOVERY_KEYS) | MONETIZATION_KEYS
+DIRECT_NEW_KEYS |= set(ICLOUD_DELETE_KEYS)
 
 # unique source phrase order
 phrases=[]; seen=set()
@@ -347,6 +349,46 @@ RECOVERY_TRANSLATIONS = {
   'zh-Hant': recovery_row('捨棄無法復原的運行¦要捨棄「%1$@」嗎？所有尚未提交的進度、品質檢查和問題備註都將永久遺失，且不會建立批次記錄。'),
 }
 
+def icloud_delete_row(value):
+    row=[part.strip() for part in value.split('¦')]
+    assert len(row)==len(ICLOUD_DELETE_KEYS), (len(row), len(ICLOUD_DELETE_KEYS))
+    return dict(zip(ICLOUD_DELETE_KEYS,row))
+
+ICLOUD_DELETE_TRANSLATIONS = {
+  'en': icloud_delete_row('Delete iCloud backup¦Delete the PressBench backup from iCloud? This cannot be undone. Your data on this iPhone will not be deleted.¦iCloud backup deleted. Your data on this iPhone is unchanged.¦PressBench couldn’t confirm that the iCloud backup was deleted. Check your iCloud connection and try again. Your data on this iPhone is unchanged.'),
+  'es': icloud_delete_row('Eliminar copia de iCloud¦¿Eliminar la copia de PressBench de iCloud? No se puede deshacer. Los datos de este iPhone no se eliminarán.¦Copia de iCloud eliminada. Los datos de este iPhone no han cambiado.¦PressBench no pudo confirmar que se eliminara la copia de iCloud. Comprueba la conexión con iCloud e inténtalo de nuevo. Los datos de este iPhone no han cambiado.'),
+  'pt': icloud_delete_row('Eliminar cópia do iCloud¦Eliminar a cópia do PressBench do iCloud? Esta ação não pode ser anulada. Os dados neste iPhone não serão eliminados.¦Cópia do iCloud eliminada. Os dados neste iPhone não foram alterados.¦O PressBench não conseguiu confirmar a eliminação da cópia do iCloud. Verifique a ligação ao iCloud e tente novamente. Os dados neste iPhone não foram alterados.'),
+  'fr': icloud_delete_row('Supprimer la sauvegarde iCloud¦Supprimer la sauvegarde PressBench d’iCloud ? Cette action est irréversible. Les données de cet iPhone ne seront pas supprimées.¦Sauvegarde iCloud supprimée. Les données de cet iPhone sont inchangées.¦PressBench n’a pas pu confirmer la suppression de la sauvegarde iCloud. Vérifiez la connexion à iCloud et réessayez. Les données de cet iPhone sont inchangées.'),
+  'de': icloud_delete_row('iCloud-Backup löschen¦Das PressBench-Backup aus iCloud löschen? Dies kann nicht rückgängig gemacht werden. Die Daten auf diesem iPhone werden nicht gelöscht.¦iCloud-Backup gelöscht. Die Daten auf diesem iPhone sind unverändert.¦PressBench konnte nicht bestätigen, dass das iCloud-Backup gelöscht wurde. Prüfen Sie die iCloud-Verbindung und versuchen Sie es erneut. Die Daten auf diesem iPhone sind unverändert.'),
+  'it': icloud_delete_row('Elimina backup iCloud¦Eliminare il backup di PressBench da iCloud? Questa azione non può essere annullata. I dati su questo iPhone non verranno eliminati.¦Backup iCloud eliminato. I dati su questo iPhone non sono cambiati.¦PressBench non ha potuto confermare che il backup iCloud sia stato eliminato. Controlla la connessione a iCloud e riprova. I dati su questo iPhone non sono cambiati.'),
+  'nl': icloud_delete_row('iCloud-reservekopie verwijderen¦De PressBench-reservekopie uit iCloud verwijderen? Dit kan niet ongedaan worden gemaakt. De gegevens op deze iPhone worden niet verwijderd.¦iCloud-reservekopie verwijderd. De gegevens op deze iPhone zijn ongewijzigd.¦PressBench kon niet bevestigen dat de iCloud-reservekopie is verwijderd. Controleer de iCloud-verbinding en probeer het opnieuw. De gegevens op deze iPhone zijn ongewijzigd.'),
+  'pl': icloud_delete_row('Usuń kopię iCloud¦Usunąć kopię PressBench z iCloud? Tej czynności nie można cofnąć. Dane na tym iPhonie nie zostaną usunięte.¦Kopia iCloud została usunięta. Dane na tym iPhonie nie uległy zmianie.¦PressBench nie mógł potwierdzić usunięcia kopii iCloud. Sprawdź połączenie z iCloud i spróbuj ponownie. Dane na tym iPhonie nie uległy zmianie.'),
+  'tr': icloud_delete_row('iCloud yedeklemesini sil¦PressBench yedeklemesi iCloud’dan silinsin mi? Bu işlem geri alınamaz. Bu iPhone’daki veriler silinmez.¦iCloud yedeklemesi silindi. Bu iPhone’daki veriler değişmedi.¦PressBench, iCloud yedeklemesinin silindiğini doğrulayamadı. iCloud bağlantınızı kontrol edip yeniden deneyin. Bu iPhone’daki veriler değişmedi.'),
+  'ro': icloud_delete_row('Șterge copia de rezervă iCloud¦Ștergeți copia PressBench din iCloud? Această acțiune nu poate fi anulată. Datele de pe acest iPhone nu vor fi șterse.¦Copia iCloud a fost ștearsă. Datele de pe acest iPhone nu s-au modificat.¦PressBench nu a putut confirma ștergerea copiei iCloud. Verificați conexiunea la iCloud și încercați din nou. Datele de pe acest iPhone nu s-au modificat.'),
+  'cs': icloud_delete_row('Smazat zálohu na iCloudu¦Smazat zálohu PressBench z iCloudu? Tuto akci nelze vrátit zpět. Data v tomto iPhonu nebudou smazána.¦Záloha na iCloudu byla smazána. Data v tomto iPhonu se nezměnila.¦PressBench nemohl potvrdit smazání zálohy na iCloudu. Zkontrolujte připojení k iCloudu a zkuste to znovu. Data v tomto iPhonu se nezměnila.'),
+  'uk': icloud_delete_row('Видалити резервну копію з iCloud¦Видалити резервну копію PressBench з iCloud? Цю дію неможливо скасувати. Дані на цьому iPhone не буде видалено.¦Резервну копію з iCloud видалено. Дані на цьому iPhone не змінено.¦PressBench не вдалося підтвердити видалення резервної копії з iCloud. Перевірте з’єднання з iCloud і повторіть спробу. Дані на цьому iPhone не змінено.'),
+  'ru': icloud_delete_row('Удалить резервную копию из iCloud¦Удалить резервную копию PressBench из iCloud? Это действие нельзя отменить. Данные на этом iPhone не будут удалены.¦Резервная копия из iCloud удалена. Данные на этом iPhone не изменились.¦PressBench не удалось подтвердить удаление резервной копии из iCloud. Проверьте подключение к iCloud и повторите попытку. Данные на этом iPhone не изменились.'),
+  'ar': icloud_delete_row('حذف نسخة iCloud الاحتياطية¦هل تريد حذف نسخة PressBench الاحتياطية من iCloud؟ لا يمكن التراجع عن هذا الإجراء. لن تُحذف البيانات الموجودة على هذا الـ iPhone.¦حُذفت نسخة iCloud الاحتياطية. لم تتغير البيانات الموجودة على هذا الـ iPhone.¦تعذر على PressBench تأكيد حذف نسخة iCloud الاحتياطية. تحقق من اتصال iCloud وحاول مرة أخرى. لم تتغير البيانات الموجودة على هذا الـ iPhone.'),
+  'zh': icloud_delete_row('删除 iCloud 备份¦要从 iCloud 删除 PressBench 备份吗？此操作无法撤销。此 iPhone 上的数据不会被删除。¦iCloud 备份已删除。此 iPhone 上的数据未发生变化。¦PressBench 无法确认 iCloud 备份已删除。请检查 iCloud 连接后重试。此 iPhone 上的数据未发生变化。'),
+  'ja': icloud_delete_row('iCloudバックアップを削除¦iCloudからPressBenchのバックアップを削除しますか？この操作は取り消せません。このiPhone上のデータは削除されません。¦iCloudバックアップを削除しました。このiPhone上のデータは変更されていません。¦PressBenchはiCloudバックアップの削除を確認できませんでした。iCloud接続を確認して、もう一度お試しください。このiPhone上のデータは変更されていません。'),
+  'ko': icloud_delete_row('iCloud 백업 삭제¦iCloud에서 PressBench 백업을 삭제할까요? 이 작업은 취소할 수 없습니다. 이 iPhone의 데이터는 삭제되지 않습니다.¦iCloud 백업이 삭제되었습니다. 이 iPhone의 데이터는 변경되지 않았습니다.¦PressBench에서 iCloud 백업 삭제를 확인하지 못했습니다. iCloud 연결을 확인하고 다시 시도하세요. 이 iPhone의 데이터는 변경되지 않았습니다.'),
+  'hi': icloud_delete_row('iCloud बैकअप मिटाएँ¦iCloud से PressBench बैकअप मिटाएँ? इसे पूर्ववत नहीं किया जा सकता। इस iPhone का डेटा नहीं मिटेगा।¦iCloud बैकअप मिटा दिया गया। इस iPhone का डेटा बदला नहीं है।¦PressBench यह पुष्टि नहीं कर सका कि iCloud बैकअप मिट गया है। iCloud कनेक्शन जाँचें और फिर कोशिश करें। इस iPhone का डेटा बदला नहीं है।'),
+  'ur': icloud_delete_row('iCloud بیک اپ حذف کریں¦کیا iCloud سے PressBench بیک اپ حذف کرنا ہے؟ اسے واپس نہیں کیا جا سکتا۔ اس iPhone کا ڈیٹا حذف نہیں ہوگا۔¦iCloud بیک اپ حذف ہوگیا۔ اس iPhone کا ڈیٹا تبدیل نہیں ہوا۔¦PressBench اس بات کی تصدیق نہیں کر سکا کہ iCloud بیک اپ حذف ہوگیا ہے۔ iCloud کنکشن چیک کریں اور دوبارہ کوشش کریں۔ اس iPhone کا ڈیٹا تبدیل نہیں ہوا۔'),
+  'bn': icloud_delete_row('iCloud ব্যাকআপ মুছুন¦iCloud থেকে PressBench ব্যাকআপ মুছবেন? এটি আর ফেরানো যাবে না। এই iPhone-এর ডেটা মোছা হবে না।¦iCloud ব্যাকআপ মোছা হয়েছে। এই iPhone-এর ডেটা অপরিবর্তিত আছে।¦PressBench নিশ্চিত করতে পারেনি যে iCloud ব্যাকআপ মোছা হয়েছে। iCloud সংযোগ পরীক্ষা করে আবার চেষ্টা করুন। এই iPhone-এর ডেটা অপরিবর্তিত আছে।'),
+  'vi': icloud_delete_row('Xóa bản sao lưu iCloud¦Xóa bản sao lưu PressBench khỏi iCloud? Không thể hoàn tác thao tác này. Dữ liệu trên iPhone này sẽ không bị xóa.¦Đã xóa bản sao lưu iCloud. Dữ liệu trên iPhone này không thay đổi.¦PressBench không thể xác nhận rằng bản sao lưu iCloud đã bị xóa. Hãy kiểm tra kết nối iCloud rồi thử lại. Dữ liệu trên iPhone này không thay đổi.'),
+  'id': icloud_delete_row('Hapus cadangan iCloud¦Hapus cadangan PressBench dari iCloud? Tindakan ini tidak dapat dibatalkan. Data di iPhone ini tidak akan dihapus.¦Cadangan iCloud dihapus. Data di iPhone ini tidak berubah.¦PressBench tidak dapat memastikan bahwa cadangan iCloud telah dihapus. Periksa koneksi iCloud lalu coba lagi. Data di iPhone ini tidak berubah.'),
+  'th': icloud_delete_row('ลบข้อมูลสำรอง iCloud¦ลบข้อมูลสำรอง PressBench ออกจาก iCloud หรือไม่ การดำเนินการนี้ย้อนกลับไม่ได้ ข้อมูลบน iPhone เครื่องนี้จะไม่ถูกลบ¦ลบข้อมูลสำรอง iCloud แล้ว ข้อมูลบน iPhone เครื่องนี้ไม่เปลี่ยนแปลง¦PressBench ยืนยันไม่ได้ว่าลบข้อมูลสำรอง iCloud แล้ว โปรดตรวจสอบการเชื่อมต่อ iCloud แล้วลองอีกครั้ง ข้อมูลบน iPhone เครื่องนี้ไม่เปลี่ยนแปลง'),
+  'fil': icloud_delete_row('Burahin ang iCloud backup¦Burahin ang PressBench backup sa iCloud? Hindi ito maa-undo. Hindi mabubura ang data sa iPhone na ito.¦Nabura na ang iCloud backup. Hindi nabago ang data sa iPhone na ito.¦Hindi makumpirma ng PressBench na nabura ang iCloud backup. Suriin ang koneksyon sa iCloud at subukang muli. Hindi nabago ang data sa iPhone na ito.'),
+  'ms': icloud_delete_row('Padam sandaran iCloud¦Padam sandaran PressBench daripada iCloud? Tindakan ini tidak boleh dibuat asal. Data pada iPhone ini tidak akan dipadam.¦Sandaran iCloud dipadam. Data pada iPhone ini tidak berubah.¦PressBench tidak dapat mengesahkan bahawa sandaran iCloud telah dipadam. Semak sambungan iCloud dan cuba lagi. Data pada iPhone ini tidak berubah.'),
+  'fi': icloud_delete_row('Poista iCloud-varmuuskopio¦Poistetaanko PressBench-varmuuskopio iCloudista? Tätä ei voi kumota. Tämän iPhonen tietoja ei poisteta.¦iCloud-varmuuskopio poistettu. Tämän iPhonen tiedot eivät muuttuneet.¦PressBench ei voinut vahvistaa iCloud-varmuuskopion poistamista. Tarkista iCloud-yhteys ja yritä uudelleen. Tämän iPhonen tiedot eivät muuttuneet.'),
+  'sv': icloud_delete_row('Ta bort iCloud-säkerhetskopia¦Ta bort PressBench-säkerhetskopian från iCloud? Detta kan inte ångras. Data på denna iPhone raderas inte.¦iCloud-säkerhetskopian har tagits bort. Data på denna iPhone är oförändrade.¦PressBench kunde inte bekräfta att iCloud-säkerhetskopian togs bort. Kontrollera iCloud-anslutningen och försök igen. Data på denna iPhone är oförändrade.'),
+  'da': icloud_delete_row('Slet iCloud-sikkerhedskopi¦Slet PressBench-sikkerhedskopien fra iCloud? Dette kan ikke fortrydes. Data på denne iPhone slettes ikke.¦iCloud-sikkerhedskopien er slettet. Data på denne iPhone er uændrede.¦PressBench kunne ikke bekræfte, at iCloud-sikkerhedskopien blev slettet. Kontrollér iCloud-forbindelsen, og prøv igen. Data på denne iPhone er uændrede.'),
+  'nb': icloud_delete_row('Slett iCloud-sikkerhetskopi¦Slette PressBench-sikkerhetskopien fra iCloud? Dette kan ikke angres. Data på denne iPhonen slettes ikke.¦iCloud-sikkerhetskopien er slettet. Data på denne iPhonen er uendret.¦PressBench kunne ikke bekrefte at iCloud-sikkerhetskopien ble slettet. Kontroller iCloud-tilkoblingen og prøv igjen. Data på denne iPhonen er uendret.'),
+  'el': icloud_delete_row('Διαγραφή αντιγράφου iCloud¦Διαγραφή του αντιγράφου PressBench από το iCloud; Αυτή η ενέργεια δεν αναιρείται. Τα δεδομένα σε αυτό το iPhone δεν θα διαγραφούν.¦Το αντίγραφο iCloud διαγράφηκε. Τα δεδομένα σε αυτό το iPhone δεν άλλαξαν.¦Το PressBench δεν μπόρεσε να επιβεβαιώσει ότι το αντίγραφο iCloud διαγράφηκε. Ελέγξτε τη σύνδεση iCloud και δοκιμάστε ξανά. Τα δεδομένα σε αυτό το iPhone δεν άλλαξαν.'),
+  'he': icloud_delete_row('מחיקת הגיבוי מ-iCloud¦למחוק את גיבוי PressBench מ-iCloud? לא ניתן לבטל פעולה זו. הנתונים ב-iPhone הזה לא יימחקו.¦הגיבוי מ-iCloud נמחק. הנתונים ב-iPhone הזה לא השתנו.¦PressBench לא הצליח לאשר שהגיבוי מ-iCloud נמחק. יש לבדוק את החיבור ל-iCloud ולנסות שוב. הנתונים ב-iPhone הזה לא השתנו.'),
+  'zh-Hant': icloud_delete_row('刪除 iCloud 備份¦要從 iCloud 刪除 PressBench 備份嗎？此操作無法復原。此 iPhone 上的資料不會被刪除。¦iCloud 備份已刪除。此 iPhone 上的資料未變更。¦PressBench 無法確認 iCloud 備份已刪除。請檢查 iCloud 連線後再試一次。此 iPhone 上的資料未變更。'),
+}
+
 # runtime catalog key -> locale/language translation
 catalog={
   'schemaVersion':1,
@@ -368,6 +410,8 @@ for key in keys:
             text = RESIDUAL_TRANSLATIONS[lang][key]
         elif key in RECOVERY_KEYS:
             text = RECOVERY_TRANSLATIONS[lang][key]
+        elif key in ICLOUD_DELETE_KEYS:
+            text = ICLOUD_DELETE_TRANSLATIONS[lang][key]
         else:
             text = translations[lang][source]
         item['translations'][lang]=runtime_placeholders(text)
@@ -381,6 +425,8 @@ for key in keys:
         zhh_text = RESIDUAL_TRANSLATIONS['zh-Hant'][key]
     elif key in RECOVERY_KEYS:
         zhh_text = RECOVERY_TRANSLATIONS['zh-Hant'][key]
+    elif key in ICLOUD_DELETE_KEYS:
+        zhh_text = ICLOUD_DELETE_TRANSLATIONS['zh-Hant'][key]
     else:
         zhh_text = translations['zh-Hant'][source]
     item['translations']['zh-Hant']=runtime_placeholders(zhh_text)

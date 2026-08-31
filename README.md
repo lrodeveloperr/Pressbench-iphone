@@ -6,7 +6,7 @@ The release target is locked to:
 
 - Bundle ID: `com.goodusestudios.pressbench`
 - Apple Team: `49SQ3XQ68Q`
-- Version: `0.22.0`
+- Version: `1.0`
 - Scheme: `PressBench`
 
 ## Source contract
@@ -27,7 +27,7 @@ The reviewed production source uses the GoodUse Studios Ocean Pearl system: adap
 
 ## CI
 
-- **Validate PressBench iOS** runs on pushes/PRs and can also be run manually. It checks release integrity, the 31-language localization layer, deterministic engine smoke tests, Xcode project generation, a Release simulator build, unit/UI tests, and captures first-use UI audit screenshots.
+- **Validate PressBench iOS** runs on pushes/PRs and can also be run manually. It checks release integrity, the 31-language UI layer, all 98 localized operator presets, deterministic engine smoke tests, Xcode project generation, a Release simulator build, unit/UI tests, and captures first-use UI audit screenshots.
 - **Run TestFlight Build** is manual. It repeats all validation, verifies the Apple credentials and App Store Connect identity, archives/signs the production app, verifies bundle/version/build/privacy-manifest identity, exports and validates the IPA, then uploads it to TestFlight.
 
 The TestFlight workflow requires the literal confirmation `UPLOAD TESTFLIGHT` and fails closed before upload on any error.

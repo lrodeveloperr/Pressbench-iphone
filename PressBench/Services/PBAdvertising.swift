@@ -10,7 +10,7 @@ enum PBAdConfiguration {
     // Google's official demo banner prevents invalid production traffic during local development.
     static let bannerUnitID = "ca-app-pub-3940256099942544/2435281174"
     #else
-    static let bannerUnitID = "ca-app-pub-8054612600809568/2671767469"
+    static let bannerUnitID = "ca-app-pub-8054612600809568/3307131638"
     #endif
 }
 
@@ -68,6 +68,7 @@ enum PBAdvertising {
         started = true
         MobileAds.shared.requestConfiguration.maxAdContentRating = GADMaxAdContentRating.general
         MobileAds.shared.requestConfiguration.publisherPrivacyPersonalizationState = .disabled
+        MobileAds.shared.requestConfiguration.setPublisherFirstPartyIDEnabled(false)
         MobileAds.shared.start()
     }
 }

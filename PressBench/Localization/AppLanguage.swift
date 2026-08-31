@@ -84,7 +84,12 @@ enum AppLanguage: String, CaseIterable, Identifiable, Codable {
     }
 
     func localizationCode(for locale: Locale) -> String {
-        if self == .zh && locale.identifier.lowercased().contains("hant") { return "zh-Hant" }
+        if self == .zh {
+            let region = locale.region?.identifier.uppercased() ?? ""
+            if locale.identifier.lowercased().contains("hant") || ["TW", "HK", "MO"].contains(region) {
+                return "zh-Hant"
+            }
+        }
         return rawValue
     }
 

@@ -1,0 +1,81 @@
+{
+  "platenSizes": {
+    "vi": {"15": "Máy ép nhiệt ly giữ nhiệt"},
+    "fil": {"15": "Makina para sa pagpindot ng basong termos"}
+  },
+  "materials": {
+    "ro": {"11": "Suport pentru mouse", "16": "Placă de ardezie", "18": "Semifabricat din lemn"},
+    "fil": {
+      "0": "T-shirt na 100% koton", "2": "Pinaghalong koton at polyester", "5": "Telang pinahiran ng polyester",
+      "7": "Bag na kanbas", "8": "Bag na koton", "11": "Sapin ng mouse", "12": "Tasang seramika",
+      "13": "Pinahirang basong termos"
+    },
+    "sv": {"16": "Skifferämne", "17": "Glasämne"},
+    "da": {"13": "Belagt termokrus", "15": "Belagt træfiberplade", "16": "Skiferemne", "17": "Glasemne", "18": "Træemne"},
+    "nb": {"16": "Skiferemne", "17": "Glassemne", "18": "Treemne"},
+    "el": {"11": "Επιφάνεια ποντικιού"}
+  },
+  "transferMedia": {
+    "es": {"4": "HTV con relieve"},
+    "pt": {"2": "HTV com brilho"},
+    "de": {"4": "Schaum-HTV"},
+    "it": {"2": "HTV glitterato"},
+    "nl": {"2": "Glitter-HTV"},
+    "pl": {"4": "Pęczniejące HTV"},
+    "ro": {"3": "HTV flocat", "4": "HTV expandabil"},
+    "cs": {"1": "Pružné HTV", "2": "Třpytivé HTV", "4": "Pěnové HTV"},
+    "ur": {"2": "چمکدار HTV", "3": "فلاک HTV"},
+    "fil": {
+      "0": "Vinyl na panlipat-init (HTV)", "1": "Nababanat na HTV", "3": "HTV na may himulmol", "4": "Umaalsang HTV",
+      "7": "Direktang paglilipat sa pelikula (DTF)", "10": "Papel na panlipat para sa inkjet",
+      "11": "Papel na panlipat para sa laser"
+    },
+    "ms": {"3": "HTV berbaldu"},
+    "fi": {"2": "Kimalle-HTV", "3": "Nukka-HTV", "4": "Kohoava HTV"},
+    "sv": {
+      "1": "Stretchvinyl (HTV)", "2": "Glittervinyl (HTV)", "3": "Flockvinyl (HTV)", "4": "Puffvinyl (HTV)"
+    },
+    "da": {"2": "Glitter-HTV", "4": "Puffende HTV"},
+    "nb": {"2": "Glitter-HTV", "4": "Ekspanderende HTV"},
+    "el": {"2": "HTV με γκλίτερ", "3": "HTV με φλοκ", "4": "Διογκούμενο HTV"},
+    "he": {"3": "HTV קטיפתי"}
+  },
+  "pressureDescriptions": {
+    "sv": {"2": "Medelhårt"},
+    "da": {"2": "Mellemfast"}
+  },
+  "instructionSources": {
+    "fil": {"2": "Teknikal na talaan ng datos"}
+  },
+  "placementActions": {
+    "fil": {
+      "6": "Gumamit ng sapin na lumalaban sa init", "7": "Gumamit ng sapin na bula",
+      "9": "Gumamit ng pananggalang na sapin", "10": "Ikabit gamit ang teyp na lumalaban sa init"
+    }
+  },
+  "finishActions": {
+    "es": {"1": "Retire el respaldo de transferencia mientras esté tibio."},
+    "pt": {"1": "Remova o suporte de transferência enquanto estiver morno"},
+    "it": {"1": "Rimuovere il supporto di trasferimento mentre è tiepido"},
+    "tr": {"1": "Transfer desteğini ılıkken çıkarın"},
+    "cs": {"1": "Odstraňte přenosovou podložku, dokud je vlažná"},
+    "zh": {"1": "趁温热时取下转印背衬"},
+    "hi": {"1": "गुनगुना होने पर ट्रांसफर बैकिंग हटा दें"},
+    "ur": {"1": "نیم گرم ہونے پر ٹرانسفر بیکنگ کو ہٹا دیں۔"},
+    "id": {"5": "Tekan lagi tanpa lapisan belakang transfer"},
+    "fil": {
+      "0": "Alisin ang panlikod ng paglilipat habang mainit",
+      "1": "Alisin ang panlikod ng paglilipat habang maligamgam",
+      "2": "Alisin ang panlikod ng paglilipat pagkatapos lumamig",
+      "4": "Pindutin muli gamit ang pananggalang na sapin",
+      "5": "Pindutin muli nang walang panlikod ng paglilipat",
+      "6": "Dahan-dahang alisin ang panlikod ng paglilipat",
+      "7": "Mabilis na alisin ang panlikod ng paglilipat"
+    },
+    "sv": {"1": "Ta bort överföringsunderlaget medan det är ljummet"},
+    "nb": {"1": "Fjern overføringsunderlaget mens det er lunkent"},
+    "el": {"1": "Αφαιρέστε το υπόστρωμα μεταφοράς όσο είναι χλιαρό"},
+    "he": {"1": "הסר את גיבוי ההעברה בעודו פושר"},
+    "zh-Hant": {"1": "趁溫熱時取下轉印背襯"}
+  }
+}

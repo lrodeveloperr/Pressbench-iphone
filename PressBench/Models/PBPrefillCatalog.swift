@@ -1,11 +1,23 @@
 import Foundation
 
+private final class PBPrefillBundleMarker: NSObject {}
+
 /// Original, brand-neutral operator choices bundled with the app.
 ///
-/// This catalog deliberately contains no temperature, duration, numeric
-/// pressure, or manufacturer recipe values. Those must come from the
-/// operator's current instructions and remain explicit inputs.
+/// The catalog contains no temperature, duration, numeric pressure, or
+/// manufacturer recipe values. Those must come from the operator's current
+/// instructions and remain explicit inputs.
 enum PBPrefillCatalog {
+    enum Group: String, CaseIterable {
+        case platenSizes
+        case materials
+        case transferMedia
+        case pressureDescriptions
+        case instructionSources
+        case placementActions
+        case finishActions
+    }
+
     struct Provenance: Equatable {
         let source: String
         let permittedUseBasis: String
@@ -13,74 +25,78 @@ enum PBPrefillCatalog {
         let containsExternalManufacturerData: Bool
     }
 
+    private struct LocalizationCatalog: Decodable {
+        let schemaVersion: Int
+        let languages: [String]
+        let localeOverrideCodes: [String]
+        let translationBasis: String
+        let groups: [String: [String: [String]]]
+    }
+
     /// Release-auditable legal boundary for the bundled catalog. The values
-    /// below are original editorial classifications, not an imported dataset.
+    /// are original editorial classifications, not an imported recipe dataset.
     static let provenance = Provenance(
         source: "GoodUse Studios original brand-neutral editorial compilation",
         permittedUseBasis: "Original work bundled with PressBench",
-        verifiedOn: "2026-08-29",
+        verifiedOn: "2026-08-31",
         containsExternalManufacturerData: false
     )
 
-    static let platenSizes = [
-        "6 × 8 in", "9 × 12 in", "11 × 15 in", "12 × 15 in", "15 × 15 in", "15 × 18 in",
-        "16 × 20 in", "20 × 25 in", "25 × 31 in", "30 × 40 in", "38 × 38 cm", "40 × 50 cm",
-        "50 × 60 cm", "Cap platen", "Mug press", "Tumbler press", "Plate press", "Interchangeable platen"
-    ]
+    private static let localizationCatalog: LocalizationCatalog = {
+        let bundle = Bundle(for: PBPrefillBundleMarker.self)
+        guard let url = bundle.url(forResource: "PrefillLocalizations", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let decoded = try? JSONDecoder().decode(LocalizationCatalog.self, from: data),
+              decoded.schemaVersion == 1 else {
+            preconditionFailure("PressBench preset localization catalog is missing or invalid")
+        }
+        return decoded
+    }()
 
-    static let materials = [
-        "100% cotton T-shirt", "100% polyester T-shirt", "Cotton/polyester blend", "Tri-blend garment",
-        "Performance polyester", "Polyester-coated fabric", "Hoodie or sweatshirt", "Canvas tote",
-        "Cotton tote", "Cap or hat", "Polyester flag", "Mouse pad", "Ceramic mug", "Coated tumbler",
-        "Coated aluminium panel", "Coated hardboard", "Slate blank", "Glass blank", "Wood blank",
-        "Synthetic leather"
-    ]
+    static func localizedChoices(for group: Group, language: AppLanguage, locale: Locale) -> [String] {
+        let code = language.localizationCode(for: locale)
+        guard let translations = localizationCatalog.groups[group.rawValue] else { return [] }
+        return translations[code] ?? translations[language.rawValue] ?? translations["en"] ?? []
+    }
 
-    static let transferMedia = [
-        "Heat transfer vinyl (HTV)", "Stretch HTV", "Glitter HTV", "Flock HTV", "Puff HTV",
-        "Reflective HTV", "Printable HTV", "Direct-to-film transfer (DTF)", "Screen-printed transfer",
-        "Sublimation transfer", "Inkjet transfer paper", "Laser transfer paper", "White-toner transfer",
-        "Rhinestone transfer", "Embroidered patch", "Woven patch", "Adhesive patch", "Foil transfer"
-    ]
+    /// Converts a stored bundled value from any supported language (including
+    /// legacy English wording) to the current display language. Custom
+    /// operator-entered values are returned unchanged.
+    static func localizedValue(_ value: String, for group: Group, language: AppLanguage, locale: Locale) -> String {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty,
+              let translations = localizationCatalog.groups[group.rawValue] else { return value }
+        let folded = normalized(trimmed)
+        var matchedIndex: Int?
+        for choices in translations.values {
+            if let index = choices.firstIndex(where: { normalized($0) == folded }) {
+                matchedIndex = index
+                break
+            }
+        }
+        if matchedIndex == nil { matchedIndex = legacyEnglishAliases[group]?[folded] }
+        guard let index = matchedIndex else { return value }
+        let target = localizedChoices(for: group, language: language, locale: locale)
+        return target.indices.contains(index) ? target[index] : value
+    }
 
-    static let pressureDescriptions = [
-        "Very light", "Light", "Medium", "Firm", "Very firm"
-    ]
+    // English projections remain available for release audits and tests.
+    static var platenSizes: [String] { english(.platenSizes) }
+    static var materials: [String] { english(.materials) }
+    static var transferMedia: [String] { english(.transferMedia) }
+    static var pressureDescriptions: [String] { english(.pressureDescriptions) }
+    static var instructionSources: [String] { english(.instructionSources) }
+    static var placementActions: [String] { english(.placementActions) }
+    static var finishActions: [String] { english(.finishActions) }
 
-    static let instructionSources = [
-        "Manufacturer instructions", "Supplier instructions", "Technical data sheet",
-        "Verified test result", "Prior successful batch"
-    ]
-
-    static let placementActions = [
-        "Centre on platen", "Align to collar", "Align to seam", "Use alignment ruler", "Use placement jig",
-        "Use pressing pillow", "Use heat-resistant pad", "Use foam pad", "Use lower-platen cover",
-        "Use protective sheet", "Secure with heat tape", "Pre-shape garment", "Thread garment",
-        "Avoid seams and zippers", "Mirror artwork checked", "Print side checked"
-    ]
-
-    static let finishActions = [
-        "Peel hot", "Peel warm", "Peel cold", "Allow to cool flat", "Repress with protective sheet",
-        "Repress without carrier", "Remove carrier slowly", "Remove carrier quickly", "Inspect edges",
-        "Inspect colour", "Inspect alignment", "Stretch test after cooling", "Stack only after cooling",
-        "Hang after cooling", "Move to cooling rack", "Record first-piece result"
-    ]
-
-    static let groups: [String: [String]] = [
-        "platenSizes": platenSizes,
-        "materials": materials,
-        "transferMedia": transferMedia,
-        "pressureDescriptions": pressureDescriptions,
-        "instructionSources": instructionSources,
-        "placementActions": placementActions,
-        "finishActions": finishActions
-    ]
+    static var groups: [String: [String]] {
+        Dictionary(uniqueKeysWithValues: Group.allCases.map { ($0.rawValue, english($0)) })
+    }
 
     static var choiceCount: Int { groups.values.reduce(0) { $0 + $1.count } }
 
-    /// Keeps the operator's recent selections at the top while retaining every
-    /// bundled choice and any manually entered value. No operating parameters
-    /// are inferred or introduced here.
+    /// Keeps recent operator-owned selections first, followed by every bundled
+    /// localized choice. Operating parameters are never inferred here.
     static func prioritized(_ choices: [String], recent: [String]) -> [String] {
         var seen = Set<String>()
         return (recent + choices).filter { value in
@@ -90,14 +106,43 @@ enum PBPrefillCatalog {
         }
     }
 
-    /// Bundled catalog labels are currently authored and reviewed in English.
-    /// Until a locale has reviewed display translations, show only values the
-    /// operator already owns rather than leaking hard-coded English into UI.
     static func customerVisibleChoices(
-        _ bundled: [String],
+        for group: Group,
         recent: [String],
-        language: AppLanguage
+        language: AppLanguage,
+        locale: Locale
     ) -> [String] {
-        prioritized(language == .en ? bundled : [], recent: recent)
+        let localizedRecent = recent.map { localizedValue($0, for: group, language: language, locale: locale) }
+        return prioritized(localizedChoices(for: group, language: language, locale: locale), recent: localizedRecent)
     }
+
+    private static func english(_ group: Group) -> [String] {
+        localizationCatalog.groups[group.rawValue]?["en"] ?? []
+    }
+
+    private static func normalized(_ value: String) -> String {
+        value.folding(
+            options: [.caseInsensitive, .diacriticInsensitive],
+            locale: Locale(identifier: "en_US_POSIX")
+        )
+    }
+
+    private static let legacyEnglishAliases: [Group: [String: Int]] = [
+        .platenSizes: [
+            normalized("Cap platen"): 13, normalized("Mug press"): 14,
+            normalized("Tumbler press"): 15, normalized("Plate press"): 16
+        ],
+        .placementActions: [
+            normalized("Thread garment"): 13, normalized("Mirror artwork checked"): 14,
+            normalized("Print side checked"): 15
+        ],
+        .finishActions: [
+            normalized("Peel hot"): 0, normalized("Peel warm"): 1, normalized("Peel cold"): 2,
+            normalized("Repress with protective sheet"): 4, normalized("Repress without carrier"): 5,
+            normalized("Remove carrier slowly"): 6, normalized("Remove carrier quickly"): 7,
+            normalized("Inspect edges"): 8, normalized("Inspect colour"): 9,
+            normalized("Inspect alignment"): 10, normalized("Stretch test after cooling"): 11,
+            normalized("Record first-piece result"): 15
+        ]
+    ]
 }

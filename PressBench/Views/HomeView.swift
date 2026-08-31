@@ -166,7 +166,7 @@ private struct MetricTile: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .center, spacing: 10) {
             Image(systemName: icon)
                 .foregroundStyle(PBTheme.secondary)
                 .font(.subheadline.weight(.semibold))
@@ -175,17 +175,19 @@ private struct MetricTile: View {
             Text(PBL10n.text(titleKey, language: language, locale: locale))
                 .font(.caption)
                 .foregroundStyle(PBTheme.secondary)
+                .multilineTextAlignment(.center)
                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
                 .minimumScaleFactor(dynamicTypeSize.isAccessibilitySize ? 1 : 0.68)
                 .fixedSize(horizontal: false, vertical: dynamicTypeSize.isAccessibilitySize)
             Text(value)
                 .font(.headline.weight(.bold))
                 .foregroundStyle(PBTheme.navy)
+                .multilineTextAlignment(.center)
                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 1)
                 .minimumScaleFactor(dynamicTypeSize.isAccessibilitySize ? 1 : 0.65)
                 .fixedSize(horizontal: false, vertical: dynamicTypeSize.isAccessibilitySize)
         }
-        .frame(maxWidth: .infinity, minHeight: 104, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 104, alignment: .center)
         .padding(12)
         .background(PBTheme.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay { RoundedRectangle(cornerRadius: 18).stroke(PBTheme.line, lineWidth: 1) }

@@ -1,5 +1,13 @@
 import Foundation
 
+protocol AppleBackupKeyValueStoring: AnyObject {
+    func data(forKey defaultName: String) -> Data?
+    func removeObject(forKey defaultName: String)
+    func synchronize() -> Bool
+}
+
+extension NSUbiquitousKeyValueStore: AppleBackupKeyValueStoring {}
+
 enum AppleBackupService {
     private static let userDefaultsKey = "pressbench.apple.user.id"
     private static let backupKey = "pressbench.backup.v1"
@@ -56,6 +64,21 @@ enum AppleBackupService {
         let raw = try JSONSerialization.data(withJSONObject: payload, options: [.sortedKeys])
         guard let text = String(data: raw, encoding: .utf8) else { throw BackupError.invalid }
         return text
+    }
+
+    static func deleteBackup() throws {
+        guard isSignedIn else { throw BackupError.notSignedIn }
+        try deleteBackup(from: NSUbiquitousKeyValueStore.default)
+        clearSuccessRecord()
+    }
+
+    /// Removes only the private iCloud backup. Local PressBench records and the
+    /// Sign in with Apple session are deliberately outside this operation.
+    static func deleteBackup(from store: AppleBackupKeyValueStoring) throws {
+        store.removeObject(forKey: backupKey)
+        guard store.synchronize(), store.data(forKey: backupKey) == nil else {
+            throw BackupError.unavailable
+        }
     }
 
     enum BackupError: LocalizedError {
