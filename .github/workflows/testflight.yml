@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Check out reviewed repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Confirm manual upload
         shell: bash
@@ -69,6 +69,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          brew untap aws/tap >/dev/null 2>&1 || true
           command -v xcodegen >/dev/null || brew install xcodegen
           xcodegen --version
 
@@ -392,7 +393,7 @@ jobs:
 
       - name: Retain exact TestFlight IPA
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: PressBench-TestFlight-${{ env.BUILD_NUMBER }}
           path: ${{ env.IPA_PATH }}

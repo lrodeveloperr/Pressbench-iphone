@@ -7,6 +7,7 @@ struct HomeView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var showingMachineEditor = false
     @State private var showingStarter = false
+    @State private var selectedStartSetup: Setup?
     @State private var showingUpgrade = false
     @State private var showingSetupEditor = false
     @State private var continueToSetup = false
@@ -38,15 +39,30 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showingSetupEditor) { SetupEditorView(draft: store.setupDraft(for: nil)).environmentObject(store) }
         .sheet(isPresented: $showingStarter) { StartRunSheet().environmentObject(store) }
+        .sheet(item: $selectedStartSetup) { setup in
+            JobDifferenceSheet(setup: setup).environmentObject(store)
+        }
         .sheet(isPresented: $showingUpgrade, onDismiss: {
             guard resumeStartAfterUpgrade else { return }
             resumeStartAfterUpgrade = false
-            if store.isPro { showingStarter = true }
+            if store.isPro { beginRunSelection() }
         }) { ProUpgradeView().environmentObject(store).pbEditorSheetStyle() }
     }
 
     private var needsFirstUseSetup: Bool {
         !store.machines.contains(where: { $0.active }) || !store.setups.contains(where: { $0.status != .archived })
+    }
+
+    private var runnableSetups: [Setup] {
+        store.recentSetups.filter { $0.status == .trial || $0.status == .proven }
+    }
+
+    private func beginRunSelection() {
+        if runnableSetups.count == 1 {
+            selectedStartSetup = runnableSetups[0]
+        } else {
+            showingStarter = true
+        }
     }
 
     private var firstUseCard: some View {
@@ -85,7 +101,7 @@ struct HomeView: View {
     private var startRunCard: some View {
         Button {
             if let active = store.activeRun { store.activeRunRouteID = active.id; store.selectedTab = 2 }
-            else if store.canStartAnotherRun { showingStarter = true }
+            else if store.canStartAnotherRun { beginRunSelection() }
             else { resumeStartAfterUpgrade = true; showingUpgrade = true }
         } label: {
             HStack(spacing: 16) {
