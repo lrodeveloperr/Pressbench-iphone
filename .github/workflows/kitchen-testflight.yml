@@ -149,6 +149,16 @@ jobs:
           fi
           cd ios
           pod install --repo-update
+          cat > Flutter/Debug.xcconfig <<'XCCONFIG'
+          #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug-production.xcconfig"
+          #include "Generated.xcconfig"
+          XCCONFIG
+          cat > Flutter/Release.xcconfig <<'XCCONFIG'
+          #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release-production.xcconfig"
+          #include "Generated.xcconfig"
+          DEVELOPMENT_TEAM=49SQ3XQ68Q
+          CODE_SIGN_STYLE=Automatic
+          XCCONFIG
 
       - name: Analyze shared source
         working-directory: kitchen/flutter_app
@@ -171,14 +181,14 @@ jobs:
           set -euo pipefail
           flutter test
 
-      - name: Build iOS simulator release
+      - name: Build iOS simulator gate
         working-directory: kitchen/flutter_app
         shell: bash
         run: |
           set -euo pipefail
           flutter build ios \
             --simulator \
-            --release \
+            --debug \
             --flavor production \
             --target lib/main.dart \
             --build-name "$MARKETING_VERSION" \
