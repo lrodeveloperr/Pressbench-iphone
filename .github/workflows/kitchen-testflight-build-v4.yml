@@ -17,7 +17,7 @@ env:
   IOS_BUNDLE_ID: studio.gooduse.kitchenprep
   APPLE_TEAM_ID: 49SQ3XQ68Q
   MARKETING_VERSION: 2.0.0
-  BUILD_NUMBER: 201
+  BUILD_NUMBER: 202
 
 jobs:
   build-sign-upload:
@@ -56,6 +56,58 @@ jobs:
             exit 1
           fi
           grep -q 'FLUTTER_TARGET = lib/main.dart;' "$pbx"
+
+      - name: Build iOS AppIcon catalog from shared production icon
+        shell: bash
+        run: |
+          set -euo pipefail
+          src="$KITCHEN_ROOT/android/app/src/main/ic_launcher-playstore.png"
+          out="$KITCHEN_ROOT/ios/Runner/Assets.xcassets/AppIcon.appiconset"
+          test -s "$src"
+          rm -rf "$out"
+          mkdir -p "$out"
+          resize() { sips -z "$1" "$1" "$src" --out "$out/$2" >/dev/null; }
+          resize 20 Icon-App-20x20@1x.png
+          resize 40 Icon-App-20x20@2x.png
+          resize 60 Icon-App-20x20@3x.png
+          resize 29 Icon-App-29x29@1x.png
+          resize 58 Icon-App-29x29@2x.png
+          resize 87 Icon-App-29x29@3x.png
+          resize 40 Icon-App-40x40@1x.png
+          resize 80 Icon-App-40x40@2x.png
+          resize 120 Icon-App-40x40@3x.png
+          resize 120 Icon-App-60x60@2x.png
+          resize 180 Icon-App-60x60@3x.png
+          resize 76 Icon-App-76x76@1x.png
+          resize 152 Icon-App-76x76@2x.png
+          resize 167 Icon-App-83.5x83.5@2x.png
+          resize 1024 Icon-App-1024x1024@1x.png
+          cat > "$out/Contents.json" <<'JSON'
+          {
+            "images": [
+              {"idiom":"iphone","size":"20x20","scale":"2x","filename":"Icon-App-20x20@2x.png"},
+              {"idiom":"iphone","size":"20x20","scale":"3x","filename":"Icon-App-20x20@3x.png"},
+              {"idiom":"iphone","size":"29x29","scale":"2x","filename":"Icon-App-29x29@2x.png"},
+              {"idiom":"iphone","size":"29x29","scale":"3x","filename":"Icon-App-29x29@3x.png"},
+              {"idiom":"iphone","size":"40x40","scale":"2x","filename":"Icon-App-40x40@2x.png"},
+              {"idiom":"iphone","size":"40x40","scale":"3x","filename":"Icon-App-40x40@3x.png"},
+              {"idiom":"iphone","size":"60x60","scale":"2x","filename":"Icon-App-60x60@2x.png"},
+              {"idiom":"iphone","size":"60x60","scale":"3x","filename":"Icon-App-60x60@3x.png"},
+              {"idiom":"ipad","size":"20x20","scale":"1x","filename":"Icon-App-20x20@1x.png"},
+              {"idiom":"ipad","size":"20x20","scale":"2x","filename":"Icon-App-20x20@2x.png"},
+              {"idiom":"ipad","size":"29x29","scale":"1x","filename":"Icon-App-29x29@1x.png"},
+              {"idiom":"ipad","size":"29x29","scale":"2x","filename":"Icon-App-29x29@2x.png"},
+              {"idiom":"ipad","size":"40x40","scale":"1x","filename":"Icon-App-40x40@1x.png"},
+              {"idiom":"ipad","size":"40x40","scale":"2x","filename":"Icon-App-40x40@2x.png"},
+              {"idiom":"ipad","size":"76x76","scale":"1x","filename":"Icon-App-76x76@1x.png"},
+              {"idiom":"ipad","size":"76x76","scale":"2x","filename":"Icon-App-76x76@2x.png"},
+              {"idiom":"ipad","size":"83.5x83.5","scale":"2x","filename":"Icon-App-83.5x83.5@2x.png"},
+              {"idiom":"ios-marketing","size":"1024x1024","scale":"1x","filename":"Icon-App-1024x1024@1x.png"}
+            ],
+            "info": {"version":1,"author":"xcode"}
+          }
+          JSON
+          test -s "$out/Contents.json"
 
       - name: Resolve packages
         working-directory: ${{ env.KITCHEN_ROOT }}
@@ -194,7 +246,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Kitchen-Prep-Board-TestFlight-201
+          name: Kitchen-Prep-Board-TestFlight-202
           path: |
             ${{ runner.temp }}/Kitchen-Prep-Board-TestFlight.ipa
             ${{ runner.temp }}/Kitchen-Prep-Board-TestFlight.ipa.sha256
