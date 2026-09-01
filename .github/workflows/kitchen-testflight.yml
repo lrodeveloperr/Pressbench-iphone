@@ -1,0 +1,394 @@
+name: Upload Kitchen Prep Board to TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type UPLOAD KITCHEN to confirm upload
+        required: true
+        type: string
+      build_number:
+        description: Optional unused positive integer; blank uses the workflow run number
+        required: false
+        type: string
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/kitchen-testflight.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kitchen-prep-testflight
+  cancel-in-progress: false
+
+env:
+  KITCHEN_REPOSITORY: lrodeveloperr/kitcgen-prep-android
+  KITCHEN_COMMIT: 44a3ba89b86a6ae963a664ea979be22dd66e9c32
+  IOS_BUNDLE_ID: studio.gooduse.kitchenprep
+  APPLE_TEAM_ID: 49SQ3XQ68Q
+  APP_NAME: Kitchen Prep Board
+  APP_SKU: kitchen-prep-board-ios
+  MARKETING_VERSION: 2.0.0
+  SCHEME: production
+  ARCHIVE_PATH: ${{ github.workspace }}/build/KitchenPrepBoard.xcarchive
+  EXPORT_PATH: ${{ github.workspace }}/build/export
+
+jobs:
+  upload:
+    name: Signed Kitchen Prep Board build to TestFlight
+    if: github.ref == 'refs/heads/main'
+    runs-on: macos-26
+    timeout-minutes: 90
+
+    steps:
+      - name: Check out signing support
+        uses: actions/checkout@v7
+        with:
+          path: support
+
+      - name: Check out canonical Kitchen source
+        uses: actions/checkout@v7
+        with:
+          repository: lrodeveloperr/kitcgen-prep-android
+          ref: 44a3ba89b86a6ae963a664ea979be22dd66e9c32
+          path: kitchen
+
+      - name: Confirm upload and select build number
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+          REQUESTED_BUILD: ${{ inputs.build_number }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            [[ "$CONFIRMATION" == "UPLOAD KITCHEN" ]] || { echo 'Confirmation must exactly match UPLOAD KITCHEN.' >&2; exit 1; }
+          fi
+          if [[ -n "$REQUESTED_BUILD" ]]; then
+            [[ "$REQUESTED_BUILD" =~ ^[1-9][0-9]{0,8}$ ]] || { echo 'Build number must be a positive integer.' >&2; exit 1; }
+            BUILD_NUMBER="$REQUESTED_BUILD"
+          else
+            BUILD_NUMBER="$((200 + GITHUB_RUN_NUMBER))"
+          fi
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
+
+      - name: Select Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -d /Applications/Xcode_26.6.app ]]; then
+            sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
+          fi
+          xcodebuild -version
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.1'
+          channel: stable
+          cache: true
+
+      - name: Resolve Flutter and CocoaPods dependencies
+        working-directory: kitchen/flutter_app
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter pub get
+          cd ios
+          pod install --repo-update
+
+      - name: Analyze shared source
+        working-directory: kitchen/flutter_app
+        shell: bash
+        run: |
+          set +e
+          flutter analyze 2>&1 | tee "$RUNNER_TEMP/flutter-analyze.log"
+          analyze_rc=${PIPESTATUS[0]}
+          set -e
+          if grep -Eq '^[[:space:]]*(error|warning) •' "$RUNNER_TEMP/flutter-analyze.log"; then
+            echo 'Blocking analyzer error or warning found.' >&2
+            exit "$analyze_rc"
+          fi
+          echo 'Analyzer contains info-level cleanup only; continuing TestFlight build.'
+
+      - name: Run shared tests
+        working-directory: kitchen/flutter_app
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter test
+
+      - name: Build iOS simulator release
+        working-directory: kitchen/flutter_app
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter build ios \
+            --simulator \
+            --release \
+            --flavor production \
+            --target lib/main.dart \
+            --build-name "$MARKETING_VERSION" \
+            --build-number "$BUILD_NUMBER"
+
+      - name: Verify Apple credentials and ensure app record
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          missing=()
+          [[ -n "$ASC_KEY_ID" ]] || missing+=(ASC_KEY_ID)
+          [[ -n "$ASC_ISSUER_ID" ]] || missing+=(ASC_ISSUER_ID)
+          [[ -n "$ASC_PRIVATE_KEY" ]] || missing+=(ASC_PRIVATE_KEY)
+          if (( ${#missing[@]} > 0 )); then
+            echo "Missing Actions secrets: ${missing[*]}" >&2
+            exit 1
+          fi
+          [[ "$ASC_KEY_ID" =~ ^[A-Z0-9]{10}$ ]] || { echo 'ASC_KEY_ID format is invalid.' >&2; exit 1; }
+          [[ "$ASC_ISSUER_ID" =~ ^[0-9a-fA-F-]{36}$ ]] || { echo 'ASC_ISSUER_ID format is invalid.' >&2; exit 1; }
+
+          key_dir="$HOME/.appstoreconnect/private_keys"
+          key_path="$key_dir/AuthKey_${ASC_KEY_ID}.p8"
+          mkdir -p "$key_dir"
+          chmod 700 "$key_dir"
+          umask 077
+          printf '%s' "$ASC_PRIVATE_KEY" > "$key_path"
+          chmod 600 "$key_path"
+          grep -Fq -- '-----BEGIN PRIVATE KEY-----' "$key_path"
+          grep -Fq -- '-----END PRIVATE KEY-----' "$key_path"
+          echo "ASC_KEY_PATH=$key_path" >> "$GITHUB_ENV"
+
+          jwt_helper="$GITHUB_WORKSPACE/support/scripts/app-store-connect-jwt.rb"
+          [[ -f "$jwt_helper" ]] || { echo 'App Store Connect JWT helper is missing.' >&2; exit 1; }
+          jwt="$(ruby "$jwt_helper" "$key_path" "$ASC_KEY_ID" "$ASC_ISSUER_ID")"
+          auth="Authorization: Bearer $jwt"
+          bundle_json="$RUNNER_TEMP/kitchen-bundle.json"
+          app_json="$RUNNER_TEMP/kitchen-app.json"
+
+          curl --fail-with-body --silent --show-error --get \
+            -H "$auth" \
+            --data-urlencode "filter[identifier]=$IOS_BUNDLE_ID" \
+            --data-urlencode 'limit=2' \
+            'https://api.appstoreconnect.apple.com/v1/bundleIds' \
+            -o "$bundle_json"
+          bundle_count="$(ruby -rjson -e 'puts JSON.parse(File.read(ARGV[0])).fetch("data").length' "$bundle_json")"
+          if [[ "$bundle_count" == "0" ]]; then
+            ruby -rjson -e '
+              body={data:{type:"bundleIds",attributes:{identifier:ENV.fetch("IOS_BUNDLE_ID"),name:ENV.fetch("APP_NAME"),platform:"IOS"}}}
+              File.write(ARGV[0],JSON.generate(body))
+            ' "$RUNNER_TEMP/create-bundle.json"
+            curl --fail-with-body --silent --show-error \
+              -X POST \
+              -H "$auth" \
+              -H 'Content-Type: application/json' \
+              --data-binary "@$RUNNER_TEMP/create-bundle.json" \
+              'https://api.appstoreconnect.apple.com/v1/bundleIds' \
+              -o "$bundle_json"
+          elif [[ "$bundle_count" != "1" ]]; then
+            echo 'Kitchen bundle ID is ambiguous.' >&2
+            exit 1
+          fi
+
+          curl --fail-with-body --silent --show-error --get \
+            -H "$auth" \
+            --data-urlencode "filter[bundleId]=$IOS_BUNDLE_ID" \
+            --data-urlencode 'limit=2' \
+            'https://api.appstoreconnect.apple.com/v1/apps' \
+            -o "$app_json"
+          app_count="$(ruby -rjson -e 'puts JSON.parse(File.read(ARGV[0])).fetch("data").length' "$app_json")"
+          if [[ "$app_count" == "0" ]]; then
+            ruby -rjson -e '
+              body={data:{type:"apps",attributes:{bundleId:ENV.fetch("IOS_BUNDLE_ID"),name:ENV.fetch("APP_NAME"),primaryLocale:"en-US",sku:ENV.fetch("APP_SKU")}}}
+              File.write(ARGV[0],JSON.generate(body))
+            ' "$RUNNER_TEMP/create-app.json"
+            curl --fail-with-body --silent --show-error \
+              -X POST \
+              -H "$auth" \
+              -H 'Content-Type: application/json' \
+              --data-binary "@$RUNNER_TEMP/create-app.json" \
+              'https://api.appstoreconnect.apple.com/v1/apps' \
+              -o "$app_json"
+          elif [[ "$app_count" != "1" ]]; then
+            echo 'Kitchen App Store Connect record is ambiguous.' >&2
+            exit 1
+          fi
+          app_id="$(ruby -rjson -e 'puts JSON.parse(File.read(ARGV[0])).fetch("data").first.fetch("id")' "$app_json")"
+          [[ -n "$app_id" ]] || { echo 'Kitchen App Store Connect app ID is missing.' >&2; exit 1; }
+          echo "ASC_APP_ID=$app_id" >> "$GITHUB_ENV"
+
+      - name: Build unsigned App Store archive
+        working-directory: kitchen/flutter_app
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          rm -rf "$ARCHIVE_PATH" "$EXPORT_PATH"
+          mkdir -p "$(dirname "$ARCHIVE_PATH")" "$EXPORT_PATH"
+          flutter build ios \
+            --release \
+            --no-codesign \
+            --flavor production \
+            --target lib/main.dart \
+            --build-name "$MARKETING_VERSION" \
+            --build-number "$BUILD_NUMBER"
+          xcodebuild \
+            -workspace ios/Runner.xcworkspace \
+            -scheme "$SCHEME" \
+            -configuration Release-production \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$ARCHIVE_PATH" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            PRODUCT_BUNDLE_IDENTIFIER="$IOS_BUNDLE_ID" \
+            FLUTTER_BUILD_NAME="$MARKETING_VERSION" \
+            FLUTTER_BUILD_NUMBER="$BUILD_NUMBER" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            archive
+
+      - name: Verify and stage archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          app="$(find "$ARCHIVE_PATH/Products/Applications" -maxdepth 1 -type d -name '*.app' -print -quit)"
+          [[ -n "$app" ]] || { echo 'Archived Kitchen app not found.' >&2; exit 1; }
+          plist="$app/Info.plist"
+          bundle="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$plist")"
+          version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$plist")"
+          build="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$plist")"
+          [[ "$bundle" == "$IOS_BUNDLE_ID" ]] || { echo "Bundle ID mismatch: $bundle" >&2; exit 1; }
+          [[ "$version" == "$MARKETING_VERSION" ]] || { echo "Version mismatch: $version" >&2; exit 1; }
+          [[ "$build" == "$BUILD_NUMBER" ]] || { echo "Build number mismatch: $build" >&2; exit 1; }
+          find "$app" -name PrivacyInfo.xcprivacy -print -quit | grep -q . || { echo 'No privacy manifest was bundled.' >&2; exit 1; }
+
+          while IFS= read -r -d '' framework; do
+            codesign --force --sign - --timestamp=none "$framework"
+            codesign --verify --strict --verbose=2 "$framework"
+          done < <(find "$app/Frameworks" -depth -type d -name '*.framework' -print0 2>/dev/null || true)
+
+      - name: Export signed IPA
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          options="$RUNNER_TEMP/ExportOptions.plist"
+          cat > "$options" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>export</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>signingCertificate</key><string>Apple Distribution</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$ARCHIVE_PATH" \
+            -exportPath "$EXPORT_PATH" \
+            -exportOptionsPlist "$options" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          IPA_PATH="$(find "$EXPORT_PATH" -maxdepth 1 -type f -name '*.ipa' -print -quit)"
+          [[ -n "$IPA_PATH" ]] || { echo 'IPA export failed.' >&2; exit 1; }
+          echo "IPA_PATH=$IPA_PATH" >> "$GITHUB_ENV"
+
+          verify_dir="$RUNNER_TEMP/kitchen-ipa"
+          rm -rf "$verify_dir"
+          mkdir -p "$verify_dir"
+          ditto -x -k "$IPA_PATH" "$verify_dir"
+          exported_app="$(find "$verify_dir/Payload" -maxdepth 1 -type d -name '*.app' -print -quit)"
+          [[ -n "$exported_app" ]] || { echo 'Exported app not found.' >&2; exit 1; }
+          exported_plist="$exported_app/Info.plist"
+          [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$exported_plist")" == "$IOS_BUNDLE_ID" ]]
+          [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$exported_plist")" == "$MARKETING_VERSION" ]]
+          [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$exported_plist")" == "$BUILD_NUMBER" ]]
+          codesign --verify --deep --strict --verbose=2 "$exported_app"
+          signature="$(codesign -dvv "$exported_app" 2>&1)"
+          [[ "$signature" == *'Authority=Apple Distribution'* ]] || { echo 'Exported app is not distribution signed.' >&2; exit 1; }
+          [[ "$signature" == *"TeamIdentifier=$APPLE_TEAM_ID"* ]] || { echo 'Exported app signing team mismatch.' >&2; exit 1; }
+
+      - name: Validate IPA with App Store Connect
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          xcrun altool --validate-app \
+            --type ios \
+            --file "$IPA_PATH" \
+            --apiKey "$ASC_KEY_ID" \
+            --apiIssuer "$ASC_ISSUER_ID"
+
+      - name: Upload IPA to TestFlight
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          xcrun altool --upload-app \
+            --type ios \
+            --file "$IPA_PATH" \
+            --apiKey "$ASC_KEY_ID" \
+            --apiIssuer "$ASC_ISSUER_ID"
+
+      - name: Confirm TestFlight processing
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          jwt_helper="$GITHUB_WORKSPACE/support/scripts/app-store-connect-jwt.rb"
+          for attempt in $(seq 1 30); do
+            jwt="$(ruby "$jwt_helper" "$ASC_KEY_PATH" "$ASC_KEY_ID" "$ASC_ISSUER_ID")"
+            response="$RUNNER_TEMP/kitchen-build.json"
+            curl --fail-with-body --silent --show-error --get \
+              -H "Authorization: Bearer $jwt" \
+              --data-urlencode "filter[app]=$ASC_APP_ID" \
+              --data-urlencode "filter[version]=$BUILD_NUMBER" \
+              --data-urlencode 'sort=-uploadedDate' \
+              --data-urlencode 'limit=1' \
+              'https://api.appstoreconnect.apple.com/v1/builds' \
+              -o "$response"
+            state="$(ruby -rjson -e 'd=JSON.parse(File.read(ARGV[0])).fetch("data"); puts(d.empty? ? "MISSING" : d.first.fetch("attributes").fetch("processingState"))' "$response")"
+            case "$state" in
+              VALID) echo "Kitchen build $BUILD_NUMBER is valid in TestFlight."; exit 0 ;;
+              FAILED|INVALID) echo "Kitchen build processing failed: $state" >&2; exit 1 ;;
+              *) echo "Processing state: $state (attempt $attempt/30)"; sleep 30 ;;
+            esac
+          done
+          echo 'Upload succeeded, but App Store Connect processing did not finish within 15 minutes.' >&2
+          exit 1
+
+      - name: Retain exact TestFlight IPA
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: Kitchen-Prep-Board-TestFlight-${{ env.BUILD_NUMBER }}
+          path: ${{ env.IPA_PATH }}
+          if-no-files-found: error
+          retention-days: 7
