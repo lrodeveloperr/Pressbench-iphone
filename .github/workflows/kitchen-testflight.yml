@@ -97,9 +97,11 @@ jobs:
         run: |
           set -euo pipefail
           flutter pub get
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 13.0;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' ios/Runner.xcodeproj/project.pbxproj
+          /usr/libexec/PlistBuddy -c 'Set :MinimumOSVersion 15.0' ios/Flutter/AppFrameworkInfo.plist
           if [[ ! -f ios/Podfile ]]; then
             cat > ios/Podfile <<'RUBY'
-          platform :ios, '13.0'
+          platform :ios, '15.0'
 
           ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
@@ -301,6 +303,7 @@ jobs:
             PRODUCT_BUNDLE_IDENTIFIER="$IOS_BUNDLE_ID" \
             FLUTTER_BUILD_NAME="$MARKETING_VERSION" \
             FLUTTER_BUILD_NUMBER="$BUILD_NUMBER" \
+            IPHONEOS_DEPLOYMENT_TARGET=15.0 \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
