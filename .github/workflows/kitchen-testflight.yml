@@ -228,40 +228,13 @@ jobs:
           [[ -f "$jwt_helper" ]] || { echo 'App Store Connect JWT helper is missing.' >&2; exit 1; }
           jwt="$(ruby "$jwt_helper" "$key_path" "$ASC_KEY_ID" "$ASC_ISSUER_ID")"
           auth="Authorization: Bearer $jwt"
-          bundle_json="$RUNNER_TEMP/kitchen-bundle.json"
           app_json="$RUNNER_TEMP/kitchen-app.json"
 
-          curl --fail-with-body --silent --show-error --get \
+          curl --fail-with-body --silent --show-error \
             -H "$auth" \
-            --data-urlencode "filter[identifier]=$IOS_BUNDLE_ID" \
-            --data-urlencode 'limit=2' \
-            'https://api.appstoreconnect.apple.com/v1/bundleIds' \
-            -o "$bundle_json"
-          bundle_count="$(ruby -rjson -e 'puts JSON.parse(File.read(ARGV[0])).fetch("data").length' "$bundle_json")"
-          if [[ "$bundle_count" == "0" ]]; then
-            ruby -rjson -e '
-              body={data:{type:"bundleIds",attributes:{identifier:ENV.fetch("IOS_BUNDLE_ID"),name:ENV.fetch("APP_NAME"),platform:"IOS"}}}
-              File.write(ARGV[0],JSON.generate(body))
-            ' "$RUNNER_TEMP/create-bundle.json"
-            curl --fail-with-body --silent --show-error \
-              -X POST \
-              -H "$auth" \
-              -H 'Content-Type: application/json' \
-              --data-binary "@$RUNNER_TEMP/create-bundle.json" \
-              'https://api.appstoreconnect.apple.com/v1/bundleIds' \
-              -o "$bundle_json"
-          elif [[ "$bundle_count" != "1" ]]; then
-            echo 'Kitchen bundle ID is ambiguous.' >&2
-            exit 1
-          fi
-
-          curl --fail-with-body --silent --show-error --get \
-            -H "$auth" \
-            --data-urlencode "filter[bundleId]=$IOS_BUNDLE_ID" \
-            --data-urlencode 'limit=2' \
-            'https://api.appstoreconnect.apple.com/v1/apps' \
+            'https://api.appstoreconnect.apple.com/v1/apps?limit=200' \
             -o "$app_json"
-          app_count="$(ruby -rjson -e 'puts JSON.parse(File.read(ARGV[0])).fetch("data").length' "$app_json")"
+          app_count="$(ruby -rjson -e 'puts JSON.parse(File.read(ARGV[0])).fetch("data").count { |item| item.fetch("attributes").fetch("bundleId") == ENV.fetch("IOS_BUNDLE_ID") }' "$app_json")"
           if [[ "$app_count" == "0" ]]; then
             ruby -rjson -e '
               body={data:{type:"apps",attributes:{bundleId:ENV.fetch("IOS_BUNDLE_ID"),name:ENV.fetch("APP_NAME"),primaryLocale:"en-US",sku:ENV.fetch("APP_SKU")}}}
@@ -273,12 +246,14 @@ jobs:
               -H 'Content-Type: application/json' \
               --data-binary "@$RUNNER_TEMP/create-app.json" \
               'https://api.appstoreconnect.apple.com/v1/apps' \
-              -o "$app_json"
+              -o "$RUNNER_TEMP/created-app.json"
+            app_id="$(ruby -rjson -e 'puts JSON.parse(File.read(ARGV[0])).fetch("data").fetch("id")' "$RUNNER_TEMP/created-app.json")"
           elif [[ "$app_count" != "1" ]]; then
             echo 'Kitchen App Store Connect record is ambiguous.' >&2
             exit 1
+          else
+            app_id="$(ruby -rjson -e 'item=JSON.parse(File.read(ARGV[0])).fetch("data").find { |entry| entry.fetch("attributes").fetch("bundleId") == ENV.fetch("IOS_BUNDLE_ID") }; puts item.fetch("id")' "$app_json")"
           fi
-          app_id="$(ruby -rjson -e 'puts JSON.parse(File.read(ARGV[0])).fetch("data").first.fetch("id")' "$app_json")"
           [[ -n "$app_id" ]] || { echo 'Kitchen App Store Connect app ID is missing.' >&2; exit 1; }
           echo "ASC_APP_ID=$app_id" >> "$GITHUB_ENV"
 
