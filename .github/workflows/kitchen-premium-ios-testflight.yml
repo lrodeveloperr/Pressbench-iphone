@@ -1,0 +1,299 @@
+name: Upload premium Kitchen iOS to TestFlight
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/kitchen-premium-ios-testflight.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kitchen-premium-ios-testflight
+  cancel-in-progress: false
+
+env:
+  KITCHEN_COMMIT: ca3028919d494e610aa4b835403e0e25cd7ec2a5
+  IOS_BUNDLE_ID: studio.gooduse.kitchenprep
+  APPLE_TEAM_ID: 49SQ3XQ68Q
+  MARKETING_VERSION: 2.0.0
+  BUILD_NUMBER: 302
+  SCHEME: production
+  ARCHIVE_PATH: ${{ github.workspace }}/build/KitchenPrepBoard.xcarchive
+  EXPORT_PATH: ${{ github.workspace }}/build/export
+
+jobs:
+  upload:
+    name: Premium Kitchen iOS build 302
+    runs-on: macos-26
+    timeout-minutes: 90
+
+    steps:
+      - name: Check out signing support
+        uses: actions/checkout@v7
+        with:
+          path: support
+
+      - name: Check out exact Kitchen source
+        uses: actions/checkout@v7
+        with:
+          repository: lrodeveloperr/kitcgen-prep-android
+          ref: ca3028919d494e610aa4b835403e0e25cd7ec2a5
+          path: kitchen
+
+      - name: Verify source identity
+        working-directory: kitchen
+        run: |
+          set -euo pipefail
+          [[ "$(git rev-parse HEAD)" == "$KITCHEN_COMMIT" ]]
+
+      - name: Select Xcode
+        run: |
+          set -euo pipefail
+          if [[ -d /Applications/Xcode_26.6.app ]]; then
+            sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
+          fi
+          xcodebuild -version
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.1'
+          channel: stable
+          cache: true
+
+      - name: Resolve Flutter and CocoaPods dependencies
+        working-directory: kitchen/flutter_app
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter pub get
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 13.0;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' ios/Runner.xcodeproj/project.pbxproj
+          /usr/libexec/PlistBuddy -c 'Set :MinimumOSVersion 15.0' ios/Flutter/AppFrameworkInfo.plist
+          if [[ ! -f ios/Podfile ]]; then
+            cat > ios/Podfile <<'RUBY'
+          platform :ios, '15.0'
+          ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+          project 'Runner', {
+            'Debug-production' => :debug,
+            'Debug-staging' => :debug,
+            'Debug-development' => :debug,
+            'Profile-production' => :release,
+            'Profile-staging' => :release,
+            'Profile-development' => :release,
+            'Release-production' => :release,
+            'Release-staging' => :release,
+            'Release-development' => :release,
+          }
+          def flutter_root
+            path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
+            File.foreach(path) do |line|
+              match = line.match(/FLUTTER_ROOT\=(.*)/)
+              return match[1].strip if match
+            end
+            raise 'FLUTTER_ROOT not found'
+          end
+          require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
+          flutter_ios_podfile_setup
+          target 'Runner' do
+            flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+            target 'RunnerTests' do
+              inherit! :search_paths
+            end
+          end
+          post_install do |installer|
+            installer.pods_project.targets.each do |target|
+              flutter_additional_ios_build_settings(target)
+            end
+          end
+          RUBY
+          fi
+          cd ios
+          pod install --repo-update
+          cat > Flutter/Debug.xcconfig <<'XCCONFIG'
+          #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug-production.xcconfig"
+          #include "Generated.xcconfig"
+          XCCONFIG
+          cat > Flutter/Release.xcconfig <<'XCCONFIG'
+          #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release-production.xcconfig"
+          #include "Generated.xcconfig"
+          DEVELOPMENT_TEAM=49SQ3XQ68Q
+          CODE_SIGN_STYLE=Automatic
+          XCCONFIG
+
+      - name: Analyze blocking issues
+        working-directory: kitchen/flutter_app
+        shell: bash
+        run: |
+          set +e
+          flutter analyze 2>&1 | tee "$RUNNER_TEMP/analyze.log"
+          rc=${PIPESTATUS[0]}
+          set -e
+          if grep -Eq '^[[:space:]]*(error|warning) •' "$RUNNER_TEMP/analyze.log"; then
+            echo 'Blocking analyzer error or warning found.' >&2
+            exit "$rc"
+          fi
+          echo 'No analyzer errors or warnings.'
+
+      - name: Run logic and scaling suite
+        working-directory: kitchen/flutter_app
+        run: flutter test --dart-define=FORCE_IOS_SKIN=true
+
+      - name: Verify premium iOS and banner contract
+        working-directory: kitchen/flutter_app
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -q 'SliverAppBar.large' test/ios_premium_scaling_contract_test.dart
+          grep -q 'Size(320, 568)' test/ios_premium_scaling_contract_test.dart
+          grep -q 'Size(375, 667)' test/ios_premium_scaling_contract_test.dart
+          grep -q 'Platform.isAndroid || Platform.isIOS' lib/services/monetization_service.dart
+          grep -q 'ca-app-pub-3940256099942544/2435281174' lib/services/monetization_service.dart
+          grep -q 'ca-app-pub-3940256099942544~1458002511' ios/Runner/Info.plist
+          test -s ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png
+
+      - name: Verify Apple credentials
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          [[ -n "$ASC_KEY_ID" ]]
+          [[ -n "$ASC_ISSUER_ID" ]]
+          [[ -n "$ASC_PRIVATE_KEY" ]]
+          key_dir="$HOME/.appstoreconnect/private_keys"
+          key_path="$key_dir/AuthKey_${ASC_KEY_ID}.p8"
+          mkdir -p "$key_dir"
+          chmod 700 "$key_dir"
+          umask 077
+          printf '%s' "$ASC_PRIVATE_KEY" > "$key_path"
+          chmod 600 "$key_path"
+          grep -Fq -- '-----BEGIN PRIVATE KEY-----' "$key_path"
+          grep -Fq -- '-----END PRIVATE KEY-----' "$key_path"
+          echo "ASC_KEY_PATH=$key_path" >> "$GITHUB_ENV"
+
+      - name: Build App Store archive
+        working-directory: kitchen/flutter_app
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          rm -rf "$ARCHIVE_PATH" "$EXPORT_PATH"
+          mkdir -p "$(dirname "$ARCHIVE_PATH")" "$EXPORT_PATH"
+          flutter build ios \
+            --release \
+            --no-codesign \
+            --flavor production \
+            --target lib/main.dart \
+            --build-name "$MARKETING_VERSION" \
+            --build-number "$BUILD_NUMBER"
+          xcodebuild \
+            -workspace ios/Runner.xcworkspace \
+            -scheme "$SCHEME" \
+            -configuration Release-production \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$ARCHIVE_PATH" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            PRODUCT_BUNDLE_IDENTIFIER="$IOS_BUNDLE_ID" \
+            FLUTTER_BUILD_NAME="$MARKETING_VERSION" \
+            FLUTTER_BUILD_NUMBER="$BUILD_NUMBER" \
+            IPHONEOS_DEPLOYMENT_TARGET=15.0 \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            archive
+
+      - name: Verify archive identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          app="$(find "$ARCHIVE_PATH/Products/Applications" -maxdepth 1 -type d -name '*.app' -print -quit)"
+          [[ -n "$app" ]]
+          plist="$app/Info.plist"
+          [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$plist")" == "$IOS_BUNDLE_ID" ]]
+          [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$plist")" == "$MARKETING_VERSION" ]]
+          [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$plist")" == "$BUILD_NUMBER" ]]
+          [[ "$(/usr/libexec/PlistBuddy -c 'Print :GADApplicationIdentifier' "$plist")" == 'ca-app-pub-3940256099942544~1458002511' ]]
+          find "$app" -name PrivacyInfo.xcprivacy -print -quit | grep -q .
+          while IFS= read -r -d '' framework; do
+            codesign --force --sign - --timestamp=none "$framework"
+            codesign --verify --strict --verbose=2 "$framework"
+          done < <(find "$app/Frameworks" -depth -type d -name '*.framework' -print0 2>/dev/null || true)
+
+      - name: Export signed IPA
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          options="$RUNNER_TEMP/ExportOptions.plist"
+          cat > "$options" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>export</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>signingCertificate</key><string>Apple Distribution</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$ARCHIVE_PATH" \
+            -exportPath "$EXPORT_PATH" \
+            -exportOptionsPlist "$options" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          IPA_PATH="$(find "$EXPORT_PATH" -maxdepth 1 -type f -name '*.ipa' -print -quit)"
+          [[ -n "$IPA_PATH" ]]
+          echo "IPA_PATH=$IPA_PATH" >> "$GITHUB_ENV"
+          verify="$RUNNER_TEMP/ipa"
+          mkdir -p "$verify"
+          ditto -x -k "$IPA_PATH" "$verify"
+          exported="$(find "$verify/Payload" -maxdepth 1 -type d -name '*.app' -print -quit)"
+          codesign --verify --deep --strict --verbose=2 "$exported"
+          signature="$(codesign -dvv "$exported" 2>&1)"
+          [[ "$signature" == *'Authority=Apple Distribution'* ]]
+          [[ "$signature" == *"TeamIdentifier=$APPLE_TEAM_ID"* ]]
+
+      - name: Validate IPA with App Store Connect
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcrun altool --validate-app --type ios --file "$IPA_PATH" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+
+      - name: Upload IPA to TestFlight
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcrun altool --upload-app --type ios --file "$IPA_PATH" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+
+      - name: Retain exact IPA
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: Kitchen-Premium-iOS-TestFlight-302
+          path: ${{ env.IPA_PATH }}
+          retention-days: 7
