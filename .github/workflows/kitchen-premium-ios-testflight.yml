@@ -9,28 +9,40 @@ on:
 
 permissions:
   contents: read
+  statuses: write
 
 concurrency:
   group: kitchen-premium-ios-testflight
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   KITCHEN_COMMIT: 7a80bf99c6bd22211a76b5073677e91630fac528
   IOS_BUNDLE_ID: studio.gooduse.kitchenprep
   APPLE_TEAM_ID: 49SQ3XQ68Q
   MARKETING_VERSION: 2.0.0
-  BUILD_NUMBER: 303
+  BUILD_NUMBER: 304
   SCHEME: production
   ARCHIVE_PATH: ${{ github.workspace }}/build/KitchenPrepBoard.xcarchive
   EXPORT_PATH: ${{ github.workspace }}/build/export
 
 jobs:
   upload:
-    name: Premium Kitchen iOS build 303
+    name: Premium Kitchen iOS build 304
     runs-on: macos-26
     timeout-minutes: 90
 
     steps:
+      - name: Mark TestFlight upload pending
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA" \
+            --data '{"state":"pending","context":"testflight/kitchen","description":"Building and uploading Kitchen 304"}'
       - name: Check out signing support
         uses: actions/checkout@v7
         with:
@@ -294,6 +306,32 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v7
         with:
-          name: Kitchen-Premium-iOS-TestFlight-303
+          name: Kitchen-Premium-iOS-TestFlight-304
           path: ${{ env.IPA_PATH }}
           retention-days: 7
+
+      - name: Mark TestFlight upload successful
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA" \
+            --data '{"state":"success","context":"testflight/kitchen","description":"Kitchen 304 uploaded to TestFlight"}'
+
+      - name: Mark TestFlight upload failed
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_SHA" \
+            --data '{"state":"failure","context":"testflight/kitchen","description":"Kitchen 304 TestFlight upload failed"}'
