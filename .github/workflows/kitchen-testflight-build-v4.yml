@@ -17,7 +17,7 @@ env:
   IOS_BUNDLE_ID: studio.gooduse.kitchenprep
   APPLE_TEAM_ID: 49SQ3XQ68Q
   MARKETING_VERSION: 2.0.0
-  BUILD_NUMBER: 202
+  BUILD_NUMBER: 203
 
 jobs:
   build-sign-upload:
@@ -34,14 +34,21 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Fetch shared Kitchen Flutter codebase
+      - name: Fetch merged Kitchen Flutter codebase
         shell: bash
         run: |
           set -euo pipefail
-          git clone --depth 1 --branch vgc-release-candidate \
+          git clone --depth 1 --branch main \
             https://github.com/lrodeveloperr/kitcgen-prep-android.git \
             "$RUNNER_TEMP/kitchen-src"
           echo "KITCHEN_ROOT=$RUNNER_TEMP/kitchen-src/flutter_app" >> "$GITHUB_ENV"
+          echo "KITCHEN_COMMIT=$(git -C "$RUNNER_TEMP/kitchen-src" rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Verify merged main revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$KITCHEN_COMMIT" == "a043c2e355a59ba125efaa71b8ab0ac5ea3b1fe7" ]]
 
       - name: Align generated iOS production flavor with shared entrypoint
         shell: bash
@@ -57,57 +64,12 @@ jobs:
           fi
           grep -q 'FLUTTER_TARGET = lib/main.dart;' "$pbx"
 
-      - name: Build iOS AppIcon catalog from shared production icon
+      - name: Verify iOS AppIcon catalog
         shell: bash
         run: |
           set -euo pipefail
-          src="$KITCHEN_ROOT/android/app/src/main/ic_launcher-playstore.png"
-          out="$KITCHEN_ROOT/ios/Runner/Assets.xcassets/AppIcon.appiconset"
-          test -s "$src"
-          rm -rf "$out"
-          mkdir -p "$out"
-          resize() { sips -z "$1" "$1" "$src" --out "$out/$2" >/dev/null; }
-          resize 20 Icon-App-20x20@1x.png
-          resize 40 Icon-App-20x20@2x.png
-          resize 60 Icon-App-20x20@3x.png
-          resize 29 Icon-App-29x29@1x.png
-          resize 58 Icon-App-29x29@2x.png
-          resize 87 Icon-App-29x29@3x.png
-          resize 40 Icon-App-40x40@1x.png
-          resize 80 Icon-App-40x40@2x.png
-          resize 120 Icon-App-40x40@3x.png
-          resize 120 Icon-App-60x60@2x.png
-          resize 180 Icon-App-60x60@3x.png
-          resize 76 Icon-App-76x76@1x.png
-          resize 152 Icon-App-76x76@2x.png
-          resize 167 Icon-App-83.5x83.5@2x.png
-          resize 1024 Icon-App-1024x1024@1x.png
-          cat > "$out/Contents.json" <<'JSON'
-          {
-            "images": [
-              {"idiom":"iphone","size":"20x20","scale":"2x","filename":"Icon-App-20x20@2x.png"},
-              {"idiom":"iphone","size":"20x20","scale":"3x","filename":"Icon-App-20x20@3x.png"},
-              {"idiom":"iphone","size":"29x29","scale":"2x","filename":"Icon-App-29x29@2x.png"},
-              {"idiom":"iphone","size":"29x29","scale":"3x","filename":"Icon-App-29x29@3x.png"},
-              {"idiom":"iphone","size":"40x40","scale":"2x","filename":"Icon-App-40x40@2x.png"},
-              {"idiom":"iphone","size":"40x40","scale":"3x","filename":"Icon-App-40x40@3x.png"},
-              {"idiom":"iphone","size":"60x60","scale":"2x","filename":"Icon-App-60x60@2x.png"},
-              {"idiom":"iphone","size":"60x60","scale":"3x","filename":"Icon-App-60x60@3x.png"},
-              {"idiom":"ipad","size":"20x20","scale":"1x","filename":"Icon-App-20x20@1x.png"},
-              {"idiom":"ipad","size":"20x20","scale":"2x","filename":"Icon-App-20x20@2x.png"},
-              {"idiom":"ipad","size":"29x29","scale":"1x","filename":"Icon-App-29x29@1x.png"},
-              {"idiom":"ipad","size":"29x29","scale":"2x","filename":"Icon-App-29x29@2x.png"},
-              {"idiom":"ipad","size":"40x40","scale":"1x","filename":"Icon-App-40x40@1x.png"},
-              {"idiom":"ipad","size":"40x40","scale":"2x","filename":"Icon-App-40x40@2x.png"},
-              {"idiom":"ipad","size":"76x76","scale":"1x","filename":"Icon-App-76x76@1x.png"},
-              {"idiom":"ipad","size":"76x76","scale":"2x","filename":"Icon-App-76x76@2x.png"},
-              {"idiom":"ipad","size":"83.5x83.5","scale":"2x","filename":"Icon-App-83.5x83.5@2x.png"},
-              {"idiom":"ios-marketing","size":"1024x1024","scale":"1x","filename":"Icon-App-1024x1024@1x.png"}
-            ],
-            "info": {"version":1,"author":"xcode"}
-          }
-          JSON
-          test -s "$out/Contents.json"
+          test -s "$KITCHEN_ROOT/ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json"
+          test -s "$KITCHEN_ROOT/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png"
 
       - name: Resolve packages
         working-directory: ${{ env.KITCHEN_ROOT }}
@@ -224,29 +186,17 @@ jobs:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
-          set +e
+          set -euo pipefail
           ipa="$RUNNER_TEMP/Kitchen-Prep-Board-TestFlight.ipa"
           xcrun altool --validate-app --type ios --file "$ipa" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID" 2>&1 | tee "$RUNNER_TEMP/apple-validation.log"
-          validate_rc=${PIPESTATUS[0]}
-          upload_rc=99
-          if [[ $validate_rc -eq 0 ]]; then
-            xcrun altool --upload-app --type ios --file "$ipa" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID" 2>&1 | tee "$RUNNER_TEMP/apple-upload.log"
-            upload_rc=${PIPESTATUS[0]}
-          else
-            echo 'Upload skipped because Apple validation failed.' | tee "$RUNNER_TEMP/apple-upload.log"
-          fi
-          if [[ $upload_rc -eq 0 ]]; then
-            echo 'TESTFLIGHT_UPLOAD=SUCCESS' | tee "$RUNNER_TEMP/TestFlight-status.txt"
-          else
-            echo "TESTFLIGHT_UPLOAD=BLOCKED validate_rc=$validate_rc upload_rc=$upload_rc" | tee "$RUNNER_TEMP/TestFlight-status.txt"
-          fi
-          exit 0
+          xcrun altool --upload-app --type ios --file "$ipa" --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID" 2>&1 | tee "$RUNNER_TEMP/apple-upload.log"
+          echo 'TESTFLIGHT_UPLOAD=SUCCESS' | tee "$RUNNER_TEMP/TestFlight-status.txt"
 
       - name: Retain exact IPA and Apple logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Kitchen-Prep-Board-TestFlight-202
+          name: Kitchen-Prep-Board-TestFlight-203
           path: |
             ${{ runner.temp }}/Kitchen-Prep-Board-TestFlight.ipa
             ${{ runner.temp }}/Kitchen-Prep-Board-TestFlight.ipa.sha256
