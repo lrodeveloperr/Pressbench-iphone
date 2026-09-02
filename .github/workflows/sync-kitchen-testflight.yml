@@ -1,0 +1,44 @@
+name: Sync and run Kitchen TestFlight
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/sync-kitchen-testflight.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  sync-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Point Kitchen TestFlight at latest approved Kitchen main
+        shell: bash
+        run: |
+          set -euo pipefail
+          old='84f44238544d8327e17a4104d03a48506fd91167'
+          new='2619bfc1bb38b4ed6194b4fa7b672fe208baf247'
+          file='.github/workflows/kitchen-testflight.yml'
+          grep -Fq "$old" "$file" || { echo 'Expected old Kitchen commit not found; refusing blind edit.' >&2; exit 1; }
+          sed -i "s/$old/$new/g" "$file"
+          grep -Fq "$new" "$file"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$file"
+          git commit -m 'release: point Kitchen TestFlight at new logo build'
+          git push origin HEAD:main
+
+      - name: Dispatch signed Kitchen TestFlight upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run kitchen-testflight.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f confirmation='UPLOAD KITCHEN'
