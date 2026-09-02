@@ -15,18 +15,18 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  KITCHEN_COMMIT: ca3028919d494e610aa4b835403e0e25cd7ec2a5
+  KITCHEN_COMMIT: 7a80bf99c6bd22211a76b5073677e91630fac528
   IOS_BUNDLE_ID: studio.gooduse.kitchenprep
   APPLE_TEAM_ID: 49SQ3XQ68Q
   MARKETING_VERSION: 2.0.0
-  BUILD_NUMBER: 302
+  BUILD_NUMBER: 303
   SCHEME: production
   ARCHIVE_PATH: ${{ github.workspace }}/build/KitchenPrepBoard.xcarchive
   EXPORT_PATH: ${{ github.workspace }}/build/export
 
 jobs:
   upload:
-    name: Premium Kitchen iOS build 302
+    name: Premium Kitchen iOS build 303
     runs-on: macos-26
     timeout-minutes: 90
 
@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: lrodeveloperr/kitcgen-prep-android
-          ref: ca3028919d494e610aa4b835403e0e25cd7ec2a5
+          ref: 7a80bf99c6bd22211a76b5073677e91630fac528
           path: kitchen
 
       - name: Verify source identity
@@ -294,6 +294,6 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v7
         with:
-          name: Kitchen-Premium-iOS-TestFlight-302
+          name: Kitchen-Premium-iOS-TestFlight-303
           path: ${{ env.IPA_PATH }}
           retention-days: 7
