@@ -26,7 +26,7 @@ concurrency:
 
 env:
   KITCHEN_REPOSITORY: lrodeveloperr/kitcgen-prep-android
-  KITCHEN_COMMIT: 44a3ba89b86a6ae963a664ea979be22dd66e9c32
+  KITCHEN_COMMIT: 89e388f6f5ce1b30cfec6f7a89c16a32fba55aab
   IOS_BUNDLE_ID: studio.gooduse.kitchenprep
   APPLE_TEAM_ID: 49SQ3XQ68Q
   APP_NAME: Kitchen Prep Board
@@ -53,7 +53,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: lrodeveloperr/kitcgen-prep-android
-          ref: 44a3ba89b86a6ae963a664ea979be22dd66e9c32
+          ref: 89e388f6f5ce1b30cfec6f7a89c16a32fba55aab
           path: kitchen
 
       - name: Confirm upload and select build number
@@ -96,6 +96,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          bash tool/prepare_ios_ad_free.sh
           flutter pub get
           sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 13.0;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' ios/Runner.xcodeproj/project.pbxproj
           /usr/libexec/PlistBuddy -c 'Set :MinimumOSVersion 15.0' ios/Flutter/AppFrameworkInfo.plist
@@ -262,6 +263,14 @@ jobs:
           [[ "$version" == "$MARKETING_VERSION" ]] || { echo "Version mismatch: $version" >&2; exit 1; }
           [[ "$build" == "$BUILD_NUMBER" ]] || { echo "Build number mismatch: $build" >&2; exit 1; }
           find "$app" -name PrivacyInfo.xcprivacy -print -quit | grep -q . || { echo 'No privacy manifest was bundled.' >&2; exit 1; }
+          if find "$app" \( -iname '*GoogleMobileAds*' -o -iname '*StoreKit*' \) -print | grep -q .; then
+            echo 'Advertising or in-app-purchase frameworks were bundled in the paid iOS app.' >&2
+            exit 1
+          fi
+          if strings "$app/Runner" | grep -Eq 'GADApplicationIdentifier|google_mobile_ads|remove_ads_monthly'; then
+            echo 'Advertising or remove-ads purchase identifiers were bundled in the paid iOS app.' >&2
+            exit 1
+          fi
 
           while IFS= read -r -d '' framework; do
             codesign --force --sign - --timestamp=none "$framework"
