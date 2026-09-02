@@ -26,7 +26,7 @@ concurrency:
 
 env:
   KITCHEN_REPOSITORY: lrodeveloperr/kitcgen-prep-android
-  KITCHEN_COMMIT: 89e388f6f5ce1b30cfec6f7a89c16a32fba55aab
+  KITCHEN_COMMIT: 84f44238544d8327e17a4104d03a48506fd91167
   IOS_BUNDLE_ID: studio.gooduse.kitchenprep
   APPLE_TEAM_ID: 49SQ3XQ68Q
   APP_NAME: Kitchen Prep Board
@@ -53,7 +53,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: lrodeveloperr/kitcgen-prep-android
-          ref: 89e388f6f5ce1b30cfec6f7a89c16a32fba55aab
+          ref: 84f44238544d8327e17a4104d03a48506fd91167
           path: kitchen
 
       - name: Confirm upload and select build number
