@@ -261,8 +261,14 @@ final class FirstUseFlowUITests: XCTestCase {
     private func enter(_ value: String, in field: XCUIElement, app: XCUIApplication) {
         for _ in 0..<8 where !field.exists { scrollForward(in: app) }
         XCTAssertTrue(field.waitForExistence(timeout: 4))
-        makeHittable(field, in: app)
-        field.tap()
+        for _ in 0..<4 where !app.keyboards.firstMatch.exists {
+            makeHittable(field, in: app)
+            field.tap()
+            if !app.keyboards.firstMatch.waitForExistence(timeout: 2) {
+                scrollForward(in: app)
+            }
+        }
+        XCTAssertTrue(app.keyboards.firstMatch.exists, "The text field must have keyboard focus before typing")
         field.typeText(value)
         let dismissKeyboard = app.buttons.matching(identifier: "pb.keyboard.dismiss").firstMatch
         XCTAssertTrue(dismissKeyboard.waitForExistence(timeout: 2))
