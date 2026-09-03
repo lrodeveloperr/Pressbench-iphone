@@ -64,4 +64,77 @@ final class UsageMeterTests: XCTestCase {
         XCTAssertEqual(meter.completedPresses, PBUsageMeter.freePressLimit)
         XCTAssertEqual(meter.freePressesRemaining, 0)
     }
+
+    func testSecureLedgerSurvivesPreferenceReset() {
+        let secure = InMemoryUsageStore()
+        let first = PBUsageMeter(defaults: defaults, secureStore: secure)
+        first.recordCompletedPress(batchID: "batch-a")
+        first.recordCompletedPress(batchID: "batch-b")
+
+        defaults.removePersistentDomain(forName: suiteName)
+        let relaunched = PBUsageMeter(defaults: defaults, secureStore: secure)
+
+        XCTAssertEqual(relaunched.completedPresses, 2)
+        XCTAssertEqual(relaunched.freePressesRemaining, 3)
+        relaunched.recordCompletedPress(batchID: "batch-a")
+        XCTAssertEqual(relaunched.completedPresses, 2)
+    }
+
+    func testOlderBackupCountCannotReduceExistingUsage() {
+        let secure = InMemoryUsageStore()
+        let meter = PBUsageMeter(defaults: defaults, secureStore: secure)
+        meter.reconcile(existingCompletedRuns: 4)
+        meter.reconcile(existingCompletedRuns: 1)
+
+        XCTAssertEqual(meter.completedPresses, 4)
+        XCTAssertEqual(meter.freePressesRemaining, 1)
+    }
+
+    func testImportedUsageCanRaiseButNeverExceedLimit() {
+        let secure = InMemoryUsageStore()
+        let meter = PBUsageMeter(defaults: defaults, secureStore: secure)
+
+        meter.reconcile(existingCompletedRuns: 99)
+
+        XCTAssertEqual(meter.completedPresses, PBUsageMeter.freePressLimit)
+        XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
+    }
+
+    func testPersistenceFailureFailsClosed() {
+        let secure = InMemoryUsageStore()
+        secure.failSaves = true
+        let meter = PBUsageMeter(defaults: defaults, secureStore: secure)
+
+        XCTAssertFalse(meter.persistenceHealthy)
+        XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
+    }
+
+    func testTransientPersistenceFailureRecoversWithoutResettingUsage() {
+        let secure = InMemoryUsageStore()
+        secure.failSaves = true
+        let meter = PBUsageMeter(defaults: defaults, secureStore: secure)
+        meter.reconcile(existingCompletedRuns: 3)
+        XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
+
+        secure.failSaves = false
+        XCTAssertTrue(meter.canStartFreePress(existingCompletedRuns: 0))
+        XCTAssertEqual(meter.completedPresses, 3)
+        XCTAssertEqual(secure.snapshot?.completedPresses, 3)
+    }
+}
+
+private final class InMemoryUsageStore: PBUsagePersisting {
+    var snapshot: PBUsageSnapshot?
+    var failSaves = false
+
+    func load() throws -> PBUsageSnapshot? { snapshot }
+
+    func save(_ snapshot: PBUsageSnapshot) throws {
+        if failSaves { throw TestUsageError.failed }
+        self.snapshot = snapshot
+    }
+}
+
+private enum TestUsageError: Error {
+    case failed
 }

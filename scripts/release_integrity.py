@@ -10,12 +10,12 @@ def require(condition, message):
 
 logic = root/'PressBench/Resources/PressBenchLogic.js'
 logic_hash = hashlib.sha256(logic.read_bytes()).hexdigest()
-require(logic_hash == 'e7884b7f3a515000b3ea4c7b2b07b1602a917ec90ad22136547a006cd0263740', f'logic hash changed: {logic_hash}')
+require(logic_hash == '765d3ebc8ec715040bde50a55ed5cb8b7aa987118a460353af5c0599635d96b5', f'logic hash changed: {logic_hash}')
 text = logic.read_text(encoding='utf-8')
 require(all(marker in text for marker in ['pressbench_unlimited_monthly_ios', 'pressbench_unlimited_lifetime_ios',
         'productType: "auto_renewable_subscription"', 'recurring: true', 'baseAmountMinor: 999',
         'advertisingSdk: "none"',
-        'routineNetworkBoundary: "store_entitlement_and_user_initiated_apple_backup"']),
+        'routineNetworkBoundary: "store_entitlement_only"']),
         'monthly iOS subscription or grandfathered lifetime entitlement is missing')
 require('FREE_RECIPE_LIMIT = D.MAX_RECORDS' in text and 'FREE_BATCH_LIMIT = 5' in text and
         'setup_capacity_required' not in text,
@@ -34,16 +34,15 @@ require('path: PressBench/Resources\n        buildPhase: resources' in project,
         'production resources are not explicitly assigned to the Xcode resources build phase')
 require('PressBenchUITests:' in project and 'type: bundle.ui-testing' in project,
         'first-use UI regression target is missing')
-require('CODE_SIGN_ENTITLEMENTS: PressBench/PressBench.entitlements' in project,
-        'production entitlements are not assigned to the app target')
+require('CODE_SIGN_ENTITLEMENTS' not in project and not (root/'PressBench/PressBench.entitlements').exists(),
+        'account or iCloud entitlements remain assigned to the app target')
 require(all(marker in testflight_workflow for marker in [
-            'Stage archive with required Apple entitlements',
+            'Stage archive for Apple distribution signing',
             'codesign --force --sign - --timestamp=none --entitlements',
             'codesign -d --entitlements :- "$exported_app"',
-            'Exported executable lacks Sign in with Apple.',
-            'Signed iCloud KVS entitlement mismatch:',
-            'Distribution profile does not permit Sign in with Apple.']),
-        'TestFlight cannot prove Apple sign-in and iCloud entitlements in the exported executable/profile')
+            'Exported executable unexpectedly requests Sign in with Apple.',
+            'Exported executable unexpectedly requests iCloud KVS.']),
+        'TestFlight cannot prove that removed account and iCloud capabilities stay out of the executable')
 require('INFOPLIST_FILE: PressBench/Info.plist' in project and
         all(marker not in project for marker in ['GoogleMobileAds', 'GoogleUserMessagingPlatform', 'OTHER_LDFLAGS: -ObjC']) and
         all(marker not in info_plist for marker in ['GADApplicationIdentifier', 'SKAdNetworkItems', 'ca-app-pub-']) and
@@ -95,8 +94,7 @@ require('.preferredColorScheme(.light)' in app and 'settings.appearance' not in 
         'light-only presentation is not fixed at the app root or the obsolete appearance picker remains')
 require('AccessibilitySettingsView' in settings_view,
         'in-app accessibility settings are missing')
-for marker in ['backup.backupNow', 'backup.restore', 'backup.signedIn', 'backup.signOut', 'settings.rollbackRestore',
-               'backup.delete', 'backup.deleteConfirm', 'backup.deleteSuccess', 'backup.deleteFailed',
+for marker in ['settings.createBackup', 'settings.importBackup', 'settings.restoreBackup',
                'pressbench.notifications.enabled', 'pressbench.haptics.enabled', 'pressbench.sound.enabled',
                'syncPresentationPreferences', 'settings.storageRecoveryRequired']:
     require(marker in settings_view, f'restored Settings production control missing: {marker}')
@@ -106,27 +104,26 @@ require(all(marker in settings_view for marker in [
             'notificationsEnabled = false', 'hapticsEnabled = true', 'soundEnabled = true',
             'PBTimerNotification.cancel()']),
         'local-data reset no longer resets presentation preferences and pending timer notifications')
-require('fileImporter' not in settings_view and 'AppleBackupService.backup' in settings_view and
-        'AppleBackupService.restoredPayload' in settings_view,
-        'Apple private-backup flow regressed to a manual file workflow')
-backup_service=(root/'PressBench/Services/AppleBackupService.swift').read_text(encoding='utf-8')
-entitlements=(root/'PressBench/PressBench.entitlements').read_text(encoding='utf-8')
-require('NSUbiquitousKeyValueStore.default' in backup_service and 'owner' in backup_service and
-        'com.apple.developer.applesignin' in entitlements and 'com.apple.developer.ubiquity-kvstore-identifier' in entitlements,
-        'Sign in with Apple private-backup implementation or entitlements are missing')
-require(all(marker in backup_service for marker in [
-            'getCredentialState(forUserID:', 'shouldClearSavedUser(for:', 'case .revoked, .notFound, .transferred:',
-            'FileManager.default.ubiquityIdentityToken != nil', 'logAuthorizationFailure']) and
-        'await AppleBackupService.refreshCredentialState()' in app,
-        'Apple credential revocation or iCloud availability is not reconciled at launch')
-require('.synchronize()' not in backup_service and
-        'completed = true\n            if backUpAfterward' in (root/'PressBench/Views/OnboardingView.swift').read_text(encoding='utf-8'),
-        'Apple sign-in or iCloud synchronization can still block onboarding completion')
-require(all(marker in backup_service for marker in ['static func deleteBackup()',
-        'removeObject(forKey: backupKey)']) and
-        all(marker in settings_view for marker in ['AppleBackupService.deleteBackup()',
-        'pb.settings.deleteICloudBackup']),
-        'private iCloud backup deletion or its reviewed Settings control is missing')
+backup_document=(root/'PressBench/Services/PressBenchBackupDocument.swift').read_text(encoding='utf-8')
+onboarding=(root/'PressBench/Views/OnboardingView.swift').read_text(encoding='utf-8')
+require(all(marker in settings_view for marker in [
+            '.fileExporter(', '.fileImporter(', 'PressBenchBackupDocument(payload:',
+            'Task.detached(priority: .userInitiated)', 'startAccessingSecurityScopedResource()',
+            'resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey])',
+            'store.previewBackup(raw:', 'showingRestoreConfirmation = true']) and
+        all(marker in backup_document for marker in [
+            'FileDocument', 'maximumBytes = 10_000_000',
+            'com.goodusestudios.pressbench.backup', 'press-bench-log', 'APP-018']) and
+        'com.goodusestudios.pressbench.backup' in info_plist,
+        'native Files backup export/import, validation, or restore preview is missing')
+require(all(marker not in (settings_view + onboarding + app) for marker in [
+            'AuthenticationServices', 'SignInWithAppleButton', 'AppleBackupService', 'ASAuthorization']) and
+        all(marker not in testflight_workflow for marker in [
+            '<key>com.apple.developer.applesignin</key>',
+            '<key>com.apple.developer.ubiquity-kvstore-identifier</key>']),
+        'removed Apple sign-in or iCloud KVS wiring remains reachable')
+require('case backup' not in onboarding and 'finishOnboarding()' in onboarding,
+        'onboarding still contains or depends on the removed backup sign-in step')
 require('planDeleteAll' in store_source and '"entitlement": entitlement' in store_source,
         'local-data reset does not use the deterministic planner while preserving purchase entitlement')
 require('.presentationDetents([.fraction(0.88), .large])' in theme and editors.count('.pbEditorSheetStyle()') >= 4,
@@ -222,14 +219,15 @@ onboarding_view=(root/'PressBench/Views/OnboardingView.swift').read_text(encodin
 require('.frame(minHeight: PBTheme.minimumTarget)' in language_dropdown,
         'shared language dropdown no longer exposes a 48-point touch target')
 require(home_view.count('.frame(minHeight: PBTheme.minimumTarget)') >= 2 and
-        onboarding_view.count('.frame(minHeight: PBTheme.minimumTarget)') >= 3,
+        onboarding_view.count('.frame(minHeight: PBTheme.minimumTarget)') >= 2,
         'Home or onboarding text-link/first-use controls dropped below the 48-point target')
 require(all(marker in onboarding_view for marker in [
-            'case preferences', 'case legal', 'case backup',
+            'case preferences', 'case legal',
             'CombinedPolicyAcknowledgement', 'pb.onboarding.accept',
-            'pb.onboarding.temperatureUnit', 'pb.onboarding.skipBackup']) and
+            'pb.onboarding.temperatureUnit', 'finishOnboarding()']) and
+        'case backup' not in onboarding_view and
         'AcknowledgementRow' not in onboarding_view and 'ProUpgradeView' not in onboarding_view,
-        'progressive onboarding, one combined acknowledgement, visible unit choice, or optional backup regressed')
+        'progressive onboarding, one combined acknowledgement, or visible unit choice regressed')
 require(setup_detail.count('.frame(width: PBTheme.minimumTarget, height: PBTheme.minimumTarget)') >= 1 and 'Menu {' in setup_detail,
         'Setup detail toolbar controls dropped below the 48-point target')
 require(re.search(r'plus\.circle\.fill[\s\S]{0,260}frame\(width: PBTheme\.minimumTarget, height: PBTheme\.minimumTarget\)', active_run_view) and
@@ -347,10 +345,19 @@ require(all(marker not in no_ad_surface for marker in [
         'ads.report', 'ads.privacyChoices', 'ads.bannerLabel']),
         'advertising SDK, identifier, UI hook, or localization remains in the iOS release')
 require(all(marker in usage_source for marker in ['freePressLimit = 5', 'completedPresses',
-        'lastCreditedBatchID', 'creditedBatchIDs', 'canStartFreePress']) and
+        'lastCreditedBatchID', 'creditedBatchIDs', 'canStartFreePress',
+        'PBKeychainUsageStore', 'kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly',
+        'persistenceHealthy &&', 'retrySecurePersistenceIfNeeded']) and
         all(marker in store_source for marker in ['usageMeter.canStartFreePress', 'recordCompletedPress',
-                                                   'case .pressLimitReached', 'alreadyCommitted']),
-        'monotonic five-completed-press limit is missing or deletion can recreate free usage')
+            'case .pressLimitReached', 'usageLedgerUnavailable', 'alreadyCommitted', 'payload["freeRunsUsed"]',
+            'max(rawBatches.count, importedUsage)']),
+        'monotonic five-run ledger, reinstall persistence, or restore reconciliation is missing')
+backup_restore_test=(root/'PressBenchTests/BackupRestoreTests.swift').read_text(encoding='utf-8')
+require(all(marker in backup_restore_test for marker in [
+            'testRestoreCarriesUsageToAnotherDeviceWithoutImportingEntitlement',
+            'testOlderRestoreNeverReducesCurrentUsage',
+            'XCTAssertEqual(targetUsage.snapshot?.completedPresses, 4)']),
+        'end-to-end backup/free-run reconciliation tests are missing')
 require('PressBenchReportExporter.pdf' in (root/'PressBench/Views/ReportsView.swift').read_text(), 'native PDF report not wired')
 require('PressBenchReportExporter.xlsx' in (root/'PressBench/Views/ReportsView.swift').read_text(), 'native XLSX report not wired')
 reports_view=(root/'PressBench/Views/ReportsView.swift').read_text(encoding='utf-8')
@@ -366,11 +373,12 @@ require('format: "CSV"' not in reports_view and 'format: "JSON"' not in reports_
         'func csvExport' not in store_source and 'static func json(' not in report_exporter and
         'CSV_SCHEMA_VERSION' not in text and 'function toCsv' not in text,
         'raw CSV or JSON export remains reachable')
-require('pressbench.backup.lastSuccessAt' in settings_view and 'pressbench.backup.lastSuccessOwner' in settings_view and
-        'backupLastSuccessOwner == appleUserID' in settings_view and 'backup.lastSuccessful' in settings_view,
-        'successful Apple backup has no persistent visible confirmation')
-require('object["setups"]' in settings_view,
-        'Apple restore preview does not count setups from the backup schema')
+require('pressbench.backup.lastSuccessAt' in settings_view and 'backup.lastSuccessful' in settings_view and
+        'case .success:' in settings_view and 'backupLastSuccessAt = Date().timeIntervalSince1970' in settings_view,
+        'successful native backup export has no persistent visible confirmation')
+require(all(marker in settings_view for marker in ['preview.machines', 'preview.setups', 'preview.batches',
+        'preview.freeRunsUsed', 'usage.freeRunsRemaining']),
+        'restore preview does not disclose content and post-restore free-run allowance')
 require('store.updateTemperatureUnit(resetTemperatureUnit)' in settings_view,
         'deleting local data can leave the persisted and displayed temperature units inconsistent')
 choice_field=(root/'PressBench/Views/PBChoiceField.swift').read_text(encoding='utf-8')
@@ -388,7 +396,7 @@ require('testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup' in 
         all(marker in ui_test for marker in ['choose("pb.choice.platen"', 'choose("pb.choice.material"',
                                               'choose("pb.choice.transfer"', 'choose("pb.choice.pressure"',
                                               'choose("pb.choice.source"']) and
-        'pb.onboarding.accept' in ui_test and 'pb.onboarding.skipBackup' in ui_test and
+        'pb.onboarding.accept' in ui_test and 'pb.onboarding.skipBackup' not in ui_test and
         'app.navigationBars["Settings"]' in ui_test and
         'pb.settings.plan' in ui_test and 'pb.settings.backup' in ui_test and
         'Backup must remain in the first Settings viewport' in ui_test and
@@ -471,9 +479,9 @@ require(all(marker not in settings_view for marker in [
 
 catalog=json.loads((root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8'))
 require(len(catalog.get('languages',[])) == 31, 'language choice count is not 31')
-require(len(catalog.get('strings',{})) == 368, 'reviewed localization catalog must contain 368 keys')
+require(len(catalog.get('strings',{})) == 357, 'reviewed localization catalog must contain 357 keys')
 language_tests=(root/'PressBenchTests/LanguageSupportTests.swift').read_text(encoding='utf-8')
-require('XCTAssertEqual(PBL10n.catalog.strings.count, 368)' in language_tests,
+require('XCTAssertEqual(PBL10n.catalog.strings.count, 357)' in language_tests,
         'unit-test localization count is stale')
 boundary = catalog.get('strings',{}).get('setup.provenBoundary',{})
 require(bool(boundary), 'localized Proven evidence boundary is missing')
@@ -492,7 +500,7 @@ for key, item in metadata.items():
 build_l10n=(root/'build_l10n.py').read_text(encoding='utf-8')
 assemble=(root/'assemble_catalog.py').read_text(encoding='utf-8')
 require('setup.provenBoundary' in build_l10n and 'raise SystemExit(\'Legacy' not in build_l10n,
-        'build_l10n.py is not the live 368-key canonical generator')
+        'build_l10n.py is not the live 357-key canonical generator')
 purchase_manager=(root/'PressBench/Services/PurchaseManager.swift').read_text(encoding='utf-8')
 require(purchase_manager.count('let productLoaded = await loadProduct()') == 2 and
         purchase_manager.count('if !productLoaded, state == .free { state = productLoadState }') == 2 and
@@ -541,7 +549,9 @@ with tempfile.TemporaryDirectory(prefix='pressbench-l10n-') as temp_name:
         generated = subprocess.run([sys.executable, 'assemble_catalog.py'], cwd=temp, capture_output=True, text=True)
         require(generated.returncode == 0, f'isolated assemble_catalog.py failed: {generated.stderr.strip()}')
     generated_catalog = temp/'PressBench/Resources/Localizations.json'
-    require(generated_catalog.exists() and generated_catalog.read_bytes() == (root/'PressBench/Resources/Localizations.json').read_bytes(),
+    require(generated_catalog.exists() and
+            generated_catalog.read_text(encoding='utf-8').rstrip() ==
+            (root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8').rstrip(),
             'checked-in localization catalog differs from a clean canonical rebuild')
 
 if failures:

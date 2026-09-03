@@ -49,6 +49,41 @@ APPLE_SIGNIN_STATUS_TRANSLATIONS = {
 }
 DIRECT_NEW_KEYS.add('backup.signedIn')
 
+BACKUP_BODY_TRANSLATIONS = {
+  'en': 'Choose where to save a backup file in Files.',
+  'es': 'Elige dónde guardar un archivo de copia de seguridad en Archivos.',
+  'pt': 'Escolha onde guardar um ficheiro de cópia de segurança em Ficheiros.',
+  'fr': 'Choisissez où enregistrer un fichier de sauvegarde dans Fichiers.',
+  'de': 'Wählen Sie in „Dateien“ aus, wo die Sicherungsdatei gespeichert werden soll.',
+  'it': 'Scegli dove salvare un file di backup in File.',
+  'nl': 'Kies in Bestanden waar u een back-upbestand wilt bewaren.',
+  'pl': 'Wybierz w aplikacji Pliki miejsce zapisania pliku kopii zapasowej.',
+  'tr': "Dosyalar'da yedekleme dosyasının kaydedileceği yeri seçin.",
+  'ro': 'Alegeți unde să salvați un fișier de rezervă în Fișiere.',
+  'cs': 'Vyberte, kam se má záložní soubor v aplikaci Soubory uložit.',
+  'uk': 'Виберіть, де зберегти файл резервної копії у програмі «Файли».',
+  'ru': 'Выберите, где сохранить файл резервной копии в приложении «Файлы».',
+  'ar': 'اختر مكان حفظ ملف النسخة الاحتياطية في تطبيق الملفات.',
+  'zh': '选择在“文件”中保存备份文件的位置。',
+  'ja': '“ファイル”でバックアップファイルの保存先を選択します。',
+  'ko': '파일 앱에서 백업 파일을 저장할 위치를 선택하세요.',
+  'hi': 'फ़ाइल्स में बैकअप फ़ाइल को सहेजने की जगह चुनें।',
+  'ur': 'فائلز میں بیک اپ فائل محفوظ کرنے کی جگہ منتخب کریں۔',
+  'bn': 'ফাইলস-এ ব্যাকআপ ফাইল সংরক্ষণের স্থান বেছে নিন।',
+  'vi': 'Chọn nơi lưu tệp sao lưu trong Tệp.',
+  'id': 'Pilih tempat menyimpan file cadangan di File.',
+  'th': 'เลือกตำแหน่งที่จะบันทึกไฟล์สำรองในแอปไฟล์',
+  'fil': 'Piliin kung saan ise-save ang backup file sa Files.',
+  'ms': 'Pilih tempat untuk menyimpan fail sandaran dalam Fail.',
+  'fi': 'Valitse Tiedostot-apissa, minne varmuuskopiotiedosto tallennetaan.',
+  'sv': 'Välj var säkerhetskopian ska sparas i Filer.',
+  'da': 'Vælg, hvor sikkerhedskopien skal gemmes i Arkiver.',
+  'nb': 'Velg hvor sikkerhetskopifilen skal lagres i Filer.',
+  'el': 'Επιλέξτε πού θα αποθηκευτεί ένα αρχείο αντιγράφου στην εφαρμογή Αρχεία.',
+  'he': 'יש לבחור היכן לשמור קובץ גיבוי ביישום ״קבצים״.',
+  'zh-Hant': '選擇要在「檔案」中儲存備份檔案的位置。',
+}
+
 # unique source phrase order
 phrases=[]; seen=set()
 for k in keys:
@@ -419,7 +454,9 @@ for key in keys:
     source=meta[key]['source']
     item={'context':meta[key]['context'],'source':runtime_placeholders(source),'translations':{}}
     for lang in languages:
-        if key in MONETIZATION_KEYS:
+        if key == 'backup.optionalBody':
+            text = BACKUP_BODY_TRANSLATIONS[lang]
+        elif key in MONETIZATION_KEYS:
             text = MONETIZATION_TRANSLATIONS[key][lang]
         elif key in OPERATOR_KEYS:
             text = OPERATOR_TRANSLATIONS[lang][key]
@@ -436,7 +473,9 @@ for key in keys:
         else:
             text = translations[lang][source]
         item['translations'][lang]=runtime_placeholders(text)
-    if key in MONETIZATION_KEYS:
+    if key == 'backup.optionalBody':
+        zhh_text = BACKUP_BODY_TRANSLATIONS['zh-Hant']
+    elif key in MONETIZATION_KEYS:
         zhh_text = MONETIZATION_TRANSLATIONS[key]['zh-Hant']
     elif key in OPERATOR_KEYS:
         zhh_text = OPERATOR_TRANSLATIONS['zh-Hant'][key]

@@ -28,7 +28,6 @@ targets:
       base:
         TARGETED_DEVICE_FAMILY: "1"
         SUPPORTS_MACCATALYST: NO
-        CODE_SIGN_ENTITLEMENTS: PressBench/PressBench.entitlements
       configs:
         Release:
           SWIFT_COMPILATION_MODE: wholemodule

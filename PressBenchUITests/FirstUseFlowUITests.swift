@@ -17,9 +17,6 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(acknowledgement.waitForExistence(timeout: 8))
         acknowledgement.tap()
         app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch.tap()
-        let skipBackup = app.buttons.matching(identifier: "pb.onboarding.skipBackup").firstMatch
-        XCTAssertTrue(skipBackup.waitForExistence(timeout: 3))
-        skipBackup.tap()
 
         XCTAssertTrue(app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch.waitForExistence(timeout: 8))
         let moreTab = app.tabBars.buttons["More"]
@@ -57,10 +54,6 @@ final class FirstUseFlowUITests: XCTestCase {
         let legalContinue = app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch
         XCTAssertTrue(legalContinue.isEnabled)
         legalContinue.tap()
-
-        let continueWithoutBackup = app.buttons.matching(identifier: "pb.onboarding.skipBackup").firstMatch
-        XCTAssertTrue(continueWithoutBackup.waitForExistence(timeout: 3))
-        continueWithoutBackup.tap()
         if app.alerts.firstMatch.waitForExistence(timeout: 2) {
             app.alerts.firstMatch.buttons.firstMatch.tap()
         }
@@ -85,7 +78,15 @@ final class FirstUseFlowUITests: XCTestCase {
         let backup = app.descendants(matching: .any)["pb.settings.backup"]
         XCTAssertTrue(backup.exists)
         XCTAssertTrue(backup.isHittable, "Backup must remain in the first Settings viewport")
+        let restoreBackup = app.descendants(matching: .any)["pb.settings.restoreBackup"]
+        XCTAssertTrue(restoreBackup.exists)
+        makeHittable(restoreBackup, in: app)
+        XCTAssertTrue(restoreBackup.isHittable, "Import backup must remain directly available without sign-in")
         XCTAssertTrue(app.staticTexts["Back up your data"].exists)
+        XCTAssertFalse(app.buttons["Continue with Apple"].exists)
+        XCTAssertFalse(app.buttons["Sign out"].exists)
+        XCTAssertFalse(app.buttons["Roll back last restore"].exists)
+        XCTAssertFalse(app.buttons["Delete iCloud backup"].exists)
         XCTAssertFalse(app.staticTexts["Production Report"].exists)
         capture("03-prioritized-settings")
 

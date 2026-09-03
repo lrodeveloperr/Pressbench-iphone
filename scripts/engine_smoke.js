@@ -22,7 +22,7 @@ let entitlement = E.normalizeEntitlement({});
 let context = {machines:[], recipes:[], setups:[], batches:[], settings, session:null, entitlement, storageMode:'native'};
 assert.equal(P.ARCHITECTURE_REQUIREMENTS.trackingSdk, false);
 assert.equal(P.ARCHITECTURE_REQUIREMENTS.advertisingSdk, 'none');
-assert.equal(P.ARCHITECTURE_REQUIREMENTS.routineNetworkBoundary, 'store_entitlement_and_user_initiated_apple_backup');
+assert.equal(P.ARCHITECTURE_REQUIREMENTS.routineNetworkBoundary, 'store_entitlement_only');
 
 // A fabricated local boolean must never create paid access.
 assert.equal(E.evaluateEntitlement({paidAccess:true, productId:'pressbench_unlimited_monthly_ios'}, now).paidAccess, false);
@@ -288,5 +288,20 @@ assert.deepStrictEqual(deletion.batches, []);
 assert.equal(deletion.session, null);
 assert.equal(deletion.purchaseEntitlementUnaffected, true);
 assert.equal(Object.prototype.hasOwnProperty.call(deletion, 'entitlement'), false);
+
+// User-owned backup files may carry only the monotonic free-run count as an
+// extra schema-v4 field. Restore still rejects unknown fields and malformed
+// counts before producing any mutation plan.
+const portableBackup = D.makeBackup(context.recipes, context.batches, context.settings, context.machines);
+portableBackup.freeRunsUsed = 3;
+const portableRestore = P.planRestore({...context, session:null, storageMode:'native'}, JSON.stringify(portableBackup));
+assert.equal(portableRestore.target.batches.length, context.batches.length);
+assert.equal(portableRestore.entitlementUnaffected, true);
+for (const invalidValue of [-1, 6, 1.5, '3']) {
+  const invalidBackup = {...portableBackup, freeRunsUsed:invalidValue};
+  assert.throws(() => P.planRestore({...context, session:null, storageMode:'native'}, JSON.stringify(invalidBackup)), /backup_shape/);
+}
+assert.throws(() => P.planRestore({...context, session:null, storageMode:'native'},
+  JSON.stringify({...portableBackup, unexpectedField:true})), /backup_shape/);
 
 console.log('ENGINE SMOKE: PASS');

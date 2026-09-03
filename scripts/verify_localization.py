@@ -34,7 +34,7 @@ if set(inventory) != set(c.get('strings',{})):
 # These keys are composed dynamically or are referenced by in-flight operator
 # flows, so a literal-only Swift scan cannot prove their presence.
 REQUIRED_DYNAMIC_KEYS={
-    'run.finishRun', 'run.nextItem', 'error.freeLimit', 'backup.signInFailed',
+    'run.finishRun', 'run.nextItem', 'error.freeLimit',
     'run.mode.test.help', 'run.mode.production.help',
     'run.progress.live.help', 'run.progress.final.help',
     'run.reuse.exactRepeat.help', 'run.reuse.sameProductVariant.help',

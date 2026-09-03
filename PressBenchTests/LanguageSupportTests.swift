@@ -29,7 +29,7 @@ final class LanguageSupportTests: XCTestCase {
     }
 
     func testLocalizationCatalogIsCompleteForEveryLanguage() {
-        XCTAssertEqual(PBL10n.catalog.strings.count, 368)
+        XCTAssertEqual(PBL10n.catalog.strings.count, 357)
         let requiredCodes = Set(AppLanguage.allCases.map(\.rawValue) + ["zh-Hant"])
         for (key, entry) in PBL10n.catalog.strings {
             XCTAssertEqual(Set(entry.translations.keys), requiredCodes, "Missing locale in \(key)")

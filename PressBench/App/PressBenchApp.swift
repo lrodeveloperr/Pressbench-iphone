@@ -33,7 +33,6 @@ struct PressBenchApp: App {
             .tint(PBTheme.primary)
             .task {
                 await store.start()
-                await AppleBackupService.refreshCredentialState()
             }
         }
     }
