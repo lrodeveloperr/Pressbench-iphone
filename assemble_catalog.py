@@ -29,6 +29,25 @@ DIRECT_NEW_KEYS = {
   'run.reuse.materiallyDifferent.help'
 } | set(ADDITIONAL_KEYS) | set(RESIDUAL_KEYS) | set(RECOVERY_KEYS) | MONETIZATION_KEYS
 DIRECT_NEW_KEYS |= set(ICLOUD_DELETE_KEYS)
+APPLE_SIGNIN_STATUS_TRANSLATIONS = {
+  'en': 'Signed in with Apple', 'es': 'Sesión iniciada con Apple',
+  'pt': 'Sessão iniciada com a Apple', 'fr': 'Connecté avec Apple',
+  'de': 'Mit Apple angemeldet', 'it': 'Accesso effettuato con Apple',
+  'nl': 'Aangemeld met Apple', 'pl': 'Zalogowano przez Apple',
+  'tr': 'Apple ile giriş yapıldı', 'ro': 'Conectat cu Apple',
+  'cs': 'Přihlášeno přes Apple', 'uk': 'Вхід через Apple виконано',
+  'ru': 'Выполнен вход через Apple', 'ar': 'تم تسجيل الدخول باستخدام Apple',
+  'zh': '已通过 Apple 登录', 'ja': 'Appleでサインイン済み',
+  'ko': 'Apple로 로그인됨', 'hi': 'Apple से साइन इन किया गया',
+  'ur': 'Apple کے ساتھ سائن ان ہے', 'bn': 'Apple দিয়ে সাইন ইন করা হয়েছে',
+  'vi': 'Đã đăng nhập bằng Apple', 'id': 'Masuk dengan Apple',
+  'th': 'ลงชื่อเข้าใช้ด้วย Apple แล้ว', 'fil': 'Naka-sign in gamit ang Apple',
+  'ms': 'Log masuk dengan Apple', 'fi': 'Kirjauduttu Applella',
+  'sv': 'Inloggad med Apple', 'da': 'Logget ind med Apple',
+  'nb': 'Logget på med Apple', 'el': 'Συνδεθήκατε μέσω Apple',
+  'he': 'מחובר באמצעות Apple', 'zh-Hant': '已透過 Apple 登入'
+}
+DIRECT_NEW_KEYS.add('backup.signedIn')
 
 # unique source phrase order
 phrases=[]; seen=set()
@@ -412,6 +431,8 @@ for key in keys:
             text = RECOVERY_TRANSLATIONS[lang][key]
         elif key in ICLOUD_DELETE_KEYS:
             text = ICLOUD_DELETE_TRANSLATIONS[lang][key]
+        elif key == 'backup.signedIn':
+            text = APPLE_SIGNIN_STATUS_TRANSLATIONS[lang]
         else:
             text = translations[lang][source]
         item['translations'][lang]=runtime_placeholders(text)
@@ -427,6 +448,8 @@ for key in keys:
         zhh_text = RECOVERY_TRANSLATIONS['zh-Hant'][key]
     elif key in ICLOUD_DELETE_KEYS:
         zhh_text = ICLOUD_DELETE_TRANSLATIONS['zh-Hant'][key]
+    elif key == 'backup.signedIn':
+        zhh_text = APPLE_SIGNIN_STATUS_TRANSLATIONS['zh-Hant']
     else:
         zhh_text = translations['zh-Hant'][source]
     item['translations']['zh-Hant']=runtime_placeholders(zhh_text)

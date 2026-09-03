@@ -165,7 +165,8 @@ struct OnboardingFlowView: View {
             finishOnboarding(backUpAfterward: true)
         case .failure(let error as ASAuthorizationError) where error.code == .canceled:
             break
-        case .failure:
+        case .failure(let error):
+            AppleBackupService.logAuthorizationFailure(error, operation: "onboarding-sign-in")
             failureMessageKey = "backup.signInFailed"; failed = true
         }
     }

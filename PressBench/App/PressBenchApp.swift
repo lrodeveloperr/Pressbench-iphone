@@ -31,7 +31,10 @@ struct PressBenchApp: App {
             .environment(\.layoutDirection, language.isRTL ? .rightToLeft : .leftToRight)
             .preferredColorScheme(.light)
             .tint(PBTheme.primary)
-            .task { await store.start() }
+            .task {
+                await store.start()
+                await AppleBackupService.refreshCredentialState()
+            }
         }
     }
 }

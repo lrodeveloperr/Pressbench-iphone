@@ -1,4 +1,6 @@
+import AuthenticationServices
 import Foundation
+import OSLog
 
 protocol AppleBackupKeyValueStoring: AnyObject {
     func data(forKey defaultName: String) -> Data?
@@ -14,6 +16,10 @@ enum AppleBackupService {
     private static let lastSuccessAtKey = "pressbench.backup.lastSuccessAt"
     private static let lastSuccessOwnerKey = "pressbench.backup.lastSuccessOwner"
     private static let maximumBytes = 900_000
+    private static let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "com.goodusestudios.pressbench",
+        category: "AppleBackup"
+    )
 
     static var isSignedIn: Bool {
         !(UserDefaults.standard.string(forKey: userDefaultsKey) ?? "").isEmpty
@@ -29,8 +35,52 @@ enum AppleBackupService {
         clearSuccessRecord()
     }
 
+    /// Reconciles the persisted UI state with Apple's current credential state.
+    /// A transient lookup error keeps the local state unchanged; only definitive
+    /// revoked, missing, or transferred states sign the backup session out.
+    @MainActor
+    static func refreshCredentialState() async {
+        guard let user = UserDefaults.standard.string(forKey: userDefaultsKey), !user.isEmpty else { return }
+        let result: Result<ASAuthorizationAppleIDProvider.CredentialState, Error> = await withCheckedContinuation { continuation in
+            ASAuthorizationAppleIDProvider().getCredentialState(forUserID: user) { state, error in
+                if let error {
+                    continuation.resume(returning: .failure(error))
+                } else {
+                    continuation.resume(returning: .success(state))
+                }
+            }
+        }
+        switch result {
+        case .success(let state):
+            if shouldClearSavedUser(for: state) { signOut() }
+        case .failure(let error):
+            logAuthorizationFailure(error, operation: "credential-state")
+        }
+    }
+
+    static func shouldClearSavedUser(
+        for state: ASAuthorizationAppleIDProvider.CredentialState
+    ) -> Bool {
+        switch state {
+        case .authorized:
+            return false
+        case .revoked, .notFound, .transferred:
+            return true
+        @unknown default:
+            return false
+        }
+    }
+
+    static func logAuthorizationFailure(_ error: Error, operation: String) {
+        let nsError = error as NSError
+        logger.error(
+            "Apple authorization failed operation=\(operation, privacy: .public) domain=\(nsError.domain, privacy: .public) code=\(nsError.code, privacy: .public)"
+        )
+    }
+
     static func backup(payload: [String: Any]) throws {
         guard isSignedIn else { throw BackupError.notSignedIn }
+        guard FileManager.default.ubiquityIdentityToken != nil else { throw BackupError.unavailable }
         try backup(
             payload: payload,
             owner: UserDefaults.standard.string(forKey: userDefaultsKey) ?? "",
@@ -70,6 +120,7 @@ enum AppleBackupService {
 
     static func restoredPayload() throws -> String {
         guard isSignedIn else { throw BackupError.notSignedIn }
+        guard FileManager.default.ubiquityIdentityToken != nil else { throw BackupError.unavailable }
         let store = NSUbiquitousKeyValueStore.default
         guard let data = store.data(forKey: backupKey) else { throw BackupError.missing }
         let object = try JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -84,6 +135,7 @@ enum AppleBackupService {
 
     static func deleteBackup() throws {
         guard isSignedIn else { throw BackupError.notSignedIn }
+        guard FileManager.default.ubiquityIdentityToken != nil else { throw BackupError.unavailable }
         try deleteBackup(from: NSUbiquitousKeyValueStore.default)
         clearSuccessRecord()
     }

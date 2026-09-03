@@ -355,6 +355,7 @@ KEYS = {
 'common.more': ('More actions label', 'More'),
 'backup.backupNow': ('Backup now action', 'Back up now'),
 'backup.restore': ('Backup restore action', 'Restore backup'),
+'backup.signedIn': ('Sign in with Apple backup status', 'Signed in with Apple'),
 'backup.signOut': ('Backup sign-out action', 'Sign out'),
 'backup.delete': ('iCloud backup deletion action', 'Delete iCloud backup'),
 'backup.deleteConfirm': ('iCloud backup deletion confirmation', 'Delete the PressBench backup from iCloud? This cannot be undone. Your data on this iPhone will not be deleted.'),

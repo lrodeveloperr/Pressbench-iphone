@@ -1407,6 +1407,10 @@
     "context": "Backup restore action",
     "source": "Restore backup"
   },
+  "backup.signedIn": {
+    "context": "Sign in with Apple backup status",
+    "source": "Signed in with Apple"
+  },
   "backup.signOut": {
     "context": "Backup sign-out action",
     "source": "Sign out"

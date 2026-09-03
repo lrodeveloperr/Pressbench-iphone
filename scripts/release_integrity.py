@@ -25,6 +25,7 @@ require('function completedTimerPlan' in text and text.count('if (!completedTime
         'first-piece or production counting can bypass the complete timer plan')
 
 project=(root/'project.yml').read_text(encoding='utf-8')
+testflight_workflow=(root/'.github/workflows/testflight.yml').read_text(encoding='utf-8')
 info_plist=(root/'PressBench/Info.plist').read_text(encoding='utf-8')
 info_values=plistlib.loads(info_plist.encode('utf-8'))
 require('com.goodusestudios.pressbench' in project, 'production bundle id mismatch')
@@ -35,6 +36,14 @@ require('PressBenchUITests:' in project and 'type: bundle.ui-testing' in project
         'first-use UI regression target is missing')
 require('CODE_SIGN_ENTITLEMENTS: PressBench/PressBench.entitlements' in project,
         'production entitlements are not assigned to the app target')
+require(all(marker in testflight_workflow for marker in [
+            'Stage archive with required Apple entitlements',
+            'codesign --force --sign - --timestamp=none --entitlements',
+            'codesign -d --entitlements :- "$exported_app"',
+            'Exported executable lacks Sign in with Apple.',
+            'Signed iCloud KVS entitlement mismatch:',
+            'Distribution profile does not permit Sign in with Apple.']),
+        'TestFlight cannot prove Apple sign-in and iCloud entitlements in the exported executable/profile')
 require('INFOPLIST_FILE: PressBench/Info.plist' in project and
         all(marker not in project for marker in ['GoogleMobileAds', 'GoogleUserMessagingPlatform', 'OTHER_LDFLAGS: -ObjC']) and
         all(marker not in info_plist for marker in ['GADApplicationIdentifier', 'SKAdNetworkItems', 'ca-app-pub-']) and
@@ -86,7 +95,7 @@ require('.preferredColorScheme(.light)' in app and 'settings.appearance' not in 
         'light-only presentation is not fixed at the app root or the obsolete appearance picker remains')
 require('AccessibilitySettingsView' in settings_view,
         'in-app accessibility settings are missing')
-for marker in ['backup.backupNow', 'backup.restore', 'backup.signOut', 'settings.rollbackRestore',
+for marker in ['backup.backupNow', 'backup.restore', 'backup.signedIn', 'backup.signOut', 'settings.rollbackRestore',
                'backup.delete', 'backup.deleteConfirm', 'backup.deleteSuccess', 'backup.deleteFailed',
                'pressbench.notifications.enabled', 'pressbench.haptics.enabled', 'pressbench.sound.enabled',
                'syncPresentationPreferences', 'settings.storageRecoveryRequired']:
@@ -105,6 +114,11 @@ entitlements=(root/'PressBench/PressBench.entitlements').read_text(encoding='utf
 require('NSUbiquitousKeyValueStore.default' in backup_service and 'owner' in backup_service and
         'com.apple.developer.applesignin' in entitlements and 'com.apple.developer.ubiquity-kvstore-identifier' in entitlements,
         'Sign in with Apple private-backup implementation or entitlements are missing')
+require(all(marker in backup_service for marker in [
+            'getCredentialState(forUserID:', 'shouldClearSavedUser(for:', 'case .revoked, .notFound, .transferred:',
+            'FileManager.default.ubiquityIdentityToken != nil', 'logAuthorizationFailure']) and
+        'await AppleBackupService.refreshCredentialState()' in app,
+        'Apple credential revocation or iCloud availability is not reconciled at launch')
 require('.synchronize()' not in backup_service and
         'completed = true\n            if backUpAfterward' in (root/'PressBench/Views/OnboardingView.swift').read_text(encoding='utf-8'),
         'Apple sign-in or iCloud synchronization can still block onboarding completion')
@@ -457,9 +471,9 @@ require(all(marker not in settings_view for marker in [
 
 catalog=json.loads((root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8'))
 require(len(catalog.get('languages',[])) == 31, 'language choice count is not 31')
-require(len(catalog.get('strings',{})) == 367, 'reviewed localization catalog must contain 367 keys')
+require(len(catalog.get('strings',{})) == 368, 'reviewed localization catalog must contain 368 keys')
 language_tests=(root/'PressBenchTests/LanguageSupportTests.swift').read_text(encoding='utf-8')
-require('XCTAssertEqual(PBL10n.catalog.strings.count, 367)' in language_tests,
+require('XCTAssertEqual(PBL10n.catalog.strings.count, 368)' in language_tests,
         'unit-test localization count is stale')
 boundary = catalog.get('strings',{}).get('setup.provenBoundary',{})
 require(bool(boundary), 'localized Proven evidence boundary is missing')
@@ -478,7 +492,7 @@ for key, item in metadata.items():
 build_l10n=(root/'build_l10n.py').read_text(encoding='utf-8')
 assemble=(root/'assemble_catalog.py').read_text(encoding='utf-8')
 require('setup.provenBoundary' in build_l10n and 'raise SystemExit(\'Legacy' not in build_l10n,
-        'build_l10n.py is not the live 367-key canonical generator')
+        'build_l10n.py is not the live 368-key canonical generator')
 purchase_manager=(root/'PressBench/Services/PurchaseManager.swift').read_text(encoding='utf-8')
 require(purchase_manager.count('let productLoaded = await loadProduct()') == 2 and
         purchase_manager.count('if !productLoaded, state == .free { state = productLoadState }') == 2 and

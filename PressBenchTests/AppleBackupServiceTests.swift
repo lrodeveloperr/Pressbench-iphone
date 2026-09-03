@@ -3,6 +3,13 @@ import XCTest
 @testable import PressBench
 
 final class AppleBackupServiceTests: XCTestCase {
+    func testAppleCredentialStateControlsPersistedSignInState() {
+        XCTAssertFalse(AppleBackupService.shouldClearSavedUser(for: .authorized))
+        XCTAssertTrue(AppleBackupService.shouldClearSavedUser(for: .revoked))
+        XCTAssertTrue(AppleBackupService.shouldClearSavedUser(for: .notFound))
+        XCTAssertTrue(AppleBackupService.shouldClearSavedUser(for: .transferred))
+    }
+
     func testBackupWritesLocallyWithoutForcingCloudSynchronization() throws {
         let store = BackupKeyValueStoreSpy()
 

@@ -240,6 +240,9 @@ struct SettingsView: View {
                 }
                 .padding(.vertical, 4)
             } else {
+                Label(t("backup.signedIn"), systemImage: "person.crop.circle.badge.checkmark")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(PBTheme.successInk)
                 if backupLastSuccessAt > 0 && backupLastSuccessOwner == appleUserID {
                     Label {
                         VStack(alignment: .leading, spacing: 3) {
@@ -344,7 +347,8 @@ struct SettingsView: View {
             createBackup()
         case .failure(let error as ASAuthorizationError) where error.code == .canceled:
             break
-        case .failure:
+        case .failure(let error):
+            AppleBackupService.logAuthorizationFailure(error, operation: "settings-sign-in")
             failureMessageKey = "backup.signInFailed"; failed = true
         }
     }

@@ -276,7 +276,7 @@ jobs:
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             clean archive
 
-      - name: Stage and verify unsigned archive
+      - name: Stage archive with required Apple entitlements
         shell: bash
         run: |
           set -euo pipefail
@@ -305,6 +305,37 @@ jobs:
           done < <(find "$app/Frameworks" -depth -type d -name '*.framework' -print0 2>/dev/null || true)
           [[ ! -d "$app/Frameworks/GoogleMobileAds.framework" ]] || { echo 'GoogleMobileAds.framework must not be present.' >&2; exit 1; }
           [[ ! -d "$app/Frameworks/UserMessagingPlatform.framework" ]] || { echo 'UserMessagingPlatform.framework must not be present.' >&2; exit 1; }
+
+          # The archive is intentionally unsigned because the ephemeral runner
+          # has no local distribution private key. Preserve the app's requested
+          # capabilities in a valid staging signature so Xcode's authenticated
+          # cloud export can replace it with the Apple Distribution signature.
+          # Without this step, export signs the app but has no executable
+          # entitlement payload to carry forward, breaking Sign in with Apple.
+          staged_entitlements="$RUNNER_TEMP/PressBench-staged-entitlements.plist"
+          cat > "$staged_entitlements" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>application-identifier</key><string>$APPLE_TEAM_ID.$IOS_BUNDLE_ID</string>
+            <key>com.apple.developer.applesignin</key>
+            <array><string>Default</string></array>
+            <key>com.apple.developer.team-identifier</key><string>$APPLE_TEAM_ID</string>
+            <key>com.apple.developer.ubiquity-kvstore-identifier</key><string>$APPLE_TEAM_ID.$IOS_BUNDLE_ID</string>
+            <key>get-task-allow</key><false/>
+          </dict>
+          </plist>
+          PLIST
+          plutil -lint "$staged_entitlements"
+          codesign --force --sign - --timestamp=none --entitlements "$staged_entitlements" "$app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          staged_signature="$(codesign -dvv "$app" 2>&1)"
+          [[ "$staged_signature" == *'Signature=adhoc'* ]] || { echo 'Archive staging signature is not ad hoc.' >&2; exit 1; }
+          staged_signed_entitlements="$RUNNER_TEMP/PressBench-staged-signed-entitlements.plist"
+          codesign -d --entitlements :- "$app" > "$staged_signed_entitlements" 2>/dev/null
+          [[ "$(/usr/libexec/PlistBuddy -c 'Print :com.apple.developer.applesignin:0' "$staged_signed_entitlements")" == 'Default' ]] || { echo 'Staged app lacks Sign in with Apple.' >&2; exit 1; }
+          [[ "$(/usr/libexec/PlistBuddy -c 'Print :com.apple.developer.ubiquity-kvstore-identifier' "$staged_signed_entitlements")" == "$APPLE_TEAM_ID.$IOS_BUNDLE_ID" ]] || { echo 'Staged app has the wrong iCloud KVS entitlement.' >&2; exit 1; }
 
       - name: Export signed IPA
         shell: bash
@@ -361,6 +392,19 @@ jobs:
           [[ "$exported_app_signature" != *'Signature=adhoc'* ]] || { echo 'Exported app is ad hoc signed.' >&2; exit 1; }
           [[ "$exported_app_signature" == *'Authority=Apple Distribution'* ]] || { echo 'Exported app is not distribution signed.' >&2; exit 1; }
           [[ "$exported_app_signature" == *"TeamIdentifier=$APPLE_TEAM_ID"* ]] || { echo 'Exported app signing team mismatch.' >&2; exit 1; }
+
+          # Validate the entitlements the operating system will actually see in
+          # the executable signature, not just those allowed by the profile.
+          signed_entitlements="$RUNNER_TEMP/exported-signed-entitlements.plist"
+          codesign -d --entitlements :- "$exported_app" > "$signed_entitlements" 2>/dev/null
+          signed_application_id="$(/usr/libexec/PlistBuddy -c 'Print :application-identifier' "$signed_entitlements")"
+          signed_team_id="$(/usr/libexec/PlistBuddy -c 'Print :com.apple.developer.team-identifier' "$signed_entitlements")"
+          signed_apple_login="$(/usr/libexec/PlistBuddy -c 'Print :com.apple.developer.applesignin:0' "$signed_entitlements")"
+          signed_kvs="$(/usr/libexec/PlistBuddy -c 'Print :com.apple.developer.ubiquity-kvstore-identifier' "$signed_entitlements")"
+          [[ "$signed_application_id" == "$APPLE_TEAM_ID.$IOS_BUNDLE_ID" ]] || { echo "Signed application identifier mismatch: $signed_application_id" >&2; exit 1; }
+          [[ "$signed_team_id" == "$APPLE_TEAM_ID" ]] || { echo "Signed team entitlement mismatch: $signed_team_id" >&2; exit 1; }
+          [[ "$signed_apple_login" == 'Default' ]] || { echo 'Exported executable lacks Sign in with Apple.' >&2; exit 1; }
+          [[ "$signed_kvs" == "$APPLE_TEAM_ID.$IOS_BUNDLE_ID" ]] || { echo "Signed iCloud KVS entitlement mismatch: $signed_kvs" >&2; exit 1; }
           [[ ! -d "$exported_app/Frameworks/GoogleMobileAds.framework" ]] || { echo 'Exported IPA contains GoogleMobileAds.framework.' >&2; exit 1; }
           [[ ! -d "$exported_app/Frameworks/UserMessagingPlatform.framework" ]] || { echo 'Exported IPA contains UserMessagingPlatform.framework.' >&2; exit 1; }
           while IFS= read -r framework; do
@@ -380,6 +424,13 @@ jobs:
           fi
           get_task_allow="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:get-task-allow' "$profile_plist" 2>/dev/null || echo false)"
           [[ "$get_task_allow" == "false" ]] || { echo 'Exported profile permits debugging.' >&2; exit 1; }
+          profile_apple_login="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.applesignin:0' "$profile_plist")"
+          profile_kvs="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.ubiquity-kvstore-identifier' "$profile_plist")"
+          [[ "$profile_apple_login" == 'Default' ]] || { echo 'Distribution profile does not permit Sign in with Apple.' >&2; exit 1; }
+          [[ "$profile_kvs" == "$APPLE_TEAM_ID."* ]] || { echo "Distribution profile has the wrong iCloud KVS prefix: $profile_kvs" >&2; exit 1; }
+
+          echo "Verified Sign in with Apple entitlement: $signed_apple_login"
+          echo "Verified iCloud KVS entitlement: $signed_kvs"
 
       - name: Validate IPA with App Store Connect
         shell: bash
