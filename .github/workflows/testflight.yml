@@ -42,7 +42,7 @@ jobs:
   upload:
     name: Signed PressBench build to TestFlight
     if: >-
-      github.ref == 'refs/heads/main' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/codex/native-files-backup') &&
       (github.event_name == 'workflow_dispatch' ||
        contains(github.event.head_commit.message, '[upload-pressbench-testflight]'))
     runs-on: macos-26
