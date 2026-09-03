@@ -185,7 +185,7 @@ final class PressBenchStore: ObservableObject {
     }
 
     var isPro: Bool {
-        #if DEBUG
+        #if DEBUG || PRESSBENCH_UI_TESTING
         if ProcessInfo.processInfo.arguments.contains("--pressbench-ui-test-pro") { return true }
         #endif
         do {

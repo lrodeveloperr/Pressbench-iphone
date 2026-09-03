@@ -106,7 +106,7 @@ final class PurchaseManager: ObservableObject {
 
     @discardableResult
     private func loadProduct() async -> Bool {
-        #if DEBUG
+        #if DEBUG || PRESSBENCH_UI_TESTING
         if ProcessInfo.processInfo.arguments.contains("--pressbench-ui-test-product-unavailable") {
             product = nil
             state = .unavailable
