@@ -4,6 +4,7 @@ final class FirstUseFlowUITests: XCTestCase {
     func testFaceIDFirstViewportLayout() {
         continueAfterFailure = false
         let app = XCUIApplication()
+        app.launchEnvironment["PRESSBENCH_UI_TEST_USAGE_SERVICE"] = UUID().uuidString
         app.launchArguments += ["--pressbench-ui-test-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
 
@@ -35,6 +36,7 @@ final class FirstUseFlowUITests: XCTestCase {
     func testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup() {
         continueAfterFailure = false
         let app = XCUIApplication()
+        app.launchEnvironment["PRESSBENCH_UI_TEST_USAGE_SERVICE"] = UUID().uuidString
         app.launchArguments += ["--pressbench-ui-test-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
 

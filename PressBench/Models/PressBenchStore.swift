@@ -37,7 +37,17 @@ final class PressBenchStore: ObservableObject {
     private var purchaseObservation: AnyCancellable?
 
     static func production() -> PressBenchStore {
-        do { return try PressBenchStore(usageStore: PBKeychainUsageStore()) }
+        #if PRESSBENCH_UI_TESTING
+        let usageStore: PBKeychainUsageStore
+        if let token = ProcessInfo.processInfo.environment["PRESSBENCH_UI_TEST_USAGE_SERVICE"], !token.isEmpty {
+            usageStore = PBKeychainUsageStore(service: "com.goodusestudios.pressbench.ui-test.\(token)")
+        } else {
+            usageStore = PBKeychainUsageStore()
+        }
+        #else
+        let usageStore = PBKeychainUsageStore()
+        #endif
+        do { return try PressBenchStore(usageStore: usageStore) }
         catch { fatalError("PressBench production core failed to initialize: \(error)") }
     }
 

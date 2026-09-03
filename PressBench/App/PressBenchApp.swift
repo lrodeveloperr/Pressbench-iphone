@@ -55,11 +55,6 @@ private enum PressBenchUITestBootstrap {
             } catch {
                 fatalError("UI-test reset failed: \(error)")
             }
-            do {
-                try PBKeychainUsageStore().removeForUITesting()
-            } catch {
-                fatalError("UI-test usage-ledger reset failed: \(error)")
-            }
         }
         if arguments.contains("--pressbench-ui-test-limit-reached") {
             UserDefaults.standard.set(PBUsageMeter.freePressLimit, forKey: "pressbench.usage.completedPresses")
