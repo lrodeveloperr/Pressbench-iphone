@@ -7,7 +7,7 @@ struct PressBenchApp: App {
     @AppStorage(AppLanguageStorage.key) private var languageRaw = AppLanguage.detected().rawValue
 
     init() {
-        #if DEBUG
+        #if DEBUG || PRESSBENCH_UI_TESTING
         PressBenchUITestBootstrap.resetIfRequested()
         #endif
         _store = StateObject(wrappedValue: PressBenchStore.production())
@@ -38,7 +38,7 @@ struct PressBenchApp: App {
     }
 }
 
-#if DEBUG
+#if DEBUG || PRESSBENCH_UI_TESTING
 private enum PressBenchUITestBootstrap {
     static func resetIfRequested() {
         let arguments = ProcessInfo.processInfo.arguments
@@ -54,6 +54,11 @@ private enum PressBenchUITestBootstrap {
                 }
             } catch {
                 fatalError("UI-test reset failed: \(error)")
+            }
+            do {
+                try PBKeychainUsageStore().removeForUITesting()
+            } catch {
+                fatalError("UI-test usage-ledger reset failed: \(error)")
             }
         }
         if arguments.contains("--pressbench-ui-test-limit-reached") {

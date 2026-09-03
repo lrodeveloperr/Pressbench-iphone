@@ -186,6 +186,7 @@ jobs:
             -destination "platform=iOS Simulator,id=$UDID" \
             CODE_SIGNING_ALLOWED=NO \
             ENABLE_TESTABILITY=YES \
+            'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) PRESSBENCH_UI_TESTING' \
             test
 
       - name: Verify Apple credentials and app record

@@ -52,6 +52,16 @@ struct PBKeychainUsageStore: PBUsagePersisting {
         }
     }
 
+    #if PRESSBENCH_UI_TESTING
+    /// Test-build-only cleanup. This symbol is absent from App Store archives.
+    func removeForUITesting() throws {
+        let status = SecItemDelete(baseQuery as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            throw UsagePersistenceError.keychain(status)
+        }
+    }
+    #endif
+
     private var baseQuery: [String: Any] {
         [
             kSecClass as String: kSecClassGenericPassword,
