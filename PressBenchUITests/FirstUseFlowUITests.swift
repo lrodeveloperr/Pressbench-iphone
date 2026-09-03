@@ -280,9 +280,10 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(choiceCancel.waitForExistence(timeout: 5))
         makeHittable(choice, in: app)
         choice.tap()
-        let editorCancel = app.buttons.matching(identifier: "pb.editor.cancel").firstMatch
-        XCTAssertTrue(waitForHittable(editorCancel, timeout: 12),
-                      "The editor must return after the choice sheet closes")
+        XCTAssertTrue(choiceCancel.waitForNonExistence(timeout: 12),
+                      "The choice sheet must close after selecting an option")
+        XCTAssertTrue(waitForHittable(field, timeout: 12),
+                      "The selected field must return as the active editor control")
     }
 
     private func makeHittable(_ element: XCUIElement, in app: XCUIApplication) {
