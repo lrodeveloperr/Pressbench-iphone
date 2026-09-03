@@ -17,6 +17,7 @@ struct OnboardingFlowView: View {
     @State private var acceptedPolicies = false
     @State private var failed = false
     @State private var failureMessageKey = "common.actionFailed"
+    @State private var appleSignInInProgress = false
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
 
@@ -128,10 +129,21 @@ struct OnboardingFlowView: View {
                 .font(.subheadline)
                 .foregroundStyle(PBTheme.secondary)
                 .multilineTextAlignment(.center)
-            SignInWithAppleButton(.continue, onRequest: { $0.requestedScopes = [] }, onCompletion: handleAppleSignIn)
+            SignInWithAppleButton(.continue, onRequest: {
+                appleSignInInProgress = true
+                $0.requestedScopes = []
+            }, onCompletion: {
+                appleSignInInProgress = false
+                handleAppleSignIn($0)
+            })
                 .signInWithAppleButtonStyle(.black)
                 .frame(height: 54)
+                .allowsHitTesting(!appleSignInInProgress)
                 .accessibilityIdentifier("pb.onboarding.appleBackup")
+            if appleSignInInProgress {
+                ProgressView()
+                    .accessibilityLabel(t("backup.optionalTitle"))
+            }
             Button(t("backup.continueWithout")) { finishOnboarding() }
                 .font(.headline)
                 .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
@@ -162,8 +174,18 @@ struct OnboardingFlowView: View {
         do {
             let chosen = AppLanguageStorage.resolved(rawValue: languageRaw)
             try store.completeOnboarding(language: chosen, locale: .current, temperatureUnit: temperatureUnitRaw)
-            if backUpAfterward { try AppleBackupService.backup(payload: store.backupPayload()) }
+            // Optional cloud backup must never gate entry to this local-first app.
+            // Mark onboarding complete before attempting the local KVS write so
+            // an iCloud/account problem cannot strand the user on this screen.
             completed = true
+            if backUpAfterward {
+                do {
+                    try AppleBackupService.backup(payload: store.backupPayload())
+                } catch {
+                    // The signed-in state is retained so the user can retry from
+                    // Settings; the app remains fully usable offline.
+                }
+            }
         } catch {
             failureMessageKey = store.errorLocalizationKey(error); failed = true
         }

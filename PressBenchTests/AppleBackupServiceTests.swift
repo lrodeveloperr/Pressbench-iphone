@@ -3,7 +3,30 @@ import XCTest
 @testable import PressBench
 
 final class AppleBackupServiceTests: XCTestCase {
-    func testDeleteBackupRemovesOnlyPressBenchBackupAndSynchronizes() throws {
+    func testBackupWritesLocallyWithoutForcingCloudSynchronization() throws {
+        let store = BackupKeyValueStoreSpy()
+
+        try AppleBackupService.backup(payload: ["setups": []], owner: "review-user", to: store)
+
+        XCTAssertEqual(store.setKeys, ["pressbench.backup.v1"])
+        let data = try XCTUnwrap(store.values["pressbench.backup.v1"])
+        let envelope = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(envelope["owner"] as? String, "review-user")
+    }
+
+    func testBackupFailsWhenLocalWriteCannotBeReadBack() {
+        let store = BackupKeyValueStoreSpy()
+        store.discardSetValues = true
+
+        XCTAssertThrowsError(
+            try AppleBackupService.backup(payload: ["setups": []], owner: "review-user", to: store)
+        ) { error in
+            XCTAssertEqual((error as? AppleBackupService.BackupError)?.errorDescription,
+                           "apple_backup_unavailable")
+        }
+    }
+
+    func testDeleteBackupRemovesOnlyPressBenchBackup() throws {
         let store = BackupKeyValueStoreSpy()
         store.values["pressbench.backup.v1"] = Data("backup".utf8)
         store.values["unrelated.key"] = Data("keep".utf8)
@@ -11,22 +34,11 @@ final class AppleBackupServiceTests: XCTestCase {
         try AppleBackupService.deleteBackup(from: store)
 
         XCTAssertEqual(store.removedKeys, ["pressbench.backup.v1"])
-        XCTAssertEqual(store.synchronizeCallCount, 1)
         XCTAssertNil(store.values["pressbench.backup.v1"])
         XCTAssertEqual(store.values["unrelated.key"], Data("keep".utf8))
     }
 
-    func testDeleteBackupFailsWhenICloudCannotConfirmSynchronization() {
-        let store = BackupKeyValueStoreSpy()
-        store.synchronizeResult = false
-
-        XCTAssertThrowsError(try AppleBackupService.deleteBackup(from: store)) { error in
-            XCTAssertEqual((error as? AppleBackupService.BackupError)?.errorDescription,
-                           "apple_backup_unavailable")
-        }
-    }
-
-    func testDeleteBackupFailsWhenBackupRemainsAfterSynchronization() {
+    func testDeleteBackupFailsWhenBackupRemainsAfterRemoval() {
         let store = BackupKeyValueStoreSpy()
         store.values["pressbench.backup.v1"] = Data("backup".utf8)
         store.retainRemovedValues = true
@@ -40,13 +52,20 @@ final class AppleBackupServiceTests: XCTestCase {
 
 private final class BackupKeyValueStoreSpy: AppleBackupKeyValueStoring {
     var values: [String: Data] = [:]
+    var setKeys: [String] = []
     var removedKeys: [String] = []
-    var synchronizeResult = true
-    var synchronizeCallCount = 0
+    var discardSetValues = false
     var retainRemovedValues = false
 
     func data(forKey defaultName: String) -> Data? {
         values[defaultName]
+    }
+
+    func set(_ value: Any?, forKey defaultName: String) {
+        setKeys.append(defaultName)
+        if !discardSetValues, let data = value as? Data {
+            values[defaultName] = data
+        }
     }
 
     func removeObject(forKey defaultName: String) {
@@ -56,8 +75,4 @@ private final class BackupKeyValueStoreSpy: AppleBackupKeyValueStoring {
         }
     }
 
-    func synchronize() -> Bool {
-        synchronizeCallCount += 1
-        return synchronizeResult
-    }
 }

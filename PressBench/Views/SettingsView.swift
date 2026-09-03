@@ -27,6 +27,7 @@ struct SettingsView: View {
     @State private var showingUpgrade = false
     @State private var pendingRestoreRaw = ""
     @State private var restoreSummary = ""
+    @State private var appleSignInInProgress = false
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
@@ -220,10 +221,22 @@ struct SettingsView: View {
                     Text(t("backup.optionalBody"))
                         .font(.caption)
                         .foregroundStyle(PBTheme.secondary)
-                    SignInWithAppleButton(.continue, onRequest: { $0.requestedScopes = [] }, onCompletion: handleAppleSignIn)
+                    SignInWithAppleButton(.continue, onRequest: {
+                        appleSignInInProgress = true
+                        $0.requestedScopes = []
+                    }, onCompletion: {
+                        appleSignInInProgress = false
+                        handleAppleSignIn($0)
+                    })
                         .signInWithAppleButtonStyle(.black)
                         .frame(height: 52)
+                        .allowsHitTesting(!appleSignInInProgress)
                         .accessibilityIdentifier("pb.settings.backup")
+                    if appleSignInInProgress {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .accessibilityLabel(t("backup.optionalTitle"))
+                    }
                 }
                 .padding(.vertical, 4)
             } else {

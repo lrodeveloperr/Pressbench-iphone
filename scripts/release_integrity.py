@@ -105,6 +105,9 @@ entitlements=(root/'PressBench/PressBench.entitlements').read_text(encoding='utf
 require('NSUbiquitousKeyValueStore.default' in backup_service and 'owner' in backup_service and
         'com.apple.developer.applesignin' in entitlements and 'com.apple.developer.ubiquity-kvstore-identifier' in entitlements,
         'Sign in with Apple private-backup implementation or entitlements are missing')
+require('.synchronize()' not in backup_service and
+        'completed = true\n            if backUpAfterward' in (root/'PressBench/Views/OnboardingView.swift').read_text(encoding='utf-8'),
+        'Apple sign-in or iCloud synchronization can still block onboarding completion')
 require(all(marker in backup_service for marker in ['static func deleteBackup()',
         'removeObject(forKey: backupKey)']) and
         all(marker in settings_view for marker in ['AppleBackupService.deleteBackup()',

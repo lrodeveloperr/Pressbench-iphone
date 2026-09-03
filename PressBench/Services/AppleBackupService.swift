@@ -2,8 +2,8 @@ import Foundation
 
 protocol AppleBackupKeyValueStoring: AnyObject {
     func data(forKey defaultName: String) -> Data?
+    func set(_ value: Any?, forKey defaultName: String)
     func removeObject(forKey defaultName: String)
-    func synchronize() -> Bool
 }
 
 extension NSUbiquitousKeyValueStore: AppleBackupKeyValueStoring {}
@@ -31,19 +31,36 @@ enum AppleBackupService {
 
     static func backup(payload: [String: Any]) throws {
         guard isSignedIn else { throw BackupError.notSignedIn }
+        try backup(
+            payload: payload,
+            owner: UserDefaults.standard.string(forKey: userDefaultsKey) ?? "",
+            to: NSUbiquitousKeyValueStore.default
+        )
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: lastSuccessAtKey)
+        UserDefaults.standard.set(
+            UserDefaults.standard.string(forKey: userDefaultsKey) ?? "",
+            forKey: lastSuccessOwnerKey
+        )
+    }
+
+    /// Writes to the local iCloud key-value store without forcing a synchronous
+    /// network round trip. The system propagates KVS changes automatically.
+    static func backup(
+        payload: [String: Any],
+        owner: String,
+        to store: AppleBackupKeyValueStoring
+    ) throws {
+        guard !owner.isEmpty else { throw BackupError.notSignedIn }
         let envelope: [String: Any] = [
             "version": 1,
-            "owner": UserDefaults.standard.string(forKey: userDefaultsKey) ?? "",
+            "owner": owner,
             "savedAt": Date().ISO8601Format(.iso8601(timeZone: .gmt, includingFractionalSeconds: true)),
             "payload": payload
         ]
         let data = try JSONSerialization.data(withJSONObject: envelope, options: [.sortedKeys])
         guard data.count <= maximumBytes else { throw BackupError.tooLarge }
-        let store = NSUbiquitousKeyValueStore.default
         store.set(data, forKey: backupKey)
-        guard store.synchronize() else { throw BackupError.unavailable }
-        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: lastSuccessAtKey)
-        UserDefaults.standard.set(envelope["owner"] as? String ?? "", forKey: lastSuccessOwnerKey)
+        guard store.data(forKey: backupKey) == data else { throw BackupError.unavailable }
     }
 
     private static func clearSuccessRecord() {
@@ -54,7 +71,6 @@ enum AppleBackupService {
     static func restoredPayload() throws -> String {
         guard isSignedIn else { throw BackupError.notSignedIn }
         let store = NSUbiquitousKeyValueStore.default
-        store.synchronize()
         guard let data = store.data(forKey: backupKey) else { throw BackupError.missing }
         let object = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         guard object?["owner"] as? String == UserDefaults.standard.string(forKey: userDefaultsKey) else {
@@ -76,7 +92,7 @@ enum AppleBackupService {
     /// Sign in with Apple session are deliberately outside this operation.
     static func deleteBackup(from store: AppleBackupKeyValueStoring) throws {
         store.removeObject(forKey: backupKey)
-        guard store.synchronize(), store.data(forKey: backupKey) == nil else {
+        guard store.data(forKey: backupKey) == nil else {
             throw BackupError.unavailable
         }
     }
