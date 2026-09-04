@@ -73,4 +73,86 @@ final class DataEntryStreamliningTests: XCTestCase {
         XCTAssertFalse(setup.title.contains("100% cotton T-shirt"))
         XCTAssertFalse(setup.title.contains("Direct-to-film transfer"))
     }
+
+    func testArchivedRecordsCanBeRestoredOrPermanentlyRemoved() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let defaultsName = "PressBenchTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: defaultsName))
+        defer {
+            try? FileManager.default.removeItem(at: directory)
+            defaults.removePersistentDomain(forName: defaultsName)
+        }
+        let store = try PressBenchStore(
+            persistence: PressBenchPersistence(baseDirectory: directory),
+            usageDefaults: defaults
+        )
+        try store.completeOnboarding(language: .en, locale: Locale(identifier: "en_US"), temperatureUnit: "F")
+        let machineID = try store.saveMachine(MachineDraft(nickname: "Archive Press", platen: "15 × 15 in"))
+        var draft = store.setupDraft(for: nil)
+        draft.material = "Cotton"
+        draft.transferMedium = "DTF"
+        draft.sourceName = "Supplier"
+        draft.sourceReference = "A-1"
+        draft.stages[0].temperature = "325"
+        draft.stages[0].durationSeconds = "15"
+        draft.stages[0].pressure = "Medium"
+        let setupID = try store.saveSetup(draft, temperatureUnit: "F")
+
+        try store.archiveSetup(id: setupID)
+        XCTAssertEqual(store.setups.first?.status, .archived)
+        try store.restoreSetup(id: setupID)
+        XCTAssertNotEqual(store.setups.first?.status, .archived)
+        try store.archiveSetup(id: setupID)
+        try store.deleteArchivedSetup(id: setupID)
+        XCTAssertTrue(store.setups.isEmpty)
+
+        try store.archiveMachine(id: machineID)
+        XCTAssertFalse(try XCTUnwrap(store.machines.first).active)
+        try store.restoreMachine(id: machineID)
+        XCTAssertTrue(try XCTUnwrap(store.machines.first).active)
+        try store.archiveMachine(id: machineID)
+        try store.deleteArchivedMachine(id: machineID)
+        XCTAssertTrue(store.machines.isEmpty)
+    }
+
+    func testActiveRunLocksSnapshotsButDeleteAllRemainsAvailable() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let defaultsName = "PressBenchTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: defaultsName))
+        defer {
+            try? FileManager.default.removeItem(at: directory)
+            defaults.removePersistentDomain(forName: defaultsName)
+        }
+        let store = try PressBenchStore(
+            persistence: PressBenchPersistence(baseDirectory: directory),
+            usageDefaults: defaults
+        )
+        try store.completeOnboarding(language: .en, locale: Locale(identifier: "en_US"), temperatureUnit: "F")
+        let machineID = try store.saveMachine(MachineDraft(nickname: "Original Press", platen: "15 × 15 in"))
+        var draft = store.setupDraft(for: nil)
+        draft.material = "Cotton"
+        draft.transferMedium = "DTF"
+        draft.sourceName = "Supplier"
+        draft.sourceReference = "A-2"
+        draft.stages[0].temperature = "325"
+        draft.stages[0].durationSeconds = "15"
+        draft.stages[0].pressure = "Medium"
+        let setupID = try store.saveSetup(draft, temperatureUnit: "F")
+
+        var renamed = store.machineDraft(for: machineID)
+        renamed.nickname = "Renamed Press"
+        _ = try store.saveMachine(renamed)
+        XCTAssertEqual(store.setups.first?.machineNickname, "Renamed Press")
+
+        try store.startRun(setupID: setupID)
+        XCTAssertTrue(store.isSetupLockedByActiveRun(setupID))
+        XCTAssertTrue(store.isMachineLockedByActiveRun(machineID))
+        XCTAssertThrowsError(try store.saveMachine(renamed))
+        XCTAssertThrowsError(try store.archiveSetup(id: setupID))
+
+        try store.deleteAllLocalData()
+        XCTAssertNil(store.activeRun)
+        XCTAssertTrue(store.setups.isEmpty)
+        XCTAssertTrue(store.machines.isEmpty)
+    }
 }

@@ -11,9 +11,6 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(tapButton("pb.onboarding.continue", app: app, timeout: 20),
                       "The first onboarding action must settle inside the Face ID viewport")
         let acknowledgement = app.buttons.matching(identifier: "pb.onboarding.accept").firstMatch
-        if !acknowledgement.waitForExistence(timeout: 8) {
-            _ = tapButton("pb.onboarding.continue", app: app, timeout: 8)
-        }
         XCTAssertTrue(acknowledgement.waitForExistence(timeout: 8))
         acknowledgement.tap()
         app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch.tap()
@@ -46,6 +43,10 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(app.buttons["°F"].exists)
         XCTAssertTrue(app.buttons["°C"].exists)
         XCTAssertTrue(app.buttons["°F"].isSelected)
+        app.buttons["°C"].tap()
+        XCTAssertTrue(app.buttons["°C"].isSelected, "The temperature segment must change on its first tap")
+        app.buttons["°F"].tap()
+        XCTAssertTrue(app.buttons["°F"].isSelected, "The temperature segment must change back on its first tap")
         capture("01-onboarding")
 
         let preferencesContinue = app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch
@@ -61,9 +62,6 @@ final class FirstUseFlowUITests: XCTestCase {
         let continueWithoutBackup = app.buttons.matching(identifier: "pb.onboarding.skipBackup").firstMatch
         XCTAssertTrue(continueWithoutBackup.waitForExistence(timeout: 3))
         continueWithoutBackup.tap()
-        if app.alerts.firstMatch.waitForExistence(timeout: 2) {
-            app.alerts.firstMatch.buttons.firstMatch.tap()
-        }
 
         let firstUseAction = app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch
         XCTAssertTrue(firstUseAction.waitForExistence(timeout: 8))
@@ -94,6 +92,17 @@ final class FirstUseFlowUITests: XCTestCase {
         let name = app.textFields["Name"]
         XCTAssertTrue(name.waitForExistence(timeout: 4))
         capture("04-machine-required-fields")
+        let moreDisclosure = app.buttons.matching(identifier: "pb.machine.more").firstMatch
+        XCTAssertTrue(waitForInteractable(moreDisclosure, timeout: 5))
+        moreDisclosure.tap()
+        app.swipeUp()
+        let notesEditor = app.textViews["Notes"].firstMatch
+        XCTAssertTrue(notesEditor.waitForExistence(timeout: 5),
+                      "The full More row must expand on its first tap")
+        app.swipeDown()
+        app.swipeDown()
+        XCTAssertTrue(waitForInteractable(moreDisclosure, timeout: 5))
+        moreDisclosure.tap()
         choose("pb.choice.platen", option: "15 × 15 in", app: app)
         XCTAssertEqual(name.value as? String, "15 × 15 in")
         app.buttons["Save"].tap()
@@ -255,6 +264,59 @@ final class FirstUseFlowUITests: XCTestCase {
         capture("15-pro-unlocks-plan")
     }
 
+    func testDeleteLocalDataRespondsOnFirstTapAndCompletesOnce() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments += ["--pressbench-ui-test-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        completeOnboarding(in: app)
+
+        let settingsLink = app.descendants(matching: .any)["pb.more.settings"].firstMatch
+        XCTAssertTrue(openTab("More", until: settingsLink, app: app))
+        settingsLink.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5)).tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+
+        let delete = app.buttons.matching(identifier: "pb.settings.deleteLocalData").firstMatch
+        makeHittable(delete, in: app)
+        delete.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5)).tap()
+        let confirm = app.buttons.matching(identifier: "pb.settings.confirmDeleteLocalData").firstMatch
+        XCTAssertTrue(waitForInteractable(confirm, timeout: 5), "One tap anywhere in the visible row must open confirmation")
+        confirm.tap()
+        XCTAssertTrue(app.staticTexts["Welcome to PressBench"].waitForExistence(timeout: 8),
+                      "A single confirmation tap must delete local data and return to onboarding")
+    }
+
+    func testPrimaryTouchTargetRespondsAtLeftAndRightEdges() {
+        for horizontalOffset in [0.12, 0.88] {
+            let app = XCUIApplication()
+            app.launchArguments = ["--pressbench-ui-test-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+            app.launch()
+            let button = app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch
+            XCTAssertTrue(waitForInteractable(button, timeout: 8))
+            button.coordinate(withNormalizedOffset: CGVector(dx: horizontalOffset, dy: 0.5)).tap()
+            XCTAssertTrue(app.buttons.matching(identifier: "pb.onboarding.accept").firstMatch.waitForExistence(timeout: 5),
+                          "The full visible button width must respond on the first tap")
+            app.terminate()
+        }
+    }
+
+    private func completeOnboarding(in app: XCUIApplication) {
+        let firstContinue = app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch
+        XCTAssertTrue(waitForInteractable(firstContinue, timeout: 8))
+        firstContinue.tap()
+        let acknowledgement = app.buttons.matching(identifier: "pb.onboarding.accept").firstMatch
+        XCTAssertTrue(waitForInteractable(acknowledgement, timeout: 5))
+        acknowledgement.tap()
+        let legalContinue = app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch
+        XCTAssertTrue(waitForInteractable(legalContinue, timeout: 5))
+        legalContinue.tap()
+        let skip = app.buttons.matching(identifier: "pb.onboarding.skipBackup").firstMatch
+        XCTAssertTrue(skip.waitForExistence(timeout: 5))
+        makeHittable(skip, in: app)
+        skip.tap()
+        XCTAssertTrue(app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch.waitForExistence(timeout: 8))
+    }
+
     private func enter(_ value: String, in field: XCUIElement, app: XCUIApplication) {
         for _ in 0..<8 where !field.exists { scrollForward(in: app) }
         XCTAssertTrue(field.waitForExistence(timeout: 4))
@@ -284,7 +346,8 @@ final class FirstUseFlowUITests: XCTestCase {
 
     private func makeHittable(_ element: XCUIElement, in app: XCUIApplication) {
         for _ in 0..<6 where !element.isHittable { scrollForward(in: app) }
-        XCTAssertTrue(element.isHittable)
+        XCTAssertTrue(element.isHittable,
+                      "Element \(element.label) [\(element.identifier)] did not become hittable after scrolling")
     }
 
     private func scrollForward(in app: XCUIApplication) {
@@ -292,24 +355,18 @@ final class FirstUseFlowUITests: XCTestCase {
     }
 
     private func openTab(_ name: String, until destination: XCUIElement, app: XCUIApplication) -> Bool {
-        for _ in 0..<3 {
-            if destination.exists, destination.isHittable { return true }
-            let tab = app.tabBars.buttons[name]
-            guard waitForHittable(tab, timeout: 4) else { continue }
-            tab.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-            if destination.waitForExistence(timeout: 4), destination.isHittable { return true }
-        }
-        return false
+        if destination.exists, destination.isHittable { return true }
+        let tab = app.tabBars.buttons[name]
+        guard waitForHittable(tab, timeout: 4) else { return false }
+        tab.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        return destination.waitForExistence(timeout: 4) && destination.isHittable
     }
 
     private func tapButton(_ identifier: String, app: XCUIApplication, timeout: TimeInterval) -> Bool {
-        for _ in 0..<3 {
-            let button = app.buttons.matching(identifier: identifier).firstMatch
-            guard waitForHittable(button, timeout: timeout / 3) else { continue }
-            button.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-            return true
-        }
-        return false
+        let button = app.buttons.matching(identifier: identifier).firstMatch
+        guard waitForHittable(button, timeout: timeout) else { return false }
+        button.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        return true
     }
 
     private func waitForHittable(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
@@ -325,10 +382,36 @@ final class FirstUseFlowUITests: XCTestCase {
     }
 
     private func capture(_ name: String) {
+        auditVisibleButtonTargets(in: XCUIApplication(), screen: name)
         let screenshot = XCUIScreen.main.screenshot()
         let attachment = XCTAttachment(screenshot: screenshot)
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)
+    }
+
+    /// Every visible, enabled app button on each audited production screen must
+    /// expose Apple's minimum 44-by-44-point touchscreen target. Edge-specific
+    /// tests separately prove that transparent left/right label space responds
+    /// on the first tap.
+    private func auditVisibleButtonTargets(in app: XCUIApplication, screen: String) {
+        let systemSegmentFrames = app.segmentedControls.allElementsBoundByIndex.map(\.frame)
+        let systemNavigationFrames = app.navigationBars.allElementsBoundByIndex.map(\.frame)
+        for button in app.buttons.allElementsBoundByIndex where button.exists && button.isHittable && button.isEnabled {
+            let frame = button.frame
+            guard !frame.isEmpty else { continue }
+            // UIKit exposes each segment's visual 32-point frame even though
+            // the parent segmented control owns its hit testing. Those controls
+            // are first-tap state-tested above instead of judged by glyph frame.
+            if systemSegmentFrames.contains(where: { $0.intersects(frame) }) { continue }
+            // UIKit likewise reports the visual label frame for navigation-title
+            // and toolbar elements, while UINavigationBar owns the larger hit
+            // region. Save/Cancel transitions are first-tap tested in the flow.
+            if systemNavigationFrames.contains(where: { $0.intersects(frame) }) { continue }
+            XCTAssertGreaterThanOrEqual(frame.width, 43.5,
+                "Button \(button.label) [\(button.identifier)] is too narrow on \(screen): \(frame)")
+            XCTAssertGreaterThanOrEqual(frame.height, 43.5,
+                "Button \(button.label) [\(button.identifier)] is too short on \(screen): \(frame)")
+        }
     }
 }

@@ -19,6 +19,7 @@ enum PressBenchReportExporter {
         language: AppLanguage,
         locale: Locale
     ) throws -> URL {
+        try Task.checkCancellation()
         guard plan["allowed"] as? Bool == true else { throw ExportError.planDenied(plan["reason"] as? String ?? "report_denied") }
         let records = plan["records"] as? [[String: Any]] ?? []
         let page = CGRect(x: 0, y: 0, width: 612, height: 792)
@@ -54,6 +55,7 @@ enum PressBenchReportExporter {
             }
 
             beginPage()
+            if Task.isCancelled { return }
             title(PBReportLocalization.text("report.productionReport", language: language, locale: locale))
             draw("PressBench", font: .boldSystemFont(ofSize: 11), color: .secondaryLabel,
                  rect: CGRect(x: 42, y: cursor, width: 528, height: 16))
@@ -74,6 +76,7 @@ enum PressBenchReportExporter {
                 ("report.wasteRate", formatPercent(totals.wasteRate, locale))
             ]
             for row in stride(from: 0, to: metrics.count, by: 3) {
+                if Task.isCancelled { return }
                 ensure(55)
                 for column in 0..<3 where row + column < metrics.count {
                     let item = metrics[row + column]
@@ -107,6 +110,7 @@ enum PressBenchReportExporter {
             }
             tableRow(headers.map { PBReportLocalization.text($0, language: language, locale: locale) }, header: true)
             for batch in records {
+                if Task.isCancelled { return }
                 let recipe = batch["recipe"] as? [String: Any] ?? [:]
                 let processed = int(batch["quantityProcessed"])
                 let good = int(batch["quantityGood"])
@@ -126,7 +130,9 @@ enum PressBenchReportExporter {
             section(PBReportLocalization.text("report.issuesExceptions", language: language, locale: locale))
             var issueCount = 0
             for batch in records {
+                if Task.isCancelled { return }
                 for issue in batch["issues"] as? [[String: Any]] ?? [] {
+                    if Task.isCancelled { return }
                     issueCount += 1
                     ensure(44)
                     let line = [
@@ -152,6 +158,7 @@ enum PressBenchReportExporter {
 
             section(PBReportLocalization.text("report.setupDefinitions", language: language, locale: locale))
             for setup in setups {
+                if Task.isCancelled { return }
                 ensure(76)
                 let titleText = localizedSetupTitle(setup, language: language, locale: locale)
                 let facts = [
@@ -170,6 +177,7 @@ enum PressBenchReportExporter {
                 cursor += 7
             }
         }
+        try Task.checkCancellation()
         return try write(data, name: "PressBench-Production-Report.pdf")
     }
 
@@ -179,6 +187,7 @@ enum PressBenchReportExporter {
         language: AppLanguage,
         locale: Locale
     ) throws -> URL {
+        try Task.checkCancellation()
         guard plan["allowed"] as? Bool == true else { throw ExportError.planDenied(plan["reason"] as? String ?? "report_denied") }
         let records = plan["records"] as? [[String: Any]] ?? []
         let totals = reportTotals(records)
@@ -213,6 +222,7 @@ enum PressBenchReportExporter {
             .text(PBReportLocalization.text($0, language: language, locale: locale))
         })
         for batch in records {
+            try Task.checkCancellation()
             let recipe = batch["recipe"] as? [String: Any] ?? [:]
             let processed = int(batch["quantityProcessed"]), good = int(batch["quantityGood"]), rework = int(batch["quantityReworked"])
             runRows.append([
@@ -235,6 +245,7 @@ enum PressBenchReportExporter {
             .text(PBReportLocalization.text("report.sourceChecked", language: language, locale: locale))
         ]]
         for setup in setups {
+            try Task.checkCancellation()
             let source = setup["instructionSource"] as? [String: Any] ?? [:]
             let press = [
                 temperatureText(setup, locale: locale),
@@ -267,6 +278,7 @@ enum PressBenchReportExporter {
             .text(PBReportLocalization.text("report.note", language: language, locale: locale))
         ]]
         for batch in records {
+            try Task.checkCancellation()
             for issue in batch["issues"] as? [[String: Any]] ?? [] {
                 issueRows.append([
                     .text(batch["id"] as? String ?? ""),
@@ -278,7 +290,10 @@ enum PressBenchReportExporter {
             }
         }
         zip.add("xl/worksheets/sheet4.xml", worksheetXML(issueRows))
-        return try write(zip.data(), name: "PressBench-Detailed-Report.xlsx")
+        try Task.checkCancellation()
+        let archive = zip.data()
+        try Task.checkCancellation()
+        return try write(archive, name: "PressBench-Detailed-Report.xlsx")
     }
 
     // MARK: - PDF helpers

@@ -18,6 +18,7 @@ struct OnboardingFlowView: View {
     @State private var failed = false
     @State private var failureMessageKey = "common.actionFailed"
     @State private var appleSignInInProgress = false
+    @State private var completeAfterAlert = false
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
 
@@ -54,7 +55,12 @@ struct OnboardingFlowView: View {
             Button(t("accessibility.openSettings")) {
                 if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
             }
-            Button(t("common.ok"), role: .cancel) {}
+            Button(t("common.ok"), role: .cancel) {
+                if completeAfterAlert {
+                    completeAfterAlert = false
+                    completed = true
+                }
+            }
         } message: { Text(t(failureMessageKey)) }
     }
 
@@ -175,18 +181,24 @@ struct OnboardingFlowView: View {
         do {
             let chosen = AppLanguageStorage.resolved(rawValue: languageRaw)
             try store.completeOnboarding(language: chosen, locale: .current, temperatureUnit: temperatureUnitRaw)
-            // Optional cloud backup must never gate entry to this local-first app.
-            // Mark onboarding complete before attempting the local KVS write so
-            // an iCloud/account problem cannot strand the user on this screen.
-            completed = true
             if backUpAfterward {
-                do {
-                    try AppleBackupService.backup(payload: store.backupPayload())
-                } catch {
-                    // The signed-in state is retained so the user can retry from
-                    // Settings; the app remains fully usable offline.
+                let payload = try store.backupPayload()
+                appleSignInInProgress = true
+                Task { @MainActor in
+                    defer { appleSignInInProgress = false }
+                    do {
+                        try await AppleBackupService.backup(payload: payload)
+                        completed = true
+                    } catch {
+                        failureMessageKey = "error.backupRestore"
+                        completeAfterAlert = true
+                        failed = true
+                        PBFeedback.error()
+                    }
                 }
+                return
             }
+            completed = true
         } catch {
             failureMessageKey = store.errorLocalizationKey(error); failed = true
         }
@@ -212,7 +224,10 @@ private struct PolicyLinkRow: View {
                 Image(systemName: icon).frame(width: 25).foregroundStyle(PBTheme.primary)
                 Text(PBL10n.text(titleKey, language: language, locale: locale)).font(.headline).foregroundStyle(.primary)
                 Spacer(); Image(systemName: "arrow.up.forward").foregroundStyle(PBTheme.secondary)
-            }.frame(minHeight: PBTheme.minimumTarget).padding(.vertical, 8)
+            }
+            .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
+            .contentShape(Rectangle())
+            .padding(.vertical, 8)
         }
     }
 }
@@ -234,7 +249,9 @@ private struct CombinedPolicyAcknowledgement: View {
                 .font(.subheadline.weight(.medium))
                 .multilineTextAlignment(.leading)
                 Spacer()
-            }.frame(minHeight: PBTheme.minimumTarget)
+            }
+            .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("pb.onboarding.accept")

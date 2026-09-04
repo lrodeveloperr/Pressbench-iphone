@@ -21,4 +21,20 @@ final class PersistenceTests: XCTestCase {
         let persistence = PressBenchPersistence(baseDirectory: directory)
         XCTAssertThrowsError(try persistence.load())
     }
+
+    @MainActor
+    func testCorruptPersistenceCanBeRecoveredWithoutCompletingOnboarding() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try Data("not-json".utf8).write(to: directory.appendingPathComponent("state-v5.json"))
+
+        let store = try PressBenchStore(persistence: PressBenchPersistence(baseDirectory: directory))
+        XCTAssertTrue(store.requiresPersistenceRecovery)
+        XCTAssertThrowsError(try store.completeOnboarding(language: .en, locale: Locale(identifier: "en_US"), temperatureUnit: "F"))
+
+        try store.deleteAllLocalData()
+        XCTAssertFalse(store.requiresPersistenceRecovery)
+        XCTAssertNil(store.persistenceWarning)
+    }
 }

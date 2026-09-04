@@ -45,6 +45,8 @@ struct ReportsView: View {
                                     ))
                                 }
                             }
+                            .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
+                            .contentShape(Rectangle())
                         }
                     }
                     .padding(.vertical, 6)
@@ -93,6 +95,8 @@ struct ReportsView: View {
                 Spacer()
                 Image(systemName: store.isPro ? "chevron.forward" : "lock.fill").foregroundStyle(PBTheme.secondary)
             }
+            .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
+            .contentShape(Rectangle())
         }
         .disabled(generating)
         .accessibilityIdentifier("pb.reports.\(format.lowercased())")

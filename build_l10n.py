@@ -371,6 +371,8 @@ KEYS = {
 'run.completeTimerFirst': ('Run timer validation', 'Complete the timer before continuing.'),
 'backup.lastSuccessful': ('Backup status', 'Last successful backup'),
 'run.deleteRecordConfirm': ('Completed-run deletion confirmation', 'Permanently delete “%1$@”? This cannot be undone.'),
+'common.clearSearch': ('Accessibility label for clearing a search field', 'Clear search'),
+'common.restore': ('Restore an archived record', 'Restore'),
 }
 
 meta = {k:{'context':c,'source':s} for k,(c,s) in KEYS.items()}

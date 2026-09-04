@@ -103,6 +103,43 @@ assert.equal(context.recipes.length, 1);
 const savedSetup = context.recipes[0];
 assert.equal(D.validateRunnableSetup(savedSetup, now, testUtcOffsetMinutes).length, 0);
 
+// Completing a frozen run must never overwrite a newer metadata/lifecycle edit
+// made to the live setup while that run was active.
+const concurrentAuth = P.authorizeRun(context, savedSetup, {
+  now:iso(0.5), utcOffsetMinutes:testUtcOffsetMinutes, progressMode:'final_confirmation',
+  firstPiecePolicy:'required_for_unproven', runMode:'test', quantity:1
+});
+let concurrentRun = concurrentAuth.run;
+concurrentRun = P.transitionRun(concurrentRun, {type:'CONFIRM_INSTRUCTIONS', confirmed:true, at:iso(1)});
+concurrentRun = P.transitionRun(concurrentRun, {type:'TIMER_INITIALIZE', index:0, at:iso(2)});
+concurrentRun = P.transitionRun(concurrentRun, {type:'TIMER_START', at:iso(3)});
+concurrentRun = P.transitionRun(concurrentRun, {type:'TIMER_TICK', at:iso(19)});
+concurrentRun = P.transitionRun(concurrentRun, {type:'RECORD_FIRST_PIECE', outcome:'pass', note:'', at:iso(20)});
+concurrentRun = P.transitionRun(concurrentRun, {type:'CONFIRM_ALL_GOOD', confirmedPlannedQuantity:1,
+  explicitConfirmation:true, notes:'', saveChoice:'batch_only', variantTitle:'', at:iso(21)});
+concurrentRun = P.transitionRun(concurrentRun, {type:'BEGIN_COMMIT', at:iso(22)});
+const liveEdited = D.normalizeRecipe({...savedSetup, title:'Edited during run', notes:'Keep this note',
+  defaultQuantity:99, archived:true, status:'trial'}, savedSetup.temperatureUnit, true);
+const concurrentCommit = P.planResultCommit({...context, recipes:[liveEdited], setups:[liveEdited],
+  session:concurrentAuth.session}, concurrentRun);
+const preservedLive = concurrentCommit.recipes.find((item) => item.id === savedSetup.id);
+assert.equal(preservedLive.title, 'Edited during run');
+assert.equal(preservedLive.notes, 'Keep this note');
+assert.equal(preservedLive.defaultQuantity, 99);
+assert.equal(preservedLive.archived, true);
+assert.equal(concurrentCommit.batch.recipe.title, savedSetup.title);
+assert.equal(concurrentCommit.warnings.includes('live_setup_changed_during_run'), true);
+
+// A nickname-only machine edit updates every live setup snapshot and explicitly
+// resets proof because nickname is part of the persisted setup fingerprint.
+const renamedMachinePlan = P.planSaveMachine({...context, session:null}, {...machine, nickname:'Press A renamed'}, iso(23));
+const renamedSetup = renamedMachinePlan.recipes.find((item) => item.id === savedSetup.id);
+assert.equal(renamedMachinePlan.changeClass, 'metadata');
+assert.equal(renamedSetup.machineNickname, 'Press A renamed');
+assert.equal(renamedSetup.steps[0].machineNickname, 'Press A renamed');
+assert.equal(renamedMachinePlan.affectedSetupIds.includes(savedSetup.id), true);
+assert.equal(renamedSetup.proofResetAt, iso(23));
+
 // Same-product variant safety: a multi-stage clone may change only the three
 // fields allowed by reuseSetup. The save planner must preserve source, machine,
 // material, transfer and every operating field (stage UUIDs are intentionally new).
@@ -288,5 +325,7 @@ assert.deepStrictEqual(deletion.batches, []);
 assert.equal(deletion.session, null);
 assert.equal(deletion.purchaseEntitlementUnaffected, true);
 assert.equal(Object.prototype.hasOwnProperty.call(deletion, 'entitlement'), false);
+const activeDeletion = P.planDeleteAll({...context, session:{activeRun:{id:'active-delete'}}}, 'DELETE');
+assert.equal(activeDeletion.session, null);
 
 console.log('ENGINE SMOKE: PASS');

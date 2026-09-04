@@ -29,6 +29,42 @@ DIRECT_NEW_KEYS = {
   'run.reuse.materiallyDifferent.help'
 } | set(ADDITIONAL_KEYS) | set(RESIDUAL_KEYS) | set(RECOVERY_KEYS) | MONETIZATION_KEYS
 DIRECT_NEW_KEYS |= set(ICLOUD_DELETE_KEYS)
+RELIABILITY_KEYS = ['common.clearSearch', 'common.restore']
+DIRECT_NEW_KEYS |= set(RELIABILITY_KEYS)
+RELIABILITY_TRANSLATIONS = {
+  'en': {'common.clearSearch':'Clear search','common.restore':'Restore'},
+  'es': {'common.clearSearch':'Borrar búsqueda','common.restore':'Restaurar'},
+  'pt': {'common.clearSearch':'Limpar pesquisa','common.restore':'Restaurar'},
+  'fr': {'common.clearSearch':'Effacer la recherche','common.restore':'Restaurer'},
+  'de': {'common.clearSearch':'Suche löschen','common.restore':'Wiederherstellen'},
+  'it': {'common.clearSearch':'Cancella ricerca','common.restore':'Ripristina'},
+  'nl': {'common.clearSearch':'Zoekopdracht wissen','common.restore':'Herstellen'},
+  'pl': {'common.clearSearch':'Wyczyść wyszukiwanie','common.restore':'Przywróć'},
+  'tr': {'common.clearSearch':'Aramayı temizle','common.restore':'Geri yükle'},
+  'ro': {'common.clearSearch':'Șterge căutarea','common.restore':'Restaurează'},
+  'cs': {'common.clearSearch':'Vymazat hledání','common.restore':'Obnovit'},
+  'uk': {'common.clearSearch':'Очистити пошук','common.restore':'Відновити'},
+  'ru': {'common.clearSearch':'Очистить поиск','common.restore':'Восстановить'},
+  'ar': {'common.clearSearch':'مسح البحث','common.restore':'استعادة'},
+  'zh': {'common.clearSearch':'清除搜索','common.restore':'恢复'},
+  'ja': {'common.clearSearch':'検索を消去','common.restore':'復元'},
+  'ko': {'common.clearSearch':'검색 지우기','common.restore':'복원'},
+  'hi': {'common.clearSearch':'खोज साफ़ करें','common.restore':'पुनर्स्थापित करें'},
+  'ur': {'common.clearSearch':'تلاش صاف کریں','common.restore':'بحال کریں'},
+  'bn': {'common.clearSearch':'অনুসন্ধান মুছুন','common.restore':'পুনরুদ্ধার করুন'},
+  'vi': {'common.clearSearch':'Xóa tìm kiếm','common.restore':'Khôi phục'},
+  'id': {'common.clearSearch':'Hapus pencarian','common.restore':'Pulihkan'},
+  'th': {'common.clearSearch':'ล้างการค้นหา','common.restore':'กู้คืน'},
+  'fil': {'common.clearSearch':'I-clear ang paghahanap','common.restore':'Ibalik'},
+  'ms': {'common.clearSearch':'Kosongkan carian','common.restore':'Pulihkan'},
+  'fi': {'common.clearSearch':'Tyhjennä haku','common.restore':'Palauta'},
+  'sv': {'common.clearSearch':'Rensa sökning','common.restore':'Återställ'},
+  'da': {'common.clearSearch':'Ryd søgning','common.restore':'Gendan'},
+  'nb': {'common.clearSearch':'Tøm søk','common.restore':'Gjenopprett'},
+  'el': {'common.clearSearch':'Εκκαθάριση αναζήτησης','common.restore':'Επαναφορά'},
+  'he': {'common.clearSearch':'ניקוי החיפוש','common.restore':'שחזור'},
+  'zh-Hant': {'common.clearSearch':'清除搜尋','common.restore':'復原'},
+}
 APPLE_SIGNIN_STATUS_TRANSLATIONS = {
   'en': 'Signed in with Apple', 'es': 'Sesión iniciada con Apple',
   'pt': 'Sessão iniciada com a Apple', 'fr': 'Connecté avec Apple',
@@ -431,6 +467,8 @@ for key in keys:
             text = RECOVERY_TRANSLATIONS[lang][key]
         elif key in ICLOUD_DELETE_KEYS:
             text = ICLOUD_DELETE_TRANSLATIONS[lang][key]
+        elif key in RELIABILITY_KEYS:
+            text = RELIABILITY_TRANSLATIONS[lang][key]
         elif key == 'backup.signedIn':
             text = APPLE_SIGNIN_STATUS_TRANSLATIONS[lang]
         else:
@@ -448,6 +486,8 @@ for key in keys:
         zhh_text = RECOVERY_TRANSLATIONS['zh-Hant'][key]
     elif key in ICLOUD_DELETE_KEYS:
         zhh_text = ICLOUD_DELETE_TRANSLATIONS['zh-Hant'][key]
+    elif key in RELIABILITY_KEYS:
+        zhh_text = RELIABILITY_TRANSLATIONS['zh-Hant'][key]
     elif key == 'backup.signedIn':
         zhh_text = APPLE_SIGNIN_STATUS_TRANSLATIONS['zh-Hant']
     else:

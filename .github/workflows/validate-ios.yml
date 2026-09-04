@@ -17,12 +17,11 @@ env:
   SOURCE_ZIP: PressBench-TestFlight-Source-v0.21.4.zip
   SOURCE_B64_GLOB: .source/PressBench-iOS-Approved-UI-v0.21.4.zip.b64.part-*
   SCHEME: PressBench
-  RUN_IPHONE_SE: ${{ github.event_name == 'workflow_dispatch' }}
 
 jobs:
   validate:
     runs-on: macos-26
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
       - name: Check out repository
@@ -157,7 +156,6 @@ jobs:
           echo "PB_FACE_UDID=$face_udid" >> "$GITHUB_ENV"
 
       - name: Dedicated UI test — iPhone SE
-        if: ${{ env.RUN_IPHONE_SE == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -174,11 +172,10 @@ jobs:
             -destination "platform=iOS Simulator,id=$PB_SE_UDID" \
             -resultBundlePath "$result_bundle" \
             CODE_SIGNING_ALLOWED=NO \
-            -only-testing:PressBenchUITests/FirstUseFlowUITests/testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup \
+            -only-testing:PressBenchUITests \
             test
 
       - name: Unit tests — Face ID iPhone
-        if: ${{ env.RUN_IPHONE_SE != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -195,7 +192,6 @@ jobs:
             test
 
       - name: UI tests — Face ID iPhone
-        if: ${{ env.RUN_IPHONE_SE != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -209,7 +205,7 @@ jobs:
             -destination "platform=iOS Simulator,id=$PB_FACE_UDID" \
             -resultBundlePath "$result_bundle" \
             CODE_SIGNING_ALLOWED=NO \
-            -only-testing:PressBenchUITests/FirstUseFlowUITests/testFaceIDFirstViewportLayout \
+            -only-testing:PressBenchUITests \
             test
 
       - name: Export UI audit screenshots
@@ -220,15 +216,14 @@ jobs:
           screenshot_dir="$GITHUB_WORKSPACE/build/ui-screenshots"
           rm -rf "$screenshot_dir"
           mkdir -p "$screenshot_dir"
-          if [[ "$RUN_IPHONE_SE" == "true" ]]; then
-            devices=(SE)
-          else
-            devices=(FaceID)
-          fi
+          devices=(SE FaceID)
           for device in "${devices[@]}"; do
             result_bundle="$GITHUB_WORKSPACE/build/PressBench${device}Tests.xcresult"
             output_dir="$screenshot_dir/$device"
-            [[ -d "$result_bundle" ]] || { echo "$device Xcode test result bundle is missing." >&2; exit 1; }
+            if [[ ! -d "$result_bundle" ]]; then
+              echo "$device Xcode test result bundle is unavailable because an earlier test step did not run."
+              continue
+            fi
             xcrun xcresulttool export attachments \
               --path "$result_bundle" \
               --output-path "$output_dir"

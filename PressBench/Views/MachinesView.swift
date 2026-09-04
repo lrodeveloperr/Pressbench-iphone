@@ -8,9 +8,12 @@ struct MachinesView: View {
     @State private var editDraft = MachineDraft()
     @State private var pendingArchiveID: String?
     @State private var failed = false
+    @State private var failureMessageKey = "common.actionFailed"
+    @State private var pendingArchivedDelete: MachineProfile?
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
     private var activeMachines: [MachineProfile] { store.machines.filter { $0.active } }
+    private var archivedMachines: [MachineProfile] { store.machines.filter { !$0.active } }
 
     var body: some View {
         ScrollView {
@@ -54,13 +57,16 @@ struct MachinesView: View {
                                     .contentShape(Rectangle())
                                 }
                                 .buttonStyle(PBTactileButtonStyle())
+                                .disabled(store.isMachineLockedByActiveRun(machine.id))
                                 Menu {
                                     Button { editDraft = store.machineDraft(for: machine.id); showingEditor = true } label: {
                                         Label(t("common.edit"), systemImage: "pencil")
                                     }
+                                    .disabled(store.isMachineLockedByActiveRun(machine.id))
                                     Button(role: .destructive) { pendingArchiveID = machine.id } label: {
                                         Label(t("machine.archive"), systemImage: "archivebox")
                                     }
+                                    .disabled(store.isMachineLockedByActiveRun(machine.id))
                                 } label: {
                                     Image(systemName: "ellipsis.circle")
                                         .frame(width: PBTheme.minimumTarget, height: PBTheme.minimumTarget)
@@ -71,6 +77,8 @@ struct MachinesView: View {
                         }
                     }
                 }
+
+                if !archivedMachines.isEmpty { archivedSection }
             }
             .padding(.horizontal, PBTheme.pagePadding)
             .padding(.bottom, 24)
@@ -84,12 +92,58 @@ struct MachinesView: View {
         ), titleVisibility: .visible) {
             Button(t("machine.archive"), role: .destructive) {
                 do { if let id = pendingArchiveID { try store.archiveMachine(id: id) } }
-                catch { failed = true }
+                catch { failureMessageKey = store.errorLocalizationKey(error); failed = true }
                 pendingArchiveID = nil
             }
             Button(t("common.cancel"), role: .cancel) { pendingArchiveID = nil }
         }
-        .alert("PressBench", isPresented: $failed) { Button(t("common.ok"), role: .cancel) {} } message: { Text(t("common.actionFailed")) }
+        .alert("PressBench", isPresented: $failed) { Button(t("common.ok"), role: .cancel) {} } message: { Text(t(failureMessageKey)) }
+        .confirmationDialog(t("run.deleteRecord"), isPresented: Binding(
+            get: { pendingArchivedDelete != nil },
+            set: { if !$0 { pendingArchivedDelete = nil } }
+        ), titleVisibility: .visible) {
+            Button(t("run.deleteRecord"), role: .destructive) {
+                guard let machine = pendingArchivedDelete else { return }
+                do { try store.deleteArchivedMachine(id: machine.id) }
+                catch { failureMessageKey = store.errorLocalizationKey(error); failed = true }
+                pendingArchivedDelete = nil
+            }
+            Button(t("common.cancel"), role: .cancel) { pendingArchivedDelete = nil }
+        } message: {
+            if let machine = pendingArchivedDelete {
+                Text(PBL10n.format("run.deleteRecordConfirm", language: language, locale: locale, machine.nickname as NSString))
+            }
+        }
+    }
+
+    private var archivedSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(t("status.archived")).font(.title3.bold())
+            ForEach(archivedMachines) { machine in
+                PBCard {
+                    HStack(spacing: 12) {
+                        Text(machine.nickname).font(.headline).frame(maxWidth: .infinity, alignment: .leading)
+                        Button {
+                            do { try store.restoreMachine(id: machine.id); PBFeedback.success() }
+                            catch { failureMessageKey = store.errorLocalizationKey(error); failed = true }
+                        } label: {
+                            Image(systemName: "arrow.uturn.backward.circle")
+                                .frame(width: PBTheme.minimumTarget, height: PBTheme.minimumTarget)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(t("common.restore"))
+                        Button(role: .destructive) { pendingArchivedDelete = machine } label: {
+                            Image(systemName: "trash")
+                                .frame(width: PBTheme.minimumTarget, height: PBTheme.minimumTarget)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(t("run.deleteRecord"))
+                    }
+                }
+            }
+        }
     }
 
     private func machineIcon(_ machine: MachineProfile) -> String {
