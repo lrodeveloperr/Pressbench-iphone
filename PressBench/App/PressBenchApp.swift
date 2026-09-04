@@ -7,10 +7,7 @@ struct PressBenchApp: App {
     @AppStorage(AppLanguageStorage.key) private var languageRaw = AppLanguage.detected().rawValue
 
     #if PRESSBENCH_UI_TESTING
-    private static var screenshotModeEnabled: Bool {
-        ProcessInfo.processInfo.arguments.contains("--pressbench-ipad-marketing-screenshot") ||
-            ProcessInfo.processInfo.environment["PRESSBENCH_IPAD_MARKETING_SCREENSHOT"] == "1"
-    }
+    private static let screenshotModeEnabled = true
     #endif
 
     init() {
@@ -39,7 +36,7 @@ struct PressBenchApp: App {
             #endif
 
             Group {
-                if (onboardingCompleted || screenshotMode) && store.operationalReady {
+                if screenshotMode || (onboardingCompleted && store.operationalReady) {
                     RootTabView()
                 } else {
                     OnboardingFlowView(completed: $onboardingCompleted)
