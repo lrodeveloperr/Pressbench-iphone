@@ -155,7 +155,7 @@ jobs:
           test -d PressBench.xcodeproj
 
       - name: Release simulator build
-        if: ${{ github.event_name == 'push' || inputs.skip_simulator_validation != true }}
+        if: ${{ inputs.skip_simulator_validation != true && !contains(github.event.head_commit.message, '[skip-simulator-validation]') }}
         shell: bash
         run: |
           set -euo pipefail
@@ -172,7 +172,7 @@ jobs:
             build
 
       - name: Unit tests
-        if: ${{ github.event_name == 'push' || inputs.skip_simulator_validation != true }}
+        if: ${{ inputs.skip_simulator_validation != true && !contains(github.event.head_commit.message, '[skip-simulator-validation]') }}
         shell: bash
         run: |
           set -euo pipefail
