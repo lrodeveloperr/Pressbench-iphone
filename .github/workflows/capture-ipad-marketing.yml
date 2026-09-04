@@ -88,6 +88,7 @@ jobs:
           xcrun simctl status_bar "$IPAD_UDID" override --time '9:41' --batteryState charged --batteryLevel 100 --wifiBars 3
           xcrun simctl install "$IPAD_UDID" "$app"
           SIMCTL_CHILD_PRESSBENCH_UI_TEST_USAGE_SERVICE="ipad-marketing-$GITHUB_RUN_ID" \
+          SIMCTL_CHILD_PRESSBENCH_IPAD_MARKETING_SCREENSHOT=1 \
             xcrun simctl launch --terminate-running-process "$IPAD_UDID" com.goodusestudios.pressbench \
               --pressbench-ui-test-reset \
               --pressbench-ipad-marketing-screenshot \

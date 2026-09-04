@@ -6,13 +6,20 @@ struct PressBenchApp: App {
     @AppStorage("pressbench.onboarding.completed") private var onboardingCompleted = false
     @AppStorage(AppLanguageStorage.key) private var languageRaw = AppLanguage.detected().rawValue
 
+    #if PRESSBENCH_UI_TESTING
+    private static var screenshotModeEnabled: Bool {
+        ProcessInfo.processInfo.arguments.contains("--pressbench-ipad-marketing-screenshot") ||
+            ProcessInfo.processInfo.environment["PRESSBENCH_IPAD_MARKETING_SCREENSHOT"] == "1"
+    }
+    #endif
+
     init() {
         #if DEBUG || PRESSBENCH_UI_TESTING
         PressBenchUITestBootstrap.resetIfRequested()
         #endif
         let productionStore = PressBenchStore.production()
         #if PRESSBENCH_UI_TESTING
-        if ProcessInfo.processInfo.arguments.contains("--pressbench-ipad-marketing-screenshot") {
+        if Self.screenshotModeEnabled {
             UserDefaults.standard.set(true, forKey: "pressbench.onboarding.completed")
             do { try productionStore.loadScreenshotFixture() }
             catch { fatalError("iPad screenshot fixture failed: \(error)") }
@@ -26,7 +33,7 @@ struct PressBenchApp: App {
             let language = AppLanguageStorage.resolved(rawValue: languageRaw)
             let locale = Locale(identifier: language.localeIdentifier(deviceLocale: .current))
             #if PRESSBENCH_UI_TESTING
-            let screenshotMode = ProcessInfo.processInfo.arguments.contains("--pressbench-ipad-marketing-screenshot")
+            let screenshotMode = Self.screenshotModeEnabled
             #else
             let screenshotMode = false
             #endif
