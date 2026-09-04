@@ -81,9 +81,7 @@ jobs:
           app="$GITHUB_WORKSPACE/build/DerivedData/Build/Products/Debug-iphonesimulator/PressBench.app"
           [[ -d "$app" ]] || { echo 'The simulator app bundle is missing.' >&2; exit 1; }
 
-          xcrun simctl shutdown "$IPAD_UDID" >/dev/null 2>&1 || true
-          xcrun simctl erase "$IPAD_UDID"
-          xcrun simctl boot "$IPAD_UDID"
+          xcrun simctl boot "$IPAD_UDID" 2>/dev/null || true
           xcrun simctl bootstatus "$IPAD_UDID" -b
           xcrun simctl status_bar "$IPAD_UDID" override --time '9:41' --batteryState charged --batteryLevel 100 --wifiBars 3
           xcrun simctl install "$IPAD_UDID" "$app"
