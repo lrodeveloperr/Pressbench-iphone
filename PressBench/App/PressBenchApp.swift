@@ -7,7 +7,7 @@ struct PressBenchApp: App {
     @AppStorage(AppLanguageStorage.key) private var languageRaw = AppLanguage.detected().rawValue
 
     init() {
-        #if DEBUG
+        #if DEBUG || PRESSBENCH_UI_TESTING
         PressBenchUITestBootstrap.resetIfRequested()
         #endif
         _store = StateObject(wrappedValue: PressBenchStore.production())
@@ -33,13 +33,12 @@ struct PressBenchApp: App {
             .tint(PBTheme.primary)
             .task {
                 await store.start()
-                await AppleBackupService.refreshCredentialState()
             }
         }
     }
 }
 
-#if DEBUG
+#if DEBUG || PRESSBENCH_UI_TESTING
 private enum PressBenchUITestBootstrap {
     static func resetIfRequested() {
         let arguments = ProcessInfo.processInfo.arguments

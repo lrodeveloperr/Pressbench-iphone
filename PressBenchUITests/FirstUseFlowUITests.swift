@@ -4,6 +4,7 @@ final class FirstUseFlowUITests: XCTestCase {
     func testFaceIDFirstViewportLayout() {
         continueAfterFailure = false
         let app = XCUIApplication()
+        app.launchEnvironment["PRESSBENCH_UI_TEST_USAGE_SERVICE"] = UUID().uuidString
         app.launchArguments += ["--pressbench-ui-test-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
 
@@ -17,9 +18,6 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(acknowledgement.waitForExistence(timeout: 8))
         acknowledgement.tap()
         app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch.tap()
-        let skipBackup = app.buttons.matching(identifier: "pb.onboarding.skipBackup").firstMatch
-        XCTAssertTrue(skipBackup.waitForExistence(timeout: 3))
-        skipBackup.tap()
 
         XCTAssertTrue(app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch.waitForExistence(timeout: 8))
         let moreTab = app.tabBars.buttons["More"]
@@ -38,6 +36,7 @@ final class FirstUseFlowUITests: XCTestCase {
     func testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup() {
         continueAfterFailure = false
         let app = XCUIApplication()
+        app.launchEnvironment["PRESSBENCH_UI_TEST_USAGE_SERVICE"] = UUID().uuidString
         app.launchArguments += ["--pressbench-ui-test-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
 
@@ -57,10 +56,6 @@ final class FirstUseFlowUITests: XCTestCase {
         let legalContinue = app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch
         XCTAssertTrue(legalContinue.isEnabled)
         legalContinue.tap()
-
-        let continueWithoutBackup = app.buttons.matching(identifier: "pb.onboarding.skipBackup").firstMatch
-        XCTAssertTrue(continueWithoutBackup.waitForExistence(timeout: 3))
-        continueWithoutBackup.tap()
         if app.alerts.firstMatch.waitForExistence(timeout: 2) {
             app.alerts.firstMatch.buttons.firstMatch.tap()
         }
@@ -85,7 +80,15 @@ final class FirstUseFlowUITests: XCTestCase {
         let backup = app.descendants(matching: .any)["pb.settings.backup"]
         XCTAssertTrue(backup.exists)
         XCTAssertTrue(backup.isHittable, "Backup must remain in the first Settings viewport")
+        let restoreBackup = app.descendants(matching: .any)["pb.settings.restoreBackup"]
+        XCTAssertTrue(restoreBackup.exists)
+        makeHittable(restoreBackup, in: app)
+        XCTAssertTrue(restoreBackup.isHittable, "Import backup must remain directly available without sign-in")
         XCTAssertTrue(app.staticTexts["Back up your data"].exists)
+        XCTAssertFalse(app.buttons["Continue with Apple"].exists)
+        XCTAssertFalse(app.buttons["Sign out"].exists)
+        XCTAssertFalse(app.buttons["Roll back last restore"].exists)
+        XCTAssertFalse(app.buttons["Delete iCloud backup"].exists)
         XCTAssertFalse(app.staticTexts["Production Report"].exists)
         capture("03-prioritized-settings")
 
@@ -258,8 +261,14 @@ final class FirstUseFlowUITests: XCTestCase {
     private func enter(_ value: String, in field: XCUIElement, app: XCUIApplication) {
         for _ in 0..<8 where !field.exists { scrollForward(in: app) }
         XCTAssertTrue(field.waitForExistence(timeout: 4))
-        makeHittable(field, in: app)
-        field.tap()
+        for _ in 0..<4 where !app.keyboards.firstMatch.exists {
+            makeHittable(field, in: app)
+            field.tap()
+            if !app.keyboards.firstMatch.waitForExistence(timeout: 2) {
+                scrollForward(in: app)
+            }
+        }
+        XCTAssertTrue(app.keyboards.firstMatch.exists, "The text field must have keyboard focus before typing")
         field.typeText(value)
         let dismissKeyboard = app.buttons.matching(identifier: "pb.keyboard.dismiss").firstMatch
         XCTAssertTrue(dismissKeyboard.waitForExistence(timeout: 2))
@@ -277,9 +286,10 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(choiceCancel.waitForExistence(timeout: 5))
         makeHittable(choice, in: app)
         choice.tap()
-        let editorCancel = app.buttons.matching(identifier: "pb.editor.cancel").firstMatch
-        XCTAssertTrue(waitForHittable(editorCancel, timeout: 12),
-                      "The editor must return after the choice sheet closes")
+        XCTAssertTrue(choiceCancel.waitForNonExistence(timeout: 12),
+                      "The choice sheet must close after selecting an option")
+        XCTAssertTrue(waitForHittable(field, timeout: 12),
+                      "The selected field must return as the active editor control")
     }
 
     private func makeHittable(_ element: XCUIElement, in app: XCUIApplication) {

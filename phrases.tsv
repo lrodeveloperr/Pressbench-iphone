@@ -306,7 +306,7 @@
 306	Subscribe	upgrade.unlock
 307	Restore purchase	upgrade.restore
 308	Back up your data	backup.optionalTitle
-309	Sign in with Apple to back up and restore your PressBench data. This is optional.	backup.optionalBody
+309	Choose where to save a backup file in Files.	backup.optionalBody
 310	Continue without signing in	backup.continueWithout
 311	Complete all required checks to continue.	onboarding.completeChecks
 312	Edit	common.edit

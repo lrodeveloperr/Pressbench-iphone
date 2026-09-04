@@ -4,6 +4,14 @@ import SwiftUI
 
 @MainActor
 final class PressBenchStore: ObservableObject {
+    struct BackupPreview {
+        let exportedAt: Date?
+        let machines: Int
+        let setups: Int
+        let batches: Int
+        let freeRunsUsed: Int
+    }
+
     private struct PendingSetupReuse {
         let sourceSetupID: String
         let reuseClass: SetupReuseClass
@@ -29,18 +37,29 @@ final class PressBenchStore: ObservableObject {
     private var purchaseObservation: AnyCancellable?
 
     static func production() -> PressBenchStore {
-        do { return try PressBenchStore() }
+        #if PRESSBENCH_UI_TESTING
+        let usageStore: PBKeychainUsageStore
+        if let token = ProcessInfo.processInfo.environment["PRESSBENCH_UI_TEST_USAGE_SERVICE"], !token.isEmpty {
+            usageStore = PBKeychainUsageStore(service: "com.goodusestudios.pressbench.ui-test.\(token)")
+        } else {
+            usageStore = PBKeychainUsageStore()
+        }
+        #else
+        let usageStore = PBKeychainUsageStore()
+        #endif
+        do { return try PressBenchStore(usageStore: usageStore) }
         catch { fatalError("PressBench production core failed to initialize: \(error)") }
     }
 
     init(
         bridge: PressBenchLogicBridge? = nil,
         persistence: PressBenchPersistence? = nil,
-        usageDefaults: UserDefaults = .standard
+        usageDefaults: UserDefaults = .standard,
+        usageStore: (any PBUsagePersisting)? = nil
     ) throws {
         self.bridge = try bridge ?? PressBenchLogicBridge()
         self.persistence = persistence ?? PressBenchPersistence()
-        self.usageMeter = PBUsageMeter(defaults: usageDefaults)
+        self.usageMeter = PBUsageMeter(defaults: usageDefaults, secureStore: usageStore)
 
         let defaultSettings = try self.bridge.dictionary(
             self.bridge.domain("defaultSettings"), context: "default settings"
@@ -77,7 +96,7 @@ final class PressBenchStore: ObservableObject {
                 "entitlement": try self.bridge.dictionary(
                     self.bridge.entitlement("normalizeEntitlement", [storedEntitlement]), context: "stored entitlement"
                 ),
-                "preRestoreRecovery": loaded["preRestoreRecovery"] ?? NSNull(),
+                "preRestoreRecovery": NSNull(),
                 "operatorIssueDrafts": loaded["operatorIssueDrafts"] as? [String: Any] ?? [:],
                 "rejectedSession": rejectedSession ?? NSNull()
             ]
@@ -166,7 +185,7 @@ final class PressBenchStore: ObservableObject {
     }
 
     var isPro: Bool {
-        #if DEBUG
+        #if DEBUG || PRESSBENCH_UI_TESTING
         if ProcessInfo.processInfo.arguments.contains("--pressbench-ui-test-pro") { return true }
         #endif
         do {
@@ -187,7 +206,6 @@ final class PressBenchStore: ObservableObject {
         return usageMeter.freePressesRemaining
     }
     var canStartAnotherRun: Bool { isPro || freePressesRemaining > 0 }
-    var hasRestoreRecovery: Bool { state["preRestoreRecovery"] is [String: Any] }
     var hasRejectedRun: Bool { state["rejectedSession"] is [String: Any] }
     var hasSetupDraft: Bool { (state["session"] as? [String: Any])?["setupDraft"] is [String: Any] }
     var rejectedRunLabel: String {
@@ -560,6 +578,10 @@ final class PressBenchStore: ObservableObject {
     }
 
     func startRun(_ draft: RunStartDraft) throws {
+        if !isPro && !usageMeter.persistenceHealthy &&
+            !usageMeter.canStartFreePress(existingCompletedRuns: rawBatches.count) {
+            throw StoreError.usageLedgerUnavailable
+        }
         guard isPro || usageMeter.canStartFreePress(existingCompletedRuns: rawBatches.count) else {
             throw StoreError.pressLimitReached
         }
@@ -821,7 +843,42 @@ final class PressBenchStore: ObservableObject {
     }
 
     func backupPayload() throws -> [String: Any] {
-        try bridge.dictionary(bridge.domain("makeBackup", [rawRecipes, rawBatches, state["settings"] ?? NSNull(), rawMachines]), context: "backup")
+        var payload = try bridge.dictionary(
+            bridge.domain("makeBackup", [rawRecipes, rawBatches, state["settings"] ?? NSNull(), rawMachines]),
+            context: "backup"
+        )
+        // The free allowance is monotonic product state, not an entitlement.
+        // Carry it across a user-owned restore so deleted history cannot create
+        // another allowance on a replacement device.
+        payload["freeRunsUsed"] = usageMeter.completedPresses
+        return payload
+    }
+
+    func previewBackup(raw: String) throws -> BackupPreview {
+        guard activeRun == nil else { throw StoreError.activeRunConflict }
+        guard !hasRejectedRun else { throw StoreError.persistenceBlocked }
+        let plan = try bridge.dictionary(bridge.process("planRestore", [context, raw]), context: "restore preview")
+        guard let target = plan["target"] as? [String: Any] else { throw StoreError.exportFailed }
+        let source = try JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any]
+        let exportedAt = (source?["exportedAt"] as? String).flatMap { value -> Date? in
+            let precise = ISO8601DateFormatter()
+            precise.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            return precise.date(from: value) ?? ISO8601DateFormatter().date(from: value)
+        }
+        let importedUsage = min(
+            PBUsageMeter.freePressLimit,
+            max(
+                (target["batches"] as? [Any])?.count ?? 0,
+                max(0, (source?["freeRunsUsed"] as? NSNumber)?.intValue ?? 0)
+            )
+        )
+        return BackupPreview(
+            exportedAt: exportedAt,
+            machines: (target["machines"] as? [Any])?.count ?? 0,
+            setups: (target["setups"] as? [Any])?.count ?? 0,
+            batches: (target["batches"] as? [Any])?.count ?? 0,
+            freeRunsUsed: importedUsage
+        )
     }
 
     func deleteAllLocalData() throws {
@@ -849,29 +906,15 @@ final class PressBenchStore: ObservableObject {
         guard activeRun == nil else { throw StoreError.activeRunConflict }
         guard !hasRejectedRun else { throw StoreError.persistenceBlocked }
         let plan = try bridge.dictionary(bridge.process("planRestore", [context, raw]), context: "restore plan")
-        guard let target = plan["target"] as? [String: Any], var recovery = plan["recoveryEnvelope"] as? [String: Any] else {
+        guard let target = plan["target"] as? [String: Any] else {
             throw StoreError.exportFailed
         }
-        recovery["state"] = "applied"
+        let source = try JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any]
+        let importedUsage = min(
+            PBUsageMeter.freePressLimit,
+            max(0, (source?["freeRunsUsed"] as? NSNumber)?.intValue ?? 0)
+        )
         try withStateTransaction(allowBlockedRecovery: true) {
-            state["machines"] = target["machines"] as? [[String: Any]] ?? []
-            state["recipes"] = target["setups"] as? [[String: Any]] ?? []
-            state["batches"] = target["batches"] as? [[String: Any]] ?? []
-            state["settings"] = target["settings"] as? [String: Any] ?? state["settings"]
-            state["session"] = NSNull()
-            state["operatorIssueDrafts"] = [String: Any]()
-            state["preRestoreRecovery"] = recovery
-        }
-        usageMeter.reconcile(existingCompletedRuns: rawBatches.count)
-    }
-
-    func rollbackRestore() throws {
-        guard activeRun == nil else { throw StoreError.activeRunConflict }
-        guard !hasRejectedRun else { throw StoreError.persistenceBlocked }
-        guard let recovery = state["preRestoreRecovery"] as? [String: Any] else { throw StoreError.exportFailed }
-        let plan = try bridge.dictionary(bridge.process("planRollback", [context, recovery]), context: "rollback plan")
-        guard let target = plan["target"] as? [String: Any] else { throw StoreError.exportFailed }
-        try withStateTransaction {
             state["machines"] = target["machines"] as? [[String: Any]] ?? []
             state["recipes"] = target["setups"] as? [[String: Any]] ?? []
             state["batches"] = target["batches"] as? [[String: Any]] ?? []
@@ -880,7 +923,7 @@ final class PressBenchStore: ObservableObject {
             state["operatorIssueDrafts"] = [String: Any]()
             state["preRestoreRecovery"] = NSNull()
         }
-        usageMeter.reconcile(existingCompletedRuns: rawBatches.count)
+        usageMeter.reconcile(existingCompletedRuns: max(rawBatches.count, importedUsage))
     }
 
     var canonicalReportBatches: [[String: Any]] { rawBatches }
@@ -1425,7 +1468,7 @@ final class PressBenchStore: ObservableObject {
     }
 
     enum StoreError: LocalizedError {
-        case invalidMachine, machineInUse, invalidNumber, invalidIssue, invalidSetup, setupMissing, activeRunConflict, activeRunMissing, exportFailed, persistenceBlocked, invalidReuseClass, pressLimitReached
+        case invalidMachine, machineInUse, invalidNumber, invalidIssue, invalidSetup, setupMissing, activeRunConflict, activeRunMissing, exportFailed, persistenceBlocked, usageLedgerUnavailable, invalidReuseClass, pressLimitReached
         var errorDescription: String? {
             switch self {
             case .invalidMachine: return "machine_required"
@@ -1438,6 +1481,7 @@ final class PressBenchStore: ObservableObject {
             case .activeRunMissing: return "active_run_missing"
             case .exportFailed: return "export_failed"
             case .persistenceBlocked: return "persistence_recovery_required"
+            case .usageLedgerUnavailable: return "persistence_usage_ledger_unavailable"
             case .invalidReuseClass: return "reuse_class"
             case .pressLimitReached: return "batch_capacity_required"
             }

@@ -1263,10 +1263,6 @@
     "context": "Purchase limit error",
     "source": "You have reached the free limit. Unlock Pro to continue."
   },
-  "backup.signInFailed": {
-    "context": "Backup authentication error",
-    "source": "Sign in failed. Your local data is unchanged."
-  },
   "run.mode.test.help": {
     "context": "Run mode help",
     "source": "Makes one test item and records the result before production."
@@ -1377,11 +1373,7 @@
   },
   "backup.optionalBody": {
     "context": "Optional backup explanation",
-    "source": "Sign in with Apple to back up and restore your PressBench data. This is optional."
-  },
-  "backup.continueWithout": {
-    "context": "Skip backup action",
-    "source": "Continue without signing in"
+    "source": "Choose where to save a backup file in Files."
   },
   "onboarding.completeChecks": {
     "context": "Onboarding validation help",
@@ -1399,45 +1391,9 @@
     "context": "More actions label",
     "source": "More"
   },
-  "backup.backupNow": {
-    "context": "Backup now action",
-    "source": "Back up now"
-  },
-  "backup.restore": {
-    "context": "Backup restore action",
-    "source": "Restore backup"
-  },
-  "backup.signedIn": {
-    "context": "Sign in with Apple backup status",
-    "source": "Signed in with Apple"
-  },
-  "backup.signOut": {
-    "context": "Backup sign-out action",
-    "source": "Sign out"
-  },
-  "backup.delete": {
-    "context": "iCloud backup deletion action",
-    "source": "Delete iCloud backup"
-  },
-  "backup.deleteConfirm": {
-    "context": "iCloud backup deletion confirmation",
-    "source": "Delete the PressBench backup from iCloud? This cannot be undone. Your data on this iPhone will not be deleted."
-  },
-  "backup.deleteSuccess": {
-    "context": "iCloud backup deletion success",
-    "source": "iCloud backup deleted. Your data on this iPhone is unchanged."
-  },
-  "backup.deleteFailed": {
-    "context": "iCloud backup deletion failure",
-    "source": "PressBench couldn’t confirm that the iCloud backup was deleted. Check your iCloud connection and try again. Your data on this iPhone is unchanged."
-  },
   "backup.restoreReplaces": {
     "context": "Backup restore warning",
     "source": "Restoring replaces the current local data on this device."
-  },
-  "backup.rollbackWarning": {
-    "context": "Backup rollback warning",
-    "source": "Rolling back replaces the restored data with the previous local data."
   },
   "run.repeatSetup": {
     "context": "Completed-run reuse action",

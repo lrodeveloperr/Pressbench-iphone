@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - codex/native-files-backup
   workflow_dispatch:
     inputs:
       confirmation:
@@ -41,7 +42,7 @@ jobs:
   upload:
     name: Signed PressBench build to TestFlight
     if: >-
-      github.ref == 'refs/heads/main' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/codex/native-files-backup') &&
       (github.event_name == 'workflow_dispatch' ||
        contains(github.event.head_commit.message, '[upload-pressbench-testflight]'))
     runs-on: macos-26
@@ -154,7 +155,7 @@ jobs:
           test -d PressBench.xcodeproj
 
       - name: Release simulator build
-        if: ${{ github.event_name != 'push' && inputs.skip_simulator_validation != true }}
+        if: ${{ github.event_name == 'push' || inputs.skip_simulator_validation != true }}
         shell: bash
         run: |
           set -euo pipefail
@@ -171,7 +172,7 @@ jobs:
             build
 
       - name: Unit tests
-        if: ${{ github.event_name != 'push' && inputs.skip_simulator_validation != true }}
+        if: ${{ github.event_name == 'push' || inputs.skip_simulator_validation != true }}
         shell: bash
         run: |
           set -euo pipefail
@@ -181,9 +182,10 @@ jobs:
           xcodebuild \
             -project PressBench.xcodeproj \
             -scheme "$SCHEME" \
-            -configuration Debug \
+            -configuration Release \
             -destination "platform=iOS Simulator,id=$UDID" \
-            CODE_SIGNING_ALLOWED=NO \
+            ENABLE_TESTABILITY=YES \
+            'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) PRESSBENCH_UI_TESTING' \
             test
 
       - name: Verify Apple credentials and app record
@@ -276,7 +278,7 @@ jobs:
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             clean archive
 
-      - name: Stage archive with required Apple entitlements
+      - name: Stage archive for Apple distribution signing
         shell: bash
         run: |
           set -euo pipefail
@@ -307,11 +309,10 @@ jobs:
           [[ ! -d "$app/Frameworks/UserMessagingPlatform.framework" ]] || { echo 'UserMessagingPlatform.framework must not be present.' >&2; exit 1; }
 
           # The archive is intentionally unsigned because the ephemeral runner
-          # has no local distribution private key. Preserve the app's requested
-          # capabilities in a valid staging signature so Xcode's authenticated
-          # cloud export can replace it with the Apple Distribution signature.
-          # Without this step, export signs the app but has no executable
-          # entitlement payload to carry forward, breaking Sign in with Apple.
+          # has no local distribution private key. Give it a valid temporary
+          # signature so authenticated cloud export can replace that signature.
+          # PressBench requests no account or iCloud capability: backup files are
+          # explicitly exported through the native Files picker.
           staged_entitlements="$RUNNER_TEMP/PressBench-staged-entitlements.plist"
           cat > "$staged_entitlements" <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
@@ -319,10 +320,7 @@ jobs:
           <plist version="1.0">
           <dict>
             <key>application-identifier</key><string>$APPLE_TEAM_ID.$IOS_BUNDLE_ID</string>
-            <key>com.apple.developer.applesignin</key>
-            <array><string>Default</string></array>
             <key>com.apple.developer.team-identifier</key><string>$APPLE_TEAM_ID</string>
-            <key>com.apple.developer.ubiquity-kvstore-identifier</key><string>$APPLE_TEAM_ID.$IOS_BUNDLE_ID</string>
             <key>get-task-allow</key><false/>
           </dict>
           </plist>
@@ -334,8 +332,8 @@ jobs:
           [[ "$staged_signature" == *'Signature=adhoc'* ]] || { echo 'Archive staging signature is not ad hoc.' >&2; exit 1; }
           staged_signed_entitlements="$RUNNER_TEMP/PressBench-staged-signed-entitlements.plist"
           codesign -d --entitlements :- "$app" > "$staged_signed_entitlements" 2>/dev/null
-          [[ "$(/usr/libexec/PlistBuddy -c 'Print :com.apple.developer.applesignin:0' "$staged_signed_entitlements")" == 'Default' ]] || { echo 'Staged app lacks Sign in with Apple.' >&2; exit 1; }
-          [[ "$(/usr/libexec/PlistBuddy -c 'Print :com.apple.developer.ubiquity-kvstore-identifier' "$staged_signed_entitlements")" == "$APPLE_TEAM_ID.$IOS_BUNDLE_ID" ]] || { echo 'Staged app has the wrong iCloud KVS entitlement.' >&2; exit 1; }
+          ! /usr/libexec/PlistBuddy -c 'Print :com.apple.developer.applesignin' "$staged_signed_entitlements" >/dev/null 2>&1 || { echo 'Staged app unexpectedly requests Sign in with Apple.' >&2; exit 1; }
+          ! /usr/libexec/PlistBuddy -c 'Print :com.apple.developer.ubiquity-kvstore-identifier' "$staged_signed_entitlements" >/dev/null 2>&1 || { echo 'Staged app unexpectedly requests iCloud KVS.' >&2; exit 1; }
 
       - name: Export signed IPA
         shell: bash
@@ -399,12 +397,10 @@ jobs:
           codesign -d --entitlements :- "$exported_app" > "$signed_entitlements" 2>/dev/null
           signed_application_id="$(/usr/libexec/PlistBuddy -c 'Print :application-identifier' "$signed_entitlements")"
           signed_team_id="$(/usr/libexec/PlistBuddy -c 'Print :com.apple.developer.team-identifier' "$signed_entitlements")"
-          signed_apple_login="$(/usr/libexec/PlistBuddy -c 'Print :com.apple.developer.applesignin:0' "$signed_entitlements")"
-          signed_kvs="$(/usr/libexec/PlistBuddy -c 'Print :com.apple.developer.ubiquity-kvstore-identifier' "$signed_entitlements")"
           [[ "$signed_application_id" == "$APPLE_TEAM_ID.$IOS_BUNDLE_ID" ]] || { echo "Signed application identifier mismatch: $signed_application_id" >&2; exit 1; }
           [[ "$signed_team_id" == "$APPLE_TEAM_ID" ]] || { echo "Signed team entitlement mismatch: $signed_team_id" >&2; exit 1; }
-          [[ "$signed_apple_login" == 'Default' ]] || { echo 'Exported executable lacks Sign in with Apple.' >&2; exit 1; }
-          [[ "$signed_kvs" == "$APPLE_TEAM_ID.$IOS_BUNDLE_ID" ]] || { echo "Signed iCloud KVS entitlement mismatch: $signed_kvs" >&2; exit 1; }
+          ! /usr/libexec/PlistBuddy -c 'Print :com.apple.developer.applesignin' "$signed_entitlements" >/dev/null 2>&1 || { echo 'Exported executable unexpectedly requests Sign in with Apple.' >&2; exit 1; }
+          ! /usr/libexec/PlistBuddy -c 'Print :com.apple.developer.ubiquity-kvstore-identifier' "$signed_entitlements" >/dev/null 2>&1 || { echo 'Exported executable unexpectedly requests iCloud KVS.' >&2; exit 1; }
           [[ ! -d "$exported_app/Frameworks/GoogleMobileAds.framework" ]] || { echo 'Exported IPA contains GoogleMobileAds.framework.' >&2; exit 1; }
           [[ ! -d "$exported_app/Frameworks/UserMessagingPlatform.framework" ]] || { echo 'Exported IPA contains UserMessagingPlatform.framework.' >&2; exit 1; }
           while IFS= read -r framework; do
@@ -424,13 +420,7 @@ jobs:
           fi
           get_task_allow="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:get-task-allow' "$profile_plist" 2>/dev/null || echo false)"
           [[ "$get_task_allow" == "false" ]] || { echo 'Exported profile permits debugging.' >&2; exit 1; }
-          profile_apple_login="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.applesignin:0' "$profile_plist")"
-          profile_kvs="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.ubiquity-kvstore-identifier' "$profile_plist")"
-          [[ "$profile_apple_login" == 'Default' ]] || { echo 'Distribution profile does not permit Sign in with Apple.' >&2; exit 1; }
-          [[ "$profile_kvs" == "$APPLE_TEAM_ID."* ]] || { echo "Distribution profile has the wrong iCloud KVS prefix: $profile_kvs" >&2; exit 1; }
-
-          echo "Verified Sign in with Apple entitlement: $signed_apple_login"
-          echo "Verified iCloud KVS entitlement: $signed_kvs"
+          echo 'Verified native Files backup build without Apple sign-in or iCloud KVS entitlements.'
 
       - name: Validate IPA with App Store Connect
         shell: bash

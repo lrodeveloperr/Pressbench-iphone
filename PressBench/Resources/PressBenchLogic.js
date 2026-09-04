@@ -2206,10 +2206,13 @@
     if (parsed.schema !== "press-bench-log" || ![1, 2, 3, 4].includes(schemaVersion) || (parsed.appId !== undefined && parsed.appId !== "APP-018")) throw new Error("backup_schema");
     if (schemaVersion === 4) {
       const topLevelKeys = Object.keys(parsed).sort();
-      const expectedKeys = ["appId", "batches", "encrypted", "exportedAt", "machines", "schema", "schemaVersion", "settings", "setups"].sort();
-      if (topLevelKeys.length !== expectedKeys.length || topLevelKeys.some(function (key, index) { return key !== expectedKeys[index]; })) throw new Error("backup_shape");
+      const requiredKeys = ["appId", "batches", "encrypted", "exportedAt", "machines", "schema", "schemaVersion", "settings", "setups"];
+      const allowedKeys = new Set(requiredKeys.concat(["freeRunsUsed"]));
+      if (requiredKeys.some(function (key) { return !Object.prototype.hasOwnProperty.call(parsed, key); }) ||
+          topLevelKeys.some(function (key) { return !allowedKeys.has(key); })) throw new Error("backup_shape");
       if (parsed.appId !== "APP-018" || parsed.encrypted !== false || !exactIsoDate(parsed.exportedAt, false) ||
-          !validatePortableSettingsRaw(parsed.settings)) throw new Error("backup_shape");
+          !validatePortableSettingsRaw(parsed.settings) ||
+          (parsed.freeRunsUsed !== undefined && (!Number.isInteger(parsed.freeRunsUsed) || parsed.freeRunsUsed < 0 || parsed.freeRunsUsed > 5))) throw new Error("backup_shape");
     }
     const rawRecipes = schemaVersion === 4 ? parsed.setups : parsed.recipes;
     if (!Array.isArray(rawRecipes) || !Array.isArray(parsed.batches) || (schemaVersion === 4 && !Array.isArray(parsed.machines))) throw new Error("backup_shape");
@@ -4317,7 +4320,7 @@
   const ARCHITECTURE_REQUIREMENTS = Object.freeze({
     operationalDataLocation: "device_only", publisherOperationalDataAccess: false, accountRequired: false,
     publisherCloudSync: false, trackingSdk: false, advertisingSdk: "none", remotePushToken: false,
-    routineNetworkBoundary: "store_entitlement_and_user_initiated_apple_backup", automaticOsBackupForOperationalDatabase: "excluded",
+    routineNetworkBoundary: "store_entitlement_only", automaticOsBackupForOperationalDatabase: "excluded",
     nativeStoreVerificationRequired: true, entitlementPortableBackup: false,
     manualJsonBackupEncrypted: false, notificationContent: "generic_no_job_reference",
     equipmentControlOrMeasurement: false

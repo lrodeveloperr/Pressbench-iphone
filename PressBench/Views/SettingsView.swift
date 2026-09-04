@@ -1,4 +1,3 @@
-import AuthenticationServices
 import SwiftUI
 import UIKit
 
@@ -11,23 +10,23 @@ struct SettingsView: View {
     @AppStorage("pressbench.notifications.enabled") private var notificationsEnabled = false
     @AppStorage("pressbench.haptics.enabled") private var hapticsEnabled = true
     @AppStorage("pressbench.sound.enabled") private var soundEnabled = true
-    @AppStorage("pressbench.apple.user.id") private var appleUserID = ""
     @AppStorage("pressbench.backup.lastSuccessAt") private var backupLastSuccessAt = 0.0
-    @AppStorage("pressbench.backup.lastSuccessOwner") private var backupLastSuccessOwner = ""
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
     @State private var showingDeleteConfirmation = false
     @State private var failed = false
     @State private var failureMessageKey = "common.actionFailed"
     @State private var showingRestoreConfirmation = false
-    @State private var showingBackupDeleteConfirmation = false
-    @State private var showingBackupDeleteSuccess = false
-    @State private var showingRollbackConfirmation = false
     @State private var showingRejectedRunDiscardConfirmation = false
     @State private var showingUpgrade = false
+    @State private var backupDocument: PressBenchBackupDocument?
+    @State private var backupFilename = PressBenchBackupDocument.defaultFilename()
+    @State private var showingBackupExporter = false
+    @State private var showingBackupImporter = false
+    @State private var showingRestoreSuccess = false
+    @State private var backupOperationInProgress = false
     @State private var pendingRestoreRaw = ""
     @State private var restoreSummary = ""
-    @State private var appleSignInInProgress = false
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
@@ -101,12 +100,6 @@ struct SettingsView: View {
 
             Section {
                 DisclosureGroup {
-                    if store.hasRestoreRecovery {
-                        Button { showingRollbackConfirmation = true } label: {
-                            Label(t("settings.rollbackRestore"), systemImage: "arrow.uturn.backward.circle")
-                        }
-                        .disabled(store.activeRun != nil || store.hasRejectedRun)
-                    }
                     Button(role: .destructive) { showingDeleteConfirmation = true } label: {
                         Label(t("settings.deleteLocalData"), systemImage: "trash")
                     }
@@ -132,18 +125,6 @@ struct SettingsView: View {
         } message: {
             Text(t("backup.restoreReplaces") + "\n" + restoreSummary)
         }
-        .confirmationDialog(t("backup.delete"), isPresented: $showingBackupDeleteConfirmation, titleVisibility: .visible) {
-            Button(t("backup.delete"), role: .destructive) { deleteICloudBackup() }
-            Button(t("common.cancel"), role: .cancel) {}
-        } message: {
-            Text(t("backup.deleteConfirm"))
-        }
-        .confirmationDialog(t("settings.rollbackRestore"), isPresented: $showingRollbackConfirmation, titleVisibility: .visible) {
-            Button(t("settings.rollbackRestore"), role: .destructive) { rollbackRestore() }
-            Button(t("common.cancel"), role: .cancel) {}
-        } message: {
-            Text(t("backup.rollbackWarning"))
-        }
         .confirmationDialog(
             t("run.discardRejected"),
             isPresented: $showingRejectedRunDiscardConfirmation,
@@ -166,11 +147,24 @@ struct SettingsView: View {
         } message: {
             Text(t(failureMessageKey))
         }
-        .alert(t("backup.delete"), isPresented: $showingBackupDeleteSuccess) {
+        .alert(t("settings.restoreBackup"), isPresented: $showingRestoreSuccess) {
             Button(t("common.ok"), role: .cancel) {}
         } message: {
-            Text(t("backup.deleteSuccess"))
+            Text(t("runState.completed") + "\n" + restoreSummary)
         }
+        .fileExporter(
+            isPresented: $showingBackupExporter,
+            document: backupDocument,
+            contentType: .pressBenchBackup,
+            defaultFilename: backupFilename,
+            onCompletion: handleBackupExport
+        )
+        .fileImporter(
+            isPresented: $showingBackupImporter,
+            allowedContentTypes: [.pressBenchBackup, .json],
+            allowsMultipleSelection: false,
+            onCompletion: handleBackupImport
+        )
     }
 
     @ViewBuilder
@@ -213,66 +207,45 @@ struct SettingsView: View {
     @ViewBuilder
     private var backupSection: some View {
         Section {
-            if appleUserID.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Label(t("backup.optionalTitle"), systemImage: "icloud")
-                        .font(.headline)
-                        .foregroundStyle(PBTheme.navy)
-                    Text(t("backup.optionalBody"))
-                        .font(.caption)
-                        .foregroundStyle(PBTheme.secondary)
-                    SignInWithAppleButton(.continue, onRequest: {
-                        appleSignInInProgress = true
-                        $0.requestedScopes = []
-                    }, onCompletion: {
-                        appleSignInInProgress = false
-                        handleAppleSignIn($0)
-                    })
-                        .signInWithAppleButtonStyle(.black)
-                        .frame(height: 52)
-                        .allowsHitTesting(!appleSignInInProgress)
-                        .accessibilityIdentifier("pb.settings.backup")
-                    if appleSignInInProgress {
-                        ProgressView()
-                            .frame(maxWidth: .infinity)
-                            .accessibilityLabel(t("backup.optionalTitle"))
+            VStack(alignment: .leading, spacing: 8) {
+                Label(t("backup.optionalTitle"), systemImage: "externaldrive.fill")
+                    .font(.headline)
+                    .foregroundStyle(PBTheme.navy)
+                Text(t("backup.optionalBody"))
+                    .font(.caption)
+                    .foregroundStyle(PBTheme.secondary)
+            }
+            .padding(.vertical, 4)
+
+            if backupLastSuccessAt > 0 {
+                Label {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(t("backup.lastSuccessful")).font(.subheadline.weight(.semibold))
+                        Text(PBFormat.date(Date(timeIntervalSince1970: backupLastSuccessAt), locale: locale, time: true))
+                            .font(.caption).foregroundStyle(PBTheme.secondary)
                     }
+                } icon: {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(PBTheme.successInk)
                 }
-                .padding(.vertical, 4)
-            } else {
-                Label(t("backup.signedIn"), systemImage: "person.crop.circle.badge.checkmark")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(PBTheme.successInk)
-                if backupLastSuccessAt > 0 && backupLastSuccessOwner == appleUserID {
-                    Label {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(t("backup.lastSuccessful")).font(.subheadline.weight(.semibold))
-                            Text(PBFormat.date(Date(timeIntervalSince1970: backupLastSuccessAt), locale: locale, time: true))
-                                .font(.caption).foregroundStyle(PBTheme.secondary)
-                        }
-                    } icon: {
-                        Image(systemName: "checkmark.icloud.fill").foregroundStyle(PBTheme.successInk)
-                    }
-                    .accessibilityElement(children: .combine)
-                }
-                Button { createBackup() } label: {
-                    Label(t("backup.backupNow"), systemImage: "icloud.and.arrow.up")
-                }
-                DisclosureGroup {
-                    Button { prepareAppleRestore() } label: {
-                        Label(t("backup.restore"), systemImage: "icloud.and.arrow.down")
-                    }
-                    .disabled(store.activeRun != nil || store.hasRejectedRun)
-                    Button(role: .destructive) { signOutOfBackup() } label: {
-                        Label(t("backup.signOut"), systemImage: "person.crop.circle.badge.xmark")
-                    }
-                    Button(role: .destructive) { showingBackupDeleteConfirmation = true } label: {
-                        Label(t("backup.delete"), systemImage: "icloud.slash")
-                    }
-                    .accessibilityIdentifier("pb.settings.deleteICloudBackup")
-                } label: {
-                    Label(t("common.localDataBackups"), systemImage: "ellipsis.circle")
-                }
+                .accessibilityElement(children: .combine)
+            }
+
+            Button { prepareBackupExport() } label: {
+                Label(t("settings.createBackup"), systemImage: "square.and.arrow.up")
+            }
+            .disabled(backupOperationInProgress)
+            .accessibilityIdentifier("pb.settings.backup")
+
+            Button { showingBackupImporter = true } label: {
+                Label(t("settings.importBackup"), systemImage: "square.and.arrow.down")
+            }
+            .disabled(backupOperationInProgress || store.activeRun != nil || store.hasRejectedRun)
+            .accessibilityIdentifier("pb.settings.restoreBackup")
+
+            if backupOperationInProgress {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .accessibilityLabel(t("common.localDataBackups"))
             }
         } header: {
             Text(t("common.localDataBackups"))
@@ -291,10 +264,7 @@ struct SettingsView: View {
             notificationsEnabled = false
             hapticsEnabled = true
             soundEnabled = true
-            AppleBackupService.signOut()
-            appleUserID = ""
             backupLastSuccessAt = 0
-            backupLastSuccessOwner = ""
             onboardingCompleted = false
             PBTimerNotification.cancel()
         } catch {
@@ -309,47 +279,80 @@ struct SettingsView: View {
         } catch { present(error) }
     }
 
-    private func createBackup() {
+    private func prepareBackupExport() {
         do {
-            try AppleBackupService.backup(payload: store.backupPayload())
-            PBFeedback.success()
+            backupDocument = try PressBenchBackupDocument(payload: store.backupPayload())
+            backupFilename = PressBenchBackupDocument.defaultFilename()
+            showingBackupExporter = true
         } catch { present(error) }
     }
 
-    private func prepareAppleRestore() {
-        guard store.activeRun == nil else { present(PressBenchStore.StoreError.activeRunConflict); return }
-        guard !store.hasRejectedRun else { present(PressBenchStore.StoreError.persistenceBlocked); return }
-        do {
-            pendingRestoreRaw = try AppleBackupService.restoredPayload()
-            if let data = pendingRestoreRaw.data(using: .utf8),
-               let object = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                let machines = (object["machines"] as? [Any])?.count ?? 0
-                let setups = (object["setups"] as? [Any])?.count ?? (object["recipes"] as? [Any])?.count ?? 0
-                let batches = (object["batches"] as? [Any])?.count ?? 0
-                restoreSummary = "\(machines) · \(t("machines.title"))   \(setups) · \(t("home.metric.setups"))   \(batches) · \(t("home.metric.batches"))"
-            }
-            showingRestoreConfirmation = true
-        } catch { present(error) }
-    }
-
-    private func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) {
+    private func handleBackupExport(_ result: Result<URL, Error>) {
         switch result {
-        case .success(let authorization):
-            guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-                failureMessageKey = "backup.signInFailed"; failed = true; return
-            }
-            if appleUserID != credential.user {
-                backupLastSuccessAt = 0
-                backupLastSuccessOwner = ""
-            }
-            AppleBackupService.saveSignedInUser(credential.user)
-            appleUserID = credential.user
-            createBackup()
-        case .failure(let error as ASAuthorizationError) where error.code == .canceled:
+        case .success:
+            backupLastSuccessAt = Date().timeIntervalSince1970
+            backupDocument = nil
+            PBFeedback.success()
+        case .failure(let error as CocoaError) where error.code == .userCancelled:
+            backupDocument = nil
+        case .failure(let error):
+            backupDocument = nil
+            present(error)
+        }
+    }
+
+    private func handleBackupImport(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            prepareRestore(from: url)
+        case .failure(let error as CocoaError) where error.code == .userCancelled:
             break
         case .failure(let error):
-            AppleBackupService.logAuthorizationFailure(error, operation: "settings-sign-in")
-            failureMessageKey = "backup.signInFailed"; failed = true
+            present(error)
+        }
+    }
+
+    private func prepareRestore(from url: URL) {
+        guard store.activeRun == nil else { present(PressBenchStore.StoreError.activeRunConflict); return }
+        guard !store.hasRejectedRun else { present(PressBenchStore.StoreError.persistenceBlocked); return }
+        backupOperationInProgress = true
+        Task {
+            do {
+                let raw = try await Task.detached(priority: .userInitiated) {
+                    let accessed = url.startAccessingSecurityScopedResource()
+                    defer { if accessed { url.stopAccessingSecurityScopedResource() } }
+                    let values = try url.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey])
+                    guard values.isRegularFile == true,
+                          (values.fileSize ?? 0) <= PressBenchBackupDocument.maximumBytes else {
+                        throw PressBenchBackupDocument.BackupDocumentError.invalid
+                    }
+                    let data = try Data(contentsOf: url, options: [.mappedIfSafe])
+                    return try PressBenchBackupDocument(data: data).rawPayload()
+                }.value
+                pendingRestoreRaw = raw
+                let preview = try store.previewBackup(raw: raw)
+                let dateLine = preview.exportedAt.map {
+                    "\(t("backup.lastSuccessful")): \(PBFormat.date($0, locale: locale, time: true))\n"
+                } ?? ""
+                let contentLine = "\(preview.machines) · \(t("machines.title"))   \(preview.setups) · \(t("home.metric.setups"))   \(preview.batches) · \(t("home.metric.batches"))"
+                let currentUsed = PBUsageMeter.freePressLimit - store.freePressesRemaining
+                let restoredRemaining = max(0, PBUsageMeter.freePressLimit - max(currentUsed, preview.freeRunsUsed))
+                let allowanceLine = PBL10n.format(
+                    "usage.freeRunsRemaining", language: language, locale: locale,
+                    PBFormat.integer(restoredRemaining, locale: locale) as NSString,
+                    PBFormat.integer(PBUsageMeter.freePressLimit, locale: locale) as NSString
+                )
+                restoreSummary = dateLine + contentLine + "\n" + allowanceLine
+                backupOperationInProgress = false
+                showingRestoreConfirmation = true
+            } catch {
+                backupOperationInProgress = false
+                pendingRestoreRaw = ""
+                failureMessageKey = "error.backupRestore"
+                failed = true
+                PBFeedback.error()
+            }
         }
     }
 
@@ -357,36 +360,9 @@ struct SettingsView: View {
         do {
             try store.restoreBackup(raw: pendingRestoreRaw)
             pendingRestoreRaw = ""
+            showingRestoreSuccess = true
             PBFeedback.success()
         } catch { present(error) }
-    }
-
-    private func rollbackRestore() {
-        do {
-            try store.rollbackRestore()
-            PBFeedback.success()
-        } catch { present(error) }
-    }
-
-    private func signOutOfBackup() {
-        AppleBackupService.signOut()
-        appleUserID = ""
-        backupLastSuccessAt = 0
-        backupLastSuccessOwner = ""
-    }
-
-    private func deleteICloudBackup() {
-        do {
-            try AppleBackupService.deleteBackup()
-            backupLastSuccessAt = 0
-            backupLastSuccessOwner = ""
-            showingBackupDeleteSuccess = true
-            PBFeedback.success()
-        } catch {
-            failureMessageKey = "backup.deleteFailed"
-            failed = true
-            PBFeedback.error()
-        }
     }
 
     private func present(_ error: Error) {

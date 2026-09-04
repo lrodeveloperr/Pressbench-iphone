@@ -1,4 +1,3 @@
-import AuthenticationServices
 import SwiftUI
 import UIKit
 
@@ -6,7 +5,6 @@ struct OnboardingFlowView: View {
     private enum Step {
         case preferences
         case legal
-        case backup
     }
 
     @Binding var completed: Bool
@@ -17,7 +15,6 @@ struct OnboardingFlowView: View {
     @State private var acceptedPolicies = false
     @State private var failed = false
     @State private var failureMessageKey = "common.actionFailed"
-    @State private var appleSignInInProgress = false
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
 
@@ -36,8 +33,6 @@ struct OnboardingFlowView: View {
                             preferencesStep
                         case .legal:
                             legalStep
-                        case .backup:
-                            backupStep
                         }
                     }
                     .transition(.opacity.combined(with: .move(edge: .trailing)))
@@ -110,44 +105,10 @@ struct OnboardingFlowView: View {
             CombinedPolicyAcknowledgement(isOn: $acceptedPolicies)
 
             PBPrimaryButton(title: t("common.continue")) {
-                withAnimation(.easeInOut) { step = .backup }
+                finishOnboarding()
             }
             .disabled(!acceptedPolicies)
             .accessibilityIdentifier("pb.onboarding.continue")
-        }
-    }
-
-    private var backupStep: some View {
-        VStack(spacing: 14) {
-            Image(systemName: "icloud.and.arrow.up")
-                .font(.system(size: 42, weight: .semibold))
-                .foregroundStyle(PBTheme.primary)
-            Text(t("backup.optionalTitle"))
-                .font(.system(.title, design: .rounded, weight: .bold))
-                .foregroundStyle(PBTheme.navy)
-            Text(t("backup.optionalBody"))
-                .font(.subheadline)
-                .foregroundStyle(PBTheme.secondary)
-                .multilineTextAlignment(.center)
-            SignInWithAppleButton(.continue, onRequest: {
-                appleSignInInProgress = true
-                $0.requestedScopes = []
-            }, onCompletion: {
-                appleSignInInProgress = false
-                handleAppleSignIn($0)
-            })
-                .signInWithAppleButtonStyle(.black)
-                .frame(height: 54)
-                .allowsHitTesting(!appleSignInInProgress)
-                .accessibilityIdentifier("pb.onboarding.appleBackup")
-            if appleSignInInProgress {
-                ProgressView()
-                    .accessibilityLabel(t("backup.optionalTitle"))
-            }
-            Button(t("backup.continueWithout")) { finishOnboarding() }
-                .font(.headline)
-                .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
-                .accessibilityIdentifier("pb.onboarding.skipBackup")
         }
     }
 
@@ -155,38 +116,11 @@ struct OnboardingFlowView: View {
         Binding(get: { AppLanguageStorage.resolved(rawValue: languageRaw) }, set: { languageRaw = $0.rawValue })
     }
 
-    private func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) {
-        switch result {
-        case .success(let authorization):
-            guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-                failureMessageKey = "backup.signInFailed"; failed = true; return
-            }
-            AppleBackupService.saveSignedInUser(credential.user)
-            finishOnboarding(backUpAfterward: true)
-        case .failure(let error as ASAuthorizationError) where error.code == .canceled:
-            break
-        case .failure(let error):
-            AppleBackupService.logAuthorizationFailure(error, operation: "onboarding-sign-in")
-            failureMessageKey = "backup.signInFailed"; failed = true
-        }
-    }
-
-    private func finishOnboarding(backUpAfterward: Bool = false) {
+    private func finishOnboarding() {
         do {
             let chosen = AppLanguageStorage.resolved(rawValue: languageRaw)
             try store.completeOnboarding(language: chosen, locale: .current, temperatureUnit: temperatureUnitRaw)
-            // Optional cloud backup must never gate entry to this local-first app.
-            // Mark onboarding complete before attempting the local KVS write so
-            // an iCloud/account problem cannot strand the user on this screen.
             completed = true
-            if backUpAfterward {
-                do {
-                    try AppleBackupService.backup(payload: store.backupPayload())
-                } catch {
-                    // The signed-in state is retained so the user can retry from
-                    // Settings; the app remains fully usable offline.
-                }
-            }
         } catch {
             failureMessageKey = store.errorLocalizationKey(error); failed = true
         }
