@@ -69,7 +69,7 @@ struct MachineEditorView: View {
                     }
                 }
                 Section {
-                    PBDisclosureRow(isExpanded: $showingMore) {
+                    PBDisclosureRow(isExpanded: $showingMore, identifier: "pb.machine.more") {
                         Text(t("common.more"))
                     } content: {
                         Text(t("common.notes"))
@@ -297,7 +297,10 @@ struct SetupEditorView: View {
                             otherTitle: t("issue.symptom.other"),
                             cancelTitle: t("common.cancel")
                         )
-                        PBDisclosureRow(isExpanded: advancedStageBinding(for: stage.id)) {
+                        PBDisclosureRow(
+                            isExpanded: advancedStageBinding(for: stage.id),
+                            identifier: "pb.setup.stage.\(stage.id).advanced"
+                        ) {
                             Text(t("setup.advanced"))
                         } content: {
                             TextField(t("stage.name"), text: $stage.name)
@@ -369,7 +372,7 @@ struct SetupEditorView: View {
                 }
                 }
                 Section {
-                    PBDisclosureRow(isExpanded: $showingMore) {
+                    PBDisclosureRow(isExpanded: $showingMore, identifier: "pb.setup.more") {
                         Text(t("common.more"))
                     } content: {
                         TextField(t("setup.title"), text: $draft.title, prompt: Text(suggestedSetupTitle))

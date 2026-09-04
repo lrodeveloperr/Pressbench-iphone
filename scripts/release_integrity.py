@@ -477,6 +477,8 @@ require(all(marker in ui_test for marker in [
 require(theme.count('struct PBDisclosureRow') == 1 and
         editors.count('PBDisclosureRow(') == 3 and
         settings_view.count('PBDisclosureRow(') == 1 and
+        'pb.machine.more' in editors and 'pb.settings.legalSupport' in settings_view and
+        'matching(identifier: "pb.machine.more")' in ui_test and
         'DisclosureGroup' not in editors and 'DisclosureGroup' not in settings_view,
         'an app disclosure can regress to a chevron-only touch region')
 require('an earlier test step did not run' in workflow and

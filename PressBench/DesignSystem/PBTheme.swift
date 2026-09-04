@@ -185,15 +185,18 @@ struct PBTactileButtonStyle: ButtonStyle {
 /// some Form/accessibility hierarchies, which makes taps appear side-dependent.
 struct PBDisclosureRow<Label: View, Content: View>: View {
     @Binding private var isExpanded: Bool
+    private let identifier: String
     private let label: Label
     private let content: Content
 
     init(
         isExpanded: Binding<Bool>,
+        identifier: String,
         @ViewBuilder label: () -> Label,
         @ViewBuilder content: () -> Content
     ) {
         _isExpanded = isExpanded
+        self.identifier = identifier
         self.label = label()
         self.content = content()
     }
@@ -212,6 +215,7 @@ struct PBDisclosureRow<Label: View, Content: View>: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(identifier)
 
         if isExpanded { content }
     }

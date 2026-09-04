@@ -92,7 +92,7 @@ final class FirstUseFlowUITests: XCTestCase {
         let name = app.textFields["Name"]
         XCTAssertTrue(name.waitForExistence(timeout: 4))
         capture("04-machine-required-fields")
-        let moreDisclosure = app.buttons["More"].firstMatch
+        let moreDisclosure = app.buttons.matching(identifier: "pb.machine.more").firstMatch
         XCTAssertTrue(waitForInteractable(moreDisclosure, timeout: 5))
         moreDisclosure.tap()
         let notesEditor = app.textViews["Notes"].firstMatch

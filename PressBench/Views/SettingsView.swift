@@ -74,7 +74,7 @@ struct SettingsView: View {
             }
 
             Section {
-                PBDisclosureRow(isExpanded: $showingLegalSupport) {
+                PBDisclosureRow(isExpanded: $showingLegalSupport, identifier: "pb.settings.legalSupport") {
                     Label(t("settings.legalSupport"), systemImage: "questionmark.circle")
                 } content: {
                     Button { onboardingCompleted = false } label: {
