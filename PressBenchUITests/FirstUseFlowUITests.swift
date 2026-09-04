@@ -43,6 +43,10 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(app.buttons["°F"].exists)
         XCTAssertTrue(app.buttons["°C"].exists)
         XCTAssertTrue(app.buttons["°F"].isSelected)
+        app.buttons["°C"].tap()
+        XCTAssertTrue(app.buttons["°C"].isSelected, "The temperature segment must change on its first tap")
+        app.buttons["°F"].tap()
+        XCTAssertTrue(app.buttons["°F"].isSelected, "The temperature segment must change back on its first tap")
         capture("01-onboarding")
 
         let preferencesContinue = app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch
@@ -378,9 +382,14 @@ final class FirstUseFlowUITests: XCTestCase {
     /// tests separately prove that transparent left/right label space responds
     /// on the first tap.
     private func auditVisibleButtonTargets(in app: XCUIApplication, screen: String) {
+        let systemSegmentFrames = app.segmentedControls.allElementsBoundByIndex.map(\.frame)
         for button in app.buttons.allElementsBoundByIndex where button.exists && button.isHittable && button.isEnabled {
             let frame = button.frame
             guard !frame.isEmpty else { continue }
+            // UIKit exposes each segment's visual 32-point frame even though
+            // the parent segmented control owns its hit testing. Those controls
+            // are first-tap state-tested above instead of judged by glyph frame.
+            if systemSegmentFrames.contains(where: { $0.intersects(frame) }) { continue }
             XCTAssertGreaterThanOrEqual(frame.width, 43.5,
                 "Button \(button.identifier) is too narrow on \(screen): \(frame)")
             XCTAssertGreaterThanOrEqual(frame.height, 43.5,

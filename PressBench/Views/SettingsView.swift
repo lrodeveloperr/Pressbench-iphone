@@ -206,8 +206,11 @@ struct SettingsView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .accessibilityIdentifier("pb.settings.plan")
-                    Button(t("upgrade.restore")) { showingUpgrade = true }
-                        .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
+                    Button { showingUpgrade = true } label: {
+                        Text(t("upgrade.restore"))
+                            .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
+                            .contentShape(Rectangle())
+                    }
                 }
             }
             .padding(.vertical, 4)

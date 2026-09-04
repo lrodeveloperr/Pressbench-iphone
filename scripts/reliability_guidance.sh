@@ -59,6 +59,7 @@ Touchscreen checklist
 6. Async actions expose in-progress state and cannot be double-submitted.
 7. UI tests never retry a tap to conceal a missed first interaction.
 8. Both compact Touch ID and modern Face ID simulator layouts run the complete UI suite.
+9. UIKit segmented controls are verified by first-tap state changes; their visual segment frame is not misreported as the parent control's hit region.
 
 Authoritative implementation references
 ---------------------------------------
