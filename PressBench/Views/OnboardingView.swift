@@ -146,7 +146,9 @@ private struct PolicyLinkRow: View {
                 Image(systemName: icon).frame(width: 25).foregroundStyle(PBTheme.primary)
                 Text(PBL10n.text(titleKey, language: language, locale: locale)).font(.headline).foregroundStyle(.primary)
                 Spacer(); Image(systemName: "arrow.up.forward").foregroundStyle(PBTheme.secondary)
-            }.frame(minHeight: PBTheme.minimumTarget).padding(.vertical, 8)
+            }
+            .pbFullSurfaceTarget()
+            .padding(.vertical, 8)
         }
     }
 }
@@ -168,7 +170,8 @@ private struct CombinedPolicyAcknowledgement: View {
                 .font(.subheadline.weight(.medium))
                 .multilineTextAlignment(.leading)
                 Spacer()
-            }.frame(minHeight: PBTheme.minimumTarget)
+            }
+            .pbFullSurfaceTarget()
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("pb.onboarding.accept")

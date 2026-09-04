@@ -113,11 +113,13 @@ struct SettingsView: View {
                         Label(t("settings.deleteLocalData"), systemImage: "trash")
                             .pbFullSurfaceTarget()
                     }
+                    .accessibilityIdentifier("pb.settings.deleteLocalData")
                     .disabled(store.activeRun != nil)
                 } label: {
                     Label(t("common.maintenance"), systemImage: "wrench.and.screwdriver")
                         .pbFullSurfaceTarget()
                 }
+                .accessibilityIdentifier("pb.settings.maintenance")
             }
         }
         .environment(\.defaultMinListRowHeight, 64)

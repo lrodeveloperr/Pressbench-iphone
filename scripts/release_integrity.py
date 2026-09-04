@@ -126,6 +126,17 @@ require('case backup' not in onboarding and 'finishOnboarding()' in onboarding,
         'onboarding still contains or depends on the removed backup sign-in step')
 require('planDeleteAll' in store_source and '"entitlement": entitlement' in store_source,
         'local-data reset does not use the deterministic planner while preserving purchase entitlement')
+delete_test=(root/'PressBenchTests/BackupRestoreTests.swift').read_text(encoding='utf-8')
+ui_test=(root/'PressBenchUITests/FirstUseFlowUITests.swift').read_text(encoding='utf-8')
+require(all(marker in store_source for marker in [
+            'PBTimerNotification.cancel()', 'activeRunRouteID = nil', 'selectedTab = 0']) and
+        all(marker in settings_view for marker in [
+            'pb.settings.maintenance', 'pb.settings.deleteLocalData']) and
+        'testDeleteAllClearsOperationalDataButPreservesFreeUsage' in delete_test and
+        all(marker in ui_test for marker in [
+            'name: "Maintenance"', 'name: "Delete local data"',
+            'tapEdge(deleteLocalData, horizontal: 0.9)']),
+        'local-data reset routing, timer cleanup, or full-surface regression coverage is missing')
 require('.presentationDetents([.fraction(0.88), .large])' in theme and editors.count('.pbEditorSheetStyle()') >= 4,
         'all editor/reuse sheets must use 28-point, <=88-percent GoodUse presentation styling')
 for marker in ['run.jobDifference', 'run.exactRepeat', 'run.sameProductVariant', 'run.materiallyDifferent',
@@ -219,7 +230,7 @@ onboarding_view=(root/'PressBench/Views/OnboardingView.swift').read_text(encodin
 require('.frame(minHeight: PBTheme.minimumTarget)' in language_dropdown,
         'shared language dropdown no longer exposes a 48-point touch target')
 require(home_view.count('.frame(minHeight: PBTheme.minimumTarget)') >= 2 and
-        onboarding_view.count('.frame(minHeight: PBTheme.minimumTarget)') >= 2,
+        onboarding_view.count('.pbFullSurfaceTarget()') >= 2,
         'Home or onboarding text-link/first-use controls dropped below the 48-point target')
 require(all(marker in onboarding_view for marker in [
             'case preferences', 'case legal',
@@ -247,7 +258,7 @@ require('requestPermissionIfNeeded' not in active_run_view,
         'notification authorization can interrupt a timed production action')
 require(all(marker in active_run_view for marker in [
             'guard let activeRun = store.activeRun, activeRun.phase != "completed"',
-            'try store.recordFirstPieceAdjustment', 'try store.stopAfterFirstPiece',
+            'try store.recordFirstPiecePass()', 'try store.recordFirstPieceAdjustment', 'try store.stopAfterFirstPiece',
             'try store.recordQC', 'try store.commitOperatorIssues',
             'failureMessageKey = store.errorLocalizationKey(error)']) and
         active_run_view.count('.alert("PressBench", isPresented: $failed)') >= 4 and

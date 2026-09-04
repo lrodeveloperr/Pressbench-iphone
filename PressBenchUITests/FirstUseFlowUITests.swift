@@ -32,6 +32,18 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(backup.waitForExistence(timeout: 4))
         XCTAssertTrue(backup.isHittable, "Backup must remain in the first Settings viewport")
         assertControlSurface(backup, name: "Create Backup")
+
+        let maintenance = app.descendants(matching: .any).matching(identifier: "pb.settings.maintenance").firstMatch
+        makeHittable(maintenance, in: app)
+        assertControlSurface(maintenance, name: "Maintenance")
+        tapEdge(maintenance, horizontal: 0.9)
+        let deleteLocalData = app.buttons.matching(identifier: "pb.settings.deleteLocalData").firstMatch
+        XCTAssertTrue(deleteLocalData.waitForExistence(timeout: 4))
+        makeHittable(deleteLocalData, in: app)
+        assertControlSurface(deleteLocalData, name: "Delete local data")
+        tapEdge(deleteLocalData, horizontal: 0.9)
+        XCTAssertTrue(app.staticTexts["This permanently deletes machines, setups, runs, and local settings from this device. Your App Store purchase is not deleted."].waitForExistence(timeout: 4))
+        app.buttons["Cancel"].firstMatch.tap()
         capture("face-id-prioritized-settings")
     }
 

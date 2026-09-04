@@ -31,7 +31,7 @@ struct LanguagePickerView: View {
                                 Image(systemName: "checkmark.circle.fill").foregroundStyle(PBTheme.primary)
                             }
                         }
-                        .contentShape(Rectangle())
+                        .pbFullSurfaceTarget()
                     }
                     .buttonStyle(.plain)
                     .accessibilityValue(candidate == language ? t("language.selected") : "")

@@ -607,7 +607,9 @@ final class PressBenchStore: ObservableObject {
     }
 
     func confirmInstructions() { transition(event: ["type": "CONFIRM_INSTRUCTIONS", "confirmed": true]) }
-    func recordFirstPiecePass() { transition(event: ["type": "RECORD_FIRST_PIECE", "outcome": "pass", "note": ""]) }
+    func recordFirstPiecePass() throws {
+        try transitionThrowing(event: ["type": "RECORD_FIRST_PIECE", "outcome": "pass", "note": ""])
+    }
     func recordFirstPieceAdjustment(note: String = "") throws {
         try transitionThrowing(event: ["type": "RECORD_FIRST_PIECE", "outcome": "adjust_retry", "note": note])
     }
@@ -901,6 +903,9 @@ final class PressBenchStore: ObservableObject {
             ]
             pendingReusedSetups.removeAll()
         }
+        PBTimerNotification.cancel()
+        activeRunRouteID = nil
+        selectedTab = 0
     }
 
     func restoreBackup(raw: String) throws {

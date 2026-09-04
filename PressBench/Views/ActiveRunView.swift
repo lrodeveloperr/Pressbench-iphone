@@ -300,7 +300,15 @@ struct ActiveRunView: View {
 
     private func firstPieceActions(_ run: BatchRun) -> some View {
         VStack(spacing: 12) {
-            primaryButton("run.firstPiecePass", icon: "checkmark.circle.fill") { PBTimerNotification.cancel(); store.recordFirstPiecePass(); PBFeedback.success() }
+            primaryButton("run.firstPiecePass", icon: "checkmark.circle.fill") {
+                do {
+                    try store.recordFirstPiecePass()
+                    PBTimerNotification.cancel()
+                    PBFeedback.success()
+                } catch {
+                    present(error)
+                }
+            }
             HStack(spacing: 12) {
                 clearButton("run.adjustRetry", icon: "arrow.triangle.2.circlepath") { firstPieceAction = .adjust; PBFeedback.warning() }
                 clearButton("run.stopWithNote", icon: "stop.fill", destructive: true) { firstPieceAction = .stop }

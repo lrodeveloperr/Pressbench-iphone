@@ -3,6 +3,51 @@ import XCTest
 
 @MainActor
 final class BackupRestoreTests: XCTestCase {
+    func testDeleteAllClearsOperationalDataButPreservesFreeUsage() throws {
+        let directory = temporaryDirectory()
+        let defaultsName = "PressBenchTests.DeleteAll.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: defaultsName))
+        let usage = MemoryUsageStore(snapshot: PBUsageSnapshot(
+            completedPresses: 3,
+            creditedBatchIDs: Set((1...3).map { "used-\($0)" })
+        ))
+        defer {
+            try? FileManager.default.removeItem(at: directory)
+            defaults.removePersistentDomain(forName: defaultsName)
+        }
+
+        let persistence = PressBenchPersistence(baseDirectory: directory)
+        let store = try PressBenchStore(
+            persistence: persistence,
+            usageDefaults: defaults,
+            usageStore: usage
+        )
+        try store.completeOnboarding(language: .fr, locale: Locale(identifier: "fr_FR"), temperatureUnit: "C")
+        _ = try store.saveMachine(MachineDraft(nickname: "Delete me", platen: "38 × 38 cm"))
+        store.selectedTab = 3
+
+        try store.deleteAllLocalData()
+
+        XCTAssertTrue(store.machines.isEmpty)
+        XCTAssertTrue(store.setups.isEmpty)
+        XCTAssertTrue(store.runs.isEmpty)
+        XCTAssertNil(store.activeRun)
+        XCTAssertFalse(store.hasRejectedRun)
+        XCTAssertEqual(store.selectedTab, 0)
+        XCTAssertEqual(store.freePressesRemaining, 2)
+        XCTAssertEqual(usage.snapshot?.completedPresses, 3)
+
+        let reloaded = try PressBenchStore(
+            persistence: persistence,
+            usageDefaults: defaults,
+            usageStore: usage
+        )
+        XCTAssertTrue(reloaded.machines.isEmpty)
+        XCTAssertTrue(reloaded.setups.isEmpty)
+        XCTAssertTrue(reloaded.runs.isEmpty)
+        XCTAssertEqual(reloaded.freePressesRemaining, 2)
+    }
+
     func testRestoreCarriesUsageToAnotherDeviceWithoutImportingEntitlement() throws {
         let sourceDirectory = temporaryDirectory()
         let targetDirectory = temporaryDirectory()
