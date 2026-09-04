@@ -40,7 +40,7 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/generate_ipad_screenshot_fixture.js PressBench/Resources/PressBenchScreenshotFixture.json
-          node -e 'const f=require("./PressBench/Resources/PressBenchScreenshotFixture.json"); if(f.machines.length!==2||f.setups.length!==4||f.batches.length!==12) process.exit(1)'
+          node -e 'const f=require("./PressBench/Resources/PressBenchScreenshotFixture.json"); const waste=f.batches.reduce((n,b)=>n+b.quantityWaste,0); const rework=f.batches.reduce((n,b)=>n+b.quantityReworked,0); if(f.machines.length!==2||f.setups.length!==4||f.batches.length!==12||waste!==0||rework!==3) process.exit(1)'
 
       - name: Generate Xcode project
         shell: bash
