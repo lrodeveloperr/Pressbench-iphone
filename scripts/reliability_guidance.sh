@@ -62,6 +62,7 @@ Touchscreen checklist
 9. UIKit segmented controls are verified by first-tap state changes; their visual segment frame is not misreported as the parent control's hit region.
 10. Native navigation-bar items are verified by first-tap transitions; UIKit's visual label frame is not mistaken for its system-managed hit region.
 11. A failed simulator leg still exports every available screenshot without adding a misleading secondary CI failure.
+12. Disclosure rows use an explicit full-width 48-point button; the chevron is never the only reliable tap region.
 
 Authoritative implementation references
 ---------------------------------------

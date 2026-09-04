@@ -92,6 +92,15 @@ final class FirstUseFlowUITests: XCTestCase {
         let name = app.textFields["Name"]
         XCTAssertTrue(name.waitForExistence(timeout: 4))
         capture("04-machine-required-fields")
+        let moreDisclosure = app.buttons["More"].firstMatch
+        XCTAssertTrue(waitForInteractable(moreDisclosure, timeout: 5))
+        moreDisclosure.tap()
+        let notesEditor = app.textViews["Notes"].firstMatch
+        XCTAssertTrue(notesEditor.waitForExistence(timeout: 5),
+                      "The full More row must expand on its first tap")
+        moreDisclosure.tap()
+        XCTAssertTrue(notesEditor.waitForNonExistence(timeout: 5),
+                      "The full More row must collapse on its first tap")
         choose("pb.choice.platen", option: "15 × 15 in", app: app)
         XCTAssertEqual(name.value as? String, "15 × 15 in")
         app.buttons["Save"].tap()

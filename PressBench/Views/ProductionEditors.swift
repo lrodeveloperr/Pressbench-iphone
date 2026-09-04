@@ -9,6 +9,7 @@ struct MachineEditorView: View {
     @State private var originalDraft: MachineDraft
     @State private var failed = false
     @State private var showingDiscard = false
+    @State private var showingMore = false
     @State private var failureMessageKey = "common.actionFailed"
     @State private var nicknameWasEdited: Bool
 
@@ -68,7 +69,9 @@ struct MachineEditorView: View {
                     }
                 }
                 Section {
-                    DisclosureGroup(t("common.more")) {
+                    PBDisclosureRow(isExpanded: $showingMore) {
+                        Text(t("common.more"))
+                    } content: {
                         Text(t("common.notes"))
                             .font(.caption)
                             .foregroundStyle(PBTheme.secondary)
@@ -188,6 +191,8 @@ struct SetupEditorView: View {
     @State private var showingDiscard = false
     @State private var pendingStageRemovalID: String?
     @State private var showingUpgrade = false
+    @State private var expandedAdvancedStageIDs: Set<String> = []
+    @State private var showingMore = false
     let mode: SetupEditorMode
     let onSaved: ((String) -> Void)?
 
@@ -198,6 +203,17 @@ struct SetupEditorView: View {
         self.onSaved = onSaved
     }
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
+
+    private func advancedStageBinding(for id: String) -> Binding<Bool> {
+        Binding(
+            get: { expandedAdvancedStageIDs.contains(id) },
+            set: { expanded in
+                var updated = expandedAdvancedStageIDs
+                if expanded { updated.insert(id) } else { updated.remove(id) }
+                expandedAdvancedStageIDs = updated
+            }
+        )
+    }
 
     var body: some View {
         NavigationStack {
@@ -281,7 +297,9 @@ struct SetupEditorView: View {
                             otherTitle: t("issue.symptom.other"),
                             cancelTitle: t("common.cancel")
                         )
-                        DisclosureGroup(t("setup.advanced")) {
+                        PBDisclosureRow(isExpanded: advancedStageBinding(for: stage.id)) {
+                            Text(t("setup.advanced"))
+                        } content: {
                             TextField(t("stage.name"), text: $stage.name)
                             TextField(t("stage.instruction"), text: $stage.instruction)
                             TextField(t("stage.repeatCount"), text: $stage.repeatCount).keyboardType(.numberPad)
@@ -351,7 +369,9 @@ struct SetupEditorView: View {
                 }
                 }
                 Section {
-                    DisclosureGroup(t("common.more")) {
+                    PBDisclosureRow(isExpanded: $showingMore) {
+                        Text(t("common.more"))
+                    } content: {
                         TextField(t("setup.title"), text: $draft.title, prompt: Text(suggestedSetupTitle))
                             .accessibilityIdentifier("pb.setup.title")
                         TextField(t("setup.defaultQuantity") + " *", text: $draft.defaultQuantity)

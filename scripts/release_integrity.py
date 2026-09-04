@@ -469,10 +469,16 @@ require(all(marker in ui_test for marker in [
             'testPrimaryTouchTargetRespondsAtLeftAndRightEdges',
             'auditVisibleButtonTargets', '[0.12, 0.88]',
             'systemSegmentFrames', 'systemNavigationFrames',
-            'temperature segment must change on its first tap']) and
+            'temperature segment must change on its first tap',
+            'The full More row must expand on its first tap']) and
         'for _ in 0..<3' not in ui_test and
         'if !acknowledgement.waitForExistence' not in ui_test,
         'touchscreen tests no longer prove first-tap edge response and minimum target geometry without retries')
+require(theme.count('struct PBDisclosureRow') == 1 and
+        editors.count('PBDisclosureRow(') == 3 and
+        settings_view.count('PBDisclosureRow(') == 1 and
+        'DisclosureGroup' not in editors and 'DisclosureGroup' not in settings_view,
+        'an app disclosure can regress to a chevron-only touch region')
 require('an earlier test step did not run' in workflow and
         'continue' in workflow[workflow.index('Export UI audit screenshots'):],
         'screenshot export adds a misleading failure when a later simulator leg was skipped')

@@ -29,6 +29,7 @@ struct SettingsView: View {
     @State private var restoreSummary = ""
     @State private var appleSignInInProgress = false
     @State private var cloudOperationInProgress = false
+    @State private var showingLegalSupport = false
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
@@ -73,7 +74,9 @@ struct SettingsView: View {
             }
 
             Section {
-                DisclosureGroup {
+                PBDisclosureRow(isExpanded: $showingLegalSupport) {
+                    Label(t("settings.legalSupport"), systemImage: "questionmark.circle")
+                } content: {
                     Button { onboardingCompleted = false } label: {
                         Label(t("more.viewOnboarding"), systemImage: "arrow.counterclockwise")
                     }
@@ -95,8 +98,6 @@ struct SettingsView: View {
                             .font(.caption)
                             .foregroundStyle(PBTheme.secondary)
                     }
-                } label: {
-                    Label(t("settings.legalSupport"), systemImage: "questionmark.circle")
                 }
             }
 

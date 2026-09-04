@@ -180,6 +180,43 @@ struct PBTactileButtonStyle: ButtonStyle {
     }
 }
 
+/// A disclosure control whose complete visible row is the interaction target.
+/// SwiftUI's native DisclosureGroup can expose only its chevron as a button in
+/// some Form/accessibility hierarchies, which makes taps appear side-dependent.
+struct PBDisclosureRow<Label: View, Content: View>: View {
+    @Binding private var isExpanded: Bool
+    private let label: Label
+    private let content: Content
+
+    init(
+        isExpanded: Binding<Bool>,
+        @ViewBuilder label: () -> Label,
+        @ViewBuilder content: () -> Content
+    ) {
+        _isExpanded = isExpanded
+        self.label = label()
+        self.content = content()
+    }
+
+    var body: some View {
+        Button { isExpanded.toggle() } label: {
+            HStack(spacing: 12) {
+                label
+                Spacer(minLength: 8)
+                Image(systemName: "chevron.forward")
+                    .rotationEffect(.degrees(isExpanded ? 90 : 0))
+                    .foregroundStyle(PBTheme.secondary)
+                    .accessibilityHidden(true)
+            }
+            .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+
+        if isExpanded { content }
+    }
+}
+
 enum PBFeedback {
     private static var enabled: Bool { UserDefaults.standard.object(forKey: "pressbench.haptics.enabled") as? Bool ?? true }
     static func tap() { if enabled { UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.72) } }
