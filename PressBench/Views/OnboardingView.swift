@@ -182,7 +182,7 @@ struct OnboardingFlowView: View {
             let chosen = AppLanguageStorage.resolved(rawValue: languageRaw)
             try store.completeOnboarding(language: chosen, locale: .current, temperatureUnit: temperatureUnitRaw)
             if backUpAfterward {
-                let payload = store.backupPayload()
+                let payload = try store.backupPayload()
                 appleSignInInProgress = true
                 Task { @MainActor in
                     defer { appleSignInInProgress = false }

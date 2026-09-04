@@ -322,7 +322,9 @@ struct SettingsView: View {
 
     private func createBackup() {
         guard !cloudOperationInProgress else { return }
-        let payload = store.backupPayload()
+        let payload: [String: Any]
+        do { payload = try store.backupPayload() }
+        catch { present(error); return }
         cloudOperationInProgress = true
         Task { @MainActor in
             defer { cloudOperationInProgress = false }
