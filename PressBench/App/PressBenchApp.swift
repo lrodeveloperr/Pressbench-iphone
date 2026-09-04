@@ -25,9 +25,14 @@ struct PressBenchApp: App {
         WindowGroup {
             let language = AppLanguageStorage.resolved(rawValue: languageRaw)
             let locale = Locale(identifier: language.localeIdentifier(deviceLocale: .current))
+            #if PRESSBENCH_UI_TESTING
+            let screenshotMode = ProcessInfo.processInfo.arguments.contains("--pressbench-ipad-marketing-screenshot")
+            #else
+            let screenshotMode = false
+            #endif
 
             Group {
-                if onboardingCompleted && store.operationalReady {
+                if (onboardingCompleted || screenshotMode) && store.operationalReady {
                     RootTabView()
                 } else {
                     OnboardingFlowView(completed: $onboardingCompleted)
