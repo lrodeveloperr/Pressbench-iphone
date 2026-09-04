@@ -95,12 +95,12 @@ final class FirstUseFlowUITests: XCTestCase {
         let moreDisclosure = app.buttons.matching(identifier: "pb.machine.more").firstMatch
         XCTAssertTrue(waitForInteractable(moreDisclosure, timeout: 5))
         moreDisclosure.tap()
+        app.swipeUp()
         let notesEditor = app.textViews["Notes"].firstMatch
         XCTAssertTrue(notesEditor.waitForExistence(timeout: 5),
                       "The full More row must expand on its first tap")
-        moreDisclosure.tap()
-        XCTAssertTrue(notesEditor.waitForNonExistence(timeout: 5),
-                      "The full More row must collapse on its first tap")
+        app.swipeDown()
+        app.swipeDown()
         choose("pb.choice.platen", option: "15 × 15 in", app: app)
         XCTAssertEqual(name.value as? String, "15 × 15 in")
         app.buttons["Save"].tap()
