@@ -101,6 +101,8 @@ final class FirstUseFlowUITests: XCTestCase {
                       "The full More row must expand on its first tap")
         app.swipeDown()
         app.swipeDown()
+        XCTAssertTrue(waitForInteractable(moreDisclosure, timeout: 5))
+        moreDisclosure.tap()
         choose("pb.choice.platen", option: "15 × 15 in", app: app)
         XCTAssertEqual(name.value as? String, "15 × 15 in")
         app.buttons["Save"].tap()
@@ -309,7 +311,8 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(waitForInteractable(legalContinue, timeout: 5))
         legalContinue.tap()
         let skip = app.buttons.matching(identifier: "pb.onboarding.skipBackup").firstMatch
-        XCTAssertTrue(waitForInteractable(skip, timeout: 5))
+        XCTAssertTrue(skip.waitForExistence(timeout: 5))
+        makeHittable(skip, in: app)
         skip.tap()
         XCTAssertTrue(app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch.waitForExistence(timeout: 8))
     }
@@ -343,7 +346,8 @@ final class FirstUseFlowUITests: XCTestCase {
 
     private func makeHittable(_ element: XCUIElement, in app: XCUIApplication) {
         for _ in 0..<6 where !element.isHittable { scrollForward(in: app) }
-        XCTAssertTrue(element.isHittable)
+        XCTAssertTrue(element.isHittable,
+                      "Element \(element.label) [\(element.identifier)] did not become hittable after scrolling")
     }
 
     private func scrollForward(in app: XCUIApplication) {
