@@ -16,15 +16,18 @@ final class IPadMarketingScreenshotUITests: XCTestCase {
         ]
         app.launch()
 
-        XCTAssertTrue(app.buttons.matching(identifier: "pb.home.startRun").firstMatch.waitForExistence(timeout: 12))
-        XCTAssertTrue(app.staticTexts["Recent setups"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["First-pass yield"].exists)
-        XCTAssertTrue(app.staticTexts["Waste rate"].exists)
+        let startRun = app.buttons.matching(identifier: "pb.home.startRun").firstMatch
+        _ = startRun.waitForExistence(timeout: 12)
 
         let screenshot = XCUIScreen.main.screenshot()
         let attachment = XCTAttachment(screenshot: screenshot)
         attachment.name = "pressbench-ipad-home-overview"
         attachment.lifetime = .keepAlways
         add(attachment)
+
+        XCTAssertTrue(startRun.exists)
+        XCTAssertTrue(app.staticTexts["Recent setups"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["First-pass yield"].exists)
+        XCTAssertTrue(app.staticTexts["Waste rate"].exists)
     }
 }
