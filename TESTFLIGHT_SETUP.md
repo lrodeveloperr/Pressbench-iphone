@@ -20,7 +20,7 @@ The Apple Developer team configured in the workflow is:
 
 `49SQ3XQ68Q`
 
-Before purchase testing, create the one-month auto-renewable subscription `pressbench_unlimited_monthly_ios` in a `PressBench Pro` subscription group and set the US storefront price to US$9.99. Add localized name/description, review screenshot, privacy policy, and terms. The retired lifetime product remains code-recognized for existing buyers but is not offered for sale. See `MONETIZATION.md`.
+Before purchase testing, create the one-month auto-renewable subscription `pressbench_unlimited_monthly_ios` in a `PressBench Pro` subscription group, set the US base storefront price to US$6.99, and retain App Store Connect's Apple-managed equivalent prices for other storefronts. Add localized name/description, review screenshot, privacy policy, and terms. The retired lifetime product remains code-recognized for existing buyers but is not offered for sale. See `MONETIZATION.md`.
 
 The final iOS binary contains no advertising or tracking SDK. Before external testing, ensure App Store Connect privacy answers and the public privacy policy describe StoreKit plus user-owned backup files exported through Apple’s Files picker; PressBench has no backup account and does not upload backups automatically. No Google advertising declarations should remain.
 

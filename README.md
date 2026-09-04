@@ -32,6 +32,6 @@ The reviewed production source uses the GoodUse Studios Ocean Pearl system: adap
 
 The TestFlight workflow requires the literal confirmation `UPLOAD TESTFLIGHT` and fails closed before upload on any error.
 
-The iOS app contains no advertising or tracking SDK. Free users may complete five successfully saved press runs; the US subscription target is $9.99/month for unlimited runs and locally generated PDF/XLSX reports. See `MONETIZATION.md` for the StoreKit product, App Review wording, lifetime-purchase migration, and release controls.
+The iOS app contains no advertising or tracking SDK. Free users may complete five successfully saved press runs; the US subscription base price is $6.99/month, with Apple-managed equivalent pricing in other storefronts, for unlimited runs and locally generated PDF/XLSX reports. The app displays StoreKit's localized price rather than hard-coded currency copy. See `MONETIZATION.md` for the StoreKit product, App Review wording, lifetime-purchase migration, and release controls.
 
 See `TESTFLIGHT_SETUP.md` for the one-time Apple secret setup.

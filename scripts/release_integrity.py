@@ -10,10 +10,10 @@ def require(condition, message):
 
 logic = root/'PressBench/Resources/PressBenchLogic.js'
 logic_hash = hashlib.sha256(logic.read_bytes()).hexdigest()
-require(logic_hash == '765d3ebc8ec715040bde50a55ed5cb8b7aa987118a460353af5c0599635d96b5', f'logic hash changed: {logic_hash}')
+require(logic_hash == 'd9dbbcdfa8a4deceec4c705f2831f7078ed3555cee27555c738984479d6e3e6b', f'logic hash changed: {logic_hash}')
 text = logic.read_text(encoding='utf-8')
 require(all(marker in text for marker in ['pressbench_unlimited_monthly_ios', 'pressbench_unlimited_lifetime_ios',
-        'productType: "auto_renewable_subscription"', 'recurring: true', 'baseAmountMinor: 999',
+        'productType: "auto_renewable_subscription"', 'recurring: true', 'baseAmountMinor: 699',
         'advertisingSdk: "none"',
         'routineNetworkBoundary: "store_entitlement_only"']),
         'monthly iOS subscription or grandfathered lifetime entitlement is missing')

@@ -2471,7 +2471,7 @@
       legacyProductIds: Object.freeze(["pressbench_unlimited_lifetime_ios"]),
       productType: "auto_renewable_subscription", recurring: true, period: "P1M", restoreAction: true,
       benefits: Object.freeze(["unlimited_presses", "pdf_xlsx_reports"]),
-      pricing: Object.freeze({ baseStorefront: "US", baseCurrency: "USD", baseAmountMinor: 999, geoPriced: true })
+      pricing: Object.freeze({ baseStorefront: "US", baseCurrency: "USD", baseAmountMinor: 699, geoPriced: true })
     }),
     android: Object.freeze({
       productId: "pressbench_unlimited_lifetime_android",

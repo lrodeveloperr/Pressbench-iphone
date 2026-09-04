@@ -60,7 +60,7 @@ const legacyEntitlement = E.applyStoreEvent(E.normalizeEntitlement({}), legacyEv
 assert.equal(E.evaluateEntitlement(legacyEntitlement, iso(400 * 24 * 60 * 60)).paidAccess, true);
 
 assert.equal(B.FREE_BATCH_LIMIT, 5);
-assert.equal(B.MONETIZATION_MODEL.ios.pricing.baseAmountMinor, 999);
+assert.equal(B.MONETIZATION_MODEL.ios.pricing.baseAmountMinor, 699);
 assert.equal(E.capabilities(E.normalizeEntitlement({}), {setups:10, batches:0}, now).canCreateSetup, true);
 
 let wrongFailed = false;

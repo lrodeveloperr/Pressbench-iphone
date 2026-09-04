@@ -3,7 +3,7 @@
 ## Customer model
 
 - Free: five successfully completed and saved press runs; PDF/XLSX reports require Pro.
-- PressBench Pro: US$9.99 per month in the US storefront, with unlimited press runs and PDF/XLSX reports while subscribed.
+- PressBench Pro: US$6.99 per month in the US storefront, with Apple-managed equivalent pricing in other storefronts and unlimited press runs and PDF/XLSX reports while subscribed.
 - Setups, machines, search, existing records, corrections, and deletion are not artificially capped.
 - A failed, canceled, or unsaved run does not consume a free press. Deleting data does not restore free presses.
 - The former `pressbench_unlimited_lifetime_ios` entitlement remains recognized for any existing buyer.
@@ -15,7 +15,8 @@ Create this in a `PressBench Pro` subscription group before testing purchases:
 - Product ID: `pressbench_unlimited_monthly_ios`
 - Type: auto-renewable subscription
 - Duration: one month
-- US price: US$9.99
+- US base price: US$6.99
+- Other storefronts: use App Store Connect's Apple-managed equivalent prices; do not hard-code or manually convert currencies in the app.
 - Suggested display name: `PressBench Pro Monthly`
 - Suggested description: `Unlimited runs and PDF/XLSX reports.`
 
@@ -31,7 +32,7 @@ There is no reviewer password, hidden unlock, or production entitlement bypass. 
 2. Or open **More → Production Report**, choose **PDF** or **XLSX**, and continue from the Pro paywall.
 3. Use **Restore Purchase** on the paywall to verify an existing App Store entitlement.
 
-The paywall must display StoreKit's localized price, keep purchase unavailable until the exact monthly product loads, provide a visible retry state when loading fails, and serialize purchase, restore, and retry so only one StoreKit operation can run at a time.
+The paywall must display StoreKit's localized `displayPrice` for the customer's current storefront, keep purchase unavailable until the exact monthly product loads, provide a visible retry state when loading fails, and serialize purchase, restore, and retry so only one StoreKit operation can run at a time. The US$6.99 amount is configuration metadata and must never be used as customer-facing fallback copy.
 
 ## Review explanation
 
