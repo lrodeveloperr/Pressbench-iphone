@@ -618,6 +618,9 @@ struct StartRunSheet: View {
                 .contains { $0.localizedCaseInsensitiveContains(search) })
         }
     }
+    private var hasRunnableSetups: Bool {
+        store.recentSetups.contains { $0.status == .trial || $0.status == .proven }
+    }
 
     var body: some View {
         NavigationStack {
@@ -656,7 +659,17 @@ struct StartRunSheet: View {
             .searchable(text: $search, prompt: t("setups.search"))
             .overlay {
                 if availableSetups.isEmpty {
-                    ContentUnavailableView(t("setups.title"), systemImage: "list.clipboard", description: Text(t("onboarding.ready.setup.body")))
+                    VStack(spacing: 18) {
+                        ContentUnavailableView(t("setups.title"), systemImage: "list.clipboard", description: Text(t("onboarding.ready.setup.body")))
+                        if !hasRunnableSetups {
+                            PBPrimaryButton(title: t("onboarding.ready.setup.title"), icon: "plus.circle.fill") {
+                                dismiss()
+                                DispatchQueue.main.async { store.selectedTab = 1 }
+                            }
+                            .accessibilityIdentifier("pb.startRun.createSetup")
+                            .padding(.horizontal, PBTheme.pagePadding)
+                        }
+                    }
                 }
             }
             .navigationTitle(t("setup.startRun"))

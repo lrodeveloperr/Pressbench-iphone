@@ -19,7 +19,9 @@ struct PressBenchApp: App {
             let locale = Locale(identifier: language.localeIdentifier(deviceLocale: .current))
 
             Group {
-                if onboardingCompleted && store.operationalReady {
+                if store.requiresPersistenceRecovery {
+                    RootTabView()
+                } else if onboardingCompleted && store.operationalReady {
                     RootTabView()
                 } else {
                     OnboardingFlowView(completed: $onboardingCompleted)
@@ -32,6 +34,7 @@ struct PressBenchApp: App {
             .preferredColorScheme(.light)
             .tint(PBTheme.primary)
             .task {
+                AppleBackupService.startMonitoring()
                 await store.start()
                 await AppleBackupService.refreshCredentialState()
             }

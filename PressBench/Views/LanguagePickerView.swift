@@ -31,6 +31,7 @@ struct LanguagePickerView: View {
                                 Image(systemName: "checkmark.circle.fill").foregroundStyle(PBTheme.primary)
                             }
                         }
+                        .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)

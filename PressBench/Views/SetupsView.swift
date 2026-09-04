@@ -9,9 +9,13 @@ struct SetupsView: View {
     @State private var showingEditor = false
     @State private var showingMachineEditor = false
     @State private var continueToSetup = false
+    @State private var pendingArchivedDelete: Setup?
+    @State private var failed = false
+    @State private var failureMessageKey = "common.actionFailed"
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
     private var activeSetups: [Setup] { store.setups.filter { $0.status != .archived } }
+    private var archivedSetups: [Setup] { store.setups.filter { $0.status == .archived } }
 
     private var filtered: [Setup] {
         activeSetups.filter { setup in
@@ -55,6 +59,8 @@ struct SetupsView: View {
                             ForEach(filtered) { setup in SetupCard(setup: setup) }
                         }
                     }
+
+                    if !archivedSetups.isEmpty { archivedSection }
                 }
                 .padding(.horizontal, PBTheme.pagePadding)
                 .padding(.bottom, 28)
@@ -66,6 +72,61 @@ struct SetupsView: View {
         .sheet(isPresented: $showingMachineEditor, onDismiss: {
             if continueToSetup { continueToSetup = false; showingEditor = true }
         }) { MachineEditorView { _ in continueToSetup = true }.environmentObject(store) }
+        .confirmationDialog(t("run.deleteRecord"), isPresented: Binding(
+            get: { pendingArchivedDelete != nil },
+            set: { if !$0 { pendingArchivedDelete = nil } }
+        ), titleVisibility: .visible) {
+            Button(t("run.deleteRecord"), role: .destructive) {
+                guard let setup = pendingArchivedDelete else { return }
+                do { try store.deleteArchivedSetup(id: setup.id) }
+                catch { present(error) }
+                pendingArchivedDelete = nil
+            }
+            Button(t("common.cancel"), role: .cancel) { pendingArchivedDelete = nil }
+        } message: {
+            if let setup = pendingArchivedDelete {
+                Text(PBL10n.format("run.deleteRecordConfirm", language: language, locale: locale, setup.title as NSString))
+            }
+        }
+        .alert("PressBench", isPresented: $failed) {
+            Button(t("common.ok"), role: .cancel) {}
+        } message: { Text(t(failureMessageKey)) }
+    }
+
+    private var archivedSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(t("status.archived")).font(.title3.bold())
+            ForEach(archivedSetups) { setup in
+                PBCard {
+                    HStack(spacing: 12) {
+                        Text(setup.title).font(.headline).frame(maxWidth: .infinity, alignment: .leading)
+                        Button {
+                            do { try store.restoreSetup(id: setup.id); PBFeedback.success() }
+                            catch { present(error) }
+                        } label: {
+                            Image(systemName: "arrow.uturn.backward.circle")
+                                .frame(width: PBTheme.minimumTarget, height: PBTheme.minimumTarget)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(t("common.restore"))
+                        Button(role: .destructive) { pendingArchivedDelete = setup } label: {
+                            Image(systemName: "trash")
+                                .frame(width: PBTheme.minimumTarget, height: PBTheme.minimumTarget)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(t("run.deleteRecord"))
+                    }
+                }
+            }
+        }
+    }
+
+    private func present(_ error: Error) {
+        failureMessageKey = store.errorLocalizationKey(error)
+        failed = true
+        PBFeedback.error()
     }
 
     private var filterBar: some View {

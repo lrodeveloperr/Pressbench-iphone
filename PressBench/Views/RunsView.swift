@@ -25,7 +25,9 @@ struct RunsView: View {
                 PBPageHeader(
                     title: t("runs.title"),
                     addAccessibilityLabel: t("setup.startRun"),
-                    addAction: store.activeRun != nil || store.setups.isEmpty ? nil : { requestStart() }
+                    addAction: store.activeRun != nil || !store.setups.contains(where: {
+                        $0.status == .trial || $0.status == .proven
+                    }) ? nil : { requestStart() }
                 )
 
                 PBSearchField(prompt: t("setups.search"), text: $search)
@@ -327,7 +329,9 @@ private struct BatchCorrectionView: View {
                                 Text(t("issue.title")).font(.subheadline.bold())
                                 Spacer()
                                 Button(role: .destructive) { issues.removeAll { $0.id == issue.id } } label: {
-                                    Image(systemName: "trash").frame(width: PBTheme.minimumTarget, height: PBTheme.minimumTarget)
+                                    Image(systemName: "trash")
+                                        .frame(width: PBTheme.minimumTarget, height: PBTheme.minimumTarget)
+                                        .contentShape(Rectangle())
                                 }
                             }
                             TextField(t("report.quantity"), text: $issue.quantity).keyboardType(.numberPad)

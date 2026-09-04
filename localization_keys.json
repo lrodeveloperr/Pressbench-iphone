@@ -1470,5 +1470,13 @@
   "run.deleteRecordConfirm": {
     "context": "Completed-run deletion confirmation",
     "source": "Permanently delete “%1$@”? This cannot be undone."
+  },
+  "common.clearSearch": {
+    "context": "Accessibility label for clearing a search field",
+    "source": "Clear search"
+  },
+  "common.restore": {
+    "context": "Restore an archived record",
+    "source": "Restore"
   }
 }

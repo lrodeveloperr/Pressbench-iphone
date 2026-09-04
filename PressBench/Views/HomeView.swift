@@ -50,7 +50,7 @@ struct HomeView: View {
     }
 
     private var needsFirstUseSetup: Bool {
-        !store.machines.contains(where: { $0.active }) || !store.setups.contains(where: { $0.status != .archived })
+        !store.machines.contains(where: { $0.active }) || runnableSetups.isEmpty
     }
 
     private var runnableSetups: [Setup] {

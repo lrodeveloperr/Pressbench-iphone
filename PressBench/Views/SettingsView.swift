@@ -28,6 +28,7 @@ struct SettingsView: View {
     @State private var pendingRestoreRaw = ""
     @State private var restoreSummary = ""
     @State private var appleSignInInProgress = false
+    @State private var cloudOperationInProgress = false
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
@@ -100,20 +101,22 @@ struct SettingsView: View {
             }
 
             Section {
-                DisclosureGroup {
-                    if store.hasRestoreRecovery {
-                        Button { showingRollbackConfirmation = true } label: {
-                            Label(t("settings.rollbackRestore"), systemImage: "arrow.uturn.backward.circle")
-                        }
-                        .disabled(store.activeRun != nil || store.hasRejectedRun)
+                if store.hasRestoreRecovery {
+                    Button { showingRollbackConfirmation = true } label: {
+                        Label(t("settings.rollbackRestore"), systemImage: "arrow.uturn.backward.circle")
+                            .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .leading)
+                            .contentShape(Rectangle())
                     }
-                    Button(role: .destructive) { showingDeleteConfirmation = true } label: {
-                        Label(t("settings.deleteLocalData"), systemImage: "trash")
-                    }
-                    .disabled(store.activeRun != nil)
-                } label: {
-                    Label(t("common.maintenance"), systemImage: "wrench.and.screwdriver")
+                    .disabled(store.activeRun != nil || store.hasRejectedRun)
                 }
+                Button(role: .destructive) { showingDeleteConfirmation = true } label: {
+                    Label(t("settings.deleteLocalData"), systemImage: "trash")
+                        .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .leading)
+                        .contentShape(Rectangle())
+                }
+                .accessibilityIdentifier("pb.settings.deleteLocalData")
+            } header: {
+                Label(t("common.maintenance"), systemImage: "wrench.and.screwdriver")
             }
         }
         .environment(\.defaultMinListRowHeight, 64)
@@ -157,6 +160,7 @@ struct SettingsView: View {
         }
         .confirmationDialog(t("settings.deleteLocalData"), isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
             Button(t("settings.deleteLocalData"), role: .destructive) { deleteLocalData() }
+                .accessibilityIdentifier("pb.settings.confirmDeleteLocalData")
             Button(t("common.cancel"), role: .cancel) {}
         } message: {
             Text(t("settings.deleteLocalDataMessage"))
@@ -257,22 +261,29 @@ struct SettingsView: View {
                 }
                 Button { createBackup() } label: {
                     Label(t("backup.backupNow"), systemImage: "icloud.and.arrow.up")
+                        .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .leading)
+                        .contentShape(Rectangle())
                 }
-                DisclosureGroup {
-                    Button { prepareAppleRestore() } label: {
-                        Label(t("backup.restore"), systemImage: "icloud.and.arrow.down")
-                    }
-                    .disabled(store.activeRun != nil || store.hasRejectedRun)
-                    Button(role: .destructive) { signOutOfBackup() } label: {
-                        Label(t("backup.signOut"), systemImage: "person.crop.circle.badge.xmark")
-                    }
-                    Button(role: .destructive) { showingBackupDeleteConfirmation = true } label: {
-                        Label(t("backup.delete"), systemImage: "icloud.slash")
-                    }
-                    .accessibilityIdentifier("pb.settings.deleteICloudBackup")
-                } label: {
-                    Label(t("common.localDataBackups"), systemImage: "ellipsis.circle")
+                .disabled(cloudOperationInProgress)
+                Button { prepareAppleRestore() } label: {
+                    Label(t("backup.restore"), systemImage: "icloud.and.arrow.down")
+                        .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .leading)
+                        .contentShape(Rectangle())
                 }
+                .disabled(store.activeRun != nil || store.hasRejectedRun || cloudOperationInProgress)
+                Button(role: .destructive) { signOutOfBackup() } label: {
+                    Label(t("backup.signOut"), systemImage: "person.crop.circle.badge.xmark")
+                        .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .leading)
+                        .contentShape(Rectangle())
+                }
+                .disabled(cloudOperationInProgress)
+                Button(role: .destructive) { showingBackupDeleteConfirmation = true } label: {
+                    Label(t("backup.delete"), systemImage: "icloud.slash")
+                        .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .leading)
+                        .contentShape(Rectangle())
+                }
+                .disabled(cloudOperationInProgress)
+                .accessibilityIdentifier("pb.settings.deleteICloudBackup")
             }
         } header: {
             Text(t("common.localDataBackups"))
@@ -310,26 +321,36 @@ struct SettingsView: View {
     }
 
     private func createBackup() {
-        do {
-            try AppleBackupService.backup(payload: store.backupPayload())
-            PBFeedback.success()
-        } catch { present(error) }
+        guard !cloudOperationInProgress else { return }
+        let payload = store.backupPayload()
+        cloudOperationInProgress = true
+        Task { @MainActor in
+            defer { cloudOperationInProgress = false }
+            do {
+                try await AppleBackupService.backup(payload: payload)
+                PBFeedback.success()
+            } catch { present(error) }
+        }
     }
 
     private func prepareAppleRestore() {
         guard store.activeRun == nil else { present(PressBenchStore.StoreError.activeRunConflict); return }
         guard !store.hasRejectedRun else { present(PressBenchStore.StoreError.persistenceBlocked); return }
-        do {
-            pendingRestoreRaw = try AppleBackupService.restoredPayload()
-            if let data = pendingRestoreRaw.data(using: .utf8),
-               let object = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                let machines = (object["machines"] as? [Any])?.count ?? 0
-                let setups = (object["setups"] as? [Any])?.count ?? (object["recipes"] as? [Any])?.count ?? 0
-                let batches = (object["batches"] as? [Any])?.count ?? 0
-                restoreSummary = "\(machines) · \(t("machines.title"))   \(setups) · \(t("home.metric.setups"))   \(batches) · \(t("home.metric.batches"))"
-            }
-            showingRestoreConfirmation = true
-        } catch { present(error) }
+        cloudOperationInProgress = true
+        Task { @MainActor in
+            defer { cloudOperationInProgress = false }
+            do {
+                pendingRestoreRaw = try await AppleBackupService.restoredPayload()
+                if let data = pendingRestoreRaw.data(using: .utf8),
+                   let object = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    let machines = (object["machines"] as? [Any])?.count ?? 0
+                    let setups = (object["setups"] as? [Any])?.count ?? (object["recipes"] as? [Any])?.count ?? 0
+                    let batches = (object["batches"] as? [Any])?.count ?? 0
+                    restoreSummary = "\(machines) · \(t("machines.title"))   \(setups) · \(t("home.metric.setups"))   \(batches) · \(t("home.metric.batches"))"
+                }
+                showingRestoreConfirmation = true
+            } catch { present(error) }
+        }
     }
 
     private func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) {
@@ -356,6 +377,7 @@ struct SettingsView: View {
     private func restorePendingBackup() {
         do {
             try store.restoreBackup(raw: pendingRestoreRaw)
+            applyRestoredPresentationPreferences()
             pendingRestoreRaw = ""
             PBFeedback.success()
         } catch { present(error) }
@@ -364,6 +386,7 @@ struct SettingsView: View {
     private func rollbackRestore() {
         do {
             try store.rollbackRestore()
+            applyRestoredPresentationPreferences()
             PBFeedback.success()
         } catch { present(error) }
     }
@@ -373,6 +396,15 @@ struct SettingsView: View {
         appleUserID = ""
         backupLastSuccessAt = 0
         backupLastSuccessOwner = ""
+    }
+
+    private func applyRestoredPresentationPreferences() {
+        let restored = store.presentationPreferenceSnapshot
+        if !restored.languageRaw.isEmpty { languageRaw = restored.languageRaw }
+        temperatureUnitRaw = restored.temperatureUnit
+        hapticsEnabled = restored.hapticsEnabled
+        soundEnabled = restored.soundEnabled
+        appearanceRaw = PBAppearancePreference.light.rawValue
     }
 
     private func deleteICloudBackup() {

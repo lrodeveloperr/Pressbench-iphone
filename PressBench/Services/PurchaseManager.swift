@@ -11,11 +11,19 @@ final class PurchaseManager: ObservableObject {
         case loading, free, purchased, pending, unavailable, failed(String)
     }
 
+    struct EntitlementCandidate {
+        let productID: String
+        let purchaseDate: Date
+        let expirationDate: Date?
+        let revocationDate: Date?
+        let isUpgraded: Bool
+    }
+
     @Published private(set) var product: Product?
     @Published private(set) var state: PurchaseState = .loading
 
     private var updatesTask: Task<Void, Never>?
-    var onStoreEvent: (([String: Any]) -> Void)?
+    var onStoreEvent: (([String: Any]) -> Bool)?
 
     deinit { updatesTask?.cancel() }
 
@@ -76,32 +84,68 @@ final class PurchaseManager: ObservableObject {
     }
 
     func refresh(action: String = "automatic_refresh", userInitiated: Bool = false) async {
-        var found = false
+        var verified = [Transaction]()
+        var unverified = [Transaction]()
         for await result in Transaction.currentEntitlements {
             switch result {
             case .verified(let transaction) where Self.recognizedProductIDs.contains(transaction.productID):
-                found = true
-                await consumeVerified(transaction, action: action, userInitiated: userInitiated)
+                verified.append(transaction)
             case .unverified(let transaction, _ ) where Self.recognizedProductIDs.contains(transaction.productID):
-                found = true
-                state = .free
-                onStoreEvent?(event(
-                    action: action, userInitiated: userInitiated, purchaseState: "unverified",
-                    productID: transaction.productID, transactionID: String(transaction.id),
-                    nativeID: nativeIdentity(transaction), eventDate: Date(), expirationDate: transaction.expirationDate
-                ))
+                unverified.append(transaction)
             default:
                 continue
             }
         }
-        if !found {
-            state = .free
-            onStoreEvent?(event(
+
+        if let transaction = preferredEntitlement(from: verified) {
+            _ = await consumeVerified(transaction, action: action, userInitiated: userInitiated)
+        } else if let transaction = unverified.max(by: { $0.purchaseDate < $1.purchaseDate }) {
+            let applied = onStoreEvent?(event(
+                action: action, userInitiated: userInitiated, purchaseState: "unverified",
+                productID: transaction.productID, transactionID: String(transaction.id),
+                nativeID: nativeIdentity(transaction), eventDate: Date(), expirationDate: transaction.expirationDate
+            )) ?? false
+            state = applied ? .free : .failed("entitlement_persistence_failed")
+        } else {
+            let applied = onStoreEvent?(event(
                 action: action, userInitiated: userInitiated, purchaseState: "not_purchased",
                 productID: Self.productID, transactionID: "",
                 nativeID: "storekit2:none:\(Int(Date().timeIntervalSince1970))", eventDate: Date()
-            ))
+            )) ?? false
+            state = applied ? .free : .failed("entitlement_persistence_failed")
         }
+    }
+
+    private func preferredEntitlement(from transactions: [Transaction]) -> Transaction? {
+        let candidates = transactions.map {
+            EntitlementCandidate(productID: $0.productID, purchaseDate: $0.purchaseDate,
+                                 expirationDate: $0.expirationDate, revocationDate: $0.revocationDate,
+                                 isUpgraded: $0.isUpgraded)
+        }
+        guard let index = Self.preferredEntitlementIndex(candidates, now: Date()) else { return nil }
+        return transactions[index]
+    }
+
+    static func preferredEntitlementIndex(_ candidates: [EntitlementCandidate], now: Date) -> Int? {
+        let activeIndices = candidates.indices.filter {
+            let item = candidates[$0]
+            return item.revocationDate == nil && !item.isUpgraded && (item.expirationDate.map { $0 > now } ?? true)
+        }
+        if let lifetime = activeIndices.filter({ candidates[$0].productID == legacyLifetimeProductID })
+            .max(by: { candidates[$0].purchaseDate < candidates[$1].purchaseDate }) {
+            return lifetime
+        }
+        if let subscription = activeIndices.filter({ candidates[$0].productID == productID })
+            .max(by: {
+                (candidates[$0].expirationDate ?? candidates[$0].purchaseDate) <
+                    (candidates[$1].expirationDate ?? candidates[$1].purchaseDate)
+            }) {
+            return subscription
+        }
+        return candidates.indices.max(by: {
+            (candidates[$0].revocationDate ?? candidates[$0].expirationDate ?? candidates[$0].purchaseDate) <
+                (candidates[$1].revocationDate ?? candidates[$1].expirationDate ?? candidates[$1].purchaseDate)
+        })
     }
 
     @discardableResult
@@ -131,34 +175,41 @@ final class PurchaseManager: ObservableObject {
         }
     }
 
-    private func consume(result: VerificationResult<Transaction>, action: String) async {
+    @discardableResult
+    private func consume(result: VerificationResult<Transaction>, action: String) async -> Bool {
         switch result {
         case .verified(let transaction):
-            guard Self.recognizedProductIDs.contains(transaction.productID) else { return }
-            await consumeVerified(transaction, action: action, userInitiated: action != "automatic_refresh")
-            await transaction.finish()
+            guard Self.recognizedProductIDs.contains(transaction.productID) else { return false }
+            let applied: Bool
+            if action == "purchase" {
+                applied = await consumeVerified(transaction, action: action, userInitiated: true)
+            } else {
+                await refresh(action: action, userInitiated: action != "automatic_refresh")
+                if case .failed = state { applied = false } else { applied = true }
+            }
+            if applied { await transaction.finish() }
+            return applied
         case .unverified(let transaction, _):
-            guard Self.recognizedProductIDs.contains(transaction.productID) else { return }
-            state = .free
-            onStoreEvent?(event(
-                action: action, userInitiated: action != "automatic_refresh", purchaseState: "unverified",
-                productID: transaction.productID, transactionID: String(transaction.id),
-                nativeID: nativeIdentity(transaction), eventDate: Date(), expirationDate: transaction.expirationDate
-            ))
+            guard Self.recognizedProductIDs.contains(transaction.productID) else { return false }
+            await refresh(action: action, userInitiated: action != "automatic_refresh")
+            if case .failed = state { return false }
+            return true
         }
     }
 
-    private func consumeVerified(_ transaction: Transaction, action: String, userInitiated: Bool) async {
+    @discardableResult
+    private func consumeVerified(_ transaction: Transaction, action: String, userInitiated: Bool) async -> Bool {
         let now = Date()
         let expired = transaction.expirationDate.map { $0 <= now } ?? false
         let terminal = transaction.revocationDate != nil || transaction.isUpgraded || expired
         let purchaseState = transaction.revocationDate != nil ? "revoked" : terminal ? "expired" : "purchased"
-        onStoreEvent?(event(
+        let applied = onStoreEvent?(event(
             action: action, userInitiated: userInitiated, purchaseState: purchaseState,
             productID: transaction.productID, transactionID: String(transaction.id),
             nativeID: nativeIdentity(transaction), eventDate: now, expirationDate: transaction.expirationDate
-        ))
-        state = terminal ? .free : .purchased
+        )) ?? false
+        state = applied ? (terminal ? .free : .purchased) : .failed("entitlement_persistence_failed")
+        return applied
     }
 
     private func nativeIdentity(_ transaction: Transaction) -> String {

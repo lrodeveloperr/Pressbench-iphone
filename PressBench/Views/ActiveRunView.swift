@@ -24,6 +24,7 @@ struct ActiveRunView: View {
     @State private var customCycleQuantity = "1"
     @State private var showingIssue = false
     @State private var failureMessageKey = "common.actionFailed"
+    @State private var issueSaveTask: Task<Void, Never>?
     @AppStorage("pressbench.notifications.enabled") private var notificationsEnabled = false
     @ScaledMetric(relativeTo: .largeTitle) private var timerSize: CGFloat = 48
     private let ticker = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
@@ -62,6 +63,10 @@ struct ActiveRunView: View {
                 }
                 .onDisappear {
                     UIApplication.shared.isIdleTimerDisabled = false
+                    issueSaveTask?.cancel()
+                    if store.activeRun?.id == run.id {
+                        store.saveOperatorIssues(result.issues, runID: run.id)
+                    }
                 }
                 .onChange(of: run.phase) { _, phase in seedResult(run, force: phase == "result_pending") }
                 .onChange(of: store.errorEventID) { _, _ in
@@ -72,7 +77,12 @@ struct ActiveRunView: View {
                 }
                 .onChange(of: result.issues) { _, issues in
                     syncIssueTotals()
-                    store.saveOperatorIssues(issues, runID: run.id)
+                    issueSaveTask?.cancel()
+                    issueSaveTask = Task { @MainActor in
+                        try? await Task.sleep(for: .milliseconds(400))
+                        guard !Task.isCancelled else { return }
+                        store.saveOperatorIssues(issues, runID: run.id)
+                    }
                 }
                 .onReceive(ticker) { _ in
                     guard let activeRun = store.activeRun, activeRun.phase != "completed" else { return }
@@ -98,7 +108,6 @@ struct ActiveRunView: View {
             IssueCaptureSheet { issue in
                 var updated = result.issues
                 updated.append(issue)
-                try store.commitOperatorIssues(updated, runID: runID)
                 result.issues = updated
             }
             .environmentObject(store)

@@ -27,6 +27,7 @@ struct PBChoiceField: View {
                     Button { showingChoices = true } label: {
                         Image(systemName: "list.bullet")
                             .frame(width: PBTheme.minimumTarget, height: PBTheme.minimumTarget)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(tapToSelectTitle)
@@ -113,7 +114,8 @@ private struct PBChoicePickerSheet: View {
                                 Image(systemName: "checkmark.circle.fill").foregroundStyle(PBTheme.primaryStrong)
                             }
                         }
-                        .frame(minHeight: PBTheme.minimumTarget)
+                        .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -126,7 +128,8 @@ private struct PBChoicePickerSheet: View {
                         Spacer()
                         Image(systemName: "pencil").foregroundStyle(PBTheme.primary)
                     }
-                    .frame(minHeight: PBTheme.minimumTarget)
+                    .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }

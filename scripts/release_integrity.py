@@ -10,7 +10,7 @@ def require(condition, message):
 
 logic = root/'PressBench/Resources/PressBenchLogic.js'
 logic_hash = hashlib.sha256(logic.read_bytes()).hexdigest()
-require(logic_hash == 'e7884b7f3a515000b3ea4c7b2b07b1602a917ec90ad22136547a006cd0263740', f'logic hash changed: {logic_hash}')
+require(logic_hash == '23c860ff3873db190f3d256abe766a5030e34f55deadaf9ec0d21d4752201a7b', f'logic hash changed: {logic_hash}')
 text = logic.read_text(encoding='utf-8')
 require(all(marker in text for marker in ['pressbench_unlimited_monthly_ios', 'pressbench_unlimited_lifetime_ios',
         'productType: "auto_renewable_subscription"', 'recurring: true', 'baseAmountMinor: 999',
@@ -76,6 +76,11 @@ for token in [
     'static let errorActionFill = Color(uiColor: oceanErrorInkLight)',
 ]:
     require(token in theme, f'GoodUse Ocean Pearl token missing: {token}')
+require(all(marker in theme for marker in [
+            '.frame(minWidth: PBTheme.minimumTarget, minHeight: PBTheme.minimumTarget)',
+            '.contentShape(Rectangle())', 'common.clearSearch']) and
+        'static let minimumTarget: CGFloat = 48' in theme,
+        'shared custom controls no longer guarantee a 48-point rectangular touch target')
 
 root_tabs=(root/'PressBench/Views/RootTabView.swift').read_text(encoding='utf-8')
 require(root_tabs.count('.tabItem') == 4, 'GoodUse navigation must expose four stable thumb destinations')
@@ -119,14 +124,24 @@ require(all(marker in backup_service for marker in [
             'FileManager.default.ubiquityIdentityToken != nil', 'logAuthorizationFailure']) and
         'await AppleBackupService.refreshCredentialState()' in app,
         'Apple credential revocation or iCloud availability is not reconciled at launch')
-require('.synchronize()' not in backup_service and
-        'completed = true\n            if backUpAfterward' in (root/'PressBench/Views/OnboardingView.swift').read_text(encoding='utf-8'),
-        'Apple sign-in or iCloud synchronization can still block onboarding completion')
+onboarding_source=(root/'PressBench/Views/OnboardingView.swift').read_text(encoding='utf-8')
+require(all(marker in backup_service for marker in [
+            'store.synchronize()', 'didChangeExternallyNotification', 'static func startMonitoring()',
+            'for attempt in 0..<15', 'BackupError.conflict']) and
+        'AppleBackupService.startMonitoring()' in app and
+        all(marker in onboarding_source for marker in ['completeAfterAlert', 'error.backupRestore']),
+        'Apple backup synchronization, external reconciliation, conflict protection, or onboarding failure acknowledgement is missing')
 require(all(marker in backup_service for marker in ['static func deleteBackup()',
         'removeObject(forKey: backupKey)']) and
         all(marker in settings_view for marker in ['AppleBackupService.deleteBackup()',
         'pb.settings.deleteICloudBackup']),
         'private iCloud backup deletion or its reviewed Settings control is missing')
+require(all(marker in backup_service for marker in [
+            'compressed(using: .zlib)', 'decompressed(using: .zlib)',
+            'backupID', 'revision', 'stableReadCount']) and
+        'testStaleDeviceCannotOverwriteNewerCloudRevision' in
+            (root/'PressBenchTests/AppleBackupServiceTests.swift').read_text(encoding='utf-8'),
+        'Apple backup compression, restore settling, version conflict protection, or regression coverage is missing')
 require('planDeleteAll' in store_source and '"entitlement": entitlement' in store_source,
         'local-data reset does not use the deterministic planner while preserving purchase entitlement')
 require('.presentationDetents([.fraction(0.88), .large])' in theme and editors.count('.pbEditorSheetStyle()') >= 4,
@@ -170,7 +185,7 @@ require('XCTAssertEqual(PBPrefillCatalog.choiceCount, 98)' in prefill_test and
 streamlining_test=(root/'PressBenchTests/DataEntryStreamliningTests.swift').read_text(encoding='utf-8')
 require('testMachineNicknameAndSetupTitleAreDerivedWithoutInventingOperatingValues' in streamlining_test and
         'XCTAssertEqual(draft.stages.first?.temperature, "")' in streamlining_test and
-        streamlining_test.count('try store.completeOnboarding') == 2 and
+        streamlining_test.count('try store.completeOnboarding') >= 2 and
         '100% cotton T-shirt · Direct-to-film transfer (DTF) · 15 × 15 in' in streamlining_test and
         'testFrenchGeneratedTitleContainsOnlyOperatorOwnedDisplayValues' in streamlining_test and
         'T-shirt en coton · Transfert DTF · Presse principale' in streamlining_test,
@@ -222,7 +237,8 @@ onboarding_view=(root/'PressBench/Views/OnboardingView.swift').read_text(encodin
 require('.frame(minHeight: PBTheme.minimumTarget)' in language_dropdown,
         'shared language dropdown no longer exposes a 48-point touch target')
 require(home_view.count('.frame(minHeight: PBTheme.minimumTarget)') >= 2 and
-        onboarding_view.count('.frame(minHeight: PBTheme.minimumTarget)') >= 3,
+        (onboarding_view.count('.frame(minHeight: PBTheme.minimumTarget)') +
+         onboarding_view.count('.frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)')) >= 3,
         'Home or onboarding text-link/first-use controls dropped below the 48-point target')
 require(all(marker in onboarding_view for marker in [
             'case preferences', 'case legal', 'case backup',
@@ -250,7 +266,7 @@ require('requestPermissionIfNeeded' not in active_run_view,
 require(all(marker in active_run_view for marker in [
             'guard let activeRun = store.activeRun, activeRun.phase != "completed"',
             'try store.recordFirstPieceAdjustment', 'try store.stopAfterFirstPiece',
-            'try store.recordQC', 'try store.commitOperatorIssues',
+            'try store.recordQC', 'store.saveOperatorIssues', 'issueSaveTask',
             'failureMessageKey = store.errorLocalizationKey(error)']) and
         active_run_view.count('.alert("PressBench", isPresented: $failed)') >= 4 and
         'guard let total = run.timerTotal, total > 0' in active_run_view,
@@ -335,6 +351,14 @@ usage_source=(root/'PressBench/Services/PBUsageMeter.swift').read_text()
 require(all(marker in purchase_source for marker in ['pressbench_unlimited_monthly_ios',
         'pressbench_unlimited_lifetime_ios', '.autoRenewable', 'subscriptionPeriod.unit == .month',
         'transaction.expirationDate']), 'native subscription verification or lifetime grandfathering is incomplete')
+purchase_tests=(root/'PressBenchTests/PurchaseManagerTests.swift').read_text(encoding='utf-8')
+require(all(marker in purchase_source for marker in [
+            'preferredEntitlementIndex', 'entitlement_persistence_failed',
+            'if applied { await transaction.finish() }']) and
+        all(marker in purchase_tests for marker in [
+            'testVerifiedLifetimeWinsOverActiveMonthlyEntitlement',
+            'testActiveVerifiedEntitlementWinsOverTerminalTransaction']),
+        'StoreKit entitlement aggregation or durable-purchase regression coverage is missing')
 require(not (root/'PressBench/Services/PBAdvertising.swift').exists(),
         'obsolete advertising service remains in the application target')
 no_ad_surface = '\n'.join([project, info_plist, joined,
@@ -362,6 +386,8 @@ require(all(marker in reports_view for marker in [
             'withTaskCancellationHandler', 'catch is CancellationError',
             'try Task.checkCancellation()']),
         'report generation is not cancelled safely when its view disappears')
+require(report_exporter.count('Task.checkCancellation()') >= 7 and 'Task.isCancelled' in report_exporter,
+        'report exporter ignores cancellation inside expensive PDF/XLSX work')
 require('format: "CSV"' not in reports_view and 'format: "JSON"' not in reports_view and
         'func csvExport' not in store_source and 'static func json(' not in report_exporter and
         'CSV_SCHEMA_VERSION' not in text and 'function toCsv' not in text,
@@ -409,15 +435,14 @@ require('simctl bootstatus' in workflow,
 require(all(marker in workflow for marker in [
             'iPhone SE (3rd generation)', 'PB_SE_UDID', 'PB_FACE_UDID',
             'PressBenchSETests.xcresult', 'PressBenchFaceIDTests.xcresult',
-            "RUN_IPHONE_SE: ${{ github.event_name == 'workflow_dispatch' }}",
             '- name: Dedicated UI test — iPhone SE',
-            '-only-testing:PressBenchUITests/FirstUseFlowUITests/testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup',
             '- name: Unit tests — Face ID iPhone',
             '-only-testing:PressBenchTests',
-            '-only-testing:PressBenchUITests/FirstUseFlowUITests/testFaceIDFirstViewportLayout',
-            "- name: UI tests — Face ID iPhone\n        if: ${{ env.RUN_IPHONE_SE != 'true' }}"]) and
+            '-only-testing:PressBenchUITests',
+            '- name: UI tests — Face ID iPhone']) and
+        workflow.count('-only-testing:PressBenchUITests') == 2 and
         workflow.count('xcrun simctl bootstatus') == 2,
-        'native validation does not keep fast core checks separate from the manual iPhone SE release gate')
+        'native validation does not run the complete UI suite on both iPhone SE and Face ID devices')
 require('requestPermissionIfNeeded' not in onboarding_view and
         'private var notificationsEnabled = false' in settings_view and
         'private var notificationsEnabled = false' in active_run_view,
@@ -439,6 +464,13 @@ require('--pressbench-ui-test-reset' in ui_test and '--pressbench-ui-test-reset'
         'removePersistentDomain' in app_source and 'state-v5' not in app_source and
         '-pressbench.onboarding.completed' not in ui_test,
         'UI test does not request a deterministic pre-store persistence reset')
+require(all(marker in ui_test for marker in [
+            'testDeleteLocalDataRespondsOnFirstTapAndCompletesOnce',
+            'testPrimaryTouchTargetRespondsAtLeftAndRightEdges',
+            'auditVisibleButtonTargets', '[0.12, 0.88]']) and
+        'for _ in 0..<3' not in ui_test and
+        'if !acknowledgement.waitForExistence' not in ui_test,
+        'touchscreen tests no longer prove first-tap edge response and minimum target geometry without retries')
 require(all(marker in ui_test for marker in ['--pressbench-ui-test-limit-reached',
         '--pressbench-ui-test-product-unavailable', '--pressbench-ui-test-pro',
         'Free runs left: 0 of 5', 'Unlock PressBench Pro',
@@ -471,9 +503,9 @@ require(all(marker not in settings_view for marker in [
 
 catalog=json.loads((root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8'))
 require(len(catalog.get('languages',[])) == 31, 'language choice count is not 31')
-require(len(catalog.get('strings',{})) == 368, 'reviewed localization catalog must contain 368 keys')
+require(len(catalog.get('strings',{})) == 370, 'reviewed localization catalog must contain 370 keys')
 language_tests=(root/'PressBenchTests/LanguageSupportTests.swift').read_text(encoding='utf-8')
-require('XCTAssertEqual(PBL10n.catalog.strings.count, 368)' in language_tests,
+require('XCTAssertEqual(PBL10n.catalog.strings.count, 370)' in language_tests,
         'unit-test localization count is stale')
 boundary = catalog.get('strings',{}).get('setup.provenBoundary',{})
 require(bool(boundary), 'localized Proven evidence boundary is missing')
@@ -492,7 +524,7 @@ for key, item in metadata.items():
 build_l10n=(root/'build_l10n.py').read_text(encoding='utf-8')
 assemble=(root/'assemble_catalog.py').read_text(encoding='utf-8')
 require('setup.provenBoundary' in build_l10n and 'raise SystemExit(\'Legacy' not in build_l10n,
-        'build_l10n.py is not the live 368-key canonical generator')
+        'build_l10n.py is not the live 370-key canonical generator')
 purchase_manager=(root/'PressBench/Services/PurchaseManager.swift').read_text(encoding='utf-8')
 require(purchase_manager.count('let productLoaded = await loadProduct()') == 2 and
         purchase_manager.count('if !productLoaded, state == .free { state = productLoadState }') == 2 and
@@ -507,6 +539,14 @@ require("assert len(phrases)==286" in assemble and 'DIRECT_NEW_KEYS' in assemble
         'RESIDUAL_TRANSLATIONS' in assemble and
         "raise SystemExit('Legacy" not in assemble,
         'assemble_catalog.py is not the live base-plus-operator canonical generator')
+
+guidance=root/'scripts/reliability_guidance.sh'
+guidance_source=guidance.read_text(encoding='utf-8')
+require(guidance.stat().st_mode & 0o111 and
+        all(f'PB-{index:02d}' in guidance_source for index in range(1, 20)) and
+        'Touchscreen checklist' in guidance_source and
+        'scripts/release_integrity.py' in guidance_source,
+        'executable shell reliability guidance is missing, incomplete, or detached from validation')
 phrase_rows=[line.split('\t') for line in (root/'phrases.tsv').read_text(encoding='utf-8').splitlines()]
 require(len(phrase_rows) == 327, 'canonical phrase table must contain 327 rows')
 source_to_index={row[1]: index for index,row in enumerate(phrase_rows) if len(row) >= 3}

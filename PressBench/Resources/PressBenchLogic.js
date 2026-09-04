@@ -496,7 +496,10 @@
       starterTemplatesVersion: "",
       reminderPermission: "not_asked",
       lastBackupAt: "",
-      lastBackupBatchCount: 0
+      lastBackupBatchCount: 0,
+      hapticsEnabled: true,
+      soundEnabled: true,
+      theme: "light"
     };
   }
 
@@ -529,7 +532,10 @@
       starterTemplatesVersion: text(source.starterTemplatesVersion, 80),
       reminderPermission: REMINDER_PERMISSIONS.has(source.reminderPermission) ? source.reminderPermission : "not_asked",
       lastBackupAt: source.lastBackupAt ? validDate(source.lastBackupAt, "") : "",
-      lastBackupBatchCount: integer(source.lastBackupBatchCount, 0, 0, MAX_RECORDS)
+      lastBackupBatchCount: integer(source.lastBackupBatchCount, 0, 0, MAX_RECORDS),
+      hapticsEnabled: source.hapticsEnabled !== false,
+      soundEnabled: source.soundEnabled !== false,
+      theme: THEMES.has(source.theme) ? source.theme : "light"
     };
   }
 
@@ -554,9 +560,9 @@
       paperSize: normalized.paperSize,
       // These v2 fields remain only to read and write the established portable
       // backup format. Presentation/device wrappers own the live preferences.
-      hapticsEnabled: source.hapticsEnabled !== false,
-      soundEnabled: source.soundEnabled === true,
-      theme: THEMES.has(source.theme) ? source.theme : "light"
+      hapticsEnabled: normalized.hapticsEnabled,
+      soundEnabled: normalized.soundEnabled,
+      theme: normalized.theme
     };
   }
 
@@ -4558,7 +4564,9 @@
     if (D.utf8ByteLength(JSON.stringify(machine)) > D.MAX_RECORD_BYTES) throw new Error("record_size");
     const projected = machines.filter(function (item) { return item.id !== machine.id; }).concat(machine);
     const classification = classifyMachineChange(existing, machine, machineValue && machineValue.materialChangeConfirmed === true);
-    const dependentSetups = existing && classification.changeClass === "material" ? setupsOf(value).filter(function (setup) {
+    const updatesSetupSnapshot = classification.changeClass === "material" ||
+      classification.changedFields.includes("nickname");
+    const dependentSetups = existing && updatesSetupSnapshot ? setupsOf(value).filter(function (setup) {
       return setup.machineProfileId === machine.id || (setup.steps || []).some(function (step) { return step.machineProfileId === machine.id; });
     }) : [];
     if (dependentSetups.length && value.session && value.session.activeRun) {
@@ -4578,8 +4586,12 @@
         machineNickname: snapshot.nickname,
         platenZone: step.platenZone === existing.platenOrZone ? snapshot.platenOrZone : step.platenZone
       }) : step; });
+      // The setup fingerprint includes machine snapshot names. Propagating a
+      // nickname must therefore reset stale proof just like a material snapshot
+      // change; otherwise a later integrity pass would silently demote it.
       setup.status = "trial"; setup.verifiedAt = ""; setup.verifiedBatchId = "";
-      setup.provenEvidenceCount = 0; setup.proofResetAt = mutationAt; setup.updatedAt = mutationAt;
+      setup.provenEvidenceCount = 0; setup.proofResetAt = mutationAt;
+      setup.updatedAt = mutationAt;
       setup.persistedOperationalFingerprintV4 = D.operationalFingerprintV4(setup);
       const normalized = D.normalizeRecipe(setup, setup.temperatureUnit, true);
       if (D.validateRunnableRecipe(Object.assign({}, normalized, { archived: false })).length) normalized.status = "draft";
@@ -5398,6 +5410,21 @@
       batch.notes === draft.notes && JSON.stringify(batch.issues || []) === JSON.stringify(draft.issues || []));
   }
 
+  // Operational fingerprints deliberately omit descriptive and lifecycle
+  // fields. Compare those too so a finishing run cannot overwrite a newer
+  // title, note, quantity, archive, or other live setup edit.
+  function liveSetupMatchesRunSnapshot(liveValue, runValue) {
+    function definition(value) {
+      const recipe = D.normalizeRecipe(value, value && value.temperatureUnit, true);
+      ["status", "verifiedAt", "verifiedBatchId", "provenEvidenceCount",
+        "persistedOperationalFingerprintV4", "updatedAt", "lastUsedAt"].forEach(function (key) {
+        delete recipe[key];
+      });
+      return JSON.stringify(recipe);
+    }
+    return Boolean(liveValue) && definition(liveValue) === definition(runValue);
+  }
+
   function planResultCommit(context, runValue, rawResult) {
     const value = context || {}; const run = clone(runValue);
     if (!permitValid(run)) throw new Error("run_permit_invalid");
@@ -5447,6 +5474,9 @@
     }
     const changed = !live || D.operationalFingerprintV4(live) !== D.operationalFingerprintV4(actual) ||
       D.provenanceFingerprint(live) !== D.provenanceFingerprint(actual);
+    const liveMatchesRunSnapshot = Boolean(live) &&
+      D.exactSetupFingerprint(live) === D.exactSetupFingerprint(actual) &&
+      liveSetupMatchesRunSnapshot(live, actual);
     let saveChoice = result.saveChoice; const warnings = [];
     if (legacyResult) {
       // A recovered v0.19 run may lack v4 machine/provenance fields. Preserve
@@ -5454,7 +5484,11 @@
       saveChoice = "batch_only";
       warnings.push("legacy_setup_preserved");
     }
-    if (!changed) saveChoice = "update_recipe";
+    if (!changed && liveMatchesRunSnapshot) saveChoice = "update_recipe";
+    if (!changed && live && !liveMatchesRunSnapshot) {
+      saveChoice = "batch_only";
+      warnings.push("live_setup_changed_during_run");
+    }
     if (legacyResult) saveChoice = "batch_only";
     if (!live && run.permit.setupSlotReserved === true) saveChoice = "save_variant";
     if (saveChoice === "update_recipe" && !live) saveChoice = "save_variant";
@@ -5481,7 +5515,7 @@
         verifiedAt: "", verifiedBatchId: "", provenEvidenceCount: 0,
         persistedOperationalFingerprintV4: D.operationalFingerprintV4(actual) }), actual.temperatureUnit, true);
       recipeId = live.id;
-    } else if (live && !changed) {
+    } else if (live && !changed && liveMatchesRunSnapshot) {
       recipeToSave = D.normalizeRecipe(Object.assign({}, live, { lastUsedAt: result.completedAt }), live.temperatureUnit, true);
     }
 
@@ -5916,7 +5950,6 @@
 
   function planDeleteAll(context, confirmation) {
     if (confirmation !== "DELETE") throw new Error("delete_confirmation");
-    if (context && context.session && context.session.activeRun) throw new Error("active_run_conflict");
     return { machines: [], setups: [], recipes: [], batches: [], settings: D.defaultSettings(), session: null,
       entitlementUnaffected: true, requiresCoordinatedStorageDelete: true,
       purchaseEntitlementUnaffected: true, requiredWarning: "store_purchase_not_deleted",

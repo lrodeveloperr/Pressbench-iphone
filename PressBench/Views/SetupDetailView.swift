@@ -14,6 +14,7 @@ struct SetupDetailView: View {
     @State private var resumeStartAfterUpgrade = false
     @State private var showingArchive = false
     @State private var failed = false
+    @State private var failureMessageKey = "common.actionFailed"
 
     init(setup: Setup) {
         setupID = setup.id
@@ -57,7 +58,9 @@ struct SetupDetailView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button { editing = true } label: { Label(t("common.edit"), systemImage: "pencil") }
+                        .disabled(store.isSetupLockedByActiveRun(setup.id))
                     Button(role: .destructive) { showingArchive = true } label: { Label(t("setup.archive"), systemImage: "archivebox") }
+                        .disabled(store.isSetupLockedByActiveRun(setup.id))
                 } label: {
                     Image(systemName: "ellipsis.circle").frame(width: PBTheme.minimumTarget, height: PBTheme.minimumTarget).contentShape(Rectangle())
                 }
@@ -73,11 +76,12 @@ struct SetupDetailView: View {
         }) { ProUpgradeView().environmentObject(store).pbEditorSheetStyle() }
         .confirmationDialog(t("setup.archive"), isPresented: $showingArchive, titleVisibility: .visible) {
             Button(t("setup.archive"), role: .destructive) {
-                do { try store.archiveSetup(id: setup.id); dismiss() } catch { failed = true }
+                do { try store.archiveSetup(id: setup.id); dismiss() }
+                catch { failureMessageKey = store.errorLocalizationKey(error); failed = true }
             }
             Button(t("common.cancel"), role: .cancel) {}
         }
-        .alert("PressBench", isPresented: $failed) { Button(t("common.ok"), role: .cancel) {} } message: { Text(t("common.actionFailed")) }
+        .alert("PressBench", isPresented: $failed) { Button(t("common.ok"), role: .cancel) {} } message: { Text(t(failureMessageKey)) }
     }
 
     private func requestStart() {

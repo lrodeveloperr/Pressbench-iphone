@@ -99,7 +99,7 @@ final class PressBenchStore: ObservableObject {
         }
 
         purchases.onStoreEvent = { [weak self] event in
-            self?.applyStoreEvent(event)
+            self?.applyStoreEvent(event) ?? false
         }
         purchaseObservation = purchases.objectWillChange.sink { [weak self] _ in
             self?.objectWillChange.send()
@@ -189,7 +189,17 @@ final class PressBenchStore: ObservableObject {
     var canStartAnotherRun: Bool { isPro || freePressesRemaining > 0 }
     var hasRestoreRecovery: Bool { state["preRestoreRecovery"] is [String: Any] }
     var hasRejectedRun: Bool { state["rejectedSession"] is [String: Any] }
+    var requiresPersistenceRecovery: Bool { persistenceBlocked || persistenceWarning != nil }
     var hasSetupDraft: Bool { (state["session"] as? [String: Any])?["setupDraft"] is [String: Any] }
+    func isSetupLockedByActiveRun(_ id: String) -> Bool {
+        guard let run = activeRunDictionary else { return false }
+        return string(run["sourceSetupId"]) == id || string(run["sourceRecipeId"]) == id
+    }
+    func isMachineLockedByActiveRun(_ id: String) -> Bool {
+        guard let setup = activeRunDictionary?["setup"] as? [String: Any] else { return false }
+        return string(setup["machineProfileId"]) == id ||
+            (setup["steps"] as? [[String: Any]] ?? []).contains { string($0["machineProfileId"]) == id }
+    }
     var rejectedRunLabel: String {
         let run = (state["rejectedSession"] as? [String: Any])?["activeRun"] as? [String: Any]
         let setup = run?["setup"] as? [String: Any] ?? run?["recipe"] as? [String: Any]
@@ -201,6 +211,23 @@ final class PressBenchStore: ObservableObject {
         return string(settings?["confirmedTemperatureUnit"]).isEmpty ?
             (string(settings?["defaultUnit"]).isEmpty ? "F" : string(settings?["defaultUnit"])) :
             string(settings?["confirmedTemperatureUnit"])
+    }
+    struct PresentationPreferenceSnapshot {
+        let languageRaw: String
+        let temperatureUnit: String
+        let hapticsEnabled: Bool
+        let soundEnabled: Bool
+    }
+    var presentationPreferenceSnapshot: PresentationPreferenceSnapshot {
+        let settings = state["settings"] as? [String: Any] ?? [:]
+        return PresentationPreferenceSnapshot(
+            languageRaw: string(settings["language"]),
+            temperatureUnit: string(settings["confirmedTemperatureUnit"]).isEmpty ?
+                (string(settings["defaultUnit"]).isEmpty ? "F" : string(settings["defaultUnit"])) :
+                string(settings["confirmedTemperatureUnit"]),
+            hapticsEnabled: settings["hapticsEnabled"] as? Bool ?? true,
+            soundEnabled: settings["soundEnabled"] as? Bool ?? true
+        )
     }
 
     // MARK: - Onboarding / preferences
@@ -277,6 +304,7 @@ final class PressBenchStore: ObservableObject {
 
     @discardableResult
     func saveMachine(_ draft: MachineDraft) throws -> String {
+        if !draft.id.isEmpty, isMachineLockedByActiveRun(draft.id) { throw StoreError.activeRunConflict }
         let brand = draft.brand.trimmingCharacters(in: .whitespacesAndNewlines)
         let model = draft.model.trimmingCharacters(in: .whitespacesAndNewlines)
         let platen = draft.platen.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -304,7 +332,12 @@ final class PressBenchStore: ObservableObject {
     }
 
     func archiveMachine(id: String) throws {
-        guard !rawRecipes.contains(where: { string($0["machineProfileId"]) == id && $0["archived"] as? Bool != true }) else {
+        guard !isMachineLockedByActiveRun(id) else { throw StoreError.activeRunConflict }
+        guard !rawRecipes.contains(where: { setup in
+            guard setup["archived"] as? Bool != true else { return false }
+            return string(setup["machineProfileId"]) == id ||
+                (setup["steps"] as? [[String: Any]] ?? []).contains { string($0["machineProfileId"]) == id }
+        }) else {
             throw StoreError.machineInUse
         }
         guard var raw = rawMachines.first(where: { string($0["id"]) == id }) else { throw StoreError.invalidMachine }
@@ -313,6 +346,31 @@ final class PressBenchStore: ObservableObject {
         try withStateTransaction {
             state["machines"] = plan["machines"] as? [[String: Any]] ?? rawMachines
             state["recipes"] = plan["recipes"] as? [[String: Any]] ?? rawRecipes
+        }
+    }
+
+    func restoreMachine(id: String) throws {
+        guard var raw = rawMachines.first(where: { string($0["id"]) == id }), raw["archived"] as? Bool == true else {
+            throw StoreError.invalidMachine
+        }
+        raw["archived"] = false
+        let plan = try bridge.dictionary(bridge.process("planSaveMachine", [context, raw, Self.isoNow()]), context: "machine restore plan")
+        try withStateTransaction {
+            state["machines"] = plan["machines"] as? [[String: Any]] ?? rawMachines
+            state["recipes"] = plan["recipes"] as? [[String: Any]] ?? rawRecipes
+        }
+    }
+
+    func deleteArchivedMachine(id: String) throws {
+        guard rawMachines.contains(where: { string($0["id"]) == id && $0["archived"] as? Bool == true }) else {
+            throw StoreError.invalidMachine
+        }
+        guard !rawRecipes.contains(where: { containsMachineReference($0, id: id) }),
+              !rawBatches.contains(where: { containsMachineReference($0, id: id) }) else {
+            throw StoreError.machineInUse
+        }
+        try withStateTransaction {
+            state["machines"] = rawMachines.filter { string($0["id"]) != id }
         }
     }
 
@@ -356,10 +414,31 @@ final class PressBenchStore: ObservableObject {
     }
 
     func archiveSetup(id: String) throws {
+        guard !isSetupLockedByActiveRun(id) else { throw StoreError.activeRunConflict }
         guard let raw = rawRecipes.first(where: { string($0["id"]) == id }) else { throw StoreError.setupMissing }
         let archived = try bridge.dictionary(bridge.domain("archiveSetup", [raw, Self.isoNow()]), context: "archived setup")
         let plan = try bridge.dictionary(bridge.process("planSaveSetup", [context, archived, Self.isoNow()]), context: "setup archive plan")
         try withStateTransaction { state["recipes"] = plan["setups"] as? [[String: Any]] ?? rawRecipes }
+    }
+
+    func restoreSetup(id: String) throws {
+        guard let raw = rawRecipes.first(where: { string($0["id"]) == id && $0["archived"] as? Bool == true }) else {
+            throw StoreError.setupMissing
+        }
+        let restored = try bridge.dictionary(bridge.domain("restoreArchivedSetup", [raw, Self.isoNow()]), context: "restored setup")
+        let plan = try bridge.dictionary(bridge.process("planSaveSetup", [context, restored, Self.isoNow()]), context: "setup restore plan")
+        try withStateTransaction { state["recipes"] = plan["setups"] as? [[String: Any]] ?? rawRecipes }
+    }
+
+    func deleteArchivedSetup(id: String) throws {
+        guard rawRecipes.contains(where: { string($0["id"]) == id && $0["archived"] as? Bool == true }) else {
+            throw StoreError.setupMissing
+        }
+        let plan = try bridge.dictionary(bridge.process("planDeleteSetup", [context, id]), context: "setup delete plan")
+        try withStateTransaction {
+            state["recipes"] = plan["setups"] as? [[String: Any]] ?? rawRecipes
+            state["batches"] = plan["batches"] as? [[String: Any]] ?? rawBatches
+        }
     }
 
     private func setupDraft(from raw: [String: Any]) -> SetupDraft {
@@ -399,6 +478,7 @@ final class PressBenchStore: ObservableObject {
 
     @discardableResult
     func saveSetup(_ draft: SetupDraft, temperatureUnit: String, locale: Locale = .current, reuseClass: SetupReuseClass? = nil) throws -> String {
+        if !draft.id.isEmpty, isSetupLockedByActiveRun(draft.id) { throw StoreError.activeRunConflict }
         if reuseClass == .sameProductVariant {
             return try saveSameProductVariant(draft)
         }
@@ -698,7 +778,20 @@ final class PressBenchStore: ObservableObject {
     func restartTimerPlan() { transition(event: ["type": "TIMER_RESTART_PLAN"]) }
     func tickStageTimer() {
         guard let timer = activeRunDictionary?["timer"] as? [String: Any], timer["running"] as? Bool == true else { return }
-        transition(event: ["type": "TIMER_TICK"])
+        do {
+            guard let run = activeRunDictionary else { throw StoreError.activeRunMissing }
+            let next = try transitionRun(run, event: ["type": "TIMER_TICK"])
+            let completed = (next["timer"] as? [String: Any])?["completed"] as? Bool == true
+            if completed {
+                try withStateTransaction { replaceActiveRun(next) }
+            } else {
+                // A running timer is derived from its durably stored endAt. UI
+                // refresh ticks therefore stay in memory; crash recovery will
+                // reconcile the saved endAt instead of requiring disk writes
+                // twice per second on the main actor.
+                replaceActiveRun(next)
+            }
+        } catch { record(error) }
     }
 
     func completeResult(_ input: ResultDraftInput) throws {
@@ -853,11 +946,12 @@ final class PressBenchStore: ObservableObject {
             throw StoreError.exportFailed
         }
         recovery["state"] = "applied"
+        let restoredSettings = mergedRestoredSettings(target["settings"] as? [String: Any] ?? [:])
         try withStateTransaction(allowBlockedRecovery: true) {
             state["machines"] = target["machines"] as? [[String: Any]] ?? []
             state["recipes"] = target["setups"] as? [[String: Any]] ?? []
             state["batches"] = target["batches"] as? [[String: Any]] ?? []
-            state["settings"] = target["settings"] as? [String: Any] ?? state["settings"]
+            state["settings"] = restoredSettings
             state["session"] = NSNull()
             state["operatorIssueDrafts"] = [String: Any]()
             state["preRestoreRecovery"] = recovery
@@ -871,16 +965,31 @@ final class PressBenchStore: ObservableObject {
         guard let recovery = state["preRestoreRecovery"] as? [String: Any] else { throw StoreError.exportFailed }
         let plan = try bridge.dictionary(bridge.process("planRollback", [context, recovery]), context: "rollback plan")
         guard let target = plan["target"] as? [String: Any] else { throw StoreError.exportFailed }
+        let restoredSettings = mergedRestoredSettings(target["settings"] as? [String: Any] ?? [:])
         try withStateTransaction {
             state["machines"] = target["machines"] as? [[String: Any]] ?? []
             state["recipes"] = target["setups"] as? [[String: Any]] ?? []
             state["batches"] = target["batches"] as? [[String: Any]] ?? []
-            state["settings"] = target["settings"] as? [String: Any] ?? state["settings"]
+            state["settings"] = restoredSettings
             state["session"] = NSNull()
             state["operatorIssueDrafts"] = [String: Any]()
             state["preRestoreRecovery"] = NSNull()
         }
         usageMeter.reconcile(existingCompletedRuns: rawBatches.count)
+    }
+
+    private func mergedRestoredSettings(_ restored: [String: Any]) -> [String: Any] {
+        var merged = state["settings"] as? [String: Any] ?? [:]
+        for key in ["language", "locale", "region", "defaultUnit", "dimensionUnit", "paperSize",
+                    "hapticsEnabled", "soundEnabled", "theme"] where restored[key] != nil {
+            merged[key] = restored[key]
+        }
+        let unit = string(restored["defaultUnit"])
+        if !unit.isEmpty {
+            merged["confirmedTemperatureUnit"] = unit
+            merged["temperatureUnitConfirmedAt"] = Self.isoNow()
+        }
+        return merged
     }
 
     var canonicalReportBatches: [[String: Any]] { rawBatches }
@@ -892,15 +1001,21 @@ final class PressBenchStore: ObservableObject {
     func restorePurchases() async { await purchases.restore() }
     func reloadPurchases() async { await purchases.reloadProduct() }
 
-    private func applyStoreEvent(_ event: [String: Any]) {
+    @discardableResult
+    private func applyStoreEvent(_ event: [String: Any]) -> Bool {
         do {
             let output = try bridge.dictionary(
                 bridge.entitlement("applyStoreEvent", [currentEntitlement, event, Self.isoNow()]), context: "store event"
             )
             if let entitlement = output["entitlement"] as? [String: Any] {
                 try withStateTransaction { state["entitlement"] = entitlement }
+                return true
             }
-        } catch { record(error) }
+            return false
+        } catch {
+            record(error)
+            return false
+        }
     }
 
     // MARK: - Canonical state helpers
@@ -964,6 +1079,17 @@ final class PressBenchStore: ObservableObject {
         var all = state["operatorIssueDrafts"] as? [String: Any] ?? [:]
         all.removeValue(forKey: runID)
         state["operatorIssueDrafts"] = all
+    }
+
+    private func containsMachineReference(_ value: Any, id: String) -> Bool {
+        if let dictionary = value as? [String: Any] {
+            if string(dictionary["machineProfileId"]) == id { return true }
+            return dictionary.values.contains { containsMachineReference($0, id: id) }
+        }
+        if let array = value as? [Any] {
+            return array.contains { containsMachineReference($0, id: id) }
+        }
+        return false
     }
 
     private func quarantineActiveRun(_ error: Error) {
@@ -1048,11 +1174,12 @@ final class PressBenchStore: ObservableObject {
         if code.contains("timer_plan_incomplete") || code.contains("timer_stage_incomplete") { return "run.completeTimerFirst" }
         if code.contains("qc_required") { return "qc.due" }
         if code.contains("invalid_number") || code.contains("invalidnumber") { return "error.invalidNumber" }
+        if code.contains("active_run_conflict") { return "error.activeRunConflict" }
+        if code.contains("apple_backup") { return "error.backupRestore" }
         if code.contains("machine_in_use") { return "error.machineInUse" }
         if code.contains("issue") || code.contains("coverage") { return "error.issueCoverage" }
         if code.contains("machine") { return "error.machineRequired" }
         if code.contains("setup") { return "error.setupRequired" }
-        if code.contains("active_run_conflict") { return "error.activeRunConflict" }
         if code.contains("transition") || code.contains("result_state") || code.contains("active_run_missing") { return "error.runState" }
         if code.contains("permit") { return "error.storageRecovery" }
         if code.contains("persistence") || code.contains("replica") || code.contains("corrupt") { return "error.storageRecovery" }

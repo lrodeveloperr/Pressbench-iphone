@@ -169,6 +169,8 @@ struct PBTactileButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            .frame(minWidth: PBTheme.minimumTarget, minHeight: PBTheme.minimumTarget)
+            .contentShape(Rectangle())
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.985 : 1)
             .offset(y: configuration.isPressed && !reduceMotion ? 1.5 : 0)
             .brightness(configuration.isPressed ? -0.035 : 0)
@@ -188,8 +190,10 @@ enum PBFeedback {
     static func error() { if enabled { UINotificationFeedbackGenerator().notificationOccurred(.error) } }
 }
 
+@MainActor
 enum PBTimerNotification {
     static let identifier = "pressbench.active-stage-timer"
+    private static var schedulingGeneration = 0
 
     static func requestPermissionIfNeeded() async -> Bool {
         let enabled = UserDefaults.standard.object(forKey: "pressbench.notifications.enabled") as? Bool ?? false
@@ -204,7 +208,7 @@ enum PBTimerNotification {
         }
     }
 
-    static func schedule(seconds: TimeInterval, title: String, body: String) {
+    private static func schedule(seconds: TimeInterval, title: String, body: String) {
         let enabled = UserDefaults.standard.object(forKey: "pressbench.notifications.enabled") as? Bool ?? false
         guard enabled, seconds > 0 else { return }
         let content = UNMutableNotificationContent()
@@ -222,20 +226,25 @@ enum PBTimerNotification {
     }
 
     static func scheduleIfAuthorized(seconds: TimeInterval, title: String, body: String) {
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
+        schedulingGeneration &+= 1
+        let requestedGeneration = schedulingGeneration
+        Task {
+            let settings = await UNUserNotificationCenter.current().notificationSettings()
+            guard requestedGeneration == schedulingGeneration else { return }
             guard [.authorized, .provisional, .ephemeral].contains(settings.authorizationStatus) else { return }
             schedule(seconds: seconds, title: title, body: body)
         }
     }
 
     static func cancel() {
+        schedulingGeneration &+= 1
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
     }
 }
 
 enum PBTimerSound {
     static func completion() {
-        let enabled = UserDefaults.standard.object(forKey: "pressbench.sound.enabled") as? Bool ?? false
+        let enabled = UserDefaults.standard.object(forKey: "pressbench.sound.enabled") as? Bool ?? true
         if enabled { AudioServicesPlaySystemSound(1005) }
     }
 }
@@ -254,6 +263,7 @@ struct PBPrimaryButton: View {
             }
             .font(.system(size: max(19, labelSize), weight: .bold))
             .frame(maxWidth: .infinity, minHeight: PBTheme.primaryHeight)
+            .contentShape(Rectangle())
             .foregroundStyle(.white)
             .background(PBTheme.primaryGradient, in: RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous))
             .shadow(color: PBTheme.controlShadow, radius: 12, x: 0, y: 6)
@@ -295,6 +305,8 @@ struct PBPageHeader: View {
 struct PBSearchField: View {
     let prompt: String
     @Binding var text: String
+    @Environment(\.pbLanguage) private var language
+    @Environment(\.locale) private var locale
 
     var body: some View {
         HStack(spacing: 10) {
@@ -306,10 +318,13 @@ struct PBSearchField: View {
                 .autocorrectionDisabled()
             if !text.isEmpty {
                 Button { text = "" } label: {
-                    Image(systemName: "xmark.circle.fill").foregroundStyle(PBTheme.muted)
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(PBTheme.muted)
+                        .frame(minWidth: PBTheme.minimumTarget, minHeight: PBTheme.minimumTarget)
+                        .contentShape(Rectangle())
                 }
-                .frame(minWidth: PBTheme.minimumTarget, minHeight: PBTheme.minimumTarget)
-                .accessibilityLabel(Text(prompt))
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(PBL10n.text("common.clearSearch", language: language, locale: locale)))
             }
         }
         .padding(.horizontal, 14)
