@@ -220,7 +220,10 @@ jobs:
           for device in "${devices[@]}"; do
             result_bundle="$GITHUB_WORKSPACE/build/PressBench${device}Tests.xcresult"
             output_dir="$screenshot_dir/$device"
-            [[ -d "$result_bundle" ]] || { echo "$device Xcode test result bundle is missing." >&2; exit 1; }
+            if [[ ! -d "$result_bundle" ]]; then
+              echo "$device Xcode test result bundle is unavailable because an earlier test step did not run."
+              continue
+            fi
             xcrun xcresulttool export attachments \
               --path "$result_bundle" \
               --output-path "$output_dir"

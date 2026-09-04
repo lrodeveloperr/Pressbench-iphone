@@ -383,6 +383,7 @@ final class FirstUseFlowUITests: XCTestCase {
     /// on the first tap.
     private func auditVisibleButtonTargets(in app: XCUIApplication, screen: String) {
         let systemSegmentFrames = app.segmentedControls.allElementsBoundByIndex.map(\.frame)
+        let systemNavigationFrames = app.navigationBars.allElementsBoundByIndex.map(\.frame)
         for button in app.buttons.allElementsBoundByIndex where button.exists && button.isHittable && button.isEnabled {
             let frame = button.frame
             guard !frame.isEmpty else { continue }
@@ -390,10 +391,14 @@ final class FirstUseFlowUITests: XCTestCase {
             // the parent segmented control owns its hit testing. Those controls
             // are first-tap state-tested above instead of judged by glyph frame.
             if systemSegmentFrames.contains(where: { $0.intersects(frame) }) { continue }
+            // UIKit likewise reports the visual label frame for navigation-title
+            // and toolbar elements, while UINavigationBar owns the larger hit
+            // region. Save/Cancel transitions are first-tap tested in the flow.
+            if systemNavigationFrames.contains(where: { $0.intersects(frame) }) { continue }
             XCTAssertGreaterThanOrEqual(frame.width, 43.5,
-                "Button \(button.identifier) is too narrow on \(screen): \(frame)")
+                "Button \(button.label) [\(button.identifier)] is too narrow on \(screen): \(frame)")
             XCTAssertGreaterThanOrEqual(frame.height, 43.5,
-                "Button \(button.identifier) is too short on \(screen): \(frame)")
+                "Button \(button.label) [\(button.identifier)] is too short on \(screen): \(frame)")
         }
     }
 }

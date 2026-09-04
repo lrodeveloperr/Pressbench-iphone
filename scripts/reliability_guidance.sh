@@ -60,6 +60,8 @@ Touchscreen checklist
 7. UI tests never retry a tap to conceal a missed first interaction.
 8. Both compact Touch ID and modern Face ID simulator layouts run the complete UI suite.
 9. UIKit segmented controls are verified by first-tap state changes; their visual segment frame is not misreported as the parent control's hit region.
+10. Native navigation-bar items are verified by first-tap transitions; UIKit's visual label frame is not mistaken for its system-managed hit region.
+11. A failed simulator leg still exports every available screenshot without adding a misleading secondary CI failure.
 
 Authoritative implementation references
 ---------------------------------------

@@ -468,10 +468,14 @@ require(all(marker in ui_test for marker in [
             'testDeleteLocalDataRespondsOnFirstTapAndCompletesOnce',
             'testPrimaryTouchTargetRespondsAtLeftAndRightEdges',
             'auditVisibleButtonTargets', '[0.12, 0.88]',
-            'systemSegmentFrames', 'temperature segment must change on its first tap']) and
+            'systemSegmentFrames', 'systemNavigationFrames',
+            'temperature segment must change on its first tap']) and
         'for _ in 0..<3' not in ui_test and
         'if !acknowledgement.waitForExistence' not in ui_test,
         'touchscreen tests no longer prove first-tap edge response and minimum target geometry without retries')
+require('an earlier test step did not run' in workflow and
+        'continue' in workflow[workflow.index('Export UI audit screenshots'):],
+        'screenshot export adds a misleading failure when a later simulator leg was skipped')
 require(all(marker in ui_test for marker in ['--pressbench-ui-test-limit-reached',
         '--pressbench-ui-test-product-unavailable', '--pressbench-ui-test-pro',
         'Free runs left: 0 of 5', 'Unlock PressBench Pro',
