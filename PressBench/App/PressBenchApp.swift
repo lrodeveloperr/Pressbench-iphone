@@ -10,7 +10,15 @@ struct PressBenchApp: App {
         #if DEBUG || PRESSBENCH_UI_TESTING
         PressBenchUITestBootstrap.resetIfRequested()
         #endif
-        _store = StateObject(wrappedValue: PressBenchStore.production())
+        let productionStore = PressBenchStore.production()
+        #if PRESSBENCH_UI_TESTING
+        if ProcessInfo.processInfo.arguments.contains("--pressbench-ipad-marketing-screenshot") {
+            UserDefaults.standard.set(true, forKey: "pressbench.onboarding.completed")
+            do { try productionStore.loadScreenshotFixture() }
+            catch { fatalError("iPad screenshot fixture failed: \(error)") }
+        }
+        #endif
+        _store = StateObject(wrappedValue: productionStore)
     }
 
     var body: some Scene {
