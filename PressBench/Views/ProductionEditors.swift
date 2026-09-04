@@ -941,7 +941,6 @@ struct ProUpgradeView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
-    @State private var actionInProgress = false
     @State private var showingFailure = false
     @State private var failureMessageKey = "purchase.failed"
     @State private var restoreFoundNothing = false
@@ -962,7 +961,7 @@ struct ProUpgradeView: View {
                         ))
                         .font(.headline).foregroundStyle(PBTheme.text).multilineTextAlignment(.center)
                     }
-                    if actionInProgress { ProgressView().controlSize(.large) }
+                    if store.purchaseOperationInProgress { ProgressView().controlSize(.large) }
                     if store.purchaseState == .pending {
                         Label(t("purchase.pending"), systemImage: "clock.fill")
                             .font(.subheadline.weight(.semibold)).foregroundStyle(PBTheme.warningInk)
@@ -972,15 +971,26 @@ struct ProUpgradeView: View {
                         Label(t("purchase.unavailable"), systemImage: "exclamationmark.triangle.fill")
                             .font(.subheadline.weight(.semibold)).foregroundStyle(PBTheme.warningInk)
                             .multilineTextAlignment(.center)
-                        Button(t("common.retry")) { retryProduct() }
-                            .font(.headline).frame(minHeight: PBTheme.minimumTarget)
-                            .disabled(actionInProgress)
+                        Button { retryProduct() } label: {
+                            Text(t("common.retry"))
+                                .font(.headline)
+                                .pbFullSurfaceTarget(alignment: .center)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.large)
+                        .accessibilityIdentifier("pb.upgrade.retry")
+                        .disabled(store.purchaseOperationInProgress)
                     }
                     PBPrimaryButton(title: subscribeTitle, icon: "creditcard.fill") { purchase() }
-                        .disabled(actionInProgress || store.purchaseState == .pending || store.productDisplayPrice == nil)
-                    Button(t("upgrade.restore")) { restore() }
-                        .font(.headline).frame(minHeight: PBTheme.minimumTarget)
-                        .disabled(actionInProgress)
+                        .accessibilityIdentifier("pb.upgrade.purchase")
+                        .disabled(store.purchaseOperationInProgress || store.purchaseState == .pending || store.productDisplayPrice == nil)
+                    Button { restore() } label: {
+                        Text(t("upgrade.restore"))
+                            .font(.headline)
+                            .pbFullSurfaceTarget(alignment: .center)
+                    }
+                    .accessibilityIdentifier("pb.upgrade.restore")
+                    .disabled(store.purchaseOperationInProgress)
                     if restoreFoundNothing {
                         Text(t("purchase.notFound"))
                             .font(.subheadline).foregroundStyle(PBTheme.secondary).multilineTextAlignment(.center)
@@ -1005,7 +1015,9 @@ struct ProUpgradeView: View {
 
     @ViewBuilder private var policyLinks: some View {
         Link(t("common.termsOfUse"), destination: PressBenchPolicyLinks.terms)
+            .frame(minHeight: PBTheme.minimumTarget)
         Link(t("common.privacyPolicy"), destination: PressBenchPolicyLinks.privacy)
+            .frame(minHeight: PBTheme.minimumTarget)
     }
 
     private var subscribeTitle: String {
@@ -1017,10 +1029,8 @@ struct ProUpgradeView: View {
     private func purchase() {
         restoreFoundNothing = false
         failureMessageKey = "purchase.failed"
-        actionInProgress = true
         Task { @MainActor in
             await store.purchasePro()
-            actionInProgress = false
             if store.isPro { dismiss(); return }
             switch store.purchaseState {
             case .pending, .free: break
@@ -1033,10 +1043,8 @@ struct ProUpgradeView: View {
     private func restore() {
         restoreFoundNothing = false
         failureMessageKey = "restore.failed"
-        actionInProgress = true
         Task { @MainActor in
             await store.restorePurchases()
-            actionInProgress = false
             if store.isPro { dismiss(); return }
             switch store.purchaseState {
             case .free: restoreFoundNothing = true
@@ -1048,10 +1056,8 @@ struct ProUpgradeView: View {
     }
 
     private func retryProduct() {
-        actionInProgress = true
         Task { @MainActor in
             await store.reloadPurchases()
-            actionInProgress = false
             if store.productDisplayPrice == nil { showingFailure = true }
         }
     }

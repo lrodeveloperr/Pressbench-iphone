@@ -23,13 +23,15 @@ final class FirstUseFlowUITests: XCTestCase {
         let moreTab = app.tabBars.buttons["More"]
         XCTAssertTrue(waitForHittable(moreTab, timeout: 20), "The native tab bar must settle inside the Face ID viewport")
         capture("face-id-home-safe-area")
-        let settingsLink = app.staticTexts["Settings"].firstMatch
+        let settingsLink = app.buttons.matching(identifier: "pb.more.settings").firstMatch
         XCTAssertTrue(openTab("More", until: settingsLink, app: app))
-        settingsLink.tap()
+        assertControlSurface(settingsLink, name: "More → Settings")
+        tapEdge(settingsLink, horizontal: 0.9)
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 4))
-        let backup = app.descendants(matching: .any)["pb.settings.backup"]
+        let backup = app.buttons.matching(identifier: "pb.settings.backup").firstMatch
         XCTAssertTrue(backup.waitForExistence(timeout: 4))
         XCTAssertTrue(backup.isHittable, "Backup must remain in the first Settings viewport")
+        assertControlSurface(backup, name: "Create Backup")
         capture("face-id-prioritized-settings")
     }
 
@@ -68,22 +70,28 @@ final class FirstUseFlowUITests: XCTestCase {
 
         let moreTab = app.tabBars.buttons["More"]
         XCTAssertTrue(waitForHittable(moreTab, timeout: 8))
-        let settingsLink = app.descendants(matching: .any)["pb.more.settings"].firstMatch
+        let settingsLink = app.buttons.matching(identifier: "pb.more.settings").firstMatch
         XCTAssertTrue(openTab("More", until: settingsLink, app: app))
-        settingsLink.tap()
+        assertControlSurface(settingsLink, name: "More → Settings")
+        tapEdge(settingsLink, horizontal: 0.9)
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 20))
-        let plan = app.descendants(matching: .any)["pb.settings.plan"]
+        let plan = app.buttons.matching(identifier: "pb.settings.plan").firstMatch
         XCTAssertTrue(plan.waitForExistence(timeout: 4))
-        XCTAssertTrue(plan.isHittable)
+        assertControlSurface(plan, name: "Unlock PressBench Pro")
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].exists)
         XCTAssertTrue(app.staticTexts["Free runs left: 5 of 5"].exists)
-        let backup = app.descendants(matching: .any)["pb.settings.backup"]
+        let backup = app.buttons.matching(identifier: "pb.settings.backup").firstMatch
         XCTAssertTrue(backup.exists)
         XCTAssertTrue(backup.isHittable, "Backup must remain in the first Settings viewport")
-        let restoreBackup = app.descendants(matching: .any)["pb.settings.restoreBackup"]
+        assertControlSurface(backup, name: "Create Backup")
+        let restoreBackup = app.buttons.matching(identifier: "pb.settings.restoreBackup").firstMatch
         XCTAssertTrue(restoreBackup.exists)
         makeHittable(restoreBackup, in: app)
         XCTAssertTrue(restoreBackup.isHittable, "Import backup must remain directly available without sign-in")
+        assertControlSurface(restoreBackup, name: "Import Backup")
+        let restorePurchase = app.buttons.matching(identifier: "pb.settings.restorePurchase").firstMatch
+        XCTAssertTrue(restorePurchase.exists)
+        assertControlSurface(restorePurchase, name: "Restore Purchase")
         XCTAssertTrue(app.staticTexts["Back up your data"].exists)
         XCTAssertFalse(app.buttons["Continue with Apple"].exists)
         XCTAssertFalse(app.buttons["Sign out"].exists)
@@ -121,12 +129,13 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(waitForInteractable(startNewRun, timeout: 8))
         capture("06-ready-to-run")
         startNewRun.tap()
-        let exactRepeat = app.staticTexts["Exact repeat"]
+        let exactRepeat = app.buttons["Exact repeat"].firstMatch
         XCTAssertTrue(waitForHittable(exactRepeat, timeout: 8),
                       "A single runnable setup must bypass redundant setup selection")
         XCTAssertFalse(app.buttons.matching(identifier: "pb.startRun.setup").firstMatch.exists)
         capture("06a-single-setup-direct-start")
-        exactRepeat.tap()
+        assertControlSurface(exactRepeat, name: "Exact repeat")
+        tapEdge(exactRepeat, horizontal: 0.1)
         let continueRun = app.buttons["Continue"].firstMatch
         makeHittable(continueRun, in: app)
         XCTAssertTrue(waitForInteractable(continueRun, timeout: 5))
@@ -198,6 +207,12 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["The subscription is unavailable right now. Try again in a moment."].waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["Subscribe"].isEnabled)
+        let unavailablePurchase = app.buttons.matching(identifier: "pb.upgrade.purchase").firstMatch
+        let retryProduct = app.buttons.matching(identifier: "pb.upgrade.retry").firstMatch
+        let restorePurchaseFromPaywall = app.buttons.matching(identifier: "pb.upgrade.restore").firstMatch
+        assertControlSurface(unavailablePurchase, name: "Unavailable purchase")
+        assertControlSurface(retryProduct, name: "Retry product")
+        assertControlSurface(restorePurchaseFromPaywall, name: "Restore purchase")
         capture("12-sixth-run-upgrade")
 
         app.buttons["Cancel"].firstMatch.tap()
@@ -211,12 +226,12 @@ final class FirstUseFlowUITests: XCTestCase {
             XCTFail("Runs screen did not open")
             return
         }
-        let cappedRun = app.staticTexts[generatedSetupTitle].firstMatch
+        let cappedRun = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] %@", generatedSetupTitle)).firstMatch
         guard waitForHittable(cappedRun, timeout: 5) else {
             XCTFail("Completed run was not visible")
             return
         }
-        cappedRun.tap()
+        tapEdge(cappedRun, horizontal: 0.9)
         let repeatSetup = app.buttons["Repeat this setup"]
         guard repeatSetup.waitForExistence(timeout: 5) else {
             XCTFail("Completed-run Repeat action was not visible")
@@ -232,10 +247,11 @@ final class FirstUseFlowUITests: XCTestCase {
         capture("13-capped-repeat-upgrade")
 
         app.buttons["Cancel"].firstMatch.tap()
-        let reportsLink = app.descendants(matching: .any)["pb.more.reports"].firstMatch
+        let reportsLink = app.buttons.matching(identifier: "pb.more.reports").firstMatch
         XCTAssertTrue(openTab("More", until: reportsLink, app: app))
         XCTAssertTrue(waitForInteractable(reportsLink, timeout: 8))
-        reportsLink.tap()
+        assertControlSurface(reportsLink, name: "More → Reports")
+        tapEdge(reportsLink, horizontal: 0.1)
         XCTAssertTrue(app.navigationBars["Production Report"].waitForExistence(timeout: 8))
         let lockedPDF = app.buttons.matching(identifier: "pb.reports.pdf").firstMatch
         XCTAssertTrue(waitForInteractable(lockedPDF, timeout: 5))
@@ -248,10 +264,11 @@ final class FirstUseFlowUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.buttons.matching(identifier: "pb.home.startRun").firstMatch.waitForExistence(timeout: 8))
         XCTAssertFalse(app.staticTexts["Free runs left: 0 of 5"].exists)
-        let proSettingsLink = app.descendants(matching: .any)["pb.more.settings"].firstMatch
+        let proSettingsLink = app.buttons.matching(identifier: "pb.more.settings").firstMatch
         XCTAssertTrue(openTab("More", until: proSettingsLink, app: app))
         XCTAssertTrue(waitForHittable(proSettingsLink, timeout: 20))
-        proSettingsLink.tap()
+        assertControlSurface(proSettingsLink, name: "More → Settings (Pro)")
+        tapEdge(proSettingsLink, horizontal: 0.9)
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 20))
         XCTAssertTrue(app.staticTexts["Purchases & Pro Access"].waitForExistence(timeout: 4))
         XCTAssertTrue(app.staticTexts["Manage subscription"].exists)
@@ -316,10 +333,22 @@ final class FirstUseFlowUITests: XCTestCase {
         for _ in 0..<3 {
             let button = app.buttons.matching(identifier: identifier).firstMatch
             guard waitForHittable(button, timeout: timeout / 3) else { continue }
-            button.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            assertControlSurface(button, name: identifier)
+            tapEdge(button, horizontal: 0.9)
             return true
         }
         return false
+    }
+
+    private func assertControlSurface(_ element: XCUIElement, name: String) {
+        XCTAssertTrue(element.exists, "Missing parent control: \(name)")
+        XCTAssertTrue(element.isHittable, "Parent control is not hittable: \(name)")
+        XCTAssertGreaterThanOrEqual(element.frame.width, 44, "Control is too narrow: \(name)")
+        XCTAssertGreaterThanOrEqual(element.frame.height, 44, "Control is too short: \(name)")
+    }
+
+    private func tapEdge(_ element: XCUIElement, horizontal: CGFloat) {
+        element.coordinate(withNormalizedOffset: CGVector(dx: horizontal, dy: 0.5)).tap()
     }
 
     private func waitForHittable(_ element: XCUIElement, timeout: TimeInterval) -> Bool {

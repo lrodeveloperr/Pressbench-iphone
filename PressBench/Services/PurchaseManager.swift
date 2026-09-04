@@ -13,6 +13,11 @@ final class PurchaseManager: ObservableObject {
 
     @Published private(set) var product: Product?
     @Published private(set) var state: PurchaseState = .loading
+    @Published private(set) var isLoadingProduct = false
+    @Published private(set) var isPurchasing = false
+    @Published private(set) var isRestoring = false
+
+    var isWorking: Bool { isLoadingProduct || isPurchasing || isRestoring }
 
     private var updatesTask: Task<Void, Never>?
     var onStoreEvent: (([String: Any]) -> Void)?
@@ -20,12 +25,15 @@ final class PurchaseManager: ObservableObject {
     deinit { updatesTask?.cancel() }
 
     func start() async {
+        guard !isWorking else { return }
         updatesTask?.cancel()
         updatesTask = Task { [weak self] in
             for await result in Transaction.updates {
                 await self?.consume(result: result, action: "automatic_refresh")
             }
         }
+        isLoadingProduct = true
+        defer { isLoadingProduct = false }
         let productLoaded = await loadProduct()
         let productLoadState = state
         await refresh(action: "automatic_refresh", userInitiated: false)
@@ -33,6 +41,9 @@ final class PurchaseManager: ObservableObject {
     }
 
     func reloadProduct() async {
+        guard !isWorking else { return }
+        isLoadingProduct = true
+        defer { isLoadingProduct = false }
         state = .loading
         let productLoaded = await loadProduct()
         let productLoadState = state
@@ -41,6 +52,9 @@ final class PurchaseManager: ObservableObject {
     }
 
     func purchase() async {
+        guard !isWorking, state != .purchased else { return }
+        isPurchasing = true
+        defer { isPurchasing = false }
         guard let product else {
             state = .unavailable
             return
@@ -67,6 +81,9 @@ final class PurchaseManager: ObservableObject {
     }
 
     func restore() async {
+        guard !isWorking else { return }
+        isRestoring = true
+        defer { isRestoring = false }
         do {
             try await AppStore.sync()
             await refresh(action: "explicit_restore", userInitiated: true)

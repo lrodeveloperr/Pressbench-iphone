@@ -45,6 +45,7 @@ struct ReportsView: View {
                                     ))
                                 }
                             }
+                            .pbFullSurfaceTarget()
                         }
                     }
                     .padding(.vertical, 6)
@@ -55,6 +56,7 @@ struct ReportsView: View {
                 Section {
                     ShareLink(item: exportURL) {
                         Label(exportURL.lastPathComponent, systemImage: "square.and.arrow.up")
+                            .pbFullSurfaceTarget()
                     }
                 }
             }
@@ -93,6 +95,7 @@ struct ReportsView: View {
                 Spacer()
                 Image(systemName: store.isPro ? "chevron.forward" : "lock.fill").foregroundStyle(PBTheme.secondary)
             }
+            .pbFullSurfaceTarget()
         }
         .disabled(generating)
         .accessibilityIdentifier("pb.reports.\(format.lowercased())")

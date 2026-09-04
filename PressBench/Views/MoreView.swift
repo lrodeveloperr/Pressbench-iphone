@@ -51,6 +51,7 @@ struct MoreView: View {
             Text(t(key)).font(.headline).foregroundStyle(.primary)
             Spacer()
             Image(systemName: "chevron.forward").foregroundStyle(PBTheme.secondary)
-        }.frame(minHeight: 64)
+        }
+        .pbFullSurfaceTarget(minHeight: 64)
     }
 }

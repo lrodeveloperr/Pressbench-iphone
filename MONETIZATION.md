@@ -21,11 +21,23 @@ Create this in a `PressBench Pro` subscription group before testing purchases:
 
 Add localized product metadata, a subscription review screenshot, the privacy-policy URL, and the terms-of-use URL. The code rejects a StoreKit product that is not an auto-renewable one-month subscription.
 
+For the first subscription review, add all three items to the same App Store Connect draft submission before submitting it: the iOS app version, the `PressBench Pro` subscription group, and `pressbench_unlimited_monthly_ios`. A product that only says `Ready for Review` but is not in that draft is not review-accessible.
+
+## App Review access path
+
+There is no reviewer password, hidden unlock, or production entitlement bypass. App Review reaches the real StoreKit purchase sheet through either supported route:
+
+1. Open **More → Settings → Unlock PressBench Pro**.
+2. Or open **More → Production Report**, choose **PDF** or **XLSX**, and continue from the Pro paywall.
+3. Use **Restore Purchase** on the paywall to verify an existing App Store entitlement.
+
+The paywall must display StoreKit's localized price, keep purchase unavailable until the exact monthly product loads, provide a visible retry state when loading fails, and serialize purchase, restore, and retry so only one StoreKit operation can run at a time.
+
 ## Review explanation
 
 Use this accurate wording in App Review Notes:
 
-> PressBench Pro provides continuing access to a recurring production workflow: unlimited press-run logging and ongoing PDF/XLSX production reporting on the customer’s Apple devices while subscribed. Free users may complete five press runs. Existing records remain readable after the subscription ends. The app does not claim cloud storage or new content as subscription value.
+> No login or demo account is required. To review PressBench Pro, open More → Settings → Unlock PressBench Pro, or open More → Production Report and choose PDF/XLSX. The app then presents Apple’s StoreKit purchase sheet for `pressbench_unlimited_monthly_ios`; Restore Purchase is on the same screen. PressBench Pro provides continuing access to unlimited press-run logging and PDF/XLSX production reporting while subscribed. Free users may complete five press runs, and existing records remain readable after the subscription ends. Backups are optional user-initiated exports and imports through Apple’s Files picker; PressBench has no cloud-backup account.
 
 This follows [App Review Guideline 3.1.2](https://developer.apple.com/app-store/review/guidelines/#subscriptions): the subscription lasts at least seven days, supplies ongoing value, uses in-app purchase for digital access, clearly explains the benefits and renewal, works across the user’s devices through StoreKit entitlement, and preserves any former lifetime purchase.
 

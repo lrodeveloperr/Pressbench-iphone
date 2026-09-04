@@ -464,10 +464,11 @@ require(settings_view.index('planSection') < settings_view.index('backupSection'
         'ReportsView()' not in settings_view,
         'Settings no longer enforces the reviewed plan, backup, preferences, legal, maintenance hierarchy')
 require('Text(t("common.unlockPro"))' in settings_view and
-        'frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .center)' in settings_view and
+        '.pbFullSurfaceTarget(alignment: .center)' in settings_view and
         'Label(t("common.unlockPro"), systemImage:' not in settings_view,
         'Unlock Pro CTA must remain icon-free with centered text')
 require(all(marker in more_view for marker in ['ReportsView()', 'MachinesView()', 'SettingsView()', 'pb.more.settings']) and
+        '.pbFullSurfaceTarget(minHeight: 64)' in more_view and
         all(marker not in more_view for marker in [
             'ProUpgradeView', 'SignInWithAppleButton', 'PressBenchPolicyLinks',
             'more.viewOnboarding']),
@@ -506,6 +507,23 @@ require(purchase_manager.count('let productLoaded = await loadProduct()') == 2 a
         purchase_manager.count('if !productLoaded, state == .free { state = productLoadState }') == 2 and
         'guard await loadProduct() else { return }' not in purchase_manager,
         'entitlement refresh must continue when StoreKit product metadata is unavailable')
+require(all(marker in purchase_manager for marker in [
+            '@Published private(set) var isLoadingProduct',
+            '@Published private(set) var isPurchasing',
+            '@Published private(set) var isRestoring',
+            'var isWorking: Bool',
+            'guard !isWorking, state != .purchased else { return }']) and
+        purchase_manager.count('guard !isWorking else { return }') >= 3,
+        'StoreKit purchase, restore, and product loading must remain single-flight')
+require(all(marker in ui_test for marker in [
+            'app.buttons.matching(identifier: "pb.more.settings")',
+            'app.buttons.matching(identifier: "pb.settings.backup")',
+            'app.buttons.matching(identifier: "pb.settings.restoreBackup")',
+            'app.buttons.matching(identifier: "pb.upgrade.retry")',
+            'app.buttons.matching(identifier: "pb.upgrade.restore")',
+            'assertControlSurface', 'tapEdge']) and
+        'app.staticTexts["Settings"].firstMatch' not in ui_test,
+        'UI tests must exercise identified parent controls and their full hit surfaces')
 root_tabs=(root/'PressBench/Views/RootTabView.swift').read_text(encoding='utf-8')
 require('entitlementsResolved' not in purchase_manager and 'adEligibilityResolved' not in store_source and
         '.pbBanner' not in root_tabs,

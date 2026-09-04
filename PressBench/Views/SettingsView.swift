@@ -44,6 +44,7 @@ struct SettingsView: View {
                     if store.hasRejectedRun {
                         Button(role: .destructive) { showingRejectedRunDiscardConfirmation = true } label: {
                             Label(t("run.discardRejected"), systemImage: "trash")
+                                .pbFullSurfaceTarget()
                         }
                     }
                 }
@@ -67,26 +68,33 @@ struct SettingsView: View {
                     } icon: {
                         Image(systemName: "slider.horizontal.3")
                     }
+                    .pbFullSurfaceTarget()
                 }
+                .accessibilityIdentifier("pb.settings.general")
             }
 
             Section {
                 DisclosureGroup {
                     Button { onboardingCompleted = false } label: {
                         Label(t("more.viewOnboarding"), systemImage: "arrow.counterclockwise")
+                            .pbFullSurfaceTarget()
                     }
                     .disabled(store.activeRun != nil)
                     Link(destination: PressBenchPolicyLinks.support) {
                         Label(t("common.support"), systemImage: "questionmark.circle")
+                            .pbFullSurfaceTarget()
                     }
                     Link(destination: PressBenchPolicyLinks.safety) {
                         Label(t("common.safetyNotice"), systemImage: "exclamationmark.triangle")
+                            .pbFullSurfaceTarget()
                     }
                     Link(destination: PressBenchPolicyLinks.privacy) {
                         Label(t("common.privacyPolicy"), systemImage: "hand.raised")
+                            .pbFullSurfaceTarget()
                     }
                     Link(destination: PressBenchPolicyLinks.terms) {
                         Label(t("common.termsOfUse"), systemImage: "doc.text")
+                            .pbFullSurfaceTarget()
                     }
                     if language != .en {
                         Text(t("onboarding.legal.policyLanguageNotice"))
@@ -95,6 +103,7 @@ struct SettingsView: View {
                     }
                 } label: {
                     Label(t("settings.legalSupport"), systemImage: "questionmark.circle")
+                        .pbFullSurfaceTarget()
                 }
             }
 
@@ -102,10 +111,12 @@ struct SettingsView: View {
                 DisclosureGroup {
                     Button(role: .destructive) { showingDeleteConfirmation = true } label: {
                         Label(t("settings.deleteLocalData"), systemImage: "trash")
+                            .pbFullSurfaceTarget()
                     }
                     .disabled(store.activeRun != nil)
                 } label: {
                     Label(t("common.maintenance"), systemImage: "wrench.and.screwdriver")
+                        .pbFullSurfaceTarget()
                 }
             }
         }
@@ -179,7 +190,7 @@ struct SettingsView: View {
                     Link(destination: store.canManageMonthlySubscription ?
                          PressBenchPolicyLinks.manageSubscription : PressBenchPolicyLinks.purchases) {
                         Label(t("upgrade.manage"), systemImage: "creditcard")
-                            .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .leading)
+                            .pbFullSurfaceTarget()
                     }
                 } else {
                     Text(PBL10n.format(
@@ -191,13 +202,16 @@ struct SettingsView: View {
                     Button { showingUpgrade = true } label: {
                         Text(t("common.unlockPro"))
                             .font(.headline)
-                            .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .center)
+                            .pbFullSurfaceTarget(alignment: .center)
                             .multilineTextAlignment(.center)
                     }
                     .buttonStyle(.borderedProminent)
                     .accessibilityIdentifier("pb.settings.plan")
-                    Button(t("upgrade.restore")) { showingUpgrade = true }
-                        .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget)
+                    Button { showingUpgrade = true } label: {
+                        Text(t("upgrade.restore"))
+                            .pbFullSurfaceTarget(alignment: .center)
+                    }
+                    .accessibilityIdentifier("pb.settings.restorePurchase")
                 }
             }
             .padding(.vertical, 4)
@@ -232,12 +246,14 @@ struct SettingsView: View {
 
             Button { prepareBackupExport() } label: {
                 Label(t("settings.createBackup"), systemImage: "square.and.arrow.up")
+                    .pbFullSurfaceTarget()
             }
             .disabled(backupOperationInProgress)
             .accessibilityIdentifier("pb.settings.backup")
 
             Button { showingBackupImporter = true } label: {
                 Label(t("settings.importBackup"), systemImage: "square.and.arrow.down")
+                    .pbFullSurfaceTarget()
             }
             .disabled(backupOperationInProgress || store.activeRun != nil || store.hasRejectedRun)
             .accessibilityIdentifier("pb.settings.restoreBackup")
@@ -430,6 +446,7 @@ private struct PreferencesSettingsView: View {
                 }
                 NavigationLink { AccessibilitySettingsView() } label: {
                     Label(t("common.accessibility"), systemImage: "accessibility")
+                        .pbFullSurfaceTarget()
                 }
             }
             .tint(PBTheme.primary)
@@ -494,6 +511,7 @@ private struct AccessibilitySettingsView: View {
             Section {
                 Link(destination: URL(string: UIApplication.openSettingsURLString)!) {
                     Label(t("accessibility.openSettings"), systemImage: "gearshape")
+                        .pbFullSurfaceTarget()
                 }
             }
         }

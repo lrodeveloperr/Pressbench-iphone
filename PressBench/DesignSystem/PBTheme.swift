@@ -254,11 +254,23 @@ struct PBPrimaryButton: View {
             }
             .font(.system(size: max(19, labelSize), weight: .bold))
             .frame(maxWidth: .infinity, minHeight: PBTheme.primaryHeight)
+            .contentShape(Rectangle())
             .foregroundStyle(.white)
             .background(PBTheme.primaryGradient, in: RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous))
             .shadow(color: PBTheme.controlShadow, radius: 12, x: 0, y: 6)
         }
         .buttonStyle(PBTactileButtonStyle())
+    }
+}
+
+extension View {
+    /// Expands a composite control label to one predictable, accessible hit surface.
+    func pbFullSurfaceTarget(
+        minHeight: CGFloat = PBTheme.minimumTarget,
+        alignment: Alignment = .leading
+    ) -> some View {
+        frame(maxWidth: .infinity, minHeight: minHeight, alignment: alignment)
+            .contentShape(Rectangle())
     }
 }
 
