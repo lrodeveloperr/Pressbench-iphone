@@ -1,0 +1,104 @@
+name: Capture PressBench iPad Marketing Screenshot
+
+on:
+  push:
+    branches:
+      - codex/ipad-high-leverage-screenshot
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    name: Genuine iPad simulator capture
+    runs-on: macos-26
+    timeout-minutes: 35
+
+    steps:
+      - name: Check out screenshot branch
+        uses: actions/checkout@v7
+
+      - name: Select Xcode
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -d /Applications/Xcode_26.6.app ]]; then
+            sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
+          fi
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew untap aws/tap >/dev/null 2>&1 || true
+          command -v xcodegen >/dev/null || brew install xcodegen
+
+      - name: Generate deterministic screenshot data
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/generate_ipad_screenshot_fixture.js PressBench/Resources/PressBenchScreenshotFixture.json
+          node -e 'const f=require("./PressBench/Resources/PressBenchScreenshotFixture.json"); if(f.machines.length!==2||f.setups.length!==4||f.batches.length!==12) process.exit(1)'
+
+      - name: Generate Xcode project
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf PressBench.xcodeproj
+          xcodegen generate
+
+      - name: Select App Store-size iPad simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          UDID="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; devices=[x for values in d.values() for x in values if x.get("isAvailable") and ("iPad Pro 13-inch" in x.get("name","") or "iPad Pro (12.9-inch)" in x.get("name",""))]; devices.sort(key=lambda x:("13-inch" not in x["name"], x["name"])); print(devices[0]["udid"] if devices else "")')"
+          [[ -n "$UDID" ]] || { echo 'No App Store-size iPad simulator is available.' >&2; exit 1; }
+          echo "IPAD_UDID=$UDID" >> "$GITHUB_ENV"
+
+      - name: Capture populated Home overview
+        shell: bash
+        run: |
+          set -euo pipefail
+          result_bundle="$GITHUB_WORKSPACE/build/PressBenchIPadMarketing.xcresult"
+          rm -rf "$result_bundle"
+          xcodebuild \
+            -project PressBench.xcodeproj \
+            -scheme PressBench \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,id=$IPAD_UDID" \
+            -resultBundlePath "$result_bundle" \
+            CODE_SIGNING_ALLOWED=NO \
+            'SWIFT_ACTIVE_COMPILATION_CONDITIONS=$(inherited) PRESSBENCH_UI_TESTING' \
+            -only-testing:PressBenchUITests/IPadMarketingScreenshotUITests/testHomeOverview \
+            test
+
+      - name: Export and verify the single iPad image
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="$GITHUB_WORKSPACE/build/ipad-marketing"
+          rm -rf "$output"
+          mkdir -p "$output"
+          xcrun xcresulttool export attachments \
+            --path "$GITHUB_WORKSPACE/build/PressBenchIPadMarketing.xcresult" \
+            --output-path "$output/raw"
+          screenshot="$(find "$output/raw" -type f -name '*.png' -print -quit)"
+          [[ -n "$screenshot" ]] || { echo 'The iPad screenshot attachment is missing.' >&2; exit 1; }
+          cp "$screenshot" "$output/PressBench-iPad-Home-Overview.png"
+          dimensions="$(sips -g pixelWidth -g pixelHeight "$output/PressBench-iPad-Home-Overview.png" | awk '/pixelWidth:/{w=$2}/pixelHeight:/{h=$2}END{print w"x"h}')"
+          case "$dimensions" in
+            2064x2752|2752x2064|2048x2732|2732x2048) ;;
+            *) echo "Unexpected iPad screenshot dimensions: $dimensions" >&2; exit 1 ;;
+          esac
+          [[ "$(find "$output" -maxdepth 1 -type f -name '*.png' | wc -l | tr -d ' ')" == "1" ]] || exit 1
+          echo "Verified genuine iPad screenshot: $dimensions"
+
+      - name: Upload iPad screenshot artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: PressBench-iPad-Home-Overview
+          path: build/ipad-marketing/PressBench-iPad-Home-Overview.png
+          if-no-files-found: error
+          retention-days: 14
