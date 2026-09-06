@@ -1,0 +1,66 @@
+name: PressBench lifetime migration recovery
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/lifetime-migration-recovery.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Normalize ReportsView indentation for reviewed migration
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('PressBench/Views/ReportsView.swift')
+          s=p.read_text(encoding='utf-8')
+          old='''                                if let price = store.productDisplayPrice {
+                                    Text(PBL10n.format(
+                                        "upgrade.pricePerMonthFormat", language: language, locale: locale,
+                                        price as NSString
+                                    ))
+                                }'''
+          new='''                                if let price = store.productDisplayPrice {
+                                      Text(PBL10n.format(
+                                          "upgrade.pricePerMonthFormat", language: language, locale: locale,
+                                          price as NSString
+                                      ))
+                                  }'''
+          if s.count(old) != 1:
+              raise SystemExit(f'expected old ReportsView price block once; found {s.count(old)}')
+          p.write_text(s.replace(old,new),encoding='utf-8')
+          PY
+      - name: Execute reviewed migration script
+        run: |
+          ruby - <<'RUBY'
+          require 'yaml'
+          doc = YAML.safe_load(File.read('.github/workflows/lifetime-migration-once.yml'), aliases: true)
+          step = doc.fetch('jobs').fetch('migrate').fetch('steps').find { |x| x['name'] == 'Apply lifetime-purchase migration' }
+          File.write('/tmp/apply-migration.sh', step.fetch('run'))
+          RUBY
+          bash -euo pipefail /tmp/apply-migration.sh
+      - name: Execute reviewed validation script
+        run: |
+          ruby - <<'RUBY'
+          require 'yaml'
+          doc = YAML.safe_load(File.read('.github/workflows/lifetime-migration-once.yml'), aliases: true)
+          step = doc.fetch('jobs').fetch('migrate').fetch('steps').find { |x| x['name'] == 'Validate migrated release contract' }
+          File.write('/tmp/validate-migration.sh', step.fetch('run'))
+          RUBY
+          bash -euo pipefail /tmp/validate-migration.sh
+      - name: Commit validated migration
+        run: |
+          git config user.name "PressBench Release Migration"
+          git config user.email "actions@users.noreply.github.com"
+          git add PressBench scripts build_l10n.py localization_keys.json monetization_translations.json phrases.tsv UI-TEXT-INVENTORY.md LOCALIZATION-AUDIT-31-LANGUAGES.csv
+          git diff --cached --check
+          git commit -m "Finalize PressBench lifetime purchase migration"
+          git push
