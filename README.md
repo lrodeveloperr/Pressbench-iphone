@@ -23,15 +23,13 @@ The packaged-source path exists specifically so the binary ZIP can be uploaded o
 
 ## Approved interface
 
-The reviewed production source uses the GoodUse Studios Ocean Pearl system: adaptive light/dark tokens, 28-point page headers, 24-point cards, 62-point primary controls, four stable thumb destinations, RTL/Dynamic Type reflow, and Reduce Motion-aware interaction. The operator workflow includes one-screen onboarding, chained first-use setup, strict runnable-setup validation, guided first-piece/timer/QC gates, quantity and issue capture, Apple private backup/recovery, auditable completed-run correction, and the three-way reuse selector. The deterministic engine enforces timer, QC, capacity, recovery, and commit integrity. The durable catalog contains 366 keys across 32 runtime locale codes, generated from 327 canonical phrases; the compact-layout audit covers 960 text slots with zero failures.
+The reviewed production source uses the GoodUse Studios Ocean Pearl system: adaptive light/dark tokens, 28-point page headers, 24-point cards, 62-point primary controls, four stable thumb destinations, RTL/Dynamic Type reflow, and Reduce Motion-aware interaction. The operator workflow includes one-screen onboarding, chained first-use setup, strict runnable-setup validation, guided first-piece/timer/QC gates, quantity and issue capture, Apple Files backup/recovery, auditable completed-run correction, and the three-way reuse selector. The deterministic engine enforces timer, QC, capacity, recovery, and commit integrity. The durable catalog contains 366 keys across 32 runtime locale codes, generated from 327 canonical phrases; the compact-layout audit covers 960 text slots with zero failures.
 
 ## CI
 
 - **Validate PressBench iOS** runs on pushes/PRs and can also be run manually. It checks release integrity, the 31-language UI layer, all 98 localized operator presets, deterministic engine smoke tests, Xcode project generation, a Release simulator build, unit/UI tests, and captures first-use UI audit screenshots.
-- **Run TestFlight Build** is manual. It repeats all validation, verifies the Apple credentials and App Store Connect identity, archives/signs the production app, verifies bundle/version/build/privacy-manifest identity, exports and validates the IPA, then uploads it to TestFlight.
+- **Run TestFlight Build** builds, validates, signs, and uploads the production app when explicitly authorized by the release workflow.
 
-The TestFlight workflow requires the literal confirmation `UPLOAD TESTFLIGHT` and fails closed before upload on any error.
+The iOS app contains no advertising or tracking SDK. Free users may complete three successfully saved press runs. A one-time non-consumable purchase permanently unlocks unlimited runs and locally generated PDF/XLSX reports. The United States reference price is US$39.99, with the approved App Store Connect geopriced schedule used in other storefronts. Customer-facing pricing always comes from StoreKit. There is no recurring charge or subscription for new customers. See `MONETIZATION.md` for the StoreKit product, legacy-subscription migration, App Review wording, and release controls.
 
-The iOS app contains no advertising or tracking SDK. Free users may complete five successfully saved press runs; the US subscription base price is $6.99/month, with Apple-managed equivalent pricing in other storefronts, for unlimited runs and locally generated PDF/XLSX reports. The app displays StoreKit's localized price rather than hard-coded currency copy. See `MONETIZATION.md` for the StoreKit product, App Review wording, lifetime-purchase migration, and release controls.
-
-See `TESTFLIGHT_SETUP.md` for the one-time Apple secret setup.
+See `TESTFLIGHT_SETUP.md` for the Apple credential and release setup.
