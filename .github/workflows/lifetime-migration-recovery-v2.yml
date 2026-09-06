@@ -1,3 +1,4 @@
+# corrected: preserve legacy monthly entitlement while primary product is lifetime
 name: PressBench lifetime migration recovery v2
 
 on:
@@ -36,11 +37,13 @@ jobs:
           File.write('/tmp/apply-migration.sh', step.fetch('run'))
           RUBY
           bash -euo pipefail /tmp/apply-migration.sh
-      - name: Make report price lifetime-safe
+      - name: Make report price lifetime-safe and preserve legacy subscription type
         run: |
+          set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          import re
+          import hashlib,re
+
           p=Path('PressBench/Views/ReportsView.swift')
           s=p.read_text(encoding='utf-8')
           pattern=re.compile(r'''if let price = store\.productDisplayPrice \{\s*Text\(PBL10n\.format\(\s*"upgrade\.pricePerMonthFormat",\s*language: language,\s*locale: locale,\s*price as NSString\s*\)\)\s*\}''',re.S)
@@ -49,6 +52,25 @@ jobs:
                                 }''',s,count=1)
           if n != 1: raise SystemExit(f'ReportsView lifetime price replacements={n}')
           p.write_text(s2,encoding='utf-8')
+
+          p=Path('PressBench/Resources/PressBenchLogic.js')
+          s=p.read_text(encoding='utf-8')
+          old='''    const productType = platform === "ios" && productId === B.MONETIZATION_MODEL.ios.productId ?
+      "auto_renewable_subscription" : "non_consumable";'''
+          new='''    const productType = platform === "ios" ?
+      (productId === B.MONETIZATION_MODEL.ios.productId ? "non_consumable" :
+       B.MONETIZATION_MODEL.ios.legacyProductIds.includes(productId) ? "auto_renewable_subscription" : "non_consumable") :
+      "non_consumable";'''
+          if s.count(old) != 1: raise SystemExit(f'productType contract matches={s.count(old)}')
+          p.write_text(s.replace(old,new),encoding='utf-8')
+
+          p=Path('scripts/release_integrity.py')
+          s=p.read_text(encoding='utf-8')
+          h=hashlib.sha256(Path('PressBench/Resources/PressBenchLogic.js').read_bytes()).hexdigest()
+          s,n=re.subn(r"require\(logic_hash == '[0-9a-f]{64}'",f"require(logic_hash == '{h}'",s,count=1)
+          if n != 1: raise SystemExit('logic hash pin not found')
+          p.write_text(s,encoding='utf-8')
+          print('pinned logic',h)
           PY
       - name: Validate migrated release contract
         run: |
