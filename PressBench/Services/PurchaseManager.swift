@@ -3,9 +3,9 @@ import StoreKit
 
 @MainActor
 final class PurchaseManager: ObservableObject {
-    static let productID = "pressbench_unlimited_monthly_ios"
-    static let legacyLifetimeProductID = "pressbench_unlimited_lifetime_ios"
-    static let recognizedProductIDs: Set<String> = [productID, legacyLifetimeProductID]
+    static let productID = "pressbench_unlimited_lifetime_ios"
+    static let legacySubscriptionProductID = "pressbench_unlimited_monthly_ios"
+    static let recognizedProductIDs: Set<String> = [productID, legacySubscriptionProductID]
 
     enum PurchaseState: Equatable {
         case loading, free, purchased, pending, unavailable, failed(String)
@@ -99,7 +99,7 @@ final class PurchaseManager: ObservableObject {
             case .verified(let transaction) where Self.recognizedProductIDs.contains(transaction.productID):
                 found = true
                 await consumeVerified(transaction, action: action, userInitiated: userInitiated)
-            case .unverified(let transaction, _ ) where Self.recognizedProductIDs.contains(transaction.productID):
+            case .unverified(let transaction, _) where Self.recognizedProductIDs.contains(transaction.productID):
                 found = true
                 state = .free
                 onStoreEvent?(event(
@@ -132,9 +132,7 @@ final class PurchaseManager: ObservableObject {
         #endif
         do {
             let candidate = try await Product.products(for: [Self.productID]).first
-            guard candidate?.type == .autoRenewable,
-                  candidate?.subscription?.subscriptionPeriod.unit == .month,
-                  candidate?.subscription?.subscriptionPeriod.value == 1 else {
+            guard candidate?.type == .nonConsumable else {
                 product = nil
                 state = .unavailable
                 return false
@@ -202,7 +200,7 @@ final class PurchaseManager: ObservableObject {
             "nativeAdapterVerified": true,
             "verificationSource": "storekit2",
             "productId": productID,
-            "productType": productID == Self.legacyLifetimeProductID ? "non_consumable" : "auto_renewable_subscription",
+            "productType": productID == Self.productID ? "non_consumable" : "auto_renewable_subscription",
             "purchaseState": purchaseState,
             "transactionId": transactionID,
             "nativeVerificationId": nativeID,
