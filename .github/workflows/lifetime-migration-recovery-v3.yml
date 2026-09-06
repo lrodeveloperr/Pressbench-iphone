@@ -1,3 +1,4 @@
+# trigger: 2026-09-06 validated lifetime migration
 name: PressBench lifetime migration recovery v3
 
 on:
