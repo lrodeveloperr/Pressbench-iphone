@@ -16,6 +16,26 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Normalize deterministic contract formatting
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path('PressBench/Resources/PressBenchLogic.js')
+          s = p.read_text(encoding='utf-8')
+          pattern = re.compile(r'''\s*ios:\s*Object\.freeze\(\{\s*productId:\s*"pressbench_unlimited_monthly_ios",\s*legacyProductIds:\s*Object\.freeze\(\["pressbench_unlimited_lifetime_ios"\]\),\s*productType:\s*"auto_renewable_subscription",\s*recurring:\s*true,\s*period:\s*"P1M",\s*restoreAction:\s*true,\s*benefits:\s*Object\.freeze\(\["unlimited_presses",\s*"pdf_xlsx_reports"\]\),\s*pricing:\s*Object\.freeze\(\{\s*baseStorefront:\s*"US",\s*baseCurrency:\s*"USD",\s*baseAmountMinor:\s*699,\s*geoPriced:\s*true\s*\}\)\s*\}\),''', re.S)
+          expected = '''    ios: Object.freeze({
+        productId: "pressbench_unlimited_monthly_ios",
+        legacyProductIds: Object.freeze(["pressbench_unlimited_lifetime_ios"]),
+        productType: "auto_renewable_subscription", recurring: true, period: "P1M", restoreAction: true,
+        benefits: Object.freeze(["unlimited_presses", "pdf_xlsx_reports"]),
+        pricing: Object.freeze({ baseStorefront: "US", baseCurrency: "USD", baseAmountMinor: 699, geoPriced: true })
+      }),'''
+          s2, n = pattern.subn('\n' + expected, s, count=1)
+          if n != 1:
+              raise SystemExit(f'Could not normalize iOS monetization block: {n}')
+          p.write_text(s2, encoding='utf-8')
+          PY
       - name: Apply source migration
         run: python3 scripts/apply_lifetime_migration.py
       - name: Rebuild localization artifacts
