@@ -1,0 +1,66 @@
+name: PressBench lifetime migration recovery v2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/lifetime-migration-recovery-v2.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run reviewed migration without brittle ReportsView match
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('.github/workflows/lifetime-migration-once.yml')
+          s=p.read_text(encoding='utf-8')
+          pattern=re.compile(r"\n          replace\('PressBench/Views/ReportsView\.swift'.*?\n\n          # Canonical English source strings\.", re.S)
+          s2,n=pattern.subn('\n\n          # Canonical English source strings.',s,count=1)
+          if n != 1: raise SystemExit(f'could not suppress old ReportsView exact replacement: {n}')
+          p.write_text(s2,encoding='utf-8')
+          PY
+          ruby - <<'RUBY'
+          require 'yaml'
+          doc = YAML.safe_load(File.read('.github/workflows/lifetime-migration-once.yml'), aliases: true)
+          step = doc.fetch('jobs').fetch('migrate').fetch('steps').find { |x| x['name'] == 'Apply lifetime-purchase migration' }
+          File.write('/tmp/apply-migration.sh', step.fetch('run'))
+          RUBY
+          bash -euo pipefail /tmp/apply-migration.sh
+      - name: Make report price lifetime-safe
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('PressBench/Views/ReportsView.swift')
+          s=p.read_text(encoding='utf-8')
+          pattern=re.compile(r'''if let price = store\.productDisplayPrice \{\s*Text\(PBL10n\.format\(\s*"upgrade\.pricePerMonthFormat",\s*language: language,\s*locale: locale,\s*price as NSString\s*\)\)\s*\}''',re.S)
+          s2,n=pattern.subn('''if let price = store.productDisplayPrice {
+                                    Text(price)
+                                }''',s,count=1)
+          if n != 1: raise SystemExit(f'ReportsView lifetime price replacements={n}')
+          p.write_text(s2,encoding='utf-8')
+          PY
+      - name: Validate migrated release contract
+        run: |
+          set -euo pipefail
+          node scripts/engine_smoke.js
+          python3 scripts/release_integrity.py
+      - name: Commit validated migration
+        run: |
+          set -euo pipefail
+          git config user.name "PressBench Release Migration"
+          git config user.email "actions@users.noreply.github.com"
+          git add PressBench scripts build_l10n.py localization_keys.json monetization_translations.json phrases.tsv UI-TEXT-INVENTORY.md LOCALIZATION-AUDIT-31-LANGUAGES.csv
+          git diff --cached --check
+          git commit -m "Finalize PressBench lifetime purchase migration"
+          git push
