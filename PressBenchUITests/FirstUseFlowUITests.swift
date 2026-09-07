@@ -91,7 +91,7 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(plan.waitForExistence(timeout: 4))
         assertControlSurface(plan, name: "Unlock PressBench Pro")
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].exists)
-        XCTAssertTrue(app.staticTexts["Free runs left: 5 of 5"].exists)
+        XCTAssertTrue(app.staticTexts["Free runs left: 3 of 3"].exists)
         let backup = app.buttons.matching(identifier: "pb.settings.backup").firstMatch
         XCTAssertTrue(backup.exists)
         XCTAssertTrue(backup.isHittable, "Backup must remain in the first Settings viewport")

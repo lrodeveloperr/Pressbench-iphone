@@ -34,7 +34,7 @@ final class BackupRestoreTests: XCTestCase {
         XCTAssertNil(store.activeRun)
         XCTAssertFalse(store.hasRejectedRun)
         XCTAssertEqual(store.selectedTab, 0)
-        XCTAssertEqual(store.freePressesRemaining, 2)
+        XCTAssertEqual(store.freePressesRemaining, 0)
         XCTAssertEqual(usage.snapshot?.completedPresses, 3)
 
         let reloaded = try PressBenchStore(
@@ -45,7 +45,7 @@ final class BackupRestoreTests: XCTestCase {
         XCTAssertTrue(reloaded.machines.isEmpty)
         XCTAssertTrue(reloaded.setups.isEmpty)
         XCTAssertTrue(reloaded.runs.isEmpty)
-        XCTAssertEqual(reloaded.freePressesRemaining, 2)
+        XCTAssertEqual(reloaded.freePressesRemaining, 0)
     }
 
     func testRestoreCarriesUsageToAnotherDeviceWithoutImportingEntitlement() throws {
@@ -63,8 +63,8 @@ final class BackupRestoreTests: XCTestCase {
         }
 
         let sourceUsage = MemoryUsageStore(snapshot: PBUsageSnapshot(
-            completedPresses: 4,
-            creditedBatchIDs: Set((1...4).map { "source-\($0)" })
+            completedPresses: 3,
+            creditedBatchIDs: Set((1...3).map { "source-\($0)" })
         ))
         let source = try PressBenchStore(
             persistence: PressBenchPersistence(baseDirectory: sourceDirectory),
@@ -83,13 +83,13 @@ final class BackupRestoreTests: XCTestCase {
         )
         let preview = try target.previewBackup(raw: raw)
         XCTAssertEqual(preview.machines, 1)
-        XCTAssertEqual(preview.freeRunsUsed, 4)
+        XCTAssertEqual(preview.freeRunsUsed, 3)
 
         try target.restoreBackup(raw: raw)
 
         XCTAssertEqual(target.machines.map(\.nickname), ["Backup machine"])
-        XCTAssertEqual(target.freePressesRemaining, 1)
-        XCTAssertEqual(targetUsage.snapshot?.completedPresses, 4)
+        XCTAssertEqual(target.freePressesRemaining, 0)
+        XCTAssertEqual(targetUsage.snapshot?.completedPresses, 3)
         XCTAssertFalse(target.isPro)
     }
 
@@ -116,8 +116,8 @@ final class BackupRestoreTests: XCTestCase {
         let raw = try jsonString(source.backupPayload())
 
         let targetUsage = MemoryUsageStore(snapshot: PBUsageSnapshot(
-            completedPresses: 4,
-            creditedBatchIDs: Set((1...4).map { "current-\($0)" })
+            completedPresses: 3,
+            creditedBatchIDs: Set((1...3).map { "current-\($0)" })
         ))
         let target = try PressBenchStore(
             persistence: PressBenchPersistence(baseDirectory: targetDirectory),
@@ -127,8 +127,8 @@ final class BackupRestoreTests: XCTestCase {
 
         try target.restoreBackup(raw: raw)
 
-        XCTAssertEqual(target.freePressesRemaining, 1)
-        XCTAssertEqual(targetUsage.snapshot?.completedPresses, 4)
+        XCTAssertEqual(target.freePressesRemaining, 0)
+        XCTAssertEqual(targetUsage.snapshot?.completedPresses, 3)
     }
 
     private func temporaryDirectory() -> URL {

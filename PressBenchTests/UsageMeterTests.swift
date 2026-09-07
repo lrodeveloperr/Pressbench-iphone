@@ -18,7 +18,7 @@ final class UsageMeterTests: XCTestCase {
         super.tearDown()
     }
 
-    func testFiveCompletedPressesUseTheFreeAllowance() {
+    func testThreeCompletedPressesUseTheFreeAllowance() {
         let meter = PBUsageMeter(defaults: defaults)
 
         for index in 1...PBUsageMeter.freePressLimit {
@@ -26,17 +26,17 @@ final class UsageMeterTests: XCTestCase {
             meter.recordCompletedPress(batchID: "batch-\(index)")
         }
 
-        XCTAssertEqual(meter.completedPresses, 5)
+        XCTAssertEqual(meter.completedPresses, 3)
         XCTAssertEqual(meter.freePressesRemaining, 0)
         XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
     }
 
     func testDeletingRunsCannotRestoreFreeUsage() {
         let meter = PBUsageMeter(defaults: defaults)
-        meter.reconcile(existingCompletedRuns: 5)
+        meter.reconcile(existingCompletedRuns: 3)
 
         XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
-        XCTAssertEqual(meter.completedPresses, 5)
+        XCTAssertEqual(meter.completedPresses, 3)
     }
 
     func testSameCompletionCannotBeCountedTwice() {
@@ -54,7 +54,7 @@ final class UsageMeterTests: XCTestCase {
         meter.recordCompletedPress(batchID: "batch-a")
 
         XCTAssertEqual(meter.completedPresses, 2)
-        XCTAssertEqual(meter.freePressesRemaining, 3)
+        XCTAssertEqual(meter.freePressesRemaining, 1)
     }
 
     func testCounterNeverExceedsTheFreeLimit() {
@@ -75,7 +75,7 @@ final class UsageMeterTests: XCTestCase {
         let relaunched = PBUsageMeter(defaults: defaults, secureStore: secure)
 
         XCTAssertEqual(relaunched.completedPresses, 2)
-        XCTAssertEqual(relaunched.freePressesRemaining, 3)
+        XCTAssertEqual(relaunched.freePressesRemaining, 1)
         relaunched.recordCompletedPress(batchID: "batch-a")
         XCTAssertEqual(relaunched.completedPresses, 2)
     }
@@ -83,10 +83,10 @@ final class UsageMeterTests: XCTestCase {
     func testOlderBackupCountCannotReduceExistingUsage() {
         let secure = InMemoryUsageStore()
         let meter = PBUsageMeter(defaults: defaults, secureStore: secure)
-        meter.reconcile(existingCompletedRuns: 4)
+        meter.reconcile(existingCompletedRuns: 2)
         meter.reconcile(existingCompletedRuns: 1)
 
-        XCTAssertEqual(meter.completedPresses, 4)
+        XCTAssertEqual(meter.completedPresses, 2)
         XCTAssertEqual(meter.freePressesRemaining, 1)
     }
 
@@ -113,13 +113,13 @@ final class UsageMeterTests: XCTestCase {
         let secure = InMemoryUsageStore()
         secure.failSaves = true
         let meter = PBUsageMeter(defaults: defaults, secureStore: secure)
-        meter.reconcile(existingCompletedRuns: 3)
+        meter.reconcile(existingCompletedRuns: 2)
         XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
 
         secure.failSaves = false
         XCTAssertTrue(meter.canStartFreePress(existingCompletedRuns: 0))
-        XCTAssertEqual(meter.completedPresses, 3)
-        XCTAssertEqual(secure.snapshot?.completedPresses, 3)
+        XCTAssertEqual(meter.completedPresses, 2)
+        XCTAssertEqual(secure.snapshot?.completedPresses, 2)
     }
 }
 
