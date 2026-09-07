@@ -200,7 +200,7 @@ final class PressBenchStore: ObservableObject {
     var purchaseState: PurchaseManager.PurchaseState { purchases.state }
     var purchaseOperationInProgress: Bool { purchases.isWorking }
     var canManageMonthlySubscription: Bool {
-        isPro && string(currentEntitlement["productId"]) == PurchaseManager.productID
+        isPro && string(currentEntitlement["productId"]) == PurchaseManager.legacySubscriptionProductID
     }
     var freePressesRemaining: Int {
         usageMeter.reconcile(existingCompletedRuns: rawBatches.count)

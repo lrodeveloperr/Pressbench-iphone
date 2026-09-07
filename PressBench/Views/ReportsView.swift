@@ -39,10 +39,7 @@ struct ReportsView: View {
                                 Text(t("common.unlockPro"))
                                 Spacer()
                                 if let price = store.productDisplayPrice {
-                                    Text(PBL10n.format(
-                                        "upgrade.pricePerMonthFormat", language: language, locale: locale,
-                                        price as NSString
-                                    ))
+                                    Text(price)
                                 }
                             }
                             .pbFullSurfaceTarget()

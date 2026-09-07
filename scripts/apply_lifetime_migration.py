@@ -26,19 +26,38 @@ def replace_once(path: str, old: str, new: str) -> None:
 replace_once(
     "PressBench/Resources/PressBenchLogic.js",
     '''    ios: Object.freeze({
-        productId: "pressbench_unlimited_monthly_ios",
-        legacyProductIds: Object.freeze(["pressbench_unlimited_lifetime_ios"]),
-        productType: "auto_renewable_subscription", recurring: true, period: "P1M", restoreAction: true,
-        benefits: Object.freeze(["unlimited_presses", "pdf_xlsx_reports"]),
-        pricing: Object.freeze({ baseStorefront: "US", baseCurrency: "USD", baseAmountMinor: 699, geoPriced: true })
-      }),''',
+      productId: "pressbench_unlimited_monthly_ios",
+      legacyProductIds: Object.freeze(["pressbench_unlimited_lifetime_ios"]),
+      productType: "auto_renewable_subscription", recurring: true, period: "P1M", restoreAction: true,
+      benefits: Object.freeze(["unlimited_presses", "pdf_xlsx_reports"]),
+      pricing: Object.freeze({ baseStorefront: "US", baseCurrency: "USD", baseAmountMinor: 699, geoPriced: true })
+    }),''',
     '''    ios: Object.freeze({
-        productId: "pressbench_unlimited_lifetime_ios",
-        legacyProductIds: Object.freeze(["pressbench_unlimited_monthly_ios"]),
-        productType: "non_consumable", recurring: false, restoreAction: true,
-        benefits: Object.freeze(["unlimited_presses", "pdf_xlsx_reports"]),
-        pricing: Object.freeze({ baseStorefront: "US", baseCurrency: "USD", baseAmountMinor: 3999, geoPriced: true })
-      }),''',
+      productId: "pressbench_unlimited_lifetime_ios_v2",
+      legacyProductIds: Object.freeze(["pressbench_unlimited_lifetime_ios", "pressbench_unlimited_monthly_ios"]),
+      legacySubscriptionProductIds: Object.freeze(["pressbench_unlimited_monthly_ios"]),
+      productType: "non_consumable", recurring: false, restoreAction: true,
+      benefits: Object.freeze(["unlimited_presses", "pdf_xlsx_reports"]),
+      pricing: Object.freeze({ baseStorefront: "US", baseCurrency: "USD", baseAmountMinor: 3999, geoPriced: true })
+    }),''',
+)
+
+replace_once(
+    "PressBench/Resources/PressBenchLogic.js",
+    '''    const currentIos = entitlement.platform === "ios" && entitlement.sourceStore === "app_store" &&
+      entitlement.productType === "auto_renewable_subscription" &&
+      entitlement.productId === B.MONETIZATION_MODEL.ios.productId && entitlement.verificationSource === "storekit2";
+    const legacyIos = entitlement.platform === "ios" && entitlement.sourceStore === "app_store" &&
+      entitlement.productType === "non_consumable" &&
+      B.MONETIZATION_MODEL.ios.legacyProductIds.includes(entitlement.productId) && entitlement.verificationSource === "storekit2";''',
+    '''    const currentIos = entitlement.platform === "ios" && entitlement.sourceStore === "app_store" &&
+      entitlement.productType === "non_consumable" &&
+      entitlement.productId === B.MONETIZATION_MODEL.ios.productId && entitlement.verificationSource === "storekit2";
+    const legacyIos = entitlement.platform === "ios" && entitlement.sourceStore === "app_store" &&
+      B.MONETIZATION_MODEL.ios.legacyProductIds.includes(entitlement.productId) &&
+      (B.MONETIZATION_MODEL.ios.legacySubscriptionProductIds.includes(entitlement.productId) ?
+        entitlement.productType === "auto_renewable_subscription" : entitlement.productType === "non_consumable") &&
+      entitlement.verificationSource === "storekit2";''',
 )
 replace_once("PressBench/Resources/PressBenchLogic.js", "const FREE_BATCH_LIMIT = 5;", "const FREE_BATCH_LIMIT = 3;")
 replace_once(
@@ -47,7 +66,7 @@ replace_once(
       "auto_renewable_subscription" : "non_consumable";''',
     '''    const productType = platform === "ios" ?
       (productId === B.MONETIZATION_MODEL.ios.productId ? "non_consumable" :
-       B.MONETIZATION_MODEL.ios.legacyProductIds.includes(productId) ? "auto_renewable_subscription" : "non_consumable") :
+       B.MONETIZATION_MODEL.ios.legacySubscriptionProductIds.includes(productId) ? "auto_renewable_subscription" : "non_consumable") :
       "non_consumable";''',
 )
 
@@ -124,26 +143,34 @@ mt_path.write_text(json.dumps(mt, ensure_ascii=False, indent=2) + "\n", encoding
 ui = read("PressBenchUITests/FirstUseFlowUITests.swift")
 ui = ui.replace("The subscription is unavailable right now. Try again in a moment.", "The lifetime purchase is unavailable right now. Try again in a moment.")
 ui = ui.replace('app.buttons["Subscribe"]', 'app.buttons["Unlock forever"]')
+ui = ui.replace('Free runs left: 0 of 5', 'Free runs left: 0 of 3')
+ui = ui.replace('Manage subscription', 'Purchase details')
 write("PressBenchUITests/FirstUseFlowUITests.swift", ui)
 
 # Replace the old entitlement smoke-test block with permanent + legacy-expiry assertions.
 smoke = read("scripts/engine_smoke.js")
 pattern = re.compile(r'// A fabricated local boolean must never create paid access\..*?assert\.equal\(B\.MONETIZATION_MODEL\.ios\.pricing\.baseAmountMinor, 699\);', re.S)
 replacement = '''// A fabricated local boolean must never create paid access.
-assert.equal(E.evaluateEntitlement({paidAccess:true, productId:'pressbench_unlimited_lifetime_ios'}, now).paidAccess, false);
+assert.equal(E.evaluateEntitlement({paidAccess:true, productId:'pressbench_unlimited_lifetime_ios_v2'}, now).paidAccess, false);
 
 // Verified non-consumable lifetime purchase remains entitled without an expiry.
 const purchasedEvent = {
   action:'purchase', platform:'ios', userInitiated:true, nativeAdapterVerified:true,
-  verificationSource:'storekit2', productId:'pressbench_unlimited_lifetime_ios',
+  verificationSource:'storekit2', productId:'pressbench_unlimited_lifetime_ios_v2',
   productType:'non_consumable', purchaseState:'purchased', transactionId:'1000000000001',
-  nativeVerificationId:'storekit2:1000000000001:1000000000001:pressbench_unlimited_lifetime_ios:1787155200', storeEventAt:now
+  nativeVerificationId:'storekit2:1000000000001:1000000000001:pressbench_unlimited_lifetime_ios_v2:1787155200', storeEventAt:now
 };
 let purchaseResult = E.applyStoreEvent(entitlement, purchasedEvent, now);
 entitlement = purchaseResult.entitlement;
 assert.equal(E.evaluateEntitlement(entitlement, now).paidAccess, true);
 assert.equal(E.evaluateEntitlement(entitlement, iso(400 * 24 * 60 * 60)).paidAccess, true);
 context.entitlement = entitlement;
+
+// The previously reserved lifetime product remains permanently entitled.
+const legacyLifetimeEvent = {...purchasedEvent, productId:'pressbench_unlimited_lifetime_ios',
+  transactionId:'1000000000004', nativeVerificationId:'storekit2:1000000000004:1000000000004:pressbench_unlimited_lifetime_ios:1787155200'};
+const legacyLifetimeEntitlement = E.applyStoreEvent(E.normalizeEntitlement({}), legacyLifetimeEvent, now).entitlement;
+assert.equal(E.evaluateEntitlement(legacyLifetimeEntitlement, iso(400 * 24 * 60 * 60)).paidAccess, true);
 
 // A legacy monthly entitlement remains recognized only until its verified expiry.
 const legacyEvent = {...purchasedEvent, productId:'pressbench_unlimited_monthly_ios', productType:'auto_renewable_subscription',
@@ -160,15 +187,16 @@ assert.equal(B.MONETIZATION_MODEL.ios.pricing.baseAmountMinor, 3999);'''
 smoke, n = pattern.subn(replacement, smoke, count=1)
 if n != 1:
     raise SystemExit(f"engine smoke block replacements={n}")
+smoke = smoke.replace("const revokedEvent = {...renewedEvent,", "const revokedEvent = {...purchasedEvent,")
 write("scripts/engine_smoke.js", smoke)
 
 # Integrity checker protects the new contract.
 ri = read("scripts/release_integrity.py")
-ri = ri.replace("['pressbench_unlimited_monthly_ios', 'pressbench_unlimited_lifetime_ios',\n        'productType: \"auto_renewable_subscription\"', 'recurring: true', 'baseAmountMinor: 699',", "['pressbench_unlimited_lifetime_ios', 'pressbench_unlimited_monthly_ios',\n        'productType: \"non_consumable\"', 'recurring: false', 'baseAmountMinor: 3999',")
+ri = ri.replace("['pressbench_unlimited_monthly_ios', 'pressbench_unlimited_lifetime_ios',\n        'productType: \"auto_renewable_subscription\"', 'recurring: true', 'baseAmountMinor: 699',", "['pressbench_unlimited_lifetime_ios_v2', 'pressbench_unlimited_lifetime_ios', 'pressbench_unlimited_monthly_ios',\n        'legacySubscriptionProductIds', 'productType: \"non_consumable\"', 'recurring: false', 'baseAmountMinor: 3999',")
 ri = ri.replace("'monthly iOS subscription or grandfathered lifetime entitlement is missing'", "'lifetime iOS purchase or legacy monthly entitlement is missing'")
 ri = ri.replace("'FREE_BATCH_LIMIT = 5'", "'FREE_BATCH_LIMIT = 3'")
 ri = ri.replace("'five-press free allowance or unrestricted setup library changed'", "'three-press free allowance or unrestricted setup library changed'")
-ri = ri.replace("['pressbench_unlimited_monthly_ios',\n        'pressbench_unlimited_lifetime_ios', '.autoRenewable', 'subscriptionPeriod.unit == .month',\n        'transaction.expirationDate']", "['pressbench_unlimited_lifetime_ios',\n        'pressbench_unlimited_monthly_ios', '.nonConsumable', 'legacySubscriptionProductID',\n        'transaction.expirationDate']")
+ri = ri.replace("['pressbench_unlimited_monthly_ios',\n        'pressbench_unlimited_lifetime_ios', '.autoRenewable', 'subscriptionPeriod.unit == .month',\n        'transaction.expirationDate']", "['pressbench_unlimited_lifetime_ios_v2', 'pressbench_unlimited_lifetime_ios',\n        'pressbench_unlimited_monthly_ios', '.nonConsumable', 'legacyLifetimeProductID',\n        'legacySubscriptionProductID', 'transaction.expirationDate']")
 ri = ri.replace("'native subscription verification or lifetime grandfathering is incomplete'", "'native lifetime verification or legacy-subscription migration is incomplete'")
 ri = ri.replace("'freePressLimit = 5'", "'freePressLimit = 3'")
 write("scripts/release_integrity.py", ri)

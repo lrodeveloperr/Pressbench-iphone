@@ -3,9 +3,12 @@ import StoreKit
 
 @MainActor
 final class PurchaseManager: ObservableObject {
-    static let productID = "pressbench_unlimited_lifetime_ios"
+    static let productID = "pressbench_unlimited_lifetime_ios_v2"
+    static let legacyLifetimeProductID = "pressbench_unlimited_lifetime_ios"
     static let legacySubscriptionProductID = "pressbench_unlimited_monthly_ios"
-    static let recognizedProductIDs: Set<String> = [productID, legacySubscriptionProductID]
+    static let recognizedProductIDs: Set<String> = [
+        productID, legacyLifetimeProductID, legacySubscriptionProductID
+    ]
 
     enum PurchaseState: Equatable {
         case loading, free, purchased, pending, unavailable, failed(String)
@@ -93,32 +96,60 @@ final class PurchaseManager: ObservableObject {
     }
 
     func refresh(action: String = "automatic_refresh", userInitiated: Bool = false) async {
-        var found = false
+        var lifetimeTransaction: Transaction?
+        var legacyLifetimeTransaction: Transaction?
+        var legacyTransaction: Transaction?
+        var unverifiedLifetime: Transaction?
+        var unverifiedLegacyLifetime: Transaction?
+        var unverifiedLegacy: Transaction?
+        let now = Date()
+
         for await result in Transaction.currentEntitlements {
             switch result {
             case .verified(let transaction) where Self.recognizedProductIDs.contains(transaction.productID):
-                found = true
-                await consumeVerified(transaction, action: action, userInitiated: userInitiated)
+                let expired = transaction.expirationDate.map { $0 <= now } ?? false
+                guard transaction.revocationDate == nil, !transaction.isUpgraded, !expired else { continue }
+                if transaction.productID == Self.productID {
+                    lifetimeTransaction = transaction
+                } else if transaction.productID == Self.legacyLifetimeProductID {
+                    legacyLifetimeTransaction = transaction
+                } else {
+                    legacyTransaction = transaction
+                }
             case .unverified(let transaction, _) where Self.recognizedProductIDs.contains(transaction.productID):
-                found = true
-                state = .free
-                onStoreEvent?(event(
-                    action: action, userInitiated: userInitiated, purchaseState: "unverified",
-                    productID: transaction.productID, transactionID: String(transaction.id),
-                    nativeID: nativeIdentity(transaction), eventDate: Date(), expirationDate: transaction.expirationDate
-                ))
+                if transaction.productID == Self.productID {
+                    unverifiedLifetime = transaction
+                } else if transaction.productID == Self.legacyLifetimeProductID {
+                    unverifiedLegacyLifetime = transaction
+                } else {
+                    unverifiedLegacy = transaction
+                }
             default:
                 continue
             }
         }
-        if !found {
+
+        if let transaction = lifetimeTransaction ?? legacyLifetimeTransaction ?? legacyTransaction {
+            await consumeVerified(transaction, action: action, userInitiated: userInitiated)
+            return
+        }
+
+        if let transaction = unverifiedLifetime ?? unverifiedLegacyLifetime ?? unverifiedLegacy {
             state = .free
             onStoreEvent?(event(
-                action: action, userInitiated: userInitiated, purchaseState: "not_purchased",
-                productID: Self.productID, transactionID: "",
-                nativeID: "storekit2:none:\(Int(Date().timeIntervalSince1970))", eventDate: Date()
+                action: action, userInitiated: userInitiated, purchaseState: "unverified",
+                productID: transaction.productID, transactionID: String(transaction.id),
+                nativeID: nativeIdentity(transaction), eventDate: now, expirationDate: transaction.expirationDate
             ))
+            return
         }
+
+        state = .free
+        onStoreEvent?(event(
+            action: action, userInitiated: userInitiated, purchaseState: "not_purchased",
+            productID: Self.productID, transactionID: "",
+            nativeID: "storekit2:none:\(Int(now.timeIntervalSince1970))", eventDate: now
+        ))
     }
 
     @discardableResult
@@ -152,6 +183,9 @@ final class PurchaseManager: ObservableObject {
             guard Self.recognizedProductIDs.contains(transaction.productID) else { return }
             await consumeVerified(transaction, action: action, userInitiated: action != "automatic_refresh")
             await transaction.finish()
+            if transaction.productID != Self.productID {
+                await refresh(action: "automatic_refresh", userInitiated: false)
+            }
         case .unverified(let transaction, _):
             guard Self.recognizedProductIDs.contains(transaction.productID) else { return }
             state = .free
@@ -160,6 +194,9 @@ final class PurchaseManager: ObservableObject {
                 productID: transaction.productID, transactionID: String(transaction.id),
                 nativeID: nativeIdentity(transaction), eventDate: Date(), expirationDate: transaction.expirationDate
             ))
+            if transaction.productID != Self.productID {
+                await refresh(action: "automatic_refresh", userInitiated: false)
+            }
         }
     }
 
@@ -200,7 +237,7 @@ final class PurchaseManager: ObservableObject {
             "nativeAdapterVerified": true,
             "verificationSource": "storekit2",
             "productId": productID,
-            "productType": productID == Self.productID ? "non_consumable" : "auto_renewable_subscription",
+            "productType": productID == Self.legacySubscriptionProductID ? "auto_renewable_subscription" : "non_consumable",
             "purchaseState": purchaseState,
             "transactionId": transactionID,
             "nativeVerificationId": nativeID,

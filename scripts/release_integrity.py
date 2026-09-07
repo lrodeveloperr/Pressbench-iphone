@@ -10,16 +10,20 @@ def require(condition, message):
 
 logic = root/'PressBench/Resources/PressBenchLogic.js'
 logic_hash = hashlib.sha256(logic.read_bytes()).hexdigest()
-require(logic_hash == 'd9dbbcdfa8a4deceec4c705f2831f7078ed3555cee27555c738984479d6e3e6b', f'logic hash changed: {logic_hash}')
+require(logic_hash == '02b1441ac0e85c709b41da04d3f44ec8ffb4195c8816a776dbc9cecc350c4e5e', f'logic hash changed: {logic_hash}')
 text = logic.read_text(encoding='utf-8')
-require(all(marker in text for marker in ['pressbench_unlimited_monthly_ios', 'pressbench_unlimited_lifetime_ios',
-        'productType: "auto_renewable_subscription"', 'recurring: true', 'baseAmountMinor: 699',
+require(all(marker in text for marker in ['pressbench_unlimited_lifetime_ios_v2',
+        'pressbench_unlimited_lifetime_ios', 'pressbench_unlimited_monthly_ios',
+        'legacySubscriptionProductIds',
+        'productType: "non_consumable"', 'recurring: false', 'baseAmountMinor: 3999',
+        'entitlement.productType === "non_consumable"',
+        'entitlement.productType === "auto_renewable_subscription"',
         'advertisingSdk: "none"',
         'routineNetworkBoundary: "store_entitlement_only"']),
-        'monthly iOS subscription or grandfathered lifetime entitlement is missing')
-require('FREE_RECIPE_LIMIT = D.MAX_RECORDS' in text and 'FREE_BATCH_LIMIT = 5' in text and
+        'lifetime iOS purchase or legacy monthly entitlement is missing')
+require('FREE_RECIPE_LIMIT = D.MAX_RECORDS' in text and 'FREE_BATCH_LIMIT = 3' in text and
         'setup_capacity_required' not in text,
-        'five-press free allowance or unrestricted setup library changed')
+        'three-press free allowance or unrestricted setup library changed')
 require('function completedTimerPlan' in text and text.count('if (!completedTimerPlan(run.timer))') >= 2 and
         'TIMER_RESTART_PLAN' in text,
         'first-piece or production counting can bypass the complete timer plan')
@@ -341,9 +345,10 @@ require('StoreKit' in (root/'PressBench/Services/PurchaseManager.swift').read_te
 purchase_source=(root/'PressBench/Services/PurchaseManager.swift').read_text()
 info_plist=(root/'PressBench/Info.plist').read_text()
 usage_source=(root/'PressBench/Services/PBUsageMeter.swift').read_text()
-require(all(marker in purchase_source for marker in ['pressbench_unlimited_monthly_ios',
-        'pressbench_unlimited_lifetime_ios', '.autoRenewable', 'subscriptionPeriod.unit == .month',
-        'transaction.expirationDate']), 'native subscription verification or lifetime grandfathering is incomplete')
+require(all(marker in purchase_source for marker in ['pressbench_unlimited_lifetime_ios_v2',
+        'pressbench_unlimited_lifetime_ios', 'pressbench_unlimited_monthly_ios',
+        '.nonConsumable', 'legacyLifetimeProductID', 'legacySubscriptionProductID',
+        'transaction.expirationDate']), 'native lifetime verification or legacy-subscription migration is incomplete')
 require(not (root/'PressBench/Services/PBAdvertising.swift').exists(),
         'obsolete advertising service remains in the application target')
 no_ad_surface = '\n'.join([project, info_plist, joined,
@@ -355,7 +360,7 @@ require(all(marker not in no_ad_surface for marker in [
         'SKAdNetworkItems', 'ca-app-pub-', 'PBAdvertising', 'pbBanner(', 'pb.ad.banner',
         'ads.report', 'ads.privacyChoices', 'ads.bannerLabel']),
         'advertising SDK, identifier, UI hook, or localization remains in the iOS release')
-require(all(marker in usage_source for marker in ['freePressLimit = 5', 'completedPresses',
+require(all(marker in usage_source for marker in ['freePressLimit = 3', 'completedPresses',
         'lastCreditedBatchID', 'creditedBatchIDs', 'canStartFreePress',
         'PBKeychainUsageStore', 'kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly',
         'persistenceHealthy &&', 'retrySecurePersistenceIfNeeded']) and
@@ -460,7 +465,7 @@ require('--pressbench-ui-test-reset' in ui_test and '--pressbench-ui-test-reset'
         'UI test does not request a deterministic pre-store persistence reset')
 require(all(marker in ui_test for marker in ['--pressbench-ui-test-limit-reached',
         '--pressbench-ui-test-product-unavailable', '--pressbench-ui-test-pro',
-        'Free runs left: 0 of 5', 'Unlock PressBench Pro',
+        'Free runs left: 0 of 3', 'Unlock PressBench Pro',
         'Repeat this setup', 'capped-repeat-upgrade', 'app.tabBars.buttons["Runs"]',
         'pb.runs.screen', 'pb.more.reports', 'pb.reports.pdf',
         'free-report-requires-pro']),
@@ -564,8 +569,8 @@ for key, entry in catalog.get('strings',{}).items():
     for code in catalog['languages'] + ['zh-Hant']:
         require(bool(entry.get('translations',{}).get(code,'').strip()), f'missing localization {key}:{code}')
 
-# Rebuild localization artifacts in isolation so checked-in subscription copy
-# cannot silently drift back to an earlier one-time-purchase model.
+# Rebuild localization artifacts in isolation so checked-in purchase copy
+# cannot silently drift from the approved one-time-purchase model.
 with tempfile.TemporaryDirectory(prefix='pressbench-l10n-') as temp_name:
     temp = Path(temp_name)
     for filename in ['build_l10n.py', 'assemble_catalog.py', 'phrases.tsv', 'monetization_translations.json']:

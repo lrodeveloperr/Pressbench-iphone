@@ -25,42 +25,39 @@ assert.equal(P.ARCHITECTURE_REQUIREMENTS.advertisingSdk, 'none');
 assert.equal(P.ARCHITECTURE_REQUIREMENTS.routineNetworkBoundary, 'store_entitlement_only');
 
 // A fabricated local boolean must never create paid access.
-assert.equal(E.evaluateEntitlement({paidAccess:true, productId:'pressbench_unlimited_monthly_ios'}, now).paidAccess, false);
+assert.equal(E.evaluateEntitlement({paidAccess:true, productId:'pressbench_unlimited_lifetime_ios_v2'}, now).paidAccess, false);
 
-// Verified StoreKit purchase must unlock only the exact product.
+// Verified non-consumable lifetime purchase remains entitled without an expiry.
 const purchasedEvent = {
   action:'purchase', platform:'ios', userInitiated:true, nativeAdapterVerified:true,
-  verificationSource:'storekit2', productId:'pressbench_unlimited_monthly_ios',
-  productType:'auto_renewable_subscription', purchaseState:'purchased',
-  transactionId:'1000000000001', nativeVerificationId:'storekit2:1000000000001:1000000000001:pressbench_unlimited_monthly_ios:1787155200',
-  storeEventAt:now, expiresAt:iso(31 * 24 * 60 * 60)
+  verificationSource:'storekit2', productId:'pressbench_unlimited_lifetime_ios_v2',
+  productType:'non_consumable', purchaseState:'purchased', transactionId:'1000000000001',
+  nativeVerificationId:'storekit2:1000000000001:1000000000001:pressbench_unlimited_lifetime_ios_v2:1787155200', storeEventAt:now
 };
 let purchaseResult = E.applyStoreEvent(entitlement, purchasedEvent, now);
 entitlement = purchaseResult.entitlement;
 assert.equal(E.evaluateEntitlement(entitlement, now).paidAccess, true);
-assert.equal(E.evaluateEntitlement(entitlement, iso(32 * 24 * 60 * 60)).paidAccess, false);
+assert.equal(E.evaluateEntitlement(entitlement, iso(400 * 24 * 60 * 60)).paidAccess, true);
 context.entitlement = entitlement;
 
-// Renewal and explicit restore extend/recover the same verified subscription.
-const renewedEvent = {...purchasedEvent, action:'automatic_refresh', userInitiated:false,
-  transactionId:'1000000000003', nativeVerificationId:'storekit2:1000000000003:1000000000001:pressbench_unlimited_monthly_ios:1789833600',
-  storeEventAt:iso(30 * 24 * 60 * 60), expiresAt:iso(61 * 24 * 60 * 60)};
-entitlement = E.applyStoreEvent(entitlement, renewedEvent, iso(30 * 24 * 60 * 60)).entitlement;
-assert.equal(E.evaluateEntitlement(entitlement, iso(45 * 24 * 60 * 60)).paidAccess, true);
-const restoredEvent = {...renewedEvent, action:'explicit_restore', userInitiated:true, storeEventAt:iso(40 * 24 * 60 * 60)};
-entitlement = E.applyStoreEvent(entitlement, restoredEvent, iso(40 * 24 * 60 * 60)).entitlement;
-assert.equal(E.evaluateEntitlement(entitlement, iso(45 * 24 * 60 * 60)).paidAccess, true);
-context.entitlement = entitlement;
+// The previously reserved lifetime product remains permanently entitled.
+const legacyLifetimeEvent = {...purchasedEvent, productId:'pressbench_unlimited_lifetime_ios',
+  transactionId:'1000000000004', nativeVerificationId:'storekit2:1000000000004:1000000000004:pressbench_unlimited_lifetime_ios:1787155200'};
+const legacyLifetimeEntitlement = E.applyStoreEvent(E.normalizeEntitlement({}), legacyLifetimeEvent, now).entitlement;
+assert.equal(E.evaluateEntitlement(legacyLifetimeEntitlement, iso(400 * 24 * 60 * 60)).paidAccess, true);
 
-// Existing lifetime buyers stay grandfathered after the subscription migration.
-const legacyEvent = {...purchasedEvent, productId:'pressbench_unlimited_lifetime_ios', productType:'non_consumable',
-  transactionId:'1000000000002', nativeVerificationId:'storekit2:1000000000002:1000000000002:pressbench_unlimited_lifetime_ios:1787155200'};
-delete legacyEvent.expiresAt;
+// A legacy monthly entitlement remains recognized only until its verified expiry.
+const legacyEvent = {...purchasedEvent, productId:'pressbench_unlimited_monthly_ios', productType:'auto_renewable_subscription',
+  transactionId:'1000000000002', nativeVerificationId:'storekit2:1000000000002:1000000000002:pressbench_unlimited_monthly_ios:1787155200',
+  expiresAt:iso(31 * 24 * 60 * 60)};
 const legacyEntitlement = E.applyStoreEvent(E.normalizeEntitlement({}), legacyEvent, now).entitlement;
-assert.equal(E.evaluateEntitlement(legacyEntitlement, iso(400 * 24 * 60 * 60)).paidAccess, true);
+assert.equal(E.evaluateEntitlement(legacyEntitlement, iso(20 * 24 * 60 * 60)).paidAccess, true);
+assert.equal(E.evaluateEntitlement(legacyEntitlement, iso(32 * 24 * 60 * 60)).paidAccess, false);
 
-assert.equal(B.FREE_BATCH_LIMIT, 5);
-assert.equal(B.MONETIZATION_MODEL.ios.pricing.baseAmountMinor, 699);
+assert.equal(B.FREE_BATCH_LIMIT, 3);
+assert.equal(B.MONETIZATION_MODEL.ios.productType, 'non_consumable');
+assert.equal(B.MONETIZATION_MODEL.ios.recurring, false);
+assert.equal(B.MONETIZATION_MODEL.ios.pricing.baseAmountMinor, 3999);
 assert.equal(E.capabilities(E.normalizeEntitlement({}), {setups:10, batches:0}, now).canCreateSetup, true);
 
 let wrongFailed = false;
@@ -275,7 +272,7 @@ assert.equal(P.planReport(context, 'xlsx', context.batches, now).allowed, true);
 
 // Revocation is terminal and removes premium access.
 const revokedAt = iso(50 * 24 * 60 * 60);
-const revokedEvent = {...renewedEvent, action:'automatic_refresh', userInitiated:false, purchaseState:'revoked', storeEventAt:revokedAt};
+const revokedEvent = {...purchasedEvent, action:'automatic_refresh', userInitiated:false, purchaseState:'revoked', storeEventAt:revokedAt};
 const revoked = E.applyStoreEvent(entitlement, revokedEvent, revokedAt).entitlement;
 assert.equal(E.evaluateEntitlement(revoked, revokedAt).paidAccess, false);
 

@@ -302,8 +302,8 @@
 302	Complete the required setup fields to continue.	setup.completeRequired
 303	Test runs make one item.	run.testQuantityHelp
 304	Unlock PressBench Pro	upgrade.title
-305	Unlimited press runs and PDF or XLSX reports. Renews monthly until canceled.	upgrade.body
-306	Subscribe	upgrade.unlock
+305	Unlimited press runs and PDF or XLSX reports. One-time purchase.	upgrade.body
+306	Unlock forever	upgrade.unlock
 307	Restore purchase	upgrade.restore
 308	Back up your data	backup.optionalTitle
 309	Choose where to save a backup file in Files.	backup.optionalBody

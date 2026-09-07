@@ -1321,11 +1321,11 @@
   },
   "upgrade.body": {
     "context": "Upgrade explanation",
-    "source": "Unlimited press runs and PDF or XLSX reports. Renews monthly until canceled."
+    "source": "Unlimited press runs and PDF or XLSX reports. One-time purchase."
   },
   "upgrade.unlock": {
     "context": "Upgrade action",
-    "source": "Subscribe"
+    "source": "Unlock forever"
   },
   "upgrade.restore": {
     "context": "Purchase restore action",
@@ -1336,8 +1336,8 @@
     "source": "Free runs left: %1$@ of %2$@"
   },
   "upgrade.pricePerMonthFormat": {
-    "context": "Monthly subscription price",
-    "source": "%1$@ per month"
+    "context": "One-time purchase price",
+    "source": "%1$@ one time"
   },
   "purchase.pending": {
     "context": "Pending purchase status",
@@ -1348,8 +1348,8 @@
     "source": "No active PressBench Pro purchase was found for this Apple Account."
   },
   "purchase.unavailable": {
-    "context": "Subscription availability status",
-    "source": "The subscription is unavailable right now. Try again in a moment."
+    "context": "Purchase availability status",
+    "source": "The lifetime purchase is unavailable right now. Try again in a moment."
   },
   "common.retry": {
     "context": "Retry action",
@@ -1364,8 +1364,8 @@
     "source": "Restore couldn’t be completed. Try again."
   },
   "upgrade.manage": {
-    "context": "Subscription management action",
-    "source": "Manage subscription"
+    "context": "Purchase information action",
+    "source": "Purchase details"
   },
   "backup.optionalTitle": {
     "context": "Optional backup title",

@@ -2460,18 +2460,19 @@
 
   const D = root.PressBenchDomain;
   const FREE_RECIPE_LIMIT = D.MAX_RECORDS;
-  const FREE_BATCH_LIMIT = 5;
+  const FREE_BATCH_LIMIT = 3;
   const MAX_DETAILED_REPORT_ROWS = 12000;
   const STARTER_TEMPLATE_VERSION = "APP-018-STRUCTURES-v5";
   const STARTER_PREFIX = "starter-template-";
   const MONETIZATION_MODEL = Object.freeze({
     free: { savedSetups: FREE_RECIPE_LIMIT, completedPresses: FREE_BATCH_LIMIT, timedTrial: false },
     ios: Object.freeze({
-      productId: "pressbench_unlimited_monthly_ios",
-      legacyProductIds: Object.freeze(["pressbench_unlimited_lifetime_ios"]),
-      productType: "auto_renewable_subscription", recurring: true, period: "P1M", restoreAction: true,
+      productId: "pressbench_unlimited_lifetime_ios_v2",
+      legacyProductIds: Object.freeze(["pressbench_unlimited_lifetime_ios", "pressbench_unlimited_monthly_ios"]),
+      legacySubscriptionProductIds: Object.freeze(["pressbench_unlimited_monthly_ios"]),
+      productType: "non_consumable", recurring: false, restoreAction: true,
       benefits: Object.freeze(["unlimited_presses", "pdf_xlsx_reports"]),
-      pricing: Object.freeze({ baseStorefront: "US", baseCurrency: "USD", baseAmountMinor: 699, geoPriced: true })
+      pricing: Object.freeze({ baseStorefront: "US", baseCurrency: "USD", baseAmountMinor: 3999, geoPriced: true })
     }),
     android: Object.freeze({
       productId: "pressbench_unlimited_lifetime_android",
@@ -2869,11 +2870,13 @@
 
   function matchesCurrentProduct(entitlement) {
     const currentIos = entitlement.platform === "ios" && entitlement.sourceStore === "app_store" &&
-      entitlement.productType === "auto_renewable_subscription" &&
+      entitlement.productType === "non_consumable" &&
       entitlement.productId === B.MONETIZATION_MODEL.ios.productId && entitlement.verificationSource === "storekit2";
     const legacyIos = entitlement.platform === "ios" && entitlement.sourceStore === "app_store" &&
-      entitlement.productType === "non_consumable" &&
-      B.MONETIZATION_MODEL.ios.legacyProductIds.includes(entitlement.productId) && entitlement.verificationSource === "storekit2";
+      B.MONETIZATION_MODEL.ios.legacyProductIds.includes(entitlement.productId) &&
+      (B.MONETIZATION_MODEL.ios.legacySubscriptionProductIds.includes(entitlement.productId) ?
+        entitlement.productType === "auto_renewable_subscription" : entitlement.productType === "non_consumable") &&
+      entitlement.verificationSource === "storekit2";
     const currentAndroid = entitlement.productType === "non_consumable" &&
       entitlement.platform === "android" && entitlement.sourceStore === "google_play" &&
         entitlement.productId === B.MONETIZATION_MODEL.android.productId && entitlement.verificationSource === "play_billing";
@@ -2941,8 +2944,10 @@
         !supportedProductIds.includes(productId)) {
       throw new Error("store_product_mismatch");
     }
-    const productType = platform === "ios" && productId === B.MONETIZATION_MODEL.ios.productId ?
-      "auto_renewable_subscription" : "non_consumable";
+    const productType = platform === "ios" ?
+      (productId === B.MONETIZATION_MODEL.ios.productId ? "non_consumable" :
+       B.MONETIZATION_MODEL.ios.legacySubscriptionProductIds.includes(productId) ? "auto_renewable_subscription" : "non_consumable") :
+      "non_consumable";
     if (event.productType && event.productType !== productType) throw new Error("store_product_type");
     const now = instant(at === undefined ? Date.now() : at);
     if (!now) throw new Error("entitlement_now");

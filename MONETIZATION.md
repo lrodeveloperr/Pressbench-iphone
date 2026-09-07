@@ -13,7 +13,7 @@
 
 Create or retain this In-App Purchase before testing purchases:
 
-- Product ID: `pressbench_unlimited_lifetime_ios`
+- Product ID: `pressbench_unlimited_lifetime_ios_v2`
 - Type: non-consumable
 - Reference name: `PressBench Unlimited Lifetime`
 - Suggested display name: `Unlock PressBench Forever`
@@ -21,7 +21,7 @@ Create or retain this In-App Purchase before testing purchases:
 - United States reference price: US$39.99
 - Other storefronts: use the approved geopriced schedule in App Store Connect and always show StoreKit's localized `displayPrice` in the app.
 
-The legacy product `pressbench_unlimited_monthly_ios` remains recognized only so an already-entitled historical subscriber is not abruptly denied access during migration. It is not offered to new customers. The production purchase sheet loads only `pressbench_unlimited_lifetime_ios` and requires it to be a StoreKit non-consumable.
+The reserved former lifetime product `pressbench_unlimited_lifetime_ios` and the legacy subscription `pressbench_unlimited_monthly_ios` remain recognized so verified historical purchasers are not denied access during migration. Neither is offered to new customers. The production purchase sheet loads only `pressbench_unlimited_lifetime_ios_v2` and requires it to be a StoreKit non-consumable.
 
 ## App Review access path
 
@@ -37,7 +37,7 @@ The unlock screen must display StoreKit's localized price for the current storef
 
 Use this wording in App Review Notes:
 
-> No login or demo account is required. PressBench includes three successfully saved press runs so App Review can exercise the complete production workflow. To review the permanent unlock, open More → Settings → Unlock PressBench, or open More → Production Report and choose PDF/XLSX. The app presents Apple's StoreKit purchase sheet for the non-consumable `pressbench_unlimited_lifetime_ios`; Restore Purchase is on the same screen. The one-time purchase permanently unlocks unlimited runs and locally generated PDF/XLSX reports. Existing local records remain readable regardless of purchase status. Backups are optional user-initiated exports and imports through Apple's Files picker; PressBench has no cloud-backup account, advertising, analytics, or tracking.
+> No login or demo account is required. PressBench includes three successfully saved press runs so App Review can exercise the complete production workflow. To review the permanent unlock, open More → Settings → Unlock PressBench, or open More → Production Report and choose PDF/XLSX. The app presents Apple's StoreKit purchase sheet for the non-consumable `pressbench_unlimited_lifetime_ios_v2`; Restore Purchase is on the same screen. The one-time purchase permanently unlocks unlimited runs and locally generated PDF/XLSX reports. Existing local records remain readable regardless of purchase status. Backups are optional user-initiated exports and imports through Apple's Files picker; PressBench has no cloud-backup account, advertising, analytics, or tracking.
 
 ## Advertising and reports
 

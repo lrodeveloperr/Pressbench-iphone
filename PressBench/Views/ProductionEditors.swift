@@ -1022,8 +1022,7 @@ struct ProUpgradeView: View {
 
     private var subscribeTitle: String {
         guard let price = store.productDisplayPrice else { return t("upgrade.unlock") }
-        let monthlyPrice = PBL10n.format("upgrade.pricePerMonthFormat", language: language, locale: locale, price as NSString)
-        return "\(t("upgrade.unlock")) · \(monthlyPrice)"
+        return "\(t("upgrade.unlock")) · \(price)"
     }
 
     private func purchase() {

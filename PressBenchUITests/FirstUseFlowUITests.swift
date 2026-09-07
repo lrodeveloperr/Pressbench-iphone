@@ -212,13 +212,13 @@ final class FirstUseFlowUITests: XCTestCase {
             "-AppleLanguages", "(en)", "-AppleLocale", "en_US"
         ]
         app.launch()
-        XCTAssertTrue(app.staticTexts["Free runs left: 0 of 5"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["Free runs left: 0 of 3"].waitForExistence(timeout: 8))
         let cappedStartRun = app.buttons.matching(identifier: "pb.home.startRun").firstMatch
         XCTAssertTrue(waitForInteractable(cappedStartRun, timeout: 8))
         cappedStartRun.tap()
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["The subscription is unavailable right now. Try again in a moment."].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons["Subscribe"].isEnabled)
+        XCTAssertTrue(app.staticTexts["The lifetime purchase is unavailable right now. Try again in a moment."].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["Unlock forever"].isEnabled)
         let unavailablePurchase = app.buttons.matching(identifier: "pb.upgrade.purchase").firstMatch
         let retryProduct = app.buttons.matching(identifier: "pb.upgrade.retry").firstMatch
         let restorePurchaseFromPaywall = app.buttons.matching(identifier: "pb.upgrade.restore").firstMatch
@@ -275,7 +275,7 @@ final class FirstUseFlowUITests: XCTestCase {
         app.launchArguments = ["--pressbench-ui-test-pro", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         XCTAssertTrue(app.buttons.matching(identifier: "pb.home.startRun").firstMatch.waitForExistence(timeout: 8))
-        XCTAssertFalse(app.staticTexts["Free runs left: 0 of 5"].exists)
+        XCTAssertFalse(app.staticTexts["Free runs left: 0 of 3"].exists)
         let proSettingsLink = app.buttons.matching(identifier: "pb.more.settings").firstMatch
         XCTAssertTrue(openTab("More", until: proSettingsLink, app: app))
         XCTAssertTrue(waitForHittable(proSettingsLink, timeout: 20))
@@ -283,7 +283,7 @@ final class FirstUseFlowUITests: XCTestCase {
         tapEdge(proSettingsLink, horizontal: 0.9)
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 20))
         XCTAssertTrue(app.staticTexts["Purchases & Pro Access"].waitForExistence(timeout: 4))
-        XCTAssertTrue(app.staticTexts["Manage subscription"].exists)
+        XCTAssertTrue(app.staticTexts["Purchase details"].exists)
         capture("15-pro-unlocks-plan")
     }
 
