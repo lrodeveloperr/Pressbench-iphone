@@ -36,7 +36,7 @@ final class FirstUseFlowUITests: XCTestCase {
         let maintenance = app.descendants(matching: .any).matching(identifier: "pb.settings.maintenance").firstMatch
         makeHittable(maintenance, in: app)
         assertControlSurface(maintenance, name: "Maintenance")
-        tapEdge(maintenance, horizontal: 0.9)
+        maintenance.tap()
         let deleteLocalData = app.buttons.matching(identifier: "pb.settings.deleteLocalData").firstMatch
         XCTAssertTrue(deleteLocalData.waitForExistence(timeout: 4))
         makeHittable(deleteLocalData, in: app)
@@ -225,7 +225,7 @@ final class FirstUseFlowUITests: XCTestCase {
         assertControlSurface(unavailablePurchase, name: "Unavailable purchase")
         assertControlSurface(retryProduct, name: "Retry product")
         assertControlSurface(restorePurchaseFromPaywall, name: "Restore purchase")
-        capture("12-sixth-run-upgrade")
+        capture("12-fourth-run-upgrade")
 
         app.buttons["Cancel"].firstMatch.tap()
         let runsTab = app.tabBars.buttons["Runs"]

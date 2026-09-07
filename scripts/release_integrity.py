@@ -469,7 +469,7 @@ require(all(marker in ui_test for marker in ['--pressbench-ui-test-limit-reached
         'Repeat this setup', 'capped-repeat-upgrade', 'app.tabBars.buttons["Runs"]',
         'pb.runs.screen', 'pb.more.reports', 'pb.reports.pdf',
         'free-report-requires-pro']),
-        'UI test does not cover the sixth-run paywall, capped Repeat, and free-report paywall')
+        'UI test does not cover the fourth-run paywall, capped Repeat, and free-report paywall')
 
 more_view=(root/'PressBench/Views/MoreView.swift').read_text(encoding='utf-8')
 require(settings_view.index('planSection') < settings_view.index('backupSection') and
