@@ -367,12 +367,12 @@ require(all(marker in usage_source for marker in ['freePressLimit = 3', 'complet
         all(marker in store_source for marker in ['usageMeter.canStartFreePress', 'recordCompletedPress',
             'case .pressLimitReached', 'usageLedgerUnavailable', 'alreadyCommitted', 'payload["freeRunsUsed"]',
             'max(rawBatches.count, importedUsage)']),
-        'monotonic five-run ledger, reinstall persistence, or restore reconciliation is missing')
+        'monotonic three-run ledger, reinstall persistence, or restore reconciliation is missing')
 backup_restore_test=(root/'PressBenchTests/BackupRestoreTests.swift').read_text(encoding='utf-8')
 require(all(marker in backup_restore_test for marker in [
             'testRestoreCarriesUsageToAnotherDeviceWithoutImportingEntitlement',
             'testOlderRestoreNeverReducesCurrentUsage',
-            'XCTAssertEqual(targetUsage.snapshot?.completedPresses, 4)']),
+            'XCTAssertEqual(targetUsage.snapshot?.completedPresses, 3)']),
         'end-to-end backup/free-run reconciliation tests are missing')
 require('PressBenchReportExporter.pdf' in (root/'PressBench/Views/ReportsView.swift').read_text(), 'native PDF report not wired')
 require('PressBenchReportExporter.xlsx' in (root/'PressBench/Views/ReportsView.swift').read_text(), 'native XLSX report not wired')
