@@ -196,7 +196,12 @@ final class PressBenchStore: ObservableObject {
         } catch { return false }
     }
 
-    var productDisplayPrice: String? { purchases.product?.displayPrice }
+    var productDisplayPrice: String? {
+        #if DEBUG || PRESSBENCH_UI_TESTING
+        if ProcessInfo.processInfo.arguments.contains("--pressbench-ui-test-lifetime-product") { return "$39.99" }
+        #endif
+        return purchases.product?.displayPrice
+    }
     var purchaseState: PurchaseManager.PurchaseState { purchases.state }
     var purchaseOperationInProgress: Bool { purchases.isWorking }
     var canManageMonthlySubscription: Bool {
