@@ -5,7 +5,7 @@ final class FirstUseFlowUITests: XCTestCase {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.launchEnvironment["PRESSBENCH_UI_TEST_USAGE_SERVICE"] = UUID().uuidString
-        app.launchArguments += ["--pressbench-ui-test-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launchArguments += ["--pressbench-ui-test-reset", "--pressbench-ui-test-product-unavailable", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
 
         XCTAssertTrue(app.staticTexts["Welcome to PressBench"].waitForExistence(timeout: 8))
@@ -28,6 +28,13 @@ final class FirstUseFlowUITests: XCTestCase {
         assertControlSurface(settingsLink, name: "More → Settings")
         tapEdge(settingsLink, horizontal: 0.9)
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 4))
+        let plan = app.buttons.matching(identifier: "pb.settings.plan").firstMatch
+        XCTAssertTrue(plan.waitForExistence(timeout: 4))
+        plan.tap()
+        XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["The lifetime purchase is unavailable right now. Try again in a moment."].waitForExistence(timeout: 5))
+        capture("face-id-lifetime-paywall")
+        app.buttons["Cancel"].firstMatch.tap()
         let backup = app.buttons.matching(identifier: "pb.settings.backup").firstMatch
         XCTAssertTrue(backup.waitForExistence(timeout: 4))
         XCTAssertTrue(backup.isHittable, "Backup must remain in the first Settings viewport")
