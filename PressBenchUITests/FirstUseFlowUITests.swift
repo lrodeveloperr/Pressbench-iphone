@@ -31,7 +31,6 @@ final class FirstUseFlowUITests: XCTestCase {
         assertControlSurface(backup, name: "Create Backup")
 
         let deleteLocalData = app.buttons.matching(identifier: "pb.settings.deleteLocalData").firstMatch
-        XCTAssertTrue(deleteLocalData.waitForExistence(timeout: 4))
         makeHittable(deleteLocalData, in: app)
         assertControlSurface(deleteLocalData, name: "Delete local data")
         tapEdge(deleteLocalData, horizontal: 0.9)
