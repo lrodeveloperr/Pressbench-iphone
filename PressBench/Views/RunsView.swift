@@ -10,13 +10,38 @@ struct RunsView: View {
     @State private var showingUpgrade = false
     @State private var resumeStartAfterUpgrade = false
     @State private var search = ""
+    @State private var issuesOnly = false
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
     private var filtered: [BatchRun] {
         store.runs.filter {
             (filter == nil || $0.state == filter) &&
-            (search.isEmpty || [$0.title, $0.jobReference, $0.machineName].contains { $0.localizedCaseInsensitiveContains(search) })
+            (!issuesOnly || !$0.issues.isEmpty) && matchesSearch($0)
         }
+    }
+
+    private func matchesSearch(_ run: BatchRun) -> Bool {
+        guard !search.isEmpty else { return true }
+        var values = [
+            run.id, run.title, run.jobReference, run.machineName, run.material, run.transferMedium,
+            run.temperature, run.pressure, run.platen, run.instructionSource,
+            run.instructionCheckedDate, run.notes, String(run.processed), String(run.planned)
+        ]
+        if let completedAt = run.completedAt {
+            values.append(PBFormat.date(completedAt, locale: locale, time: true))
+            values.append(ISO8601DateFormatter().string(from: completedAt))
+        }
+        values.append(contentsOf: run.processStages.flatMap {
+            [$0.name, $0.value, $0.instruction, $0.placementAction, $0.finishAction]
+        })
+        for issue in run.issues {
+            values.append(contentsOf: [
+                issue.symptom, issue.suspectedCause, issue.disposition, issue.note,
+                t("issue.symptom.\(issue.symptom)"), t("issue.cause.\(issue.suspectedCause)"),
+                t("issue.disposition.\(issue.disposition)")
+            ])
+        }
+        return values.contains { $0.localizedCaseInsensitiveContains(search) }
     }
 
     var body: some View {
@@ -36,12 +61,15 @@ struct RunsView: View {
                         ForEach([RunState.running, .completed], id: \.self) { state in
                             RunFilterPill(titleKey: state.localizationKey, selected: filter == state) { filter = state }
                         }
+                        RunFilterPill(titleKey: "report.issuesExceptions", selected: issuesOnly) {
+                            issuesOnly.toggle()
+                        }
                     }
                 }
 
                 if filtered.isEmpty {
                     VStack(spacing: 18) {
-                        ContentUnavailableView(t("runs.title"), systemImage: "play.circle", description: Text(t("onboarding.ready.run.body")))
+                        ContentUnavailableView(t("runs.title"), systemImage: "play.circle")
                         PBPrimaryButton(title: t(store.setups.contains { $0.status != .draft && $0.status != .archived } ? "setup.startRun" : "onboarding.ready.setup.title"), icon: "plus.circle.fill") {
                             if store.setups.contains(where: { $0.status != .draft && $0.status != .archived }) { requestStart() }
                             else { store.selectedTab = 1 }
@@ -130,7 +158,7 @@ struct CompletedRunDetailView: View {
                 }
                 PBCard {
                     VStack(spacing: 14) {
-                        LabeledContent(t("report.firstPassYield"), value: run.firstPassYield.map { PBFormat.percent($0, locale: locale) } ?? "—")
+                        LabeledContent(t("report.firstPassYield"), value: run.firstPassYield.map { PBFormat.percent($0, locale: locale) } ?? "N/A")
                         if !run.machineName.isEmpty {
                             Divider(); LabeledContent(t("run.machine"), value: run.machineName)
                         }
@@ -156,6 +184,10 @@ struct CompletedRunDetailView: View {
                         if !run.jobReference.isEmpty {
                             Divider()
                             LabeledContent(t("common.reference"), value: run.jobReference)
+                        }
+                        if !run.instructionSource.isEmpty {
+                            Divider()
+                            LabeledContent(t("report.instructionSource"), value: run.instructionSource)
                         }
                         Divider()
                         LabeledContent(t("report.wasteUnits"), value: PBFormat.integer(run.waste, locale: locale))
@@ -230,7 +262,7 @@ struct CompletedRunDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingRepeat) {
             if let setup = store.setups.first(where: { $0.id == run.setupID && $0.status != .archived }) {
-                JobDifferenceSheet(setup: setup).environmentObject(store)
+                RunConfigurationView(setup: setup).environmentObject(store)
             }
         }
         .sheet(isPresented: $showingRepeatUpgrade, onDismiss: {
@@ -346,7 +378,9 @@ private struct BatchCorrectionView: View {
                     }
                     Button { issues.append(IssueDraftInput()) } label: {
                         Label(t("issue.add"), systemImage: "plus.circle.fill")
-                    }.frame(minHeight: PBTheme.minimumTarget)
+                    }
+                    .frame(minHeight: PBTheme.minimumTarget)
+                    .disabled(issues.count >= PBInputLimits.maximumIssues)
                 }
                 Section(t("run.correctionReason")) {
                     TextEditor(text: $reason)
@@ -400,16 +434,21 @@ private struct BatchCorrectionView: View {
 
     private var isReady: Bool {
         guard let planned = Int(self.planned), let processed = Int(self.processed), planned > 0,
-              processed >= 0, processed <= planned,
+              planned <= PBInputLimits.maximumQuantity, processed >= 0, processed <= planned,
+              issues.count <= PBInputLimits.maximumIssues,
               reason.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false else { return false }
         let waste = issueTotal("discarded"), reworked = issueTotal("reworked")
         return waste <= processed && reworked <= processed - waste && issues.allSatisfy {
-            (Int($0.quantity).map { $0 > 0 } == true) && !$0.note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            (Int($0.quantity).map { (1...PBInputLimits.maximumQuantity).contains($0) } == true) &&
+                !$0.note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
     }
 
     private func issueTotal(_ disposition: String) -> Int {
-        issues.filter { $0.disposition == disposition }.reduce(0) { $0 + (Int($1.quantity) ?? 0) }
+        issues.filter { $0.disposition == disposition }.reduce(0) { total, issue in
+            let quantity = min(PBInputLimits.maximumQuantity, max(0, Int(issue.quantity) ?? 0))
+            return min(PBInputLimits.maximumQuantity, total + quantity)
+        }
     }
 }
 

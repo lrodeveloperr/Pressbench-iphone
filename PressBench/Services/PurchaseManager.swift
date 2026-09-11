@@ -3,29 +3,39 @@ import StoreKit
 
 @MainActor
 final class PurchaseManager: ObservableObject {
-    static let productID = "pressbench_unlimited_lifetime_ios_v2"
-    static let legacyLifetimeProductID = "pressbench_unlimited_lifetime_ios"
-    static let legacySubscriptionProductID = "pressbench_unlimited_monthly_ios"
-    static let recognizedProductIDs: Set<String> = [
-        productID, legacyLifetimeProductID, legacySubscriptionProductID
-    ]
+    enum Plan: String, CaseIterable, Identifiable {
+        case monthly = "pressbench_unlimited_monthly_ios"
+        case annual = "pressbench_unlimited_annual_ios"
+
+        var id: String { rawValue }
+    }
+
+    static let monthlyProductID = Plan.monthly.rawValue
+    static let annualProductID = Plan.annual.rawValue
+    static let subscriptionProductIDs = Set(Plan.allCases.map(\.rawValue))
+    static let recognizedProductIDs = subscriptionProductIDs
 
     enum PurchaseState: Equatable {
         case loading, free, purchased, pending, unavailable, failed(String)
     }
 
-    @Published private(set) var product: Product?
+    @Published private(set) var products: [Product] = []
     @Published private(set) var state: PurchaseState = .loading
     @Published private(set) var isLoadingProduct = false
     @Published private(set) var isPurchasing = false
     @Published private(set) var isRestoring = false
 
     var isWorking: Bool { isLoadingProduct || isPurchasing || isRestoring }
+    var hasAvailableProduct: Bool { !products.isEmpty }
 
     private var updatesTask: Task<Void, Never>?
     var onStoreEvent: (([String: Any]) -> Void)?
 
     deinit { updatesTask?.cancel() }
+
+    func product(for plan: Plan) -> Product? {
+        products.first { $0.id == plan.rawValue }
+    }
 
     func start() async {
         guard !isWorking else { return }
@@ -37,28 +47,28 @@ final class PurchaseManager: ObservableObject {
         }
         isLoadingProduct = true
         defer { isLoadingProduct = false }
-        let productLoaded = await loadProduct()
+        let productsLoaded = await loadProducts()
         let productLoadState = state
         await refresh(action: "automatic_refresh", userInitiated: false)
-        if !productLoaded, state == .free { state = productLoadState }
+        if !productsLoaded, state == .free { state = productLoadState }
     }
 
-    func reloadProduct() async {
+    func reloadProducts() async {
         guard !isWorking else { return }
         isLoadingProduct = true
         defer { isLoadingProduct = false }
         state = .loading
-        let productLoaded = await loadProduct()
+        let productsLoaded = await loadProducts()
         let productLoadState = state
         await refresh(action: "automatic_refresh", userInitiated: false)
-        if !productLoaded, state == .free { state = productLoadState }
+        if !productsLoaded, state == .free { state = productLoadState }
     }
 
-    func purchase() async {
+    func purchase(_ plan: Plan) async {
         guard !isWorking, state != .purchased else { return }
         isPurchasing = true
         defer { isPurchasing = false }
-        guard let product else {
+        guard let product = product(for: plan) else {
             state = .unavailable
             return
         }
@@ -70,7 +80,7 @@ final class PurchaseManager: ObservableObject {
                 state = .pending
                 onStoreEvent?(event(
                     action: "purchase", userInitiated: true, purchaseState: "pending",
-                    productID: Self.productID, transactionID: "",
+                    productID: product.id, transactionID: "",
                     nativeID: "storekit2:pending:\(UUID().uuidString)", eventDate: Date()
                 ))
             case .userCancelled:
@@ -96,12 +106,8 @@ final class PurchaseManager: ObservableObject {
     }
 
     func refresh(action: String = "automatic_refresh", userInitiated: Bool = false) async {
-        var lifetimeTransaction: Transaction?
-        var legacyLifetimeTransaction: Transaction?
-        var legacyTransaction: Transaction?
-        var unverifiedLifetime: Transaction?
-        var unverifiedLegacyLifetime: Transaction?
-        var unverifiedLegacy: Transaction?
+        var verifiedTransactions: [Transaction] = []
+        var unverifiedTransactions: [Transaction] = []
         let now = Date()
 
         for await result in Transaction.currentEntitlements {
@@ -109,32 +115,20 @@ final class PurchaseManager: ObservableObject {
             case .verified(let transaction) where Self.recognizedProductIDs.contains(transaction.productID):
                 let expired = transaction.expirationDate.map { $0 <= now } ?? false
                 guard transaction.revocationDate == nil, !transaction.isUpgraded, !expired else { continue }
-                if transaction.productID == Self.productID {
-                    lifetimeTransaction = transaction
-                } else if transaction.productID == Self.legacyLifetimeProductID {
-                    legacyLifetimeTransaction = transaction
-                } else {
-                    legacyTransaction = transaction
-                }
+                verifiedTransactions.append(transaction)
             case .unverified(let transaction, _) where Self.recognizedProductIDs.contains(transaction.productID):
-                if transaction.productID == Self.productID {
-                    unverifiedLifetime = transaction
-                } else if transaction.productID == Self.legacyLifetimeProductID {
-                    unverifiedLegacyLifetime = transaction
-                } else {
-                    unverifiedLegacy = transaction
-                }
+                unverifiedTransactions.append(transaction)
             default:
                 continue
             }
         }
 
-        if let transaction = lifetimeTransaction ?? legacyLifetimeTransaction ?? legacyTransaction {
+        if let transaction = preferredTransaction(in: verifiedTransactions) {
             await consumeVerified(transaction, action: action, userInitiated: userInitiated)
             return
         }
 
-        if let transaction = unverifiedLifetime ?? unverifiedLegacyLifetime ?? unverifiedLegacy {
+        if let transaction = preferredTransaction(in: unverifiedTransactions) {
             state = .free
             onStoreEvent?(event(
                 action: action, userInitiated: userInitiated, purchaseState: "unverified",
@@ -147,33 +141,39 @@ final class PurchaseManager: ObservableObject {
         state = .free
         onStoreEvent?(event(
             action: action, userInitiated: userInitiated, purchaseState: "not_purchased",
-            productID: Self.productID, transactionID: "",
+            productID: Self.monthlyProductID, transactionID: "",
             nativeID: "storekit2:none:\(Int(now.timeIntervalSince1970))", eventDate: now
         ))
     }
 
     @discardableResult
-    private func loadProduct() async -> Bool {
+    private func loadProducts() async -> Bool {
         #if DEBUG || PRESSBENCH_UI_TESTING
         if ProcessInfo.processInfo.arguments.contains("--pressbench-ui-test-product-unavailable") {
-            product = nil
+            products = []
             state = .unavailable
             return false
         }
         #endif
         do {
-            let candidate = try await Product.products(for: [Self.productID]).first
-            guard candidate?.type == .nonConsumable else {
-                product = nil
+            let loaded = try await Product.products(for: Plan.allCases.map(\.rawValue))
+                .filter { $0.type == .autoRenewable }
+            products = Plan.allCases.compactMap { plan in loaded.first { $0.id == plan.rawValue } }
+            guard !products.isEmpty else {
                 state = .unavailable
                 return false
             }
-            product = candidate
             return true
         } catch {
-            product = nil
+            products = []
             state = .failed(String(describing: error))
             return false
+        }
+    }
+
+    private func preferredTransaction(in transactions: [Transaction]) -> Transaction? {
+        transactions.max { left, right in
+            return (left.expirationDate ?? left.purchaseDate) < (right.expirationDate ?? right.purchaseDate)
         }
     }
 
@@ -183,9 +183,6 @@ final class PurchaseManager: ObservableObject {
             guard Self.recognizedProductIDs.contains(transaction.productID) else { return }
             await consumeVerified(transaction, action: action, userInitiated: action != "automatic_refresh")
             await transaction.finish()
-            if transaction.productID != Self.productID {
-                await refresh(action: "automatic_refresh", userInitiated: false)
-            }
         case .unverified(let transaction, _):
             guard Self.recognizedProductIDs.contains(transaction.productID) else { return }
             state = .free
@@ -194,9 +191,6 @@ final class PurchaseManager: ObservableObject {
                 productID: transaction.productID, transactionID: String(transaction.id),
                 nativeID: nativeIdentity(transaction), eventDate: Date(), expirationDate: transaction.expirationDate
             ))
-            if transaction.productID != Self.productID {
-                await refresh(action: "automatic_refresh", userInitiated: false)
-            }
         }
     }
 
@@ -237,7 +231,7 @@ final class PurchaseManager: ObservableObject {
             "nativeAdapterVerified": true,
             "verificationSource": "storekit2",
             "productId": productID,
-            "productType": productID == Self.legacySubscriptionProductID ? "auto_renewable_subscription" : "non_consumable",
+            "productType": "auto_renewable_subscription",
             "purchaseState": purchaseState,
             "transactionId": transactionID,
             "nativeVerificationId": nativeID,

@@ -21,6 +21,8 @@ RECOVERY_KEYS = ['run.discardRejected', 'run.discardRejectedConfirm']
 ICLOUD_DELETE_KEYS = ['backup.delete', 'backup.deleteConfirm', 'backup.deleteSuccess', 'backup.deleteFailed']
 MONETIZATION_TRANSLATIONS = json.loads((root/'monetization_translations.json').read_text(encoding='utf-8'))
 MONETIZATION_KEYS = set(MONETIZATION_TRANSLATIONS)
+OPERATIONAL_TRANSLATIONS = json.loads((root/'operational_translations.json').read_text(encoding='utf-8'))
+OPERATIONAL_KEYS = set(OPERATIONAL_TRANSLATIONS)
 DIRECT_NEW_KEYS = {
   'run.finishRun', 'run.nextItem', 'error.freeLimit', 'backup.signInFailed',
   'run.mode.test.help', 'run.mode.production.help',
@@ -28,6 +30,7 @@ DIRECT_NEW_KEYS = {
   'run.reuse.exactRepeat.help', 'run.reuse.sameProductVariant.help',
   'run.reuse.materiallyDifferent.help'
 } | set(ADDITIONAL_KEYS) | set(RESIDUAL_KEYS) | set(RECOVERY_KEYS) | MONETIZATION_KEYS
+DIRECT_NEW_KEYS |= OPERATIONAL_KEYS
 DIRECT_NEW_KEYS |= set(ICLOUD_DELETE_KEYS)
 APPLE_SIGNIN_STATUS_TRANSLATIONS = {
   'en': 'Signed in with Apple', 'es': 'Sesión iniciada con Apple',
@@ -84,25 +87,27 @@ BACKUP_BODY_TRANSLATIONS = {
   'zh-Hant': '選擇要在「檔案」中儲存備份檔案的位置。',
 }
 
-# unique source phrase order
-phrases=[]; seen=set()
-for k in keys:
-    if k in DIRECT_NEW_KEYS: continue
-    s=meta[k]['source']
-    if s not in seen:
-        seen.add(s); phrases.append(s)
-assert len(phrases)==286
+# The first translation batch remains the stable key-to-line index even after
+# English source copy changes or customer-facing keys are retired.
+with (root/'phrases.tsv').open(encoding='utf-8', newline='') as phrase_file:
+    phrase_rows=[row for row in csv.reader(phrase_file, delimiter='\t') if row][:286]
+assert len(phrase_rows)==286
+base_key_indexes={
+    key:index
+    for index,row in enumerate(phrase_rows)
+    for key in row[2].split(',')
+}
 languages=['en','es','pt','fr','de','it','nl','pl','tr','ro','cs','uk','ru','ar','zh','ja','ko','hi','ur','bn','vi','id','th','fil','ms','fi','sv','da','nb','el','he']
-translations={'en':{s:s for s in phrases}}
+translations={'en':{key:meta[key]['source'] for key in keys if key in base_key_indexes}}
 for lang in languages:
     if lang=='en': continue
     lines=(root/f'translations/{lang}.txt').read_text(encoding='utf-8').splitlines()
-    assert len(lines)==len(phrases),(lang,len(lines))
-    translations[lang]=dict(zip(phrases,lines))
+    assert len(lines)==len(phrase_rows),(lang,len(lines))
+    translations[lang]={key:lines[index] for key,index in base_key_indexes.items() if key in meta}
 # Traditional Chinese full locale override
 zhh=(root/'translations/zh-Hant.txt').read_text(encoding='utf-8').splitlines()
-assert len(zhh)==len(phrases)
-translations['zh-Hant']=dict(zip(phrases,zhh))
+assert len(zhh)==len(phrase_rows)
+translations['zh-Hant']={key:zhh[index] for key,index in base_key_indexes.items() if key in meta}
 
 def runtime_placeholders(s):
     return s.replace('%1$d','%1$@').replace('%2$d','%2$@').replace('%d','%@')
@@ -171,7 +176,6 @@ KEY_OVERRIDES.update({
   'onboarding.process.setup': {'de':'Einrichtung','fil':'Ayos'},
   'onboarding.process.firstPiece': {'fil':'Unang piraso'},
   'onboarding.process.production': {'fr':'Fabrication','fil':'Produksyon'},
-  'home.greeting': {'fil':'Maligayang pagbabalik'},
   'home.metric.batches': {'nl':'Productiebatches'},
   'home.metric.firstPass': {'fil':'Unang pasado'},
   'home.metric.waste': {'fil':'Sayang'},
@@ -458,6 +462,8 @@ for key in keys:
             text = BACKUP_BODY_TRANSLATIONS[lang]
         elif key in MONETIZATION_KEYS:
             text = MONETIZATION_TRANSLATIONS[key][lang]
+        elif key in OPERATIONAL_KEYS:
+            text = OPERATIONAL_TRANSLATIONS[key][lang]
         elif key in OPERATOR_KEYS:
             text = OPERATOR_TRANSLATIONS[lang][key]
         elif key in ADDITIONAL_KEYS:
@@ -471,12 +477,14 @@ for key in keys:
         elif key == 'backup.signedIn':
             text = APPLE_SIGNIN_STATUS_TRANSLATIONS[lang]
         else:
-            text = translations[lang][source]
+            text = translations[lang][key]
         item['translations'][lang]=runtime_placeholders(text)
     if key == 'backup.optionalBody':
         zhh_text = BACKUP_BODY_TRANSLATIONS['zh-Hant']
     elif key in MONETIZATION_KEYS:
         zhh_text = MONETIZATION_TRANSLATIONS[key]['zh-Hant']
+    elif key in OPERATIONAL_KEYS:
+        zhh_text = OPERATIONAL_TRANSLATIONS[key]['zh-Hant']
     elif key in OPERATOR_KEYS:
         zhh_text = OPERATOR_TRANSLATIONS['zh-Hant'][key]
     elif key in ADDITIONAL_KEYS:
@@ -490,7 +498,7 @@ for key in keys:
     elif key == 'backup.signedIn':
         zhh_text = APPLE_SIGNIN_STATUS_TRANSLATIONS['zh-Hant']
     else:
-        zhh_text = translations['zh-Hant'][source]
+        zhh_text = translations['zh-Hant'][key]
     item['translations']['zh-Hant']=runtime_placeholders(zhh_text)
     for lang, text in KEY_OVERRIDES.get(key, {}).items():
         item['translations'][lang] = runtime_placeholders(text)

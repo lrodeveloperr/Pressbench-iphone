@@ -41,8 +41,12 @@ final class PressBenchBackupDocumentTests: XCTestCase {
         XCTAssertNoThrow(try PressBenchBackupDocument(data: data))
     }
 
-    func testBackupDocumentRejectsOversizedInputBeforeRestore() {
-        XCTAssertThrowsError(try PressBenchBackupDocument(data: Data(repeating: 0x20, count: 10_000_001)))
+    func testBackupImportUsesAResourceDerivedAllocationGuard() {
+        XCTAssertGreaterThanOrEqual(PressBenchBackupDocument.maximumSafeImportBytes, 16 * 1_024 * 1_024)
+        XCTAssertLessThanOrEqual(
+            UInt64(PressBenchBackupDocument.maximumSafeImportBytes),
+            max(UInt64(16 * 1_024 * 1_024), ProcessInfo.processInfo.physicalMemory / 8)
+        )
     }
 
     func testBackupFilenameIsPortableAndStable() {

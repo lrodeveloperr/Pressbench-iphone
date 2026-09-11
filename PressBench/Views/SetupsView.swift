@@ -8,7 +8,6 @@ struct SetupsView: View {
     @State private var search = ""
     @State private var showingEditor = false
     @State private var showingMachineEditor = false
-    @State private var continueToSetup = false
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
     private var activeSetups: [Setup] { store.setups.filter { $0.status != .archived } }
@@ -16,8 +15,12 @@ struct SetupsView: View {
     private var filtered: [Setup] {
         activeSetups.filter { setup in
             let matchesStatus = filter == nil || setup.status == filter
-            let matchesSearch = search.isEmpty || [setup.title, setup.material, setup.transferMedium, setup.machineNickname]
-                .contains { $0.localizedCaseInsensitiveContains(search) }
+            let matchesSearch = search.isEmpty || [
+                setup.title, setup.material, setup.transferMedium, setup.machineNickname,
+                setup.platen, setup.temperature, setup.duration, setup.pressure, setup.notes
+            ]
+                .joined(separator: " ")
+                .localizedCaseInsensitiveContains(search)
             return matchesStatus && matchesSearch
         }
     }
@@ -40,8 +43,7 @@ struct SetupsView: View {
 
                     if activeSetups.isEmpty {
                         VStack(spacing: 18) {
-                            ContentUnavailableView(t("setups.title"), systemImage: "list.clipboard",
-                                description: Text(t(!store.machines.contains(where: { $0.active }) ? "onboarding.ready.machine.body" : "onboarding.ready.setup.body")))
+                            ContentUnavailableView(t("setups.title"), systemImage: "list.clipboard")
                             PBPrimaryButton(title: t(!store.machines.contains(where: { $0.active }) ? "onboarding.ready.machine.title" : "onboarding.ready.setup.title"), icon: "plus.circle.fill") {
                                 if !store.machines.contains(where: { $0.active }) { showingMachineEditor = true } else { showingEditor = true }
                             }
@@ -63,9 +65,7 @@ struct SetupsView: View {
         .toolbar(.hidden, for: .navigationBar)
         .navigationDestination(for: Setup.self) { SetupDetailView(setup: $0) }
         .sheet(isPresented: $showingEditor) { SetupEditorView(draft: store.setupDraft(for: nil)).environmentObject(store) }
-        .sheet(isPresented: $showingMachineEditor, onDismiss: {
-            if continueToSetup { continueToSetup = false; showingEditor = true }
-        }) { MachineEditorView { _ in continueToSetup = true }.environmentObject(store) }
+        .sheet(isPresented: $showingMachineEditor) { MachineEditorView().environmentObject(store) }
     }
 
     private var filterBar: some View {
@@ -88,7 +88,7 @@ struct SetupCard: View {
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @State private var showingDifference = false
+    @State private var showingConfiguration = false
     @State private var showingUpgrade = false
     @State private var resumeStartAfterUpgrade = false
 
@@ -179,16 +179,16 @@ struct SetupCard: View {
                 .opacity(store.activeRun == nil && setup.status != .draft && setup.status != .archived ? 1 : 0.45)
             }
         }
-        .sheet(isPresented: $showingDifference) { JobDifferenceSheet(setup: setup).environmentObject(store) }
+        .sheet(isPresented: $showingConfiguration) { RunConfigurationView(setup: setup).environmentObject(store) }
         .sheet(isPresented: $showingUpgrade, onDismiss: {
             guard resumeStartAfterUpgrade else { return }
             resumeStartAfterUpgrade = false
-            if store.isPro { showingDifference = true }
+            if store.isPro { showingConfiguration = true }
         }) { ProUpgradeView().environmentObject(store).pbEditorSheetStyle() }
     }
 
     private func requestStart() {
-        if store.canStartAnotherRun { showingDifference = true }
+        if store.canStartAnotherRun { showingConfiguration = true }
         else { resumeStartAfterUpgrade = true; showingUpgrade = true }
     }
 
@@ -262,7 +262,7 @@ private struct SetupMetric: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
-            Text(value.isEmpty ? "—" : value)
+            Text(value.isEmpty ? "N/A" : value)
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(PBTheme.text)
                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 1)

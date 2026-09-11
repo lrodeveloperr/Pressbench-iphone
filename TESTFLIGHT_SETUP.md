@@ -20,7 +20,7 @@ The Apple Developer team configured in the workflow is:
 
 `49SQ3XQ68Q`
 
-Before purchase testing, create the non-consumable in-app purchase `pressbench_unlimited_lifetime_ios_v2`, set the US reference price to US$39.99, and retain the approved geo-priced schedule for other storefronts. Add the localized display name and description, review screenshot, privacy policy, and terms. The reserved former lifetime product `pressbench_unlimited_lifetime_ios` and retired monthly product `pressbench_unlimited_monthly_ios` remain code-recognized only for verified legacy customers and are not offered to new customers. See `MONETIZATION.md`.
+Before purchase testing, create one auto-renewable subscription group containing `pressbench_unlimited_monthly_ios` at US$12.99/month and `pressbench_unlimited_annual_ios` at US$119.99/year. Apply the approved geopriced schedules for other storefronts and add localized names, descriptions, review screenshots, privacy policy, and terms. See `MONETIZATION.md`.
 
 The final iOS binary contains no advertising or tracking SDK. Before external testing, ensure App Store Connect privacy answers and the public privacy policy describe StoreKit plus user-owned backup files exported through Apple’s Files picker; PressBench has no backup account and does not upload backups automatically. No Google advertising declarations should remain.
 

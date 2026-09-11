@@ -3,6 +3,14 @@ import XCTest
 
 @MainActor
 final class ErrorEventTests: XCTestCase {
+    func testDeviceFullFailureIsNotPresentedAsAPlanOrSetupError() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = try PressBenchStore(persistence: PressBenchPersistence(baseDirectory: directory))
+
+        XCTAssertEqual(store.errorLocalizationKey(CocoaError(.fileWriteOutOfSpace)), "error.deviceStorage")
+    }
+
     func testIdenticalConsecutiveFailuresPublishDistinctEvents() throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         defer { try? FileManager.default.removeItem(at: directory) }

@@ -109,6 +109,17 @@ final class SetupReuseSafetyTests: XCTestCase {
             XCTAssertEqual(try Self.canonical(saved[key]), try Self.canonical(source[key]), "Unsafe same-variant mutation: \(key)")
         }
         XCTAssertEqual(try Self.canonical(Self.stepsWithoutIDs(saved)), try Self.canonical(Self.stepsWithoutIDs(source)))
+
+        var basedDraft = try store.prepareSetupReuse(setupID: sourceID, reuseClass: .materiallyDifferent)
+        basedDraft.title = "Polyester setup based on cotton"
+        basedDraft.material = "Polyester tee"
+        basedDraft.stages[0].temperature = "290"
+        let basedID = try store.saveSetup(basedDraft, temperatureUnit: "F")
+        let based = try XCTUnwrap(store.canonicalReportSetups.first { ($0["id"] as? String) == basedID })
+        XCTAssertNotEqual(basedID, sourceID)
+        XCTAssertEqual(based["title"] as? String, "Polyester setup based on cotton")
+        XCTAssertEqual(based["blankMaterial"] as? String, "Polyester tee")
+        XCTAssertEqual((based["temperature"] as? NSNumber)?.intValue, 290)
     }
 
     private static func stepsWithoutIDs(_ setup: [String: Any]) -> [[String: Any]] {

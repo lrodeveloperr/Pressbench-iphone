@@ -1,5 +1,10 @@
 import SwiftUI
 
+private enum MachineStartMethod: Equatable {
+    case catalog
+    case manual
+}
+
 struct MachineEditorView: View {
     @EnvironmentObject private var store: PressBenchStore
     @Environment(\.dismiss) private var dismiss
@@ -11,6 +16,7 @@ struct MachineEditorView: View {
     @State private var showingDiscard = false
     @State private var failureMessageKey = "common.actionFailed"
     @State private var nicknameWasEdited: Bool
+    @State private var startMethod: MachineStartMethod?
 
     let onSaved: ((String) -> Void)?
 
@@ -18,6 +24,7 @@ struct MachineEditorView: View {
         _draft = State(initialValue: draft)
         _originalDraft = State(initialValue: draft)
         _nicknameWasEdited = State(initialValue: !draft.nickname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        _startMethod = State(initialValue: draft.id.isEmpty ? nil : .manual)
         self.onSaved = onSaved
     }
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
@@ -25,56 +32,80 @@ struct MachineEditorView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    if knownBrands.isEmpty {
-                        TextField(t("common.brand"), text: $draft.brand)
-                    } else {
+                if choosingStartMethod {
+                    Section {
+                        Button { startMethod = .catalog } label: {
+                            Label(t("machine.start.catalog"), systemImage: "list.bullet")
+                                .frame(minHeight: PBTheme.minimumTarget)
+                        }
+                        .accessibilityIdentifier("pb.machine.catalog")
+                        Button { startMethod = .manual } label: {
+                            Label(t("setup.start.manual"), systemImage: "square.and.pencil")
+                                .frame(minHeight: PBTheme.minimumTarget)
+                        }
+                        .accessibilityIdentifier("pb.machine.manual")
+                    } header: {
+                        Text(t("machine.start.choose"))
+                    }
+                } else if startMethod == .catalog {
+                    Section {
                         PBChoiceField(
-                            title: t("common.brand"),
+                            title: t("common.brand") + " *",
                             selection: $draft.brand,
                             choices: knownBrands,
                             identifier: "pb.choice.machineBrand",
                             tapToSelectTitle: t("common.tapToSelect"),
                             otherTitle: t("issue.symptom.other"),
-                            cancelTitle: t("common.cancel")
+                            cancelTitle: t("common.cancel"),
+                            allowsOther: false
                         )
+                        if draft.brand.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            LabeledContent(t("common.model") + " *", value: t("common.tapToSelect"))
+                                .foregroundStyle(PBTheme.secondary)
+                        } else {
+                            PBChoiceField(
+                                title: t("common.model") + " *",
+                                selection: $draft.model,
+                                choices: knownModels,
+                                identifier: "pb.choice.machineModel",
+                                tapToSelectTitle: t("common.tapToSelect"),
+                                otherTitle: t("issue.symptom.other"),
+                                cancelTitle: t("common.cancel"),
+                                allowsOther: false
+                            )
+                        }
                     }
-                    if knownModels.isEmpty {
-                        TextField(t("common.model"), text: $draft.model)
-                    } else {
-                        PBChoiceField(
-                            title: t("common.model"),
-                            selection: $draft.model,
-                            choices: knownModels,
-                            identifier: "pb.choice.machineModel",
-                            tapToSelectTitle: t("common.tapToSelect"),
-                            otherTitle: t("issue.symptom.other"),
-                            cancelTitle: t("common.cancel")
-                        )
+                } else {
+                    Section {
+                        TextField(t("common.brand") + " *", text: $draft.brand)
+                        TextField(t("common.model") + " *", text: $draft.model)
+                        TextField(t("common.platen") + " *", text: $draft.platen)
+                        TextField(t("common.name"), text: nicknameBinding)
                     }
-                    PBChoiceField(
-                        title: t("common.platen") + " *",
-                        selection: $draft.platen,
-                        choices: knownPlatens,
-                        identifier: "pb.choice.platen",
-                        tapToSelectTitle: t("common.tapToSelect"),
-                        otherTitle: t("issue.symptom.other"),
-                        cancelTitle: t("common.cancel")
-                    )
-                    TextField(t("common.name"), text: nicknameBinding)
-                    if !machineReady {
-                        Label(t("error.machineRequired"), systemImage: "asterisk")
-                            .font(.caption).foregroundStyle(PBTheme.warningInk)
+                    Section {
+                        DisclosureGroup(t("common.more")) {
+                            Text(t("common.notes"))
+                                .font(.caption)
+                                .foregroundStyle(PBTheme.secondary)
+                            TextEditor(text: $draft.notes)
+                                .frame(minHeight: 100)
+                                .accessibilityLabel(t("common.notes"))
+                        }
                     }
                 }
-                Section {
-                    DisclosureGroup(t("common.more")) {
-                        Text(t("common.notes"))
-                            .font(.caption)
-                            .foregroundStyle(PBTheme.secondary)
-                        TextEditor(text: $draft.notes)
-                            .frame(minHeight: 100)
-                            .accessibilityLabel(t("common.notes"))
+                if !choosingStartMethod {
+                    Section(t("common.maintenance")) {
+                        LabeledContent(
+                            t("report.date"),
+                            value: draft.lastExternalCheckDate.isEmpty ? t("machines.calibrationDue") : draft.lastExternalCheckDate
+                        )
+                        Button {
+                            draft.lastExternalCheckDate = Self.localCivilDate()
+                            PBFeedback.success()
+                        } label: {
+                            Label(t("qc.pass"), systemImage: "checkmark.seal")
+                                .frame(minHeight: PBTheme.minimumTarget)
+                        }
                     }
                 }
             }
@@ -91,8 +122,10 @@ struct MachineEditorView: View {
                         .accessibilityIdentifier("pb.editor.cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(t("common.save")) { save() }
-                        .disabled(!machineReady)
+                    if !choosingStartMethod {
+                        Button(t("common.save")) { save() }
+                            .disabled(!machineReady)
+                    }
                 }
             }
             .alert("PressBench", isPresented: $failed) { Button(t("common.ok"), role: .cancel) {} } message: { Text(t(failureMessageKey)) }
@@ -103,31 +136,40 @@ struct MachineEditorView: View {
         }
         .pbEditorSheetStyle()
         .interactiveDismissDisabled(draft != originalDraft)
-        .onChange(of: draft.brand) { _, _ in applySuggestedNickname() }
-        .onChange(of: draft.model) { _, _ in applySuggestedNickname() }
+        .onChange(of: draft.brand) { oldValue, newValue in
+            if startMethod == .catalog,
+               oldValue != newValue,
+               PBMachineCatalog.models(for: newValue).contains(draft.model) == false {
+                draft.model = ""
+            }
+            applySuggestedNickname()
+        }
+        .onChange(of: draft.model) { _, _ in
+            if startMethod == .catalog,
+               let match = PBMachineCatalog.entry(brand: draft.brand, model: draft.model) {
+                draft.platen = match.platen
+            }
+            applySuggestedNickname()
+        }
         .onChange(of: draft.platen) { _, _ in applySuggestedNickname() }
     }
 
     private var machineReady: Bool {
+        !draft.brand.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !draft.model.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !draft.platen.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
+    private var choosingStartMethod: Bool {
+        draft.id.isEmpty && startMethod == nil
+    }
     private var knownBrands: [String] {
-        PBPrefillCatalog.prioritized([], recent: store.machines.map(\.brand))
+        PBPrefillCatalog.prioritized(PBMachineCatalog.brands, recent: store.machines.map(\.brand))
     }
     private var knownModels: [String] {
-        let matchingMachines = store.machines.filter {
-            draft.brand.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+        let recent = store.machines.filter {
             $0.brand.compare(draft.brand, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame
-        }
-        return PBPrefillCatalog.prioritized([], recent: matchingMachines.map(\.model))
-    }
-    private var knownPlatens: [String] {
-        PBPrefillCatalog.customerVisibleChoices(
-            for: .platenSizes,
-            recent: store.machines.map(\.platen),
-            language: language,
-            locale: locale
-        )
+        }.map(\.model)
+        return PBPrefillCatalog.prioritized(PBMachineCatalog.models(for: draft.brand), recent: recent)
     }
     private var nicknameBinding: Binding<String> {
         Binding(
@@ -154,6 +196,7 @@ struct MachineEditorView: View {
     }
     private func save() {
         do {
+            let isNewMachine = draft.id.isEmpty
             var prepared = draft
             if prepared.nickname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 prepared.nickname = suggestedNickname
@@ -162,9 +205,18 @@ struct MachineEditorView: View {
             draft = prepared
             originalDraft = prepared
             onSaved?(id)
+            if isNewMachine { store.selectedTab = 0 }
             dismiss()
         }
         catch { failureMessageKey = store.errorLocalizationKey(error); failed = true }
+    }
+
+    private static func localCivilDate() -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Date())
     }
 }
 
@@ -172,6 +224,13 @@ enum SetupEditorMode: Equatable {
     case full
     case sameProductVariant
     case materiallyDifferent
+}
+
+private enum SetupStartMethod {
+    case preset
+    case presetBase
+    case saved
+    case manual
 }
 
 struct SetupEditorView: View {
@@ -188,12 +247,17 @@ struct SetupEditorView: View {
     @State private var showingDiscard = false
     @State private var pendingStageRemovalID: String?
     @State private var showingUpgrade = false
+    @State private var showingPresetPicker = false
+    @State private var showingSavedSetupPicker = false
+    @State private var presetSelectionAsBase = false
+    @State private var startMethod: SetupStartMethod?
     let mode: SetupEditorMode
     let onSaved: ((String) -> Void)?
 
     init(draft: SetupDraft, mode: SetupEditorMode = .full, onSaved: ((String) -> Void)? = nil) {
         _draft = State(initialValue: draft)
         _originalDraft = State(initialValue: draft)
+        _startMethod = State(initialValue: mode == .full && draft.id.isEmpty ? nil : .manual)
         self.mode = mode
         self.onSaved = onSaved
     }
@@ -202,6 +266,39 @@ struct SetupEditorView: View {
     var body: some View {
         NavigationStack {
             Form {
+                if choosingStartMethod {
+                    Section {
+                        Button {
+                            presetSelectionAsBase = false
+                            showingPresetPicker = true
+                        } label: {
+                            Label(t("setup.selectPreset"), systemImage: "checkmark.seal")
+                                .frame(minHeight: PBTheme.minimumTarget)
+                        }
+                        .accessibilityIdentifier("pb.setup.presetPicker")
+                        Button {
+                            presetSelectionAsBase = true
+                            showingPresetPicker = true
+                        } label: {
+                            Label(t("setup.start.presetBase"), systemImage: "book.pages")
+                                .frame(minHeight: PBTheme.minimumTarget)
+                        }
+                        .accessibilityIdentifier("pb.setup.presetBasePicker")
+                        Button { showingSavedSetupPicker = true } label: {
+                            Label(t("setup.start.saved"), systemImage: "doc.on.doc")
+                                .frame(minHeight: PBTheme.minimumTarget)
+                        }
+                        .accessibilityIdentifier("pb.setup.savedBase")
+                        .disabled(store.recentSetups.allSatisfy { $0.status == .archived })
+                        Button { startMethod = .manual } label: {
+                            Label(t("setup.start.manual"), systemImage: "square.and.pencil")
+                                .frame(minHeight: PBTheme.minimumTarget)
+                        }
+                        .accessibilityIdentifier("pb.setup.manual")
+                    } header: {
+                        Text(t("setup.start.choose"))
+                    }
+                } else {
                 if mode == .materiallyDifferent {
                     Section {
                         HStack {
@@ -214,13 +311,6 @@ struct SetupEditorView: View {
                 }
                 Section {
                     if mode != .sameProductVariant {
-                        if activeMachines.count == 1, let machine = activeMachines.first {
-                            LabeledContent(t("machines.title"), value: machine.nickname)
-                        } else {
-                            Picker(t("machines.title") + " *", selection: $draft.machineID) {
-                                ForEach(activeMachines) { machine in Text(machine.nickname).tag(machine.id) }
-                            }
-                        }
                         PBChoiceField(
                             title: t("common.material") + " *",
                             selection: $draft.material,
@@ -230,6 +320,7 @@ struct SetupEditorView: View {
                             otherTitle: t("issue.symptom.other"),
                             cancelTitle: t("common.cancel")
                         )
+                        .disabled(startMethod == .preset)
                         PBChoiceField(
                             title: t("common.transferMedium") + " *",
                             selection: $draft.transferMedium,
@@ -239,12 +330,14 @@ struct SetupEditorView: View {
                             otherTitle: t("issue.symptom.other"),
                             cancelTitle: t("common.cancel")
                         )
+                        .disabled(startMethod == .preset)
                     }
                 }
                 if mode == .sameProductVariant {
                     Section(t("setup.processLocked")) {
                         LabeledContent(t("common.material"), value: draft.material)
                         LabeledContent(t("common.transferMedium"), value: draft.transferMedium)
+                        TextField(t("common.material") + " · " + t("common.reference"), text: $draft.blankColourSize)
                     }
                 } else {
                 ForEach($draft.stages) { $stage in
@@ -326,7 +419,7 @@ struct SetupEditorView: View {
                     } header: {
                         Text(stage.canonicalLocalizationKey.map(t) ?? (stage.name.isEmpty ? t("stage.stage") : stage.name))
                     }
-                    .disabled(mode == .sameProductVariant)
+                    .disabled(mode == .sameProductVariant || startMethod == .preset)
                 }
                 Section(t("report.instructionSource")) {
                     PBChoiceField(
@@ -341,14 +434,27 @@ struct SetupEditorView: View {
                     TextField(t("common.reference") + " *", text: $draft.sourceReference)
                         .accessibilityIdentifier("pb.setup.sourceReference")
                 }
+                .disabled(startMethod == .preset)
                 if mode != .sameProductVariant {
                     Section {
                         Button { draft.stages.append(SetupStageDraft(temperatureUnit: unit)) } label: {
                             Label(t("stage.add"), systemImage: "plus.circle.fill")
                         }
                         .frame(minHeight: PBTheme.minimumTarget)
+                        .disabled(startMethod == .preset || draft.stages.count >= PBInputLimits.maximumStages)
                     }
                 }
+                }
+                if mode != .sameProductVariant {
+                    Section(t("run.machine")) {
+                        if activeMachines.count == 1, let machine = activeMachines.first {
+                            LabeledContent(t("run.machine"), value: machine.nickname)
+                        } else {
+                            Picker(t("run.machine") + " *", selection: $draft.machineID) {
+                                ForEach(activeMachines) { machine in Text(machine.nickname).tag(machine.id) }
+                            }
+                        }
+                    }
                 }
                 Section {
                     DisclosureGroup(t("common.more")) {
@@ -364,6 +470,17 @@ struct SetupEditorView: View {
                             .accessibilityLabel(t("common.notes"))
                     }
                 }
+                if mode != .sameProductVariant {
+                    Section {
+                        DisclosureGroup(t("report.materialTransfer")) {
+                            TextField(t("common.material") + " · " + t("common.reference"), text: $draft.blankSupplier)
+                            TextField(t("common.transferMedium") + " · " + t("common.reference"), text: $draft.transferSupplier)
+                            TextField(t("setup.title") + " · " + t("common.reference"), text: $draft.designRevision)
+                            TextField(t("common.process") + " · " + t("common.reference"), text: $draft.printerInkPaperProfile)
+                            TextField(t("common.process") + " · " + t("common.notes"), text: $draft.accessoriesPlacementCooling)
+                        }
+                    }
+                }
                 if !isReady {
                     Section {
                         Label(t("setup.completeRequired"), systemImage: "exclamationmark.triangle.fill")
@@ -374,6 +491,7 @@ struct SetupEditorView: View {
                                 .foregroundStyle(PBTheme.secondary)
                         }
                     }
+                }
                 }
             }
             .environment(\.defaultMinListRowHeight, PBTheme.minimumTarget)
@@ -389,8 +507,10 @@ struct SetupEditorView: View {
                         .accessibilityIdentifier("pb.editor.cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(t("common.save")) { save() }
-                        .disabled(!isReady)
+                    if !choosingStartMethod {
+                        Button(t("common.save")) { save() }
+                            .disabled(!isReady)
+                    }
                 }
             }
             .alert("PressBench", isPresented: $failed) { Button(t("common.ok"), role: .cancel) {} } message: { Text(t(failureMessageKey)) }
@@ -411,6 +531,15 @@ struct SetupEditorView: View {
         .pbEditorSheetStyle()
         .interactiveDismissDisabled(draft != originalDraft && !saved)
         .sheet(isPresented: $showingUpgrade) { ProUpgradeView().environmentObject(store).pbEditorSheetStyle() }
+        .sheet(isPresented: $showingPresetPicker) {
+            PBSetupPresetPicker { preset, selectedMaterial in
+                applyPreset(preset, selectedMaterial: selectedMaterial)
+                startMethod = presetSelectionAsBase ? .presetBase : .preset
+            }
+        }
+        .sheet(isPresented: $showingSavedSetupPicker) {
+            PBExistingSetupPicker { applySavedSetup($0) }
+        }
         .onAppear { applyNewDraftDefaults() }
         .onDisappear {
             if !saved, !draft.id.isEmpty { store.discardPreparedSetupReuse(id: draft.id) }
@@ -425,6 +554,10 @@ struct SetupEditorView: View {
         let recent = prioritized.remove(at: index)
         prioritized.insert(recent, at: 0)
         return prioritized
+    }
+
+    private var choosingStartMethod: Bool {
+        mode == .full && draft.id.isEmpty && startMethod == nil
     }
 
     private var prioritizedMaterials: [String] {
@@ -512,23 +645,73 @@ struct SetupEditorView: View {
         if changed { originalDraft = draft }
     }
 
+    private func applyPreset(_ preset: PBSetupPresetCatalog.Entry, selectedMaterial: String) {
+        let temperature: (Int) -> String = { fahrenheit in
+            unit == "C" ? String(Int(round((Double(fahrenheit) - 32) * 5 / 9))) : String(fahrenheit)
+        }
+        draft.title = preset.name
+        draft.material = PBSetupPresetCatalog.resolvedMaterial(
+            for: preset, selectedMaterial: selectedMaterial
+        )
+        draft.transferMedium = preset.brand == "Siser" ? "Heat transfer vinyl (HTV)" : "Screen-printed transfer"
+        draft.sourceName = "Manufacturer instructions"
+        draft.sourceReference = "\(preset.brand) · \(preset.name) · \(preset.sourceURL.absoluteString)"
+        draft.sourceCheckedDate = preset.sourceCheckedDate
+        draft.sourceRevision = ""
+        var stages = [SetupStageDraft(
+            stageType: "prepress", name: "", instruction: "Remove moisture and wrinkles before placement.",
+            durationSeconds: String(preset.prepressSeconds)
+        ), SetupStageDraft(
+            stageType: "press", name: "", instruction: preset.publishedGuidance, temperature: temperature(preset.temperatureF),
+            temperatureUnit: unit, durationSeconds: String(preset.durationSeconds), pressure: preset.pressure
+        )]
+        if let second = preset.secondPress {
+            stages.append(SetupStageDraft(
+                stageType: "press", name: "", instruction: "", temperature: temperature(second.temperatureF),
+                temperatureUnit: unit, durationSeconds: String(second.durationSeconds), pressure: second.pressure
+            ))
+        }
+        stages.append(SetupStageDraft(stageType: "peel", name: "", instruction: preset.peel, finishAction: preset.peel))
+        draft.stages = stages
+        if !preset.aftercare.isEmpty { draft.notes = preset.aftercare }
+    }
+
+    private func applySavedSetup(_ setup: Setup) {
+        do {
+            let prepared = try store.prepareSetupReuse(setupID: setup.id, reuseClass: .materiallyDifferent)
+            draft = prepared
+            originalDraft = prepared
+            startMethod = .saved
+        } catch {
+            failureMessageKey = store.errorLocalizationKey(error)
+            failed = true
+        }
+    }
+
     private var isReady: Bool {
         if mode == .sameProductVariant {
-            return !effectiveSetupTitle.isEmpty && (Int(draft.defaultQuantity).map { $0 > 0 } == true)
+            return !effectiveSetupTitle.isEmpty &&
+                (Int(draft.defaultQuantity).map { (1...PBInputLimits.maximumQuantity).contains($0) } == true)
         }
         let hasPressStage = draft.stages.contains(where: { $0.stageType == "press" })
-        return !draft.material.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        return !draft.stages.isEmpty && draft.stages.count <= PBInputLimits.maximumStages &&
+        !draft.material.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !draft.transferMedium.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !draft.machineID.isEmpty && hasPressStage && draft.stages.allSatisfy { stage in
-            let repeatReady = Int(stage.repeatCount.isEmpty ? "1" : stage.repeatCount).map { $0 > 0 } == true
+            let repeatReady = Int(stage.repeatCount.isEmpty ? "1" : stage.repeatCount).map {
+                (1...PBInputLimits.maximumRepeatCount).contains($0)
+            } == true
             guard stage.stageType == "press" else { return repeatReady }
-            return repeatReady && Int(stage.durationSeconds).map { $0 > 0 } == true &&
-                localizedDecimal(stage.temperature).map { $0 > 0 } == true &&
+            return repeatReady && Int(stage.durationSeconds).map {
+                (1...PBInputLimits.maximumDurationSeconds).contains($0)
+            } == true && localizedDecimal(stage.temperature).map {
+                $0 > 0 && $0 <= PBInputLimits.maximumTemperature
+            } == true &&
                 !stage.pressure.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         } &&
         !draft.sourceName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !draft.sourceReference.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        Int(draft.defaultQuantity).map { $0 > 0 } == true
+        Int(draft.defaultQuantity).map { (1...PBInputLimits.maximumQuantity).contains($0) } == true
     }
 
     private var missingRequiredFields: [String] {
@@ -536,7 +719,9 @@ struct SetupEditorView: View {
         func missing(_ value: String, _ label: String) {
             if value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { fields.append(label) }
         }
-        if Int(draft.defaultQuantity).map({ $0 > 0 }) != true { fields.append(t("setup.defaultQuantity")) }
+        if Int(draft.defaultQuantity).map({ (1...PBInputLimits.maximumQuantity).contains($0) }) != true {
+            fields.append(t("setup.defaultQuantity"))
+        }
         guard mode != .sameProductVariant else { return fields }
         missing(draft.material, t("common.material"))
         missing(draft.transferMedium, t("common.transferMedium"))
@@ -546,12 +731,18 @@ struct SetupEditorView: View {
         if !draft.stages.contains(where: { $0.stageType == "press" }) { fields.append(t("stage.press")) }
         for (index, stage) in draft.stages.enumerated() {
             let prefix = "\(t("stage.stage")) \(PBFormat.integer(index + 1, locale: locale))"
-            if Int(stage.repeatCount.isEmpty ? "1" : stage.repeatCount).map({ $0 > 0 }) != true {
+            if Int(stage.repeatCount.isEmpty ? "1" : stage.repeatCount).map({
+                (1...PBInputLimits.maximumRepeatCount).contains($0)
+            }) != true {
                 fields.append("\(prefix): \(t("stage.repeatCount"))")
             }
             guard stage.stageType == "press" else { continue }
-            if localizedDecimal(stage.temperature).map({ $0 > 0 }) != true { fields.append("\(prefix): \(t("common.temperature"))") }
-            if Int(stage.durationSeconds).map({ $0 > 0 }) != true { fields.append("\(prefix): \(t("common.durationSeconds"))") }
+            if localizedDecimal(stage.temperature).map({ $0 > 0 && $0 <= PBInputLimits.maximumTemperature }) != true {
+                fields.append("\(prefix): \(t("common.temperature"))")
+            }
+            if Int(stage.durationSeconds).map({ (1...PBInputLimits.maximumDurationSeconds).contains($0) }) != true {
+                fields.append("\(prefix): \(t("common.durationSeconds"))")
+            }
             if stage.pressure.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { fields.append("\(prefix): \(t("common.pressure"))") }
         }
         return fields
@@ -603,13 +794,132 @@ struct SetupEditorView: View {
     }
 }
 
+private struct PBExistingSetupPicker: View {
+    @EnvironmentObject private var store: PressBenchStore
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.pbLanguage) private var language
+    @Environment(\.locale) private var locale
+    let choose: (Setup) -> Void
+
+    private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
+
+    var body: some View {
+        NavigationStack {
+            List(store.recentSetups.filter { $0.status != .archived }) { setup in
+                Button {
+                    choose(setup)
+                    dismiss()
+                } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(setup.title).font(.headline).foregroundStyle(PBTheme.text)
+                        Text([setup.material, setup.transferMedium].filter { !$0.isEmpty }.joined(separator: " · "))
+                            .font(.caption).foregroundStyle(PBTheme.secondary)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .leading)
+                }
+                .buttonStyle(.plain)
+            }
+            .scrollContentBackground(.hidden)
+            .background(PBTheme.canvasGradient)
+            .navigationTitle(t("setup.start.saved"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(t("common.cancel")) { dismiss() }
+                }
+            }
+        }
+        .pbEditorSheetStyle()
+    }
+}
+
+private struct PBSetupPresetPicker: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.pbLanguage) private var language
+    @Environment(\.locale) private var locale
+    @State private var search = ""
+    @State private var sourceFilter = ""
+    @State private var materialFilter = ""
+    let choose: (PBSetupPresetCatalog.Entry, String) -> Void
+
+    private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
+    private var entries: [PBSetupPresetCatalog.Entry] {
+        PBSetupPresetCatalog.filteredEntries(search: search, source: sourceFilter, material: materialFilter)
+    }
+    private func localizedMaterial(_ material: String) -> String {
+        PBPrefillCatalog.localizedValue(material, for: .materials, language: language, locale: locale)
+    }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Picker(t("report.instructionSource"), selection: $sourceFilter) {
+                        Text(t("common.all")).tag("")
+                        ForEach(PBSetupPresetCatalog.sources, id: \.self) { Text($0).tag($0) }
+                    }
+                    .accessibilityIdentifier("pb.setup.presetSourceFilter")
+                    Picker(t("common.material"), selection: $materialFilter) {
+                        Text(t("common.all")).tag("")
+                        ForEach(PBSetupPresetCatalog.materials, id: \.self) { material in
+                            Text(localizedMaterial(material)).tag(material)
+                        }
+                    }
+                    .accessibilityIdentifier("pb.setup.presetMaterialFilter")
+                }
+                Section {
+                    if entries.isEmpty {
+                        ContentUnavailableView.search(text: search)
+                    }
+                    ForEach(entries) { preset in
+                        VStack(alignment: .leading, spacing: 8) {
+                            Button {
+                                choose(preset, materialFilter)
+                                dismiss()
+                            } label: {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(preset.name).font(.headline).foregroundStyle(PBTheme.text)
+                                    Text(preset.compatibleMaterials.map(localizedMaterial).joined(separator: " · "))
+                                        .font(.caption).foregroundStyle(PBTheme.muted)
+                                    Text("\(preset.brand) · \(preset.temperatureLabel) · \(preset.durationLabel) · \(preset.pressure)")
+                                        .font(.caption).foregroundStyle(PBTheme.secondary)
+                                }
+                                .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .leading)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityIdentifier("pb.setup.preset.\(preset.id)")
+                            Link(destination: preset.sourceURL) {
+                                Label(preset.brand, systemImage: "arrow.up.right.square")
+                                    .font(.caption.weight(.semibold))
+                            }
+                        }
+                    }
+                } footer: {
+                    Text(t("setup.presetDisclaimer"))
+                }
+            }
+            .searchable(text: $search, prompt: t("setups.search"))
+            .scrollContentBackground(.hidden)
+            .background(PBTheme.canvasGradient)
+            .navigationTitle(t("setup.selectPreset"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(t("common.cancel")) { dismiss() }
+                }
+            }
+        }
+        .pbEditorSheetStyle()
+    }
+}
+
 struct StartRunSheet: View {
     @EnvironmentObject private var store: PressBenchStore
     @Environment(\.dismiss) private var dismiss
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
     @State private var selectedSetup: Setup?
-    @State private var dismissAfterDifference = false
+    @State private var dismissAfterStart = false
     @State private var search = ""
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
     private var availableSetups: [Setup] {
@@ -627,7 +937,7 @@ struct StartRunSheet: View {
                     LazyVStack(spacing: 12) {
                         ForEach(availableSetups) { setup in
                             Button {
-                                dismissAfterDifference = false
+                                dismissAfterStart = false
                                 selectedSetup = setup
                             } label: {
                                 SetupRow(setup: setup, compact: true)
@@ -656,7 +966,7 @@ struct StartRunSheet: View {
             .searchable(text: $search, prompt: t("setups.search"))
             .overlay {
                 if availableSetups.isEmpty {
-                    ContentUnavailableView(t("setups.title"), systemImage: "list.clipboard", description: Text(t("onboarding.ready.setup.body")))
+                    ContentUnavailableView(t("setups.title"), systemImage: "list.clipboard")
                 }
             }
             .navigationTitle(t("setup.startRun"))
@@ -667,153 +977,23 @@ struct StartRunSheet: View {
             }
         }
         .sheet(item: $selectedSetup, onDismiss: {
-            if dismissAfterDifference {
-                dismissAfterDifference = false
+            if dismissAfterStart {
+                dismissAfterStart = false
                 dismiss()
             }
         }) { setup in
-            JobDifferenceSheet(setup: setup) {
-                dismissAfterDifference = true
+            RunConfigurationView(setup: setup) {
+                dismissAfterStart = true
             }
                 .environmentObject(store)
         }
         .pbEditorSheetStyle()
     }
-}
-
-struct JobDifferenceSheet: View {
-    let setup: Setup
-    var onStarted: (() -> Void)? = nil
-    @EnvironmentObject private var store: PressBenchStore
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.pbLanguage) private var language
-    @Environment(\.locale) private var locale
-    @State private var failed = false
-    @State private var selectedReuseClass: SetupReuseClass?
-    @State private var childRoute: JobDifferenceChildRoute?
-    @State private var pendingConfigurationSetupID: String?
-    @State private var runStarted = false
-
-    private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    Text(t("run.jobDifference"))
-                        .font(.system(.title, design: .rounded, weight: .bold))
-                        .foregroundStyle(PBTheme.text)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, 8)
-
-                    ForEach(SetupReuseClass.allCases) { reuseClass in
-                        JobDifferenceOption(
-                            title: t(reuseClass.localizationKey),
-                            subtitle: t("run.reuse.\(reuseClass.rawValue).help"),
-                            icon: reuseClass.systemImage,
-                            selected: selectedReuseClass == reuseClass
-                        ) {
-                            selectedReuseClass = reuseClass
-                        }
-                    }
-
-                    PBPrimaryButton(title: t("common.continue")) { continueRun() }
-                        .disabled(selectedReuseClass == nil)
-                        .padding(.top, 10)
-                }
-                .padding(.horizontal, PBTheme.pagePadding)
-                .padding(.bottom, 24)
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .background(PBTheme.canvasGradient)
-            .navigationTitle("")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(t("common.cancel")) { dismiss() }
-                }
-            }
-            .alert("PressBench", isPresented: $failed) { Button(t("common.ok"), role: .cancel) {} } message: { Text(t("common.actionFailed")) }
-        }
-        .sheet(item: $childRoute, onDismiss: childDismissed) { route in
-            switch route {
-            case .editor(let prepared):
-                SetupEditorView(
-                    draft: prepared.draft,
-                    mode: prepared.reuseClass == .sameProductVariant ? .sameProductVariant : .materiallyDifferent,
-                    onSaved: { savedID in
-                        pendingConfigurationSetupID = savedID
-                    }
-                )
-                .environmentObject(store)
-            case .configuration(let configuredSetup):
-                RunConfigurationView(setup: configuredSetup) {
-                    runStarted = true
-                }
-                .environmentObject(store)
-            }
-        }
-        .pbEditorSheetStyle()
-    }
-
-    private func continueRun() {
-        do {
-            guard let selectedReuseClass else { return }
-            if selectedReuseClass == .exactRepeat {
-                childRoute = .configuration(setup)
-            } else {
-                let draft = try store.prepareSetupReuse(setupID: setup.id, reuseClass: selectedReuseClass)
-                childRoute = .editor(PreparedReuseRoute(draft: draft, reuseClass: selectedReuseClass))
-            }
-        } catch {
-            failed = true
-        }
-    }
-
-    private func finishStartedRun() {
-        onStarted?()
-        dismiss()
-    }
-
-    private func childDismissed() {
-        if runStarted {
-            runStarted = false
-            finishStartedRun()
-            return
-        }
-        guard let savedID = pendingConfigurationSetupID else { return }
-        pendingConfigurationSetupID = nil
-        guard let savedSetup = store.setups.first(where: { $0.id == savedID }) else {
-            failed = true
-            return
-        }
-        Task { @MainActor in
-            await Task.yield()
-            childRoute = .configuration(savedSetup)
-        }
-    }
-}
-
-private enum JobDifferenceChildRoute: Identifiable {
-    case editor(PreparedReuseRoute)
-    case configuration(Setup)
-
-    var id: String {
-        switch self {
-        case .editor(let route): return "editor-\(route.id)"
-        case .configuration(let setup): return "configuration-\(setup.id)"
-        }
-    }
-}
-
-private struct PreparedReuseRoute: Identifiable {
-    let draft: SetupDraft
-    let reuseClass: SetupReuseClass
-    var id: String { draft.id }
 }
 
 struct RunConfigurationView: View {
     let setup: Setup
-    let onStarted: () -> Void
+    let onStarted: (() -> Void)?
     @EnvironmentObject private var store: PressBenchStore
     @Environment(\.dismiss) private var dismiss
     @Environment(\.pbLanguage) private var language
@@ -824,7 +1004,7 @@ struct RunConfigurationView: View {
     @State private var showingUpgrade = false
     @State private var resumeRunAfterUpgrade = false
 
-    init(setup: Setup, onStarted: @escaping () -> Void) {
+    init(setup: Setup, onStarted: (() -> Void)? = nil) {
         self.setup = setup
         self.onStarted = onStarted
         _draft = State(initialValue: RunStartDraft(
@@ -865,7 +1045,6 @@ struct RunConfigurationView: View {
                                     .multilineTextAlignment(.trailing)
                                     .disabled(draft.runMode == "test")
                             }
-                            if draft.runMode == "test" { Text(t("run.testQuantityHelp")).font(.caption).foregroundStyle(PBTheme.secondary) }
                             Divider()
                             LabeledContent(t("run.jobReference")) {
                                 TextField(t("run.jobReference"), text: $draft.jobReference)
@@ -918,7 +1097,7 @@ struct RunConfigurationView: View {
     }
 
     private var isReady: Bool {
-        Int(draft.quantity).map { $0 > 0 } == true &&
+        Int(draft.quantity).map { (1...PBInputLimits.maximumQuantity).contains($0) } == true &&
             !(setup.status != .proven && draft.runMode == "production" && !draft.confirmUnprovenProduction)
     }
 
@@ -926,7 +1105,7 @@ struct RunConfigurationView: View {
         do {
             try store.startRun(draft)
             PBFeedback.success()
-            onStarted()
+            onStarted?()
             dismiss()
         } catch {
             if store.requiresUpgrade(error) { resumeRunAfterUpgrade = true; showingUpgrade = true }
@@ -944,6 +1123,7 @@ struct ProUpgradeView: View {
     @State private var showingFailure = false
     @State private var failureMessageKey = "purchase.failed"
     @State private var restoreFoundNothing = false
+    @State private var selectedPlan: PurchaseManager.Plan = .annual
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
     var body: some View {
@@ -967,7 +1147,13 @@ struct ProUpgradeView: View {
                             .font(.subheadline.weight(.semibold)).foregroundStyle(PBTheme.warningInk)
                             .multilineTextAlignment(.center)
                     }
-                    if store.productDisplayPrice == nil && store.purchaseState != .loading {
+                    if store.hasAvailableSubscription {
+                        VStack(spacing: 10) {
+                            planOption(.annual)
+                            planOption(.monthly)
+                        }
+                    }
+                    if !store.hasAvailableSubscription && store.purchaseState != .loading {
                         Label(t("purchase.unavailable"), systemImage: "exclamationmark.triangle.fill")
                             .font(.subheadline.weight(.semibold)).foregroundStyle(PBTheme.warningInk)
                             .multilineTextAlignment(.center)
@@ -983,7 +1169,11 @@ struct ProUpgradeView: View {
                     }
                     PBPrimaryButton(title: subscribeTitle, icon: "creditcard.fill") { purchase() }
                         .accessibilityIdentifier("pb.upgrade.purchase")
-                        .disabled(store.purchaseOperationInProgress || store.purchaseState == .pending || store.productDisplayPrice == nil)
+                        .disabled(store.purchaseOperationInProgress || store.purchaseState == .pending || selectedPrice == nil)
+                    Text(t("upgrade.renewalTerms"))
+                        .font(.footnote)
+                        .foregroundStyle(PBTheme.secondary)
+                        .multilineTextAlignment(.center)
                     Button { restore() } label: {
                         Text(t("upgrade.restore"))
                             .font(.headline)
@@ -1011,6 +1201,8 @@ struct ProUpgradeView: View {
                 Button(t("common.ok"), role: .cancel) {}
             } message: { Text(t(failureMessageKey)) }
         }
+        .onAppear { selectAvailablePlanIfNeeded() }
+        .onChange(of: store.purchaseState) { _, _ in selectAvailablePlanIfNeeded() }
     }
 
     @ViewBuilder private var policyLinks: some View {
@@ -1020,8 +1212,52 @@ struct ProUpgradeView: View {
             .frame(minHeight: PBTheme.minimumTarget)
     }
 
+    private func planOption(_ plan: PurchaseManager.Plan) -> some View {
+        let selected = selectedPlan == plan
+        let price = store.subscriptionDisplayPrice(for: plan)
+        return Button { selectedPlan = plan } label: {
+            HStack(spacing: 12) {
+                Image(systemName: selected ? "checkmark.circle.fill" : "circle")
+                    .font(.title3)
+                    .foregroundStyle(selected ? PBTheme.primaryStrong : PBTheme.secondary)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(t(plan == .monthly ? "upgrade.monthly" : "upgrade.annual"))
+                        .font(.headline)
+                        .foregroundStyle(PBTheme.text)
+                    Text(price ?? t("purchase.unavailable"))
+                        .font(.subheadline)
+                        .foregroundStyle(PBTheme.secondary)
+                }
+                Spacer()
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
+            .background(selected ? PBTheme.primarySoft : PBTheme.paper,
+                        in: RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous)
+                    .stroke(selected ? PBTheme.primaryStrong : PBTheme.line, lineWidth: selected ? 2 : 1)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(PBTactileButtonStyle())
+        .disabled(price == nil)
+        .opacity(price == nil ? 0.55 : 1)
+        .accessibilityIdentifier("pb.upgrade.\(plan == .monthly ? "monthly" : "annual")")
+    }
+
+    private var selectedPrice: String? {
+        store.subscriptionDisplayPrice(for: selectedPlan)
+    }
+
+    private func selectAvailablePlanIfNeeded() {
+        guard selectedPrice == nil else { return }
+        if store.subscriptionDisplayPrice(for: .annual) != nil { selectedPlan = .annual }
+        else if store.subscriptionDisplayPrice(for: .monthly) != nil { selectedPlan = .monthly }
+    }
+
     private var subscribeTitle: String {
-        guard let price = store.productDisplayPrice else { return t("upgrade.unlock") }
+        guard let price = selectedPrice else { return t("upgrade.unlock") }
         return "\(t("upgrade.unlock")) · \(price)"
     }
 
@@ -1029,7 +1265,7 @@ struct ProUpgradeView: View {
         restoreFoundNothing = false
         failureMessageKey = "purchase.failed"
         Task { @MainActor in
-            await store.purchasePro()
+            await store.purchasePro(selectedPlan)
             if store.isPro { dismiss(); return }
             switch store.purchaseState {
             case .pending, .free: break
@@ -1057,44 +1293,7 @@ struct ProUpgradeView: View {
     private func retryProduct() {
         Task { @MainActor in
             await store.reloadPurchases()
-            if store.productDisplayPrice == nil { showingFailure = true }
+            if !store.hasAvailableSubscription { showingFailure = true }
         }
-    }
-}
-
-private struct JobDifferenceOption: View {
-    let title: String
-    let subtitle: String
-    let icon: String
-    let selected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 16) {
-                Image(systemName: icon)
-                    .font(.title2.weight(.semibold))
-                    .foregroundStyle(selected ? PBTheme.primaryStrong : PBTheme.text)
-                    .frame(width: 46, height: 46)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title).font(.headline).foregroundStyle(PBTheme.text)
-                    Text(subtitle).font(.caption).foregroundStyle(PBTheme.secondary)
-                }.fixedSize(horizontal: false, vertical: true)
-                Spacer(minLength: 8)
-                Image(systemName: selected ? "checkmark.circle.fill" : "circle")
-                    .font(.title2)
-                    .foregroundStyle(selected ? PBTheme.primaryStrong : PBTheme.mutedInk)
-            }
-            .padding(16)
-            .frame(maxWidth: .infinity, minHeight: 76, alignment: .leading)
-            .background(selected ? PBTheme.primarySoft : PBTheme.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(selected ? PBTheme.primaryStrong : PBTheme.line, lineWidth: selected ? 2 : 1)
-            }
-            .shadow(color: PBTheme.cardShadow, radius: 8, x: 0, y: 4)
-        }
-        .buttonStyle(PBTactileButtonStyle())
-        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }

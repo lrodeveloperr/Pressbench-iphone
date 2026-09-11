@@ -11,7 +11,7 @@ enum PBReportLocalization {
         "report.reworkedUnits", "report.wasteUnits", "report.outcomeMix", "report.date", "report.batch", "report.setup",
         "report.processed", "report.firstPass", "report.final", "report.outcome", "report.symptom", "report.suspectedCause",
         "report.disposition", "report.quantity", "report.note", "report.materialTransfer", "report.machinePlaten",
-        "report.pressStage", "report.instructionSource", "report.sourceChecked", "report.noIssues", "report.lowData",
+        "report.pressStage", "report.instructionSource", "report.noIssues", "report.lowData",
         "report.operatorValuesNotice", "report.sheet.summary", "report.sheet.runs", "report.sheet.setups", "report.sheet.issues"
     ]
 

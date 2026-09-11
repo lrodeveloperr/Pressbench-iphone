@@ -11,6 +11,8 @@ struct PBChoiceField: View {
     let tapToSelectTitle: String
     let otherTitle: String
     let cancelTitle: String
+    var isEnabled: Bool = true
+    var allowsOther: Bool = true
 
     @State private var showingChoices = false
     @State private var customMode = false
@@ -18,9 +20,12 @@ struct PBChoiceField: View {
 
     var body: some View {
         Group {
-            if choices.isEmpty {
+            if choices.isEmpty && allowsOther {
                 TextField(title, text: $selection)
                     .accessibilityIdentifier(identifier)
+            } else if choices.isEmpty {
+                LabeledContent(title, value: tapToSelectTitle)
+                    .foregroundStyle(PBTheme.secondary)
             } else if customMode {
                 HStack(spacing: 10) {
                     TextField(title, text: $selection)
@@ -48,16 +53,17 @@ struct PBChoiceField: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .disabled(!isEnabled)
                 .accessibilityIdentifier(identifier)
             }
         }
-        .onAppear { customMode = !selection.isEmpty && !choices.contains(selection) }
+        .onAppear { customMode = allowsOther && !selection.isEmpty && !choices.contains(selection) }
         .onChange(of: selection) { _, newValue in
             if choosingOther {
                 choosingOther = false
                 customMode = true
             } else {
-                customMode = !newValue.isEmpty && !choices.contains(newValue)
+                customMode = allowsOther && !newValue.isEmpty && !choices.contains(newValue)
             }
         }
         .sheet(isPresented: $showingChoices) {
@@ -69,6 +75,7 @@ struct PBChoiceField: View {
                 isPresented: $showingChoices,
                 otherTitle: otherTitle,
                 cancelTitle: cancelTitle,
+                allowsOther: allowsOther,
                 choose: { value in
                     selection = value
                     customMode = false
@@ -95,13 +102,20 @@ private struct PBChoicePickerSheet: View {
     @Binding var isPresented: Bool
     let otherTitle: String
     let cancelTitle: String
+    let allowsOther: Bool
     let choose: (String) -> Void
     let chooseOther: () -> Void
+    @State private var search = ""
+
+    private var filteredChoices: [String] {
+        guard !search.isEmpty else { return choices }
+        return choices.filter { $0.localizedCaseInsensitiveContains(search) }
+    }
 
     var body: some View {
         NavigationStack {
             List {
-                ForEach(choices, id: \.self) { value in
+                ForEach(filteredChoices, id: \.self) { value in
                     Button {
                         choose(value)
                         isPresented = false
@@ -117,20 +131,23 @@ private struct PBChoicePickerSheet: View {
                     }
                     .buttonStyle(.plain)
                 }
-                Button {
-                    chooseOther()
-                    isPresented = false
-                } label: {
-                    HStack {
-                        Text(otherTitle).foregroundStyle(PBTheme.text)
-                        Spacer()
-                        Image(systemName: "pencil").foregroundStyle(PBTheme.primary)
+                if allowsOther {
+                    Button {
+                        chooseOther()
+                        isPresented = false
+                    } label: {
+                        HStack {
+                            Text(otherTitle).foregroundStyle(PBTheme.text)
+                            Spacer()
+                            Image(systemName: "pencil").foregroundStyle(PBTheme.primary)
+                        }
+                        .frame(minHeight: PBTheme.minimumTarget)
                     }
-                    .frame(minHeight: PBTheme.minimumTarget)
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
             .accessibilityIdentifier("\(identifier).sheet")
+            .searchable(text: $search, prompt: title)
             .environment(\.defaultMinListRowHeight, PBTheme.minimumTarget)
             .scrollContentBackground(.hidden)
             .background(PBTheme.canvasGradient)

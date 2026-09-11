@@ -152,7 +152,7 @@ for marker in ['PrefillLocalizations', 'localizedChoices(for:', 'localizedValue(
     if marker not in prefill_source:
         errors.append(f'PBPrefillCatalog.swift: localized preset runtime marker missing: {marker}')
 editors_source=(ROOT/'PressBench/Views/ProductionEditors.swift').read_text(encoding='utf-8')
-if editors_source.count('PBPrefillCatalog.customerVisibleChoices(') != 7 or editors_source.count('locale: locale') < 8:
+if editors_source.count('PBPrefillCatalog.customerVisibleChoices(') != 6 or editors_source.count('locale: locale') < 8:
     errors.append('ProductionEditors.swift: not every preset dropdown uses locale-aware choices')
 if store_source.count('localizedPreset(') < 25 or 'localizedSetupTitle(' not in store_source:
     errors.append('PressBenchStore.swift: stored preset values are not consistently localized for display')

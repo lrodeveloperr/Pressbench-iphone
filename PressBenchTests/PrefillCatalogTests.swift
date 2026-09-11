@@ -2,6 +2,62 @@ import XCTest
 @testable import PressBench
 
 final class PrefillCatalogTests: XCTestCase {
+    func testManufacturerSetupPresetsCarryCurrentOfficialProvenance() {
+        XCTAssertEqual(PBSetupPresetCatalog.entries.count, 56)
+        XCTAssertEqual(PBSetupPresetCatalog.sources, ["Siser", "Transfer Express"])
+        XCTAssertGreaterThanOrEqual(PBSetupPresetCatalog.materials.count, 6)
+        for preset in PBSetupPresetCatalog.entries {
+            XCTAssertEqual(preset.sourceURL.scheme, "https")
+            XCTAssertFalse(preset.sourceURL.host?.isEmpty ?? true)
+            XCTAssertEqual(preset.sourceCheckedDate, "2026-09-11")
+            XCTAssertFalse(preset.name.contains("®"), preset.name)
+            XCTAssertFalse(preset.name.contains("™"), preset.name)
+            XCTAssertFalse(preset.compatibleMaterials.isEmpty, preset.name)
+        }
+    }
+
+    func testManufacturerSetupPresetsCanBeFilteredBySourceMaterialAndSearch() {
+        let polyesterSiser = PBSetupPresetCatalog.filteredEntries(
+            search: "",
+            source: "Siser",
+            material: "100% polyester T-shirt"
+        )
+        XCTAssertFalse(polyesterSiser.isEmpty)
+        XCTAssertTrue(polyesterSiser.allSatisfy {
+            $0.brand == "Siser" && $0.compatibleMaterials.contains("100% polyester T-shirt")
+        })
+
+        let searched = PBSetupPresetCatalog.filteredEntries(
+            search: "cold",
+            source: "Transfer Express",
+            material: "Stretch fabric"
+        )
+        XCTAssertFalse(searched.isEmpty)
+        XCTAssertTrue(searched.allSatisfy {
+            $0.brand == "Transfer Express" && $0.peel.localizedCaseInsensitiveContains("cold")
+        })
+    }
+
+    func testPresetMaterialFilterBecomesTheDraftMaterialWhenCompatible() throws {
+        let easyWeed = try XCTUnwrap(PBSetupPresetCatalog.entries.first { $0.name == "EasyWeed" })
+        XCTAssertEqual(easyWeed.material, "Cotton/polyester blend")
+        XCTAssertTrue(easyWeed.compatibleMaterials.contains("100% polyester T-shirt"))
+        XCTAssertEqual(
+            PBSetupPresetCatalog.resolvedMaterial(
+                for: easyWeed, selectedMaterial: "100% polyester T-shirt"
+            ),
+            "100% polyester T-shirt"
+        )
+        XCTAssertEqual(
+            PBSetupPresetCatalog.resolvedMaterial(for: easyWeed, selectedMaterial: ""),
+            easyWeed.material
+        )
+        XCTAssertEqual(
+            PBSetupPresetCatalog.resolvedMaterial(for: easyWeed, selectedMaterial: "Unsupported blank"),
+            easyWeed.material
+        )
+    }
+
     func testCatalogIsBroadBoundedAndDuplicateFree() {
         XCTAssertEqual(PBPrefillCatalog.choiceCount, 98)
         XCTAssertEqual(PBPrefillCatalog.groups.count, 7)

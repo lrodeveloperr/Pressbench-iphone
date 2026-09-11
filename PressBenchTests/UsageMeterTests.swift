@@ -18,7 +18,7 @@ final class UsageMeterTests: XCTestCase {
         super.tearDown()
     }
 
-    func testThreeCompletedPressesUseTheFreeAllowance() {
+    func testCompletedPressesUseTheFreeAllowance() {
         let meter = PBUsageMeter(defaults: defaults)
 
         for index in 1...PBUsageMeter.freePressLimit {
@@ -26,17 +26,17 @@ final class UsageMeterTests: XCTestCase {
             meter.recordCompletedPress(batchID: "batch-\(index)")
         }
 
-        XCTAssertEqual(meter.completedPresses, 3)
+        XCTAssertEqual(meter.completedPresses, PBUsageMeter.freePressLimit)
         XCTAssertEqual(meter.freePressesRemaining, 0)
         XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
     }
 
     func testDeletingRunsCannotRestoreFreeUsage() {
         let meter = PBUsageMeter(defaults: defaults)
-        meter.reconcile(existingCompletedRuns: 3)
+        meter.reconcile(existingCompletedRuns: PBUsageMeter.freePressLimit)
 
         XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
-        XCTAssertEqual(meter.completedPresses, 3)
+        XCTAssertEqual(meter.completedPresses, PBUsageMeter.freePressLimit)
     }
 
     func testSameCompletionCannotBeCountedTwice() {
@@ -54,7 +54,7 @@ final class UsageMeterTests: XCTestCase {
         meter.recordCompletedPress(batchID: "batch-a")
 
         XCTAssertEqual(meter.completedPresses, 2)
-        XCTAssertEqual(meter.freePressesRemaining, 1)
+        XCTAssertEqual(meter.freePressesRemaining, 0)
     }
 
     func testCounterNeverExceedsTheFreeLimit() {
@@ -75,7 +75,7 @@ final class UsageMeterTests: XCTestCase {
         let relaunched = PBUsageMeter(defaults: defaults, secureStore: secure)
 
         XCTAssertEqual(relaunched.completedPresses, 2)
-        XCTAssertEqual(relaunched.freePressesRemaining, 1)
+        XCTAssertEqual(relaunched.freePressesRemaining, 0)
         relaunched.recordCompletedPress(batchID: "batch-a")
         XCTAssertEqual(relaunched.completedPresses, 2)
     }
@@ -87,7 +87,7 @@ final class UsageMeterTests: XCTestCase {
         meter.reconcile(existingCompletedRuns: 1)
 
         XCTAssertEqual(meter.completedPresses, 2)
-        XCTAssertEqual(meter.freePressesRemaining, 1)
+        XCTAssertEqual(meter.freePressesRemaining, 0)
     }
 
     func testImportedUsageCanRaiseButNeverExceedLimit() {

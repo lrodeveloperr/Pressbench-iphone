@@ -7,13 +7,13 @@ final class ReportExporterTests: XCTestCase {
         [
             "id": "B-1", "quantityProcessed": 10, "quantityGood": 9, "quantityWaste": 1, "quantityReworked": 1,
             "outcome": "rework", "completedAt": "2026-08-19T12:00:00.000Z",
-            "issues": [["quantity": 1, "symptom": "=HYPERLINK(\"https://example.invalid\")", "suspectedCause": "unknown", "disposition": "reworked", "note": "+SUM(1,1)"]],
+            "issues": [["quantity": 1, "symptom": "=HYPERLINK(\"https://example.invalid\")", "suspectedCause": "unknown", "disposition": "reworked", "note": "+SUM(1,1)\u{000B}\u{FFFE}&<>"]],
             "recipe": ["title": "=1+1", "blankMaterial": "Cotton", "transferMedium": "DTF"]
         ]
     }
 
     private var sampleSetup: [String: Any] {
-        ["title": "=1+1", "blankMaterial": "Cotton", "transferMedium": "DTF", "machineNickname": "Press A", "platenZone": "Main", "temperature": 325, "temperatureUnit": "F", "pressTimeSeconds": 15, "instructionSource": ["name": "Supplier"]]
+        ["title": "=1+1", "blankMaterial": "Cotton", "transferMedium": "DTF", "machineNickname": "Press A", "platenZone": "Main", "temperature": 325, "temperatureUnit": "F", "pressTimeSeconds": 15, "instructionSource": ["name": "Supplier", "checkedDate": "2099-12-31"]]
     }
 
     func testPremiumRenderersCreateReadableArtifactsWithoutFormulaCells() throws {
@@ -30,7 +30,11 @@ final class ReportExporterTests: XCTestCase {
         XCTAssertEqual(Array(xlsxData.prefix(2)), [0x50, 0x4B])
         let archiveText = String(decoding: xlsxData, as: UTF8.self)
         XCTAssertTrue(archiveText.contains("t=\"inlineStr\""))
+        XCTAssertFalse(archiveText.contains("2099-12-31"), "Internal source-review dates must not appear in customer reports")
         XCTAssertFalse(archiveText.contains("<f>"))
+        XCTAssertFalse(archiveText.contains("\u{000B}"))
+        XCTAssertFalse(archiveText.contains("\u{FFFE}"))
+        XCTAssertTrue(archiveText.contains("&amp;&lt;&gt;"))
     }
 
 }

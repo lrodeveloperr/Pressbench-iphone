@@ -8,8 +8,8 @@ final class BackupRestoreTests: XCTestCase {
         let defaultsName = "PressBenchTests.DeleteAll.\(UUID().uuidString)"
         let defaults = try XCTUnwrap(UserDefaults(suiteName: defaultsName))
         let usage = MemoryUsageStore(snapshot: PBUsageSnapshot(
-            completedPresses: 3,
-            creditedBatchIDs: Set((1...3).map { "used-\($0)" })
+            completedPresses: 2,
+            creditedBatchIDs: Set((1...2).map { "used-\($0)" })
         ))
         defer {
             try? FileManager.default.removeItem(at: directory)
@@ -22,7 +22,7 @@ final class BackupRestoreTests: XCTestCase {
             usageDefaults: defaults,
             usageStore: usage
         )
-        try store.completeOnboarding(language: .fr, locale: Locale(identifier: "fr_FR"), temperatureUnit: "C")
+        try store.configurePreferences(language: .fr, locale: Locale(identifier: "fr_FR"), temperatureUnit: "C")
         _ = try store.saveMachine(MachineDraft(nickname: "Delete me", platen: "38 × 38 cm"))
         store.selectedTab = 3
 
@@ -35,7 +35,7 @@ final class BackupRestoreTests: XCTestCase {
         XCTAssertFalse(store.hasRejectedRun)
         XCTAssertEqual(store.selectedTab, 0)
         XCTAssertEqual(store.freePressesRemaining, 0)
-        XCTAssertEqual(usage.snapshot?.completedPresses, 3)
+        XCTAssertEqual(usage.snapshot?.completedPresses, 2)
 
         let reloaded = try PressBenchStore(
             persistence: persistence,
@@ -63,15 +63,15 @@ final class BackupRestoreTests: XCTestCase {
         }
 
         let sourceUsage = MemoryUsageStore(snapshot: PBUsageSnapshot(
-            completedPresses: 3,
-            creditedBatchIDs: Set((1...3).map { "source-\($0)" })
+            completedPresses: 2,
+            creditedBatchIDs: Set((1...2).map { "source-\($0)" })
         ))
         let source = try PressBenchStore(
             persistence: PressBenchPersistence(baseDirectory: sourceDirectory),
             usageDefaults: sourceDefaults,
             usageStore: sourceUsage
         )
-        try source.completeOnboarding(language: .en, locale: Locale(identifier: "en_US"), temperatureUnit: "F")
+        try source.configurePreferences(language: .en, locale: Locale(identifier: "en_US"), temperatureUnit: "F")
         _ = try source.saveMachine(MachineDraft(nickname: "Backup machine", platen: "15 × 15 in"))
         let raw = try jsonString(source.backupPayload())
 
@@ -83,13 +83,13 @@ final class BackupRestoreTests: XCTestCase {
         )
         let preview = try target.previewBackup(raw: raw)
         XCTAssertEqual(preview.machines, 1)
-        XCTAssertEqual(preview.freeRunsUsed, 3)
+        XCTAssertEqual(preview.freeRunsUsed, 2)
 
         try target.restoreBackup(raw: raw)
 
         XCTAssertEqual(target.machines.map(\.nickname), ["Backup machine"])
         XCTAssertEqual(target.freePressesRemaining, 0)
-        XCTAssertEqual(targetUsage.snapshot?.completedPresses, 3)
+        XCTAssertEqual(targetUsage.snapshot?.completedPresses, 2)
         XCTAssertFalse(target.isPro)
     }
 
@@ -116,8 +116,8 @@ final class BackupRestoreTests: XCTestCase {
         let raw = try jsonString(source.backupPayload())
 
         let targetUsage = MemoryUsageStore(snapshot: PBUsageSnapshot(
-            completedPresses: 3,
-            creditedBatchIDs: Set((1...3).map { "current-\($0)" })
+            completedPresses: 2,
+            creditedBatchIDs: Set((1...2).map { "current-\($0)" })
         ))
         let target = try PressBenchStore(
             persistence: PressBenchPersistence(baseDirectory: targetDirectory),
@@ -128,7 +128,7 @@ final class BackupRestoreTests: XCTestCase {
         try target.restoreBackup(raw: raw)
 
         XCTAssertEqual(target.freePressesRemaining, 0)
-        XCTAssertEqual(targetUsage.snapshot?.completedPresses, 3)
+        XCTAssertEqual(targetUsage.snapshot?.completedPresses, 2)
     }
 
     private func temporaryDirectory() -> URL {

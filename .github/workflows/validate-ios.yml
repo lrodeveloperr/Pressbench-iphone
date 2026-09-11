@@ -175,7 +175,7 @@ jobs:
             -destination "platform=iOS Simulator,id=$PB_SE_UDID" \
             -resultBundlePath "$result_bundle" \
             CODE_SIGNING_ALLOWED=NO \
-            -only-testing:PressBenchUITests/FirstUseFlowUITests/testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup \
+            -only-testing:PressBenchUITests/FirstUseFlowUITests/testZeroPatienceFirstUseReturnsHomeThenOffersSetupStartChoices \
             test
 
       - name: Unit tests — Face ID iPhone

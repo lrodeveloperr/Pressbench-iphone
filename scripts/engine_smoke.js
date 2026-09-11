@@ -3,6 +3,9 @@ const assert = require('assert');
 const path = require('path');
 const core = require(path.resolve(__dirname, '../PressBench/Resources/PressBenchLogic.js'));
 const D = core.domain, B = core.business, E = core.entitlement, P = core.process;
+assert.equal(D.MAX_RECORDS, Number.MAX_SAFE_INTEGER, 'collections must not have an app-imposed record ceiling');
+assert.equal(D.MAX_DATA_BYTES, Number.MAX_SAFE_INTEGER, 'native data must be limited by available device storage');
+assert.equal(D.MAX_BACKUP_BYTES, Number.MAX_SAFE_INTEGER, 'portable backups must not have a product quota');
 
 const baseMs = Date.now() + 60_000;
 const iso = (seconds) => new Date(baseMs + seconds * 1000).toISOString();
@@ -25,39 +28,35 @@ assert.equal(P.ARCHITECTURE_REQUIREMENTS.advertisingSdk, 'none');
 assert.equal(P.ARCHITECTURE_REQUIREMENTS.routineNetworkBoundary, 'store_entitlement_only');
 
 // A fabricated local boolean must never create paid access.
-assert.equal(E.evaluateEntitlement({paidAccess:true, productId:'pressbench_unlimited_lifetime_ios_v2'}, now).paidAccess, false);
+assert.equal(E.evaluateEntitlement({paidAccess:true, productId:'pressbench_unlimited_monthly_ios'}, now).paidAccess, false);
 
-// Verified non-consumable lifetime purchase remains entitled without an expiry.
+// A verified monthly subscription is entitled only until its StoreKit expiry.
 const purchasedEvent = {
   action:'purchase', platform:'ios', userInitiated:true, nativeAdapterVerified:true,
-  verificationSource:'storekit2', productId:'pressbench_unlimited_lifetime_ios_v2',
-  productType:'non_consumable', purchaseState:'purchased', transactionId:'1000000000001',
-  nativeVerificationId:'storekit2:1000000000001:1000000000001:pressbench_unlimited_lifetime_ios_v2:1787155200', storeEventAt:now
+  verificationSource:'storekit2', productId:'pressbench_unlimited_monthly_ios',
+  productType:'auto_renewable_subscription', purchaseState:'purchased', transactionId:'1000000000001',
+  nativeVerificationId:'storekit2:1000000000001:1000000000001:pressbench_unlimited_monthly_ios:1787155200',
+  storeEventAt:now, expiresAt:iso(31 * 24 * 60 * 60)
 };
 let purchaseResult = E.applyStoreEvent(entitlement, purchasedEvent, now);
 entitlement = purchaseResult.entitlement;
 assert.equal(E.evaluateEntitlement(entitlement, now).paidAccess, true);
-assert.equal(E.evaluateEntitlement(entitlement, iso(400 * 24 * 60 * 60)).paidAccess, true);
+assert.equal(E.evaluateEntitlement(entitlement, iso(32 * 24 * 60 * 60)).paidAccess, false);
 context.entitlement = entitlement;
 
-// The previously reserved lifetime product remains permanently entitled.
-const legacyLifetimeEvent = {...purchasedEvent, productId:'pressbench_unlimited_lifetime_ios',
-  transactionId:'1000000000004', nativeVerificationId:'storekit2:1000000000004:1000000000004:pressbench_unlimited_lifetime_ios:1787155200'};
-const legacyLifetimeEntitlement = E.applyStoreEvent(E.normalizeEntitlement({}), legacyLifetimeEvent, now).entitlement;
-assert.equal(E.evaluateEntitlement(legacyLifetimeEntitlement, iso(400 * 24 * 60 * 60)).paidAccess, true);
+// The annual product shares the same verified subscription boundary.
+const annualEvent = {...purchasedEvent, productId:'pressbench_unlimited_annual_ios',
+  transactionId:'1000000000002', nativeVerificationId:'storekit2:1000000000002:1000000000002:pressbench_unlimited_annual_ios:1787155200',
+  expiresAt:iso(366 * 24 * 60 * 60)};
+const annualEntitlement = E.applyStoreEvent(E.normalizeEntitlement({}), annualEvent, now).entitlement;
+assert.equal(E.evaluateEntitlement(annualEntitlement, iso(365 * 24 * 60 * 60)).paidAccess, true);
+assert.equal(E.evaluateEntitlement(annualEntitlement, iso(367 * 24 * 60 * 60)).paidAccess, false);
 
-// A legacy monthly entitlement remains recognized only until its verified expiry.
-const legacyEvent = {...purchasedEvent, productId:'pressbench_unlimited_monthly_ios', productType:'auto_renewable_subscription',
-  transactionId:'1000000000002', nativeVerificationId:'storekit2:1000000000002:1000000000002:pressbench_unlimited_monthly_ios:1787155200',
-  expiresAt:iso(31 * 24 * 60 * 60)};
-const legacyEntitlement = E.applyStoreEvent(E.normalizeEntitlement({}), legacyEvent, now).entitlement;
-assert.equal(E.evaluateEntitlement(legacyEntitlement, iso(20 * 24 * 60 * 60)).paidAccess, true);
-assert.equal(E.evaluateEntitlement(legacyEntitlement, iso(32 * 24 * 60 * 60)).paidAccess, false);
-
-assert.equal(B.FREE_BATCH_LIMIT, 3);
-assert.equal(B.MONETIZATION_MODEL.ios.productType, 'non_consumable');
-assert.equal(B.MONETIZATION_MODEL.ios.recurring, false);
-assert.equal(B.MONETIZATION_MODEL.ios.pricing.baseAmountMinor, 3999);
+assert.equal(B.FREE_BATCH_LIMIT, 2);
+assert.equal(B.MONETIZATION_MODEL.ios.productType, 'auto_renewable_subscription');
+assert.equal(B.MONETIZATION_MODEL.ios.recurring, true);
+assert.equal(B.MONETIZATION_MODEL.ios.pricing.monthlyBaseAmountMinor, 1299);
+assert.equal(B.MONETIZATION_MODEL.ios.pricing.annualBaseAmountMinor, 11999);
 assert.equal(E.capabilities(E.normalizeEntitlement({}), {setups:10, batches:0}, now).canCreateSetup, true);
 
 let wrongFailed = false;
@@ -191,6 +190,11 @@ run = P.transitionRun(run, {type:'TIMER_START', at:iso(3)});
 run = P.transitionRun(run, {type:'TIMER_TICK', at:iso(19)});
 assert.equal(run.timer.completed, true);
 run = P.transitionRun(run, {type:'RECORD_FIRST_PIECE', outcome:'pass', note:'', at:iso(20)});
+const productionQC = {...run, runMode:'production', quantity:24, processedCount:1,
+  firstPiece:{...run.firstPiece, required:true, outcome:'pass'}, qcChecks:[]};
+assert(P.qcPolicy(productionQC).firstAt === 11, 'passed first piece must satisfy the initial QC checkpoint');
+assert(productionQC.processedCount < P.qcPolicy(productionQC).firstAt,
+  'passed first piece must not trigger duplicate QC');
 assert.equal(run.phase, 'result_pending');
 run = P.transitionRun(run, {type:'CONFIRM_ALL_GOOD', confirmedPlannedQuantity:1, explicitConfirmation:true, notes:'', saveChoice:'update_recipe', variantTitle:'', at:iso(21)});
 run = P.transitionRun(run, {type:'BEGIN_COMMIT', at:iso(22)});

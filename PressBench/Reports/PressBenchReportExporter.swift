@@ -152,12 +152,14 @@ enum PressBenchReportExporter {
 
             section(PBReportLocalization.text("report.setupDefinitions", language: language, locale: locale))
             for setup in setups {
-                ensure(76)
+                ensure(108)
                 let titleText = localizedSetupTitle(setup, language: language, locale: locale)
+                let instructionSource = setup["instructionSource"] as? [String: Any] ?? [:]
                 let facts = [
                     "\(PBReportLocalization.text("report.materialTransfer", language: language, locale: locale)): \(localizedPreset(setup["blankMaterial"] as? String, group: .materials, language: language, locale: locale)) / \(localizedPreset(setup["transferMedium"] as? String, group: .transferMedia, language: language, locale: locale))",
                     "\(PBReportLocalization.text("report.machinePlaten", language: language, locale: locale)): \(localizedMachineNickname(setup, language: language, locale: locale)) / \(localizedPreset(setup["platenZone"] as? String, group: .platenSizes, language: language, locale: locale))",
-                    "\(PBReportLocalization.text("report.instructionSource", language: language, locale: locale)): \(localizedPreset((setup["instructionSource"] as? [String: Any])?["name"] as? String, group: .instructionSources, language: language, locale: locale))"
+                    "\(PBReportLocalization.text("report.instructionSource", language: language, locale: locale)): \(localizedPreset(instructionSource["name"] as? String, group: .instructionSources, language: language, locale: locale))",
+                    "\(PBReportLocalization.text("common.reference", language: language, locale: locale)): \(instructionSource["reference"] as? String ?? "")"
                 ]
                 draw(titleText, font: .boldSystemFont(ofSize: 9), color: .label,
                      rect: CGRect(x: 42, y: cursor, width: 528, height: 18))
@@ -231,8 +233,7 @@ enum PressBenchReportExporter {
             .text(PBReportLocalization.text("report.materialTransfer", language: language, locale: locale)),
             .text(PBReportLocalization.text("report.machinePlaten", language: language, locale: locale)),
             .text(PBReportLocalization.text("report.pressStage", language: language, locale: locale)),
-            .text(PBReportLocalization.text("report.instructionSource", language: language, locale: locale)),
-            .text(PBReportLocalization.text("report.sourceChecked", language: language, locale: locale))
+            .text(PBReportLocalization.text("report.instructionSource", language: language, locale: locale))
         ]]
         for setup in setups {
             let source = setup["instructionSource"] as? [String: Any] ?? [:]
@@ -252,8 +253,10 @@ enum PressBenchReportExporter {
                     localizedPreset(setup["platenZone"] as? String, group: .platenSizes, language: language, locale: locale)
                 ].filter { !$0.isEmpty }.joined(separator: " / ")),
                 .text(press),
-                .text(localizedPreset(source["name"] as? String, group: .instructionSources, language: language, locale: locale)),
-                .text(source["checkedDate"] as? String ?? "")
+                .text([
+                    localizedPreset(source["name"] as? String, group: .instructionSources, language: language, locale: locale),
+                    source["reference"] as? String ?? ""
+                ].filter { !$0.isEmpty }.joined(separator: " · "))
             ])
         }
         zip.add("xl/worksheets/sheet3.xml", worksheetXML(setupRows))
@@ -447,7 +450,13 @@ enum PressBenchReportExporter {
         return result
     }
     private static func xml(_ value: String) -> String {
-        value.replacingOccurrences(of: "&", with: "&amp;")
+        let xml10 = String(value.unicodeScalars.filter { scalar in
+            scalar.value == 0x9 || scalar.value == 0xA || scalar.value == 0xD ||
+                (0x20...0xD7FF).contains(scalar.value) ||
+                (0xE000...0xFFFD).contains(scalar.value) ||
+                (0x10000...0x10FFFF).contains(scalar.value)
+        })
+        return xml10.replacingOccurrences(of: "&", with: "&amp;")
             .replacingOccurrences(of: "<", with: "&lt;")
             .replacingOccurrences(of: ">", with: "&gt;")
     }

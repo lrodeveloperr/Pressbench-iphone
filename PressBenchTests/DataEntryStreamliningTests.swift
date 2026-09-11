@@ -16,7 +16,7 @@ final class DataEntryStreamliningTests: XCTestCase {
             persistence: PressBenchPersistence(baseDirectory: directory),
             usageDefaults: defaults
         )
-        try store.completeOnboarding(language: .en, locale: Locale(identifier: "en_US"), temperatureUnit: "F")
+        try store.configurePreferences(language: .en, locale: Locale(identifier: "en_US"), temperatureUnit: "F")
         let machineID = try store.saveMachine(MachineDraft(platen: "15 × 15 in"))
         XCTAssertEqual(store.machines.first?.nickname, "15 × 15 in")
 
@@ -55,7 +55,7 @@ final class DataEntryStreamliningTests: XCTestCase {
             persistence: PressBenchPersistence(baseDirectory: directory),
             usageDefaults: defaults
         )
-        try store.completeOnboarding(language: .fr, locale: Locale(identifier: "fr_FR"), temperatureUnit: "C")
+        try store.configurePreferences(language: .fr, locale: Locale(identifier: "fr_FR"), temperatureUnit: "C")
         _ = try store.saveMachine(MachineDraft(nickname: "Presse principale", platen: "38 × 38 cm"))
         var draft = store.setupDraft(for: nil)
         draft.material = "T-shirt en coton"

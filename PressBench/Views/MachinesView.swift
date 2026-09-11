@@ -22,7 +22,7 @@ struct MachinesView: View {
 
                 if activeMachines.isEmpty {
                     VStack(spacing: 18) {
-                        ContentUnavailableView(t("machines.title"), systemImage: "rectangle.stack", description: Text(t("onboarding.ready.machine.body")))
+                        ContentUnavailableView(t("machines.title"), systemImage: "rectangle.stack")
                         PBPrimaryButton(title: t("onboarding.ready.machine.title"), icon: "plus.circle.fill") {
                             editDraft = store.machineDraft(for: nil)
                             showingEditor = true
@@ -48,6 +48,12 @@ struct MachinesView: View {
                                             Text(machine.nickname).font(.headline).foregroundStyle(.primary)
                                             if !machine.platen.isEmpty { Text(machine.platen).foregroundStyle(PBTheme.secondary) }
                                             if !machine.detail.isEmpty { Text(machine.detail).font(.subheadline).foregroundStyle(PBTheme.secondary) }
+                                            Label(
+                                                machineCheckDue(machine) ? t("machines.calibrationDue") : machine.lastExternalCheckDate,
+                                                systemImage: machineCheckDue(machine) ? "exclamationmark.triangle.fill" : "checkmark.seal.fill"
+                                            )
+                                            .font(.caption.weight(.semibold))
+                                            .foregroundStyle(machineCheckDue(machine) ? PBTheme.warningInk : PBTheme.successInk)
                                         }
                                         Spacer()
                                     }
@@ -98,5 +104,15 @@ struct MachinesView: View {
         if facts.contains("hat") || facts.contains("cap") { return "baseball.cap.fill" }
         if facts.contains("auto") || facts.contains("pneumatic") { return "gearshape.2.fill" }
         return "rectangle.compress.vertical"
+    }
+
+    private func machineCheckDue(_ machine: MachineProfile) -> Bool {
+        guard !machine.lastExternalCheckDate.isEmpty else { return true }
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        guard let checked = formatter.date(from: machine.lastExternalCheckDate) else { return true }
+        return Calendar.current.dateComponents([.day], from: checked, to: Date()).day.map { $0 >= 92 } ?? true
     }
 }

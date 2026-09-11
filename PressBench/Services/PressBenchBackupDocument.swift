@@ -13,7 +13,15 @@ extension UTType {
 /// including iCloud Drive and On My iPhone. The document keeps backup storage
 /// independent from app authentication and from PressBench's local database.
 struct PressBenchBackupDocument: FileDocument {
-    static let maximumBytes = 10_000_000
+    /// This is an allocation guard for untrusted, user-selected imports, not a
+    /// product quota. Export size remains bounded only by available storage.
+    /// JSON decoding needs several times the file size in transient memory, so
+    /// reserve most physical memory for the app and operating system.
+    static var maximumSafeImportBytes: Int {
+        let floor = UInt64(16 * 1_024 * 1_024)
+        let resourceBound = max(floor, ProcessInfo.processInfo.physicalMemory / 8)
+        return Int(min(resourceBound, UInt64(Int.max)))
+    }
     static var readableContentTypes: [UTType] { [.pressBenchBackup] }
 
     let data: Data
@@ -25,6 +33,9 @@ struct PressBenchBackupDocument: FileDocument {
     }
 
     init(data: Data) throws {
+        guard data.count <= Self.maximumSafeImportBytes else {
+            throw BackupDocumentError.invalid
+        }
         try Self.validateTopLevel(data)
         self.data = data
     }
@@ -58,7 +69,6 @@ struct PressBenchBackupDocument: FileDocument {
 
     private static func validateTopLevel(_ data: Data) throws {
         guard !data.isEmpty,
-              data.count <= maximumBytes,
               let object = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               object["schema"] as? String == "press-bench-log",
               let schemaVersion = (object["schemaVersion"] as? NSNumber)?.intValue,

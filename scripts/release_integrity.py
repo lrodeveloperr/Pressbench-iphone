@@ -10,20 +10,26 @@ def require(condition, message):
 
 logic = root/'PressBench/Resources/PressBenchLogic.js'
 logic_hash = hashlib.sha256(logic.read_bytes()).hexdigest()
-require(logic_hash == '02b1441ac0e85c709b41da04d3f44ec8ffb4195c8816a776dbc9cecc350c4e5e', f'logic hash changed: {logic_hash}')
+require(logic_hash == '81519217635217f24dead0478a5e422d8a7f6de7308bfd82ef2ee55190adf49f', f'logic hash changed: {logic_hash}')
 text = logic.read_text(encoding='utf-8')
-require(all(marker in text for marker in ['pressbench_unlimited_lifetime_ios_v2',
-        'pressbench_unlimited_lifetime_ios', 'pressbench_unlimited_monthly_ios',
-        'legacySubscriptionProductIds',
-        'productType: "non_consumable"', 'recurring: false', 'baseAmountMinor: 3999',
-        'entitlement.productType === "non_consumable"',
+require(all(marker in text for marker in ['pressbench_unlimited_monthly_ios',
+        'pressbench_unlimited_annual_ios',
+        'productType: "auto_renewable_subscription"', 'recurring: true',
+        'monthlyBaseAmountMinor: 1299', 'annualBaseAmountMinor: 11999',
         'entitlement.productType === "auto_renewable_subscription"',
         'advertisingSdk: "none"',
         'routineNetworkBoundary: "store_entitlement_only"']),
-        'lifetime iOS purchase or legacy monthly entitlement is missing')
-require('FREE_RECIPE_LIMIT = D.MAX_RECORDS' in text and 'FREE_BATCH_LIMIT = 3' in text and
+        'iOS subscription products are missing')
+require('pressbench_unlimited_lifetime_ios' not in text and 'legacyLifetimeProductIds' not in text,
+        'unreleased iOS lifetime entitlement compatibility returned')
+require('FREE_RECIPE_LIMIT = D.MAX_RECORDS' in text and 'FREE_BATCH_LIMIT = 2' in text and
         'setup_capacity_required' not in text,
-        'three-press free allowance or unrestricted setup library changed')
+        'two-run free allowance or unrestricted setup library changed')
+require(all(marker in text for marker in [
+            'MAX_RECORDS = Number.MAX_SAFE_INTEGER',
+            'MAX_DATA_BYTES = Number.MAX_SAFE_INTEGER',
+            'MAX_BACKUP_BYTES = Number.MAX_SAFE_INTEGER']),
+        'an app-imposed collection or backup ceiling has returned')
 require('function completedTimerPlan' in text and text.count('if (!completedTimerPlan(run.timer))') >= 2 and
         'TIMER_RESTART_PLAN' in text,
         'first-piece or production counting can bypass the complete timer plan')
@@ -94,6 +100,8 @@ editors=(root/'PressBench/Views/ProductionEditors.swift').read_text(encoding='ut
 models_source=(root/'PressBench/Models/Models.swift').read_text(encoding='utf-8')
 prefill_source=(root/'PressBench/Models/PBPrefillCatalog.swift').read_text(encoding='utf-8')
 choice_field_source=(root/'PressBench/Views/PBChoiceField.swift').read_text(encoding='utf-8')
+persistence_source=(root/'PressBench/Services/PressBenchPersistence.swift').read_text(encoding='utf-8')
+preset_source=(root/'PressBench/Models/PBSetupPresetCatalog.swift').read_text(encoding='utf-8')
 require('.preferredColorScheme(.light)' in app and 'settings.appearance' not in settings_view,
         'light-only presentation is not fixed at the app root or the obsolete appearance picker remains')
 require('AccessibilitySettingsView' in settings_view,
@@ -109,53 +117,52 @@ require(all(marker in settings_view for marker in [
             'PBTimerNotification.cancel()']),
         'local-data reset no longer resets presentation preferences and pending timer notifications')
 backup_document=(root/'PressBench/Services/PressBenchBackupDocument.swift').read_text(encoding='utf-8')
-onboarding=(root/'PressBench/Views/OnboardingView.swift').read_text(encoding='utf-8')
 require(all(marker in settings_view for marker in [
             '.fileExporter(', '.fileImporter(', 'PressBenchBackupDocument(payload:',
             'Task.detached(priority: .userInitiated)', 'startAccessingSecurityScopedResource()',
             'resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey])',
             'store.previewBackup(raw:', 'showingRestoreConfirmation = true']) and
         all(marker in backup_document for marker in [
-            'FileDocument', 'maximumBytes = 10_000_000',
+            'FileDocument', 'maximumSafeImportBytes', 'physicalMemory / 8',
             'com.goodusestudios.pressbench.backup', 'press-bench-log', 'APP-018']) and
         'com.goodusestudios.pressbench.backup' in info_plist,
         'native Files backup export/import, validation, or restore preview is missing')
-require(all(marker not in (settings_view + onboarding + app) for marker in [
+require(all(marker not in (settings_view + app) for marker in [
             'AuthenticationServices', 'SignInWithAppleButton', 'AppleBackupService', 'ASAuthorization']) and
         all(marker not in testflight_workflow for marker in [
             '<key>com.apple.developer.applesignin</key>',
             '<key>com.apple.developer.ubiquity-kvstore-identifier</key>']),
         'removed Apple sign-in or iCloud KVS wiring remains reachable')
-require('case backup' not in onboarding and 'finishOnboarding()' in onboarding,
-        'onboarding still contains or depends on the removed backup sign-in step')
+require(not (root/'PressBench/Views/OnboardingView.swift').exists() and 'OnboardingView' not in app,
+        'removed onboarding screens remain in the app target')
 require('planDeleteAll' in store_source and '"entitlement": entitlement' in store_source,
         'local-data reset does not use the deterministic planner while preserving purchase entitlement')
 delete_test=(root/'PressBenchTests/BackupRestoreTests.swift').read_text(encoding='utf-8')
 ui_test=(root/'PressBenchUITests/FirstUseFlowUITests.swift').read_text(encoding='utf-8')
 require(all(marker in store_source for marker in [
             'PBTimerNotification.cancel()', 'activeRunRouteID = nil', 'selectedTab = 0']) and
-        all(marker in settings_view for marker in [
-            'pb.settings.maintenance', 'pb.settings.deleteLocalData']) and
+        'pb.settings.deleteLocalData' in settings_view and
         'testDeleteAllClearsOperationalDataButPreservesFreeUsage' in delete_test and
         all(marker in ui_test for marker in [
-            'name: "Maintenance"', 'name: "Delete local data"',
-            'tapEdge(deleteLocalData, horizontal: 0.9)']),
+            'name: "Delete local data"', 'tapEdge(deleteLocalData, horizontal: 0.9)']),
         'local-data reset routing, timer cleanup, or full-surface regression coverage is missing')
 require('.presentationDetents([.fraction(0.88), .large])' in theme and editors.count('.pbEditorSheetStyle()') >= 4,
         'all editor/reuse sheets must use 28-point, <=88-percent GoodUse presentation styling')
-for marker in ['run.jobDifference', 'run.exactRepeat', 'run.sameProductVariant', 'run.materiallyDifferent',
-               'bridge.domain("reuseSetup"', 'saveSameProductVariant', 'mode == .sameProductVariant']:
-    require(marker in (editors + store_source + models_source), f'pre-run reuse selector/safe variant path missing: {marker}')
+require('JobDifferenceSheet' not in editors and 'JobDifferenceOption' not in editors,
+        'removed Job Difference screen remains reachable in production code')
+for marker in ['bridge.domain("reuseSetup"', 'saveSameProductVariant', 'mode == .sameProductVariant']:
+    require(marker in (editors + store_source + models_source), f'safe setup-variant path missing: {marker}')
 for marker in ['struct RunConfigurationView', 'confirmUnprovenProduction', 'progressMode', 'jobReference',
                'stage.repeatCount', 'stage.add', 'stage.moveUp', 'stage.moveDown', 'stage.remove']:
     require(marker in editors, f'run configuration or multi-stage setup editor control missing: {marker}')
-require('childRoute = .configuration(setup)' in editors and 'try store.startRun(draft)' in editors,
-        'reuse selector bypasses the reviewed run-configuration authorization surface')
+require('RunConfigurationView(setup: setup)' in editors and 'try store.startRun(draft)' in editors,
+        'direct start flow bypasses the reviewed run-configuration authorization surface')
 reuse_test=(root/'PressBenchTests/SetupReuseSafetyTests.swift').read_text(encoding='utf-8')
 require('testSameProductVariantSavePreservesMultiStageDefinition' in reuse_test and 'stepsWithoutIDs' in reuse_test,
         'multi-stage same-product variant regression test is missing')
-require('if mode == .sameProductVariant' in editors and 'Int(draft.defaultQuantity).map { $0 > 0 } == true' in editors,
-        'same-product variant readiness must depend only on a title and positive quantity')
+require('if mode == .sameProductVariant' in editors and
+        'Int(draft.defaultQuantity).map { (1...PBInputLimits.maximumQuantity).contains($0) } == true' in editors,
+        'same-product variant readiness must depend only on a title and bounded positive quantity')
 require('!draft.sourceReference.trimmingCharacters' in editors and 'throw StoreError.invalidSetup' in store_source,
         'setup editor/store can persist a visibly complete but non-runnable setup')
 require(all(marker in prefill_source for marker in [
@@ -167,7 +174,7 @@ require(all(marker in prefill_source for marker in [
             'Original work bundled with PressBench', 'PrefillLocalizations',
             'static func localizedChoices(for group: Group']) and
         all(marker in editors for marker in [
-            'for: .platenSizes', 'for: .materials', 'for: .transferMedia',
+            'for: .materials', 'for: .transferMedia',
             'for: .pressureDescriptions', 'for: .instructionSources',
             'for: .placementActions', 'for: .finishActions']) and
         'struct PBChoiceField' in choice_field_source and 'chooseOther' in choice_field_source,
@@ -179,10 +186,28 @@ require('XCTAssertEqual(PBPrefillCatalog.choiceCount, 98)' in prefill_test and
         'testEveryPresetGroupIsCompleteAndLocalizedInEveryLanguage' in prefill_test and
         'XCTAssertNotEqual(simplified, traditional)' in prefill_test,
         'prefill breadth, localization, uniqueness, or no-operating-values regression coverage is missing')
+require(all(marker in persistence_source for marker in [
+            'state-v6.json', 'batches-v6/primary', 'batches-v6/replica',
+            '.record.json', '.index.json', 'changedBatchIDs: Set<String>? = nil',
+            'readLegacy', 'removeUnreferencedBatchFiles']) and
+        'private func stateSnapshot() -> [String: Any] { state }' in store_source and
+        store_source.count('withStateTransaction(batchesChanged: true') >= 2 and
+        store_source.count('batchesChanged: true') >= 5,
+        'completed history is no longer segmented or frequent taps can rewrite the full batch archive')
+require('static func resolvedMaterial' in preset_source and
+        'applyPreset(preset, selectedMaterial: selectedMaterial)' in editors and
+        'draft.material = PBSetupPresetCatalog.resolvedMaterial' in editors and
+        editors.count('.disabled(startMethod == .preset)') >= 3 and
+        '.disabled(mode == .sameProductVariant || startMethod == .preset)' in editors and
+        '.disabled(startMethod == .preset || draft.stages.count' in editors and
+        'pb.setup.presetMaterialFilter' in editors and
+        'testPresetMaterialFilterBecomesTheDraftMaterialWhenCompatible' in prefill_test and
+        'pb.setup.preset.Siser|EasyWeed' in ui_test,
+        'filtered preset materials are not preserved and locked in exact-preset mode')
 streamlining_test=(root/'PressBenchTests/DataEntryStreamliningTests.swift').read_text(encoding='utf-8')
 require('testMachineNicknameAndSetupTitleAreDerivedWithoutInventingOperatingValues' in streamlining_test and
         'XCTAssertEqual(draft.stages.first?.temperature, "")' in streamlining_test and
-        streamlining_test.count('try store.completeOnboarding') == 2 and
+        streamlining_test.count('try store.configurePreferences') == 2 and
         '100% cotton T-shirt · Direct-to-film transfer (DTF) · 15 × 15 in' in streamlining_test and
         'testFrenchGeneratedTitleContainsOnlyOperatorOwnedDisplayValues' in streamlining_test and
         'T-shirt en coton · Transfert DTF · Presse principale' in streamlining_test,
@@ -191,10 +216,10 @@ require('static func prioritized' in prefill_source and
         'static func customerVisibleChoices' in prefill_source and
         'localizedChoices(for: group, language: language, locale: locale)' in prefill_source and
         'language == .en ? bundled : []' not in prefill_source and
-        editors.count('PBPrefillCatalog.customerVisibleChoices(') == 7 and
-        editors.count('for: .') >= 7 and
+        editors.count('PBPrefillCatalog.customerVisibleChoices(') == 6 and
+        editors.count('for: .') >= 6 and
         'choices: PBPrefillCatalog.' not in editors and
-        'if choices.isEmpty {' in choice_field_source and
+        'if choices.isEmpty && allowsOther {' in choice_field_source and
         r'recent: store.recentSetups.map(\.material)' in editors and
         r'recent: store.recentSetups.map(\.transferMedium)' in editors,
         'recent operator-owned choices are not safely prioritized or localized presets are bypassed')
@@ -224,25 +249,35 @@ require('dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())]' in home_
 require('m.setups == 1 ? "setup.title" : "home.metric.setups"' in home_view and
         'm.batches == 1 ? "runs.batch" : "home.metric.batches"' in home_view,
         'Home setup and batch metrics do not use localized singular labels only for a count of one')
+require('continueToSetup' not in home_view and 'continueToSetup' not in setups_view and
+        'if isNewMachine { store.selectedTab = 0 }' in editors,
+        'saving a new machine can still force setup entry instead of returning Home')
+require(all(marker in editors for marker in [
+            'machine.start.choose', 'machine.start.catalog', 'pb.machine.catalog', 'pb.machine.manual',
+            'else if startMethod == .catalog', 'allowsOther: false']) and
+        editors.count('allowsOther: false') == 2 and
+        'if allowsOther {' in choice_field_source,
+        'new machine entry is not choice-first or the catalog path permits manual values')
+require(all(marker in editors for marker in [
+            'setup.start.choose', 'setup.start.presetBase', 'setup.start.saved', 'setup.start.manual',
+            'setup.selectPreset', 'setup.presetDisclaimer',
+            'PBExistingSetupPicker', 'private var choosingStartMethod']) and
+        editors.index('Section(t("report.instructionSource"))') < editors.index('Section(t("run.machine"))'),
+        'new setup entry is not choice-first or links a machine before the setup details')
+require('selectedMetricDetail = .firstPass' in home_view and
+        'selectedMetricDetail = .waste' in home_view and
+        'HomeMetricDetailView' in home_view and 'Button(action: action)' in home_view,
+        'Home First-pass or Waste cards no longer open their supporting figures')
 metric_tile = home_view.split('private struct MetricTile', 1)[-1]
 require('VStack(alignment: .center, spacing: 10)' in metric_tile and
         metric_tile.count('.multilineTextAlignment(.center)') >= 2 and
         '.frame(maxWidth: .infinity, minHeight: 104, alignment: .center)' in metric_tile,
         'Home metric icon, label, and value are not centered as one card stack')
 language_dropdown=(root/'PressBench/Views/LanguageDropdown.swift').read_text(encoding='utf-8')
-onboarding_view=(root/'PressBench/Views/OnboardingView.swift').read_text(encoding='utf-8')
 require('.frame(minHeight: PBTheme.minimumTarget)' in language_dropdown,
         'shared language dropdown no longer exposes a 48-point touch target')
-require(home_view.count('.frame(minHeight: PBTheme.minimumTarget)') >= 2 and
-        onboarding_view.count('.pbFullSurfaceTarget()') >= 2,
-        'Home or onboarding text-link/first-use controls dropped below the 48-point target')
-require(all(marker in onboarding_view for marker in [
-            'case preferences', 'case legal',
-            'CombinedPolicyAcknowledgement', 'pb.onboarding.accept',
-            'pb.onboarding.temperatureUnit', 'finishOnboarding()']) and
-        'case backup' not in onboarding_view and
-        'AcknowledgementRow' not in onboarding_view and 'ProUpgradeView' not in onboarding_view,
-        'progressive onboarding, one combined acknowledgement, or visible unit choice regressed')
+require(home_view.count('.frame(minHeight: PBTheme.minimumTarget)') >= 2,
+        'Home text-link or first-use controls dropped below the 48-point target')
 require(setup_detail.count('.frame(width: PBTheme.minimumTarget, height: PBTheme.minimumTarget)') >= 1 and 'Menu {' in setup_detail,
         'Setup detail toolbar controls dropped below the 48-point target')
 require(re.search(r'plus\.circle\.fill[\s\S]{0,260}frame\(width: PBTheme\.minimumTarget, height: PBTheme\.minimumTarget\)', active_run_view) and
@@ -322,6 +357,25 @@ privacy=(root/'PressBench/Resources/PrivacyInfo.xcprivacy').read_text(encoding='
 require('NSPrivacyAccessedAPICategoryUserDefaults' in privacy and 'CA92.1' in privacy, 'UserDefaults required-reason declaration missing')
 require('<key>NSPrivacyTracking</key>\n    <false/>' in privacy, 'privacy manifest tracking flag changed')
 
+require(all(marker in editors for marker in [
+            'selectedPlan: PurchaseManager.Plan = .annual', 'planOption(.annual)', 'planOption(.monthly)',
+            'subscriptionDisplayPrice(for:', 'upgrade.renewalTerms', 'upgrade.restore',
+            'common.termsOfUse', 'common.privacyPolicy']) and
+        '$12.99' not in editors and '$119.99' not in editors,
+        'subscription screen is missing a required plan, StoreKit price, renewal, restore, Terms, or Privacy disclosure')
+report_exporter=(root/'PressBench/Reports/PressBenchReportExporter.swift').read_text(encoding='utf-8')
+report_localization=(root/'PressBench/Localization/ReportLocalization.swift').read_text(encoding='utf-8')
+require('report.sourceChecked' not in runs_view and 'report.sourceChecked' not in report_exporter and
+        'report.sourceChecked' not in report_localization,
+        'internal source-review dates returned to a customer-facing run detail or report')
+preset_source=(root/'PressBench/Models/PBSetupPresetCatalog.swift').read_text(encoding='utf-8')
+machine_catalog=(root/'PressBench/Models/PBMachineCatalog.swift').read_text(encoding='utf-8')
+require(all(symbol not in preset_source + machine_catalog + editors for symbol in ['®', '™']),
+        'third-party trademark symbols returned to the customer-facing app')
+require(all(marker in preset_source for marker in ['compatibleMaterials', 'filteredEntries', 'static var sources', 'static var materials']) and
+        all(marker in editors for marker in ['sourceFilter', 'materialFilter', 'PBSetupPresetCatalog.filteredEntries']),
+        'sourced preset search lost its source or material filters')
+
 policy=(root/'PressBench/App/PolicyLinks.swift').read_text(encoding='utf-8')
 require('https://lrodeveloperr.github.io/pressbench-legal/' in policy, 'policy base URL changed')
 
@@ -345,10 +399,12 @@ require('StoreKit' in (root/'PressBench/Services/PurchaseManager.swift').read_te
 purchase_source=(root/'PressBench/Services/PurchaseManager.swift').read_text()
 info_plist=(root/'PressBench/Info.plist').read_text()
 usage_source=(root/'PressBench/Services/PBUsageMeter.swift').read_text()
-require(all(marker in purchase_source for marker in ['pressbench_unlimited_lifetime_ios_v2',
-        'pressbench_unlimited_lifetime_ios', 'pressbench_unlimited_monthly_ios',
-        '.nonConsumable', 'legacyLifetimeProductID', 'legacySubscriptionProductID',
-        'transaction.expirationDate']), 'native lifetime verification or legacy-subscription migration is incomplete')
+require(all(marker in purchase_source for marker in ['pressbench_unlimited_monthly_ios',
+        'pressbench_unlimited_annual_ios', '.autoRenewable',
+        'transaction.expirationDate']), 'native subscription verification is incomplete')
+require('pressbench_unlimited_lifetime_ios' not in purchase_source and
+        'legacyLifetimeProductIDs' not in purchase_source,
+        'unreleased iOS lifetime entitlement compatibility returned')
 require(not (root/'PressBench/Services/PBAdvertising.swift').exists(),
         'obsolete advertising service remains in the application target')
 no_ad_surface = '\n'.join([project, info_plist, joined,
@@ -360,19 +416,19 @@ require(all(marker not in no_ad_surface for marker in [
         'SKAdNetworkItems', 'ca-app-pub-', 'PBAdvertising', 'pbBanner(', 'pb.ad.banner',
         'ads.report', 'ads.privacyChoices', 'ads.bannerLabel']),
         'advertising SDK, identifier, UI hook, or localization remains in the iOS release')
-require(all(marker in usage_source for marker in ['freePressLimit = 3', 'completedPresses',
+require(all(marker in usage_source for marker in ['freePressLimit = 2', 'completedPresses',
         'lastCreditedBatchID', 'creditedBatchIDs', 'canStartFreePress',
         'PBKeychainUsageStore', 'kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly',
         'persistenceHealthy &&', 'retrySecurePersistenceIfNeeded']) and
         all(marker in store_source for marker in ['usageMeter.canStartFreePress', 'recordCompletedPress',
             'case .pressLimitReached', 'usageLedgerUnavailable', 'alreadyCommitted', 'payload["freeRunsUsed"]',
             'max(rawBatches.count, importedUsage)']),
-        'monotonic three-run ledger, reinstall persistence, or restore reconciliation is missing')
+        'monotonic two-run ledger, reinstall persistence, or restore reconciliation is missing')
 backup_restore_test=(root/'PressBenchTests/BackupRestoreTests.swift').read_text(encoding='utf-8')
 require(all(marker in backup_restore_test for marker in [
             'testRestoreCarriesUsageToAnotherDeviceWithoutImportingEntitlement',
             'testOlderRestoreNeverReducesCurrentUsage',
-            'XCTAssertEqual(targetUsage.snapshot?.completedPresses, 3)']),
+            'XCTAssertEqual(targetUsage.snapshot?.completedPresses, 2)']),
         'end-to-end backup/free-run reconciliation tests are missing')
 require('PressBenchReportExporter.pdf' in (root/'PressBench/Views/ReportsView.swift').read_text(), 'native PDF report not wired')
 require('PressBenchReportExporter.xlsx' in (root/'PressBench/Views/ReportsView.swift').read_text(), 'native XLSX report not wired')
@@ -405,14 +461,16 @@ require(all(marker in choice_field for marker in [
 ui_test=(root/'PressBenchUITests/FirstUseFlowUITests.swift').read_text(encoding='utf-8')
 app_source=(root/'PressBench/App/PressBenchApp.swift').read_text(encoding='utf-8')
 workflow=(root/'.github/workflows/validate-ios.yml').read_text(encoding='utf-8')
-require('testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup' in ui_test and
+require('testZeroPatienceFirstUseReturnsHomeThenOffersSetupStartChoices' in ui_test and
         'testFaceIDFirstViewportLayout' in ui_test and
         'XCTAssertFalse' in ui_test and
         '11-identified-delete-warning' in ui_test and 'First piece passed' in ui_test and
-        all(marker in ui_test for marker in ['choose("pb.choice.platen"', 'choose("pb.choice.material"',
+        all(marker in ui_test for marker in ['pb.machine.catalog', 'pb.machine.manual',
+                                              'choose("pb.choice.machineBrand"', 'choose("pb.choice.machineModel"',
+                                              'choose("pb.choice.material"',
                                               'choose("pb.choice.transfer"', 'choose("pb.choice.pressure"',
                                               'choose("pb.choice.source"']) and
-        'pb.onboarding.accept' in ui_test and 'pb.onboarding.skipBackup' not in ui_test and
+        'pb.onboarding.accept' not in ui_test and 'RootTabView()' in app_source and
         'app.navigationBars["Settings"]' in ui_test and
         'pb.settings.plan' in ui_test and 'pb.settings.backup' in ui_test and
         'Backup must remain in the first Settings viewport' in ui_test and
@@ -435,15 +493,14 @@ require(all(marker in workflow for marker in [
             'PressBenchSETests.xcresult', 'PressBenchFaceIDTests.xcresult',
             "RUN_IPHONE_SE: ${{ github.event_name == 'workflow_dispatch' }}",
             '- name: Dedicated UI test — iPhone SE',
-            '-only-testing:PressBenchUITests/FirstUseFlowUITests/testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup',
+            '-only-testing:PressBenchUITests/FirstUseFlowUITests/testZeroPatienceFirstUseReturnsHomeThenOffersSetupStartChoices',
             '- name: Unit tests — Face ID iPhone',
             '-only-testing:PressBenchTests',
             '-only-testing:PressBenchUITests/FirstUseFlowUITests/testFaceIDFirstViewportLayout',
             "- name: UI tests — Face ID iPhone\n        if: ${{ env.RUN_IPHONE_SE != 'true' }}"]) and
         workflow.count('xcrun simctl bootstatus') == 2,
         'native validation does not keep fast core checks separate from the manual iPhone SE release gate')
-require('requestPermissionIfNeeded' not in onboarding_view and
-        'private var notificationsEnabled = false' in settings_view and
+require('private var notificationsEnabled = false' in settings_view and
         'private var notificationsEnabled = false' in active_run_view,
         'notification permission interrupts onboarding or is not explicit opt-in')
 require(theme.count('object(forKey: "pressbench.notifications.enabled") as? Bool ?? false') == 2 and
@@ -465,18 +522,20 @@ require('--pressbench-ui-test-reset' in ui_test and '--pressbench-ui-test-reset'
         'UI test does not request a deterministic pre-store persistence reset')
 require(all(marker in ui_test for marker in ['--pressbench-ui-test-limit-reached',
         '--pressbench-ui-test-product-unavailable', '--pressbench-ui-test-pro',
-        'Free runs left: 0 of 3', 'Unlock PressBench Pro',
+        'Free runs left: 0 of 2', 'Unlock PressBench Pro',
         'Repeat this setup', 'capped-repeat-upgrade', 'app.tabBars.buttons["Runs"]',
         'pb.runs.screen', 'pb.more.reports', 'pb.reports.pdf',
         'free-report-requires-pro']),
-        'UI test does not cover the fourth-run paywall, capped Repeat, and free-report paywall')
+        'UI test does not cover the third-run paywall, capped Repeat, and free-report paywall')
 
 more_view=(root/'PressBench/Views/MoreView.swift').read_text(encoding='utf-8')
 require(settings_view.index('planSection') < settings_view.index('backupSection') and
         all(marker in settings_view for marker in [
             'pb.settings.plan', 'pb.settings.backup', 'usage.freeRunsRemaining',
             'common.unlockPro', 'upgrade.manage', 'backup.optionalTitle',
-            'PreferencesSettingsView', 'settings.legalSupport', 'common.maintenance']) and
+            'preferencesSection', 'presentationSection', 'settings.legalSupport',
+            'pb.settings.deleteLocalData']) and
+        'PreferencesSettingsView' not in settings_view and
         'ReportsView()' not in settings_view,
         'Settings no longer enforces the reviewed plan, backup, preferences, legal, maintenance hierarchy')
 require('Text(t("common.unlockPro"))' in settings_view and
@@ -496,9 +555,12 @@ require(all(marker not in settings_view for marker in [
 
 catalog=json.loads((root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8'))
 require(len(catalog.get('languages',[])) == 31, 'language choice count is not 31')
-require(len(catalog.get('strings',{})) == 357, 'reviewed localization catalog must contain 357 keys')
+require(len(catalog.get('strings',{})) == 366, 'reviewed localization catalog must contain 366 keys')
+require(all(key not in catalog.get('strings',{}) for key in [
+            'home.greeting', 'home.startRun.body', 'report.sourceChecked']),
+        'retired customer copy remains in the runtime localization catalog')
 language_tests=(root/'PressBenchTests/LanguageSupportTests.swift').read_text(encoding='utf-8')
-require('XCTAssertEqual(PBL10n.catalog.strings.count, 357)' in language_tests,
+require('XCTAssertEqual(PBL10n.catalog.strings.count, 366)' in language_tests,
         'unit-test localization count is stale')
 boundary = catalog.get('strings',{}).get('setup.provenBoundary',{})
 require(bool(boundary), 'localized Proven evidence boundary is missing')
@@ -517,11 +579,11 @@ for key, item in metadata.items():
 build_l10n=(root/'build_l10n.py').read_text(encoding='utf-8')
 assemble=(root/'assemble_catalog.py').read_text(encoding='utf-8')
 require('setup.provenBoundary' in build_l10n and 'raise SystemExit(\'Legacy' not in build_l10n,
-        'build_l10n.py is not the live 357-key canonical generator')
+        'build_l10n.py is not the live 366-key canonical generator')
 purchase_manager=(root/'PressBench/Services/PurchaseManager.swift').read_text(encoding='utf-8')
-require(purchase_manager.count('let productLoaded = await loadProduct()') == 2 and
-        purchase_manager.count('if !productLoaded, state == .free { state = productLoadState }') == 2 and
-        'guard await loadProduct() else { return }' not in purchase_manager,
+require(purchase_manager.count('let productsLoaded = await loadProducts()') == 2 and
+        purchase_manager.count('if !productsLoaded, state == .free { state = productLoadState }') == 2 and
+        'guard await loadProducts() else { return }' not in purchase_manager,
         'entitlement refresh must continue when StoreKit product metadata is unavailable')
 require(all(marker in purchase_manager for marker in [
             '@Published private(set) var isLoadingProduct',
@@ -544,14 +606,19 @@ root_tabs=(root/'PressBench/Views/RootTabView.swift').read_text(encoding='utf-8'
 require('entitlementsResolved' not in purchase_manager and 'adEligibilityResolved' not in store_source and
         '.pbBanner' not in root_tabs,
         'obsolete ad-era entitlement or banner state remains')
-require("assert len(phrases)==286" in assemble and 'DIRECT_NEW_KEYS' in assemble and
+require("assert len(phrase_rows)==286" in assemble and 'base_key_indexes' in assemble and
+        'DIRECT_NEW_KEYS' in assemble and
         'OPERATOR_TRANSLATIONS' in assemble and 'ADDITIONAL_TRANSLATIONS' in assemble and
         'RESIDUAL_TRANSLATIONS' in assemble and
         "raise SystemExit('Legacy" not in assemble,
         'assemble_catalog.py is not the live base-plus-operator canonical generator')
 phrase_rows=[line.split('\t') for line in (root/'phrases.tsv').read_text(encoding='utf-8').splitlines()]
-require(len(phrase_rows) == 327, 'canonical phrase table must contain 327 rows')
-source_to_index={row[1]: index for index,row in enumerate(phrase_rows) if len(row) >= 3}
+require(len(phrase_rows) == 328, 'canonical phrase table must contain 328 rows')
+key_to_index={
+    key:index
+    for index,row in enumerate(phrase_rows[:286]) if len(row) >= 3
+    for key in row[2].split(',')
+}
 durable_keys=['setup.provenBoundary','settings.appearance','appearance.system','appearance.light','appearance.dark',
               'accessibility.textSize','accessibility.systemManaged','accessibility.reduceMotion',
               'accessibility.differentiateWithoutColor','accessibility.enabled','accessibility.disabled',
@@ -561,19 +628,22 @@ for code in [item for item in catalog['languages'] if item != 'en'] + ['zh-Hant'
     lines=(root/f'translations/{code}.txt').read_text(encoding='utf-8').splitlines()
     require(len(lines) == 286, f'canonical translation line count is not 286: {code}')
     for key in durable_keys:
-        source=metadata.get(key,{}).get('source','')
-        index=source_to_index.get(source)
+        index=key_to_index.get(key)
         require(index is not None and lines[index] == catalog['strings'][key]['translations'][code],
                 f'canonical translation does not regenerate {key}:{code}')
 for key, entry in catalog.get('strings',{}).items():
     for code in catalog['languages'] + ['zh-Hant']:
         require(bool(entry.get('translations',{}).get(code,'').strip()), f'missing localization {key}:{code}')
+for key in ['report.sheet.summary', 'report.sheet.runs', 'report.sheet.setups', 'report.sheet.issues']:
+    for code, value in catalog['strings'][key]['translations'].items():
+        require(len(value) <= 31 and not any(character in value for character in ':\\/?*[]'),
+                f'invalid XLSX worksheet name {key}:{code}')
 
 # Rebuild localization artifacts in isolation so checked-in purchase copy
-# cannot silently drift from the approved one-time-purchase model.
+# cannot silently drift from the approved subscription model.
 with tempfile.TemporaryDirectory(prefix='pressbench-l10n-') as temp_name:
     temp = Path(temp_name)
-    for filename in ['build_l10n.py', 'assemble_catalog.py', 'phrases.tsv', 'monetization_translations.json']:
+    for filename in ['build_l10n.py', 'assemble_catalog.py', 'phrases.tsv', 'monetization_translations.json', 'operational_translations.json']:
         shutil.copy2(root/filename, temp/filename)
     shutil.copytree(root/'translations', temp/'translations')
     (temp/'PressBench/Resources').mkdir(parents=True)
@@ -587,6 +657,19 @@ with tempfile.TemporaryDirectory(prefix='pressbench-l10n-') as temp_name:
             generated_catalog.read_text(encoding='utf-8').rstrip() ==
             (root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8').rstrip(),
             'checked-in localization catalog differs from a clean canonical rebuild')
+
+# Exercise deterministic business logic and hostile-input/longevity cases as part
+# of every release check, instead of relying on source markers alone.
+for script_name in ['engine_smoke.js', 'integrity_stress.js']:
+    execution = subprocess.run(
+        ['node', str(root/'scripts'/script_name)],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    detail = (execution.stderr or execution.stdout).strip()
+    require(execution.returncode == 0, f'{script_name} failed: {detail}')
 
 if failures:
     print('RELEASE INTEGRITY: FAIL')

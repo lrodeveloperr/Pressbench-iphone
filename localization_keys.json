@@ -137,7 +137,7 @@
   },
   "status.proven": {
     "context": "Status",
-    "source": "Proven"
+    "source": "Shop-proven"
   },
   "status.trial": {
     "context": "Status",
@@ -261,7 +261,7 @@
   },
   "onboarding.process.proven": {
     "context": "Onboarding process",
-    "source": "Proven"
+    "source": "Shop-proven"
   },
   "onboarding.legal.title": {
     "context": "Onboarding",
@@ -335,17 +335,9 @@
     "context": "Onboarding",
     "source": "Confirm instructions, run production and save the result."
   },
-  "home.greeting": {
-    "context": "Home",
-    "source": "Welcome back"
-  },
   "home.startRun.title": {
     "context": "Home",
     "source": "Start New Run"
-  },
-  "home.startRun.body": {
-    "context": "Home",
-    "source": "Begin a new production run"
   },
   "home.metric.setups": {
     "context": "Home metric",
@@ -409,7 +401,7 @@
   },
   "setups.notProven": {
     "context": "Setups",
-    "source": "Not yet proven"
+    "source": "Not yet shop-proven"
   },
   "setup.title": {
     "context": "Setup detail",
@@ -421,7 +413,7 @@
   },
   "setup.lastProven": {
     "context": "Setup detail",
-    "source": "Last proven"
+    "source": "Last shop-proven"
   },
   "setup.cleanRuns": {
     "context": "Setup detail",
@@ -646,10 +638,6 @@
   "report.instructionSource": {
     "context": "Report",
     "source": "Instruction source"
-  },
-  "report.sourceChecked": {
-    "context": "Report",
-    "source": "Source checked"
   },
   "report.noIssues": {
     "context": "Report",
@@ -1175,6 +1163,10 @@
     "context": "Validation error",
     "source": "Local storage needs recovery before this action can continue."
   },
+  "error.deviceStorage": {
+    "context": "Storage capacity error",
+    "source": "Your device does not have enough available storage. Free some space, then try again."
+  },
   "error.backupRestore": {
     "context": "Validation error",
     "source": "The backup could not be verified or restored."
@@ -1185,7 +1177,7 @@
   },
   "setup.provenBoundary": {
     "context": "Setup evidence boundary",
-    "source": "Proven means qualifying operator-entered runs for this exact setup. It is not manufacturer validation, certification, or a safety determination."
+    "source": "Shop-proven means qualifying operator-entered runs for this exact setup. It is not manufacturer validation, durability testing, certification, or a safety determination."
   },
   "appearance.system": {
     "context": "Appearance",
@@ -1311,6 +1303,38 @@
     "context": "Setup validation help",
     "source": "Complete the required setup fields to continue."
   },
+  "machine.start.choose": {
+    "context": "New machine start",
+    "source": "How do you want to add this machine?"
+  },
+  "machine.start.catalog": {
+    "context": "New machine start",
+    "source": "Pick a machine"
+  },
+  "setup.start.choose": {
+    "context": "New setup start",
+    "source": "How do you want to begin?"
+  },
+  "setup.start.presetBase": {
+    "context": "New setup start",
+    "source": "Use a preset as a base"
+  },
+  "setup.start.saved": {
+    "context": "New setup start",
+    "source": "Use a saved setup as a base"
+  },
+  "setup.start.manual": {
+    "context": "New setup start",
+    "source": "Enter manually"
+  },
+  "setup.selectPreset": {
+    "context": "Preset as-is action and picker title",
+    "source": "Use a preset as is"
+  },
+  "setup.presetDisclaimer": {
+    "context": "Preset setup footer",
+    "source": "Third-party names identify products only. No affiliation or endorsement. Verify current instructions before production."
+  },
   "run.testQuantityHelp": {
     "context": "Test-run quantity help",
     "source": "Test runs make one item."
@@ -1321,11 +1345,23 @@
   },
   "upgrade.body": {
     "context": "Upgrade explanation",
-    "source": "Unlimited press runs and PDF or XLSX reports. One-time purchase."
+    "source": "Unlimited press runs and PDF or XLSX reports. Choose a monthly or annual subscription."
   },
   "upgrade.unlock": {
     "context": "Upgrade action",
-    "source": "Unlock forever"
+    "source": "Subscribe"
+  },
+  "upgrade.monthly": {
+    "context": "Subscription plan",
+    "source": "Monthly"
+  },
+  "upgrade.annual": {
+    "context": "Subscription plan",
+    "source": "Annual"
+  },
+  "upgrade.renewalTerms": {
+    "context": "Subscription renewal disclosure",
+    "source": "Renews automatically until canceled in Apple Account settings."
   },
   "upgrade.restore": {
     "context": "Purchase restore action",
@@ -1336,8 +1372,8 @@
     "source": "Free runs left: %1$@ of %2$@"
   },
   "upgrade.pricePerMonthFormat": {
-    "context": "One-time purchase price",
-    "source": "%1$@ one time"
+    "context": "Monthly subscription price",
+    "source": "%1$@ per month"
   },
   "purchase.pending": {
     "context": "Pending purchase status",
@@ -1349,7 +1385,7 @@
   },
   "purchase.unavailable": {
     "context": "Purchase availability status",
-    "source": "The lifetime purchase is unavailable right now. Try again in a moment."
+    "source": "Subscriptions are unavailable right now. Try again in a moment."
   },
   "common.retry": {
     "context": "Retry action",
@@ -1364,8 +1400,8 @@
     "source": "Restore couldn’t be completed. Try again."
   },
   "upgrade.manage": {
-    "context": "Purchase information action",
-    "source": "Purchase details"
+    "context": "Subscription management action",
+    "source": "Manage subscription"
   },
   "backup.optionalTitle": {
     "context": "Optional backup title",

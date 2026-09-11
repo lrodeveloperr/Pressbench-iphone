@@ -197,15 +197,23 @@ final class PressBenchStore: ObservableObject {
     }
 
     var productDisplayPrice: String? {
+        subscriptionDisplayPrice(for: .monthly)
+    }
+    func subscriptionDisplayPrice(for plan: PurchaseManager.Plan) -> String? {
         #if DEBUG || PRESSBENCH_UI_TESTING
-        if ProcessInfo.processInfo.arguments.contains("--pressbench-ui-test-lifetime-product") { return "$39.99" }
+        if ProcessInfo.processInfo.arguments.contains("--pressbench-ui-test-subscription-products") {
+            return plan == .monthly ? "$12.99" : "$119.99"
+        }
         #endif
-        return purchases.product?.displayPrice
+        return purchases.product(for: plan)?.displayPrice
     }
     var purchaseState: PurchaseManager.PurchaseState { purchases.state }
     var purchaseOperationInProgress: Bool { purchases.isWorking }
-    var canManageMonthlySubscription: Bool {
-        isPro && string(currentEntitlement["productId"]) == PurchaseManager.legacySubscriptionProductID
+    var hasAvailableSubscription: Bool {
+        PurchaseManager.Plan.allCases.contains { subscriptionDisplayPrice(for: $0) != nil }
+    }
+    var canManageSubscription: Bool {
+        isPro && PurchaseManager.subscriptionProductIDs.contains(string(currentEntitlement["productId"]))
     }
     var freePressesRemaining: Int {
         usageMeter.reconcile(existingCompletedRuns: rawBatches.count)
@@ -227,19 +235,14 @@ final class PressBenchStore: ObservableObject {
             string(settings?["confirmedTemperatureUnit"])
     }
 
-    // MARK: - Onboarding / preferences
+    // MARK: - Preferences
 
-    func completeOnboarding(language: AppLanguage, locale: Locale, temperatureUnit: String) throws {
+    func configurePreferences(language: AppLanguage, locale: Locale, temperatureUnit: String) throws {
         guard var settings = state["settings"] as? [String: Any] else { return }
         settings["language"] = language.rawValue
         settings["locale"] = language.localeIdentifier(deviceLocale: locale)
         settings["region"] = locale.region?.identifier.uppercased() ?? "US"
         settings = try bridge.dictionary(bridge.domain("normalizeSettings", [settings]), context: "localized settings")
-        settings = try bridge.dictionary(bridge.process("acceptLegal", [settings, [
-            "termsAccepted": true,
-            "safetyAccepted": true,
-            "privacyPresented": true
-        ], Self.isoNow()]), context: "legal acceptance")
         settings = try bridge.dictionary(
             bridge.process("confirmTemperatureUnit", [settings, temperatureUnit, Self.isoNow()]), context: "temperature confirmation"
         )
@@ -295,7 +298,8 @@ final class PressBenchStore: ObservableObject {
             brand: string(raw["brand"]),
             model: string(raw["model"]),
             platen: localizedPlaten,
-            notes: string(raw["notes"])
+            notes: string(raw["notes"]),
+            lastExternalCheckDate: string(raw["lastExternalCheckDate"])
         )
     }
 
@@ -314,7 +318,7 @@ final class PressBenchStore: ObservableObject {
             "pressureMethod": "",
             "pressureScale": "",
             "platenOrZone": platen,
-            "lastExternalCheckDate": "",
+            "lastExternalCheckDate": draft.lastExternalCheckDate,
             "notes": draft.notes,
             "archived": false
         ]
@@ -399,8 +403,20 @@ final class PressBenchStore: ObservableObject {
             pressure: localizedPreset(string(raw["pressure"]), group: .pressureDescriptions),
             sourceName: localizedPreset(string((raw["instructionSource"] as? [String: Any])?["name"]), group: .instructionSources),
             sourceReference: string((raw["instructionSource"] as? [String: Any])?["reference"]),
+            sourceCheckedDate: string((raw["instructionSource"] as? [String: Any])?["checkedDate"]),
+            sourceRevision: string((raw["instructionSource"] as? [String: Any])?["revision"]),
             defaultQuantity: numberText(raw["defaultQuantity"]),
             notes: string(raw["notes"]),
+            blankSupplier: string(raw["blankSupplier"]),
+            blankSku: string(raw["blankSku"]),
+            blankLot: string(raw["blankLot"]),
+            blankColourSize: string(raw["blankColourSize"]),
+            transferSupplier: string(raw["transferSupplier"]),
+            transferSku: string(raw["transferSku"]),
+            transferLot: string(raw["transferLot"]),
+            designRevision: string(raw["designRevision"]),
+            printerInkPaperProfile: string(raw["printerInkPaperProfile"]),
+            accessoriesPlacementCooling: string(raw["accessoriesPlacementCooling"]),
             stages: rawStages.map { step in
                 let stageType = string(step["stageType"]).isEmpty ? "press" : string(step["stageType"])
                 let storedName = string(step["name"])
@@ -430,10 +446,14 @@ final class PressBenchStore: ObservableObject {
             stageType: "press", name: "", temperature: draft.temperature,
             temperatureUnit: temperatureUnit, durationSeconds: draft.durationSeconds,
             pressure: draft.pressure)] : draft.stages
+        guard !stageDrafts.isEmpty, stageDrafts.count <= PBInputLimits.maximumStages else {
+            throw StoreError.invalidSetup
+        }
         guard let primaryPressStage = stageDrafts.first(where: { $0.stageType == "press" }),
               let temperature = decimal(primaryPressStage.temperature, locale: locale),
               let duration = Int(primaryPressStage.durationSeconds),
-              temperature > 0, duration > 0,
+              temperature > 0, temperature <= PBInputLimits.maximumTemperature,
+              duration > 0, duration <= PBInputLimits.maximumDurationSeconds,
               !primaryPressStage.pressure.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw StoreError.invalidSetup
         }
@@ -446,7 +466,8 @@ final class PressBenchStore: ObservableObject {
             .filter { !$0.isEmpty }
             .joined(separator: " · ")
         let title = enteredTitle.isEmpty ? generatedTitle : enteredTitle
-        guard let quantity = Int(draft.defaultQuantity), quantity > 0 else { throw StoreError.invalidNumber }
+        guard let quantity = Int(draft.defaultQuantity),
+              (1...PBInputLimits.maximumQuantity).contains(quantity) else { throw StoreError.invalidNumber }
         guard !title.isEmpty,
               !draft.material.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               !draft.transferMedium.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
@@ -480,25 +501,38 @@ final class PressBenchStore: ObservableObject {
         raw["pressCount"] = 1
         raw["defaultQuantity"] = quantity
         raw["notes"] = draft.notes
+        raw["blankSupplier"] = draft.blankSupplier.trimmingCharacters(in: .whitespacesAndNewlines)
+        raw["blankSku"] = draft.blankSku.trimmingCharacters(in: .whitespacesAndNewlines)
+        raw["blankLot"] = draft.blankLot.trimmingCharacters(in: .whitespacesAndNewlines)
+        raw["blankColourSize"] = draft.blankColourSize.trimmingCharacters(in: .whitespacesAndNewlines)
+        raw["transferSupplier"] = draft.transferSupplier.trimmingCharacters(in: .whitespacesAndNewlines)
+        raw["transferSku"] = draft.transferSku.trimmingCharacters(in: .whitespacesAndNewlines)
+        raw["transferLot"] = draft.transferLot.trimmingCharacters(in: .whitespacesAndNewlines)
+        raw["designRevision"] = draft.designRevision.trimmingCharacters(in: .whitespacesAndNewlines)
+        raw["printerInkPaperProfile"] = draft.printerInkPaperProfile.trimmingCharacters(in: .whitespacesAndNewlines)
+        raw["accessoriesPlacementCooling"] = draft.accessoriesPlacementCooling.trimmingCharacters(in: .whitespacesAndNewlines)
         raw["instructionSource"] = [
             "type": "supplier",
             "name": draft.sourceName.trimmingCharacters(in: .whitespacesAndNewlines),
             "reference": draft.sourceReference.trimmingCharacters(in: .whitespacesAndNewlines),
-            "checkedDate": Self.localCivilDate(),
-            "revision": "",
+            "checkedDate": draft.sourceCheckedDate.isEmpty ? Self.localCivilDate() : draft.sourceCheckedDate,
+            "revision": draft.sourceRevision.trimmingCharacters(in: .whitespacesAndNewlines),
             "priorBatchId": ""
         ]
         raw["steps"] = try stageDrafts.map { stage -> [String: Any] in
-            guard let repeatCount = Int(stage.repeatCount.isEmpty ? "1" : stage.repeatCount), repeatCount > 0 else {
+            guard let repeatCount = Int(stage.repeatCount.isEmpty ? "1" : stage.repeatCount),
+                  (1...PBInputLimits.maximumRepeatCount).contains(repeatCount) else {
                 throw StoreError.invalidNumber
             }
             let stageDuration: Any
             if stage.durationSeconds.isEmpty { stageDuration = "" }
-            else if let value = Int(stage.durationSeconds), value > 0 { stageDuration = value }
+            else if let value = Int(stage.durationSeconds),
+                    (1...PBInputLimits.maximumDurationSeconds).contains(value) { stageDuration = value }
             else { throw StoreError.invalidNumber }
             let stageTemperature: Any
             if stage.temperature.isEmpty { stageTemperature = "" }
-            else if let value = decimal(stage.temperature, locale: locale), value > 0 { stageTemperature = value }
+            else if let value = decimal(stage.temperature, locale: locale),
+                    value > 0, value <= PBInputLimits.maximumTemperature { stageTemperature = value }
             else { throw StoreError.invalidNumber }
             if stage.stageType == "press" && (stage.durationSeconds.isEmpty || stage.temperature.isEmpty ||
                 stage.pressure.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
@@ -549,14 +583,16 @@ final class PressBenchStore: ObservableObject {
     private func saveSameProductVariant(_ draft: SetupDraft) throws -> String {
         guard let pending = pendingReusedSetups[draft.id], pending.reuseClass == .sameProductVariant,
               let source = rawRecipes.first(where: { ($0["id"] as? String) == pending.sourceSetupID }),
-              let quantity = Int(draft.defaultQuantity), quantity > 0,
+              let quantity = Int(draft.defaultQuantity),
+              (1...PBInputLimits.maximumQuantity).contains(quantity),
               !draft.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw StoreError.invalidReuseClass
         }
         let edits: [String: Any] = [
             "title": draft.title.trimmingCharacters(in: .whitespacesAndNewlines),
             "notes": draft.notes,
-            "defaultQuantity": quantity
+            "defaultQuantity": quantity,
+            "blankColourSize": draft.blankColourSize.trimmingCharacters(in: .whitespacesAndNewlines)
         ]
         let reuse = try bridge.dictionary(
             bridge.domain("reuseSetup", [source, SetupReuseClass.sameProductVariant.rawValue, edits, Self.isoNow()]),
@@ -592,7 +628,8 @@ final class PressBenchStore: ObservableObject {
             throw StoreError.pressLimitReached
         }
         guard let raw = rawRecipes.first(where: { ($0["id"] as? String) == draft.setupID }) else { throw StoreError.setupMissing }
-        guard let quantity = Int(draft.quantity), quantity > 0 else { throw StoreError.invalidNumber }
+        guard let quantity = Int(draft.quantity),
+              (1...PBInputLimits.maximumQuantity).contains(quantity) else { throw StoreError.invalidNumber }
         let plan = try bridge.dictionary(bridge.process("authorizeRun", [context, raw, [
             "now": Self.isoNow(),
             "utcOffsetMinutes": TimeZone.current.secondsFromGMT() / 60,
@@ -733,11 +770,17 @@ final class PressBenchStore: ObservableObject {
 
     func completeResult(_ input: ResultDraftInput) throws {
         guard var run = activeRunDictionary else { throw StoreError.activeRunMissing }
-        guard let processed = Int(input.processed) else {
+        let planned = int(run["quantity"])
+        guard let processed = Int(input.processed),
+              (1...PBInputLimits.maximumQuantity).contains(planned),
+              (0...planned).contains(processed),
+              input.issues.count <= PBInputLimits.maximumIssues else {
             throw StoreError.invalidNumber
         }
         let issues = try input.issues.map { issue -> [String: Any] in
-            guard let quantity = Int(issue.quantity), quantity > 0,
+            guard let quantity = Int(issue.quantity),
+                  (1...PBInputLimits.maximumQuantity).contains(quantity),
+                  ["discarded", "reworked"].contains(issue.disposition),
                   !issue.note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw StoreError.invalidIssue }
             return ["id": issue.id.uuidString, "quantity": quantity, "symptom": issue.symptom,
                     "suspectedCause": issue.suspectedCause, "disposition": issue.disposition, "note": issue.note]
@@ -746,7 +789,7 @@ final class PressBenchStore: ObservableObject {
             .reduce(0) { $0 + (Int($1.quantity) ?? 0) }
         let rework = input.issues.filter { $0.disposition == "reworked" }
             .reduce(0) { $0 + (Int($1.quantity) ?? 0) }
-        let planned = int(run["quantity"])
+        guard waste <= processed, rework <= processed - waste else { throw StoreError.invalidIssue }
         let cleanAllGood = input.issues.isEmpty && processed == planned && waste == 0 && rework == 0
         if cleanAllGood {
             run = try transitionRun(run, event: [
@@ -780,7 +823,10 @@ final class PressBenchStore: ObservableObject {
             throw error
         }
         let committedID = string((plan["batch"] as? [String: Any])?["id"])
-        try withStateTransaction {
+        try withStateTransaction(
+            batchesChanged: true,
+            changedBatchIDs: Set([committedID].filter { !$0.isEmpty })
+        ) {
             state["recipes"] = plan["recipes"] as? [[String: Any]] ?? rawRecipes
             state["batches"] = plan["batches"] as? [[String: Any]] ?? rawBatches
             state["session"] = NSNull()
@@ -803,9 +849,12 @@ final class PressBenchStore: ObservableObject {
         reason: String
     ) throws {
         guard !reason.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-              planned > 0, processed >= 0, processed <= planned else { throw StoreError.invalidNumber }
+              (1...PBInputLimits.maximumQuantity).contains(planned),
+              (0...planned).contains(processed),
+              issues.count <= PBInputLimits.maximumIssues else { throw StoreError.invalidNumber }
         let rawIssues = try issues.map { issue -> [String: Any] in
-            guard let quantity = Int(issue.quantity), quantity > 0,
+            guard let quantity = Int(issue.quantity),
+                  (1...PBInputLimits.maximumQuantity).contains(quantity),
                   ["discarded", "reworked"].contains(issue.disposition),
                   !issue.note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
                 throw StoreError.invalidIssue
@@ -830,7 +879,7 @@ final class PressBenchStore: ObservableObject {
                 "notes": notes
             ]
         ]]), context: "batch correction plan")
-        try withStateTransaction {
+        try withStateTransaction(batchesChanged: true, changedBatchIDs: [id]) {
             state["recipes"] = plan["recipes"] as? [[String: Any]] ?? rawRecipes
             state["batches"] = plan["batches"] as? [[String: Any]] ?? rawBatches
         }
@@ -838,7 +887,7 @@ final class PressBenchStore: ObservableObject {
 
     func deleteBatch(id: String) throws {
         let plan = try bridge.dictionary(bridge.process("planDeleteBatch", [context, id]), context: "batch delete plan")
-        try withStateTransaction {
+        try withStateTransaction(batchesChanged: true, changedBatchIDs: [id]) {
             state["recipes"] = plan["recipes"] as? [[String: Any]] ?? rawRecipes
             state["batches"] = plan["batches"] as? [[String: Any]] ?? rawBatches
         }
@@ -846,8 +895,9 @@ final class PressBenchStore: ObservableObject {
 
     // MARK: - Reports / backup
 
-    func reportPlan(format: String) throws -> [String: Any] {
-        try bridge.dictionary(bridge.process("planReport", [context, format, rawBatches, Self.isoNow()]), context: "report plan")
+    func reportPlan(format: String, batchIDs: Set<String>? = nil) throws -> [String: Any] {
+        let batches = batchIDs.map { ids in rawBatches.filter { ids.contains(string($0["id"])) } } ?? rawBatches
+        return try bridge.dictionary(bridge.process("planReport", [context, format, batches, Self.isoNow()]), context: "report plan")
     }
 
     func backupPayload() throws -> [String: Any] {
@@ -894,7 +944,7 @@ final class PressBenchStore: ObservableObject {
         let plan = try bridge.dictionary(
             bridge.process("planDeleteAll", [context, "DELETE"]), context: "delete all local data"
         )
-        try withStateTransaction(allowBlockedRecovery: true) {
+        try withStateTransaction(allowBlockedRecovery: true, batchesChanged: true) {
             state = [
                 "machines": plan["machines"] as? [[String: Any]] ?? [],
                 "recipes": plan["recipes"] as? [[String: Any]] ?? [],
@@ -925,7 +975,7 @@ final class PressBenchStore: ObservableObject {
             PBUsageMeter.freePressLimit,
             max(0, (source?["freeRunsUsed"] as? NSNumber)?.intValue ?? 0)
         )
-        try withStateTransaction(allowBlockedRecovery: true) {
+        try withStateTransaction(allowBlockedRecovery: true, batchesChanged: true) {
             state["machines"] = target["machines"] as? [[String: Any]] ?? []
             state["recipes"] = target["setups"] as? [[String: Any]] ?? []
             state["batches"] = target["batches"] as? [[String: Any]] ?? []
@@ -939,12 +989,20 @@ final class PressBenchStore: ObservableObject {
 
     var canonicalReportBatches: [[String: Any]] { rawBatches }
     var canonicalReportSetups: [[String: Any]] { rawRecipes }
+    func canonicalReportSetups(batchIDs: Set<String>) -> [[String: Any]] {
+        let setupIDs = Set(rawBatches.compactMap { batch -> String? in
+            guard batchIDs.contains(string(batch["id"])) else { return nil }
+            let id = string(batch["recipeId"])
+            return id.isEmpty ? nil : id
+        })
+        return rawRecipes.filter { setupIDs.contains(string($0["id"])) }
+    }
 
     // MARK: - Purchase bridge
 
-    func purchasePro() async { await purchases.purchase() }
+    func purchasePro(_ plan: PurchaseManager.Plan) async { await purchases.purchase(plan) }
     func restorePurchases() async { await purchases.restore() }
-    func reloadPurchases() async { await purchases.reloadProduct() }
+    func reloadPurchases() async { await purchases.reloadProducts() }
 
     private func applyStoreEvent(_ event: [String: Any]) {
         do {
@@ -1029,7 +1087,7 @@ final class PressBenchStore: ObservableObject {
         state["session"] = safeSession["setupDraft"] is [String: Any] ? safeSession : NSNull()
         removeOperatorIssues(runID: string(run["id"]))
         do {
-            try persistence.save(state)
+            try persistence.save(state, batchesChanged: false)
             persistenceBlocked = true
             persistenceWarning = String(describing: error)
         } catch {
@@ -1045,21 +1103,20 @@ final class PressBenchStore: ObservableObject {
         }
     }
 
-    private func stateSnapshot() throws -> [String: Any] {
-        let data = try JSONSerialization.data(withJSONObject: state, options: [.sortedKeys])
-        guard let snapshot = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            throw StoreError.exportFailed
-        }
-        return snapshot
-    }
+    /// Top-level state and its nested Swift collections use copy-on-write value
+    /// semantics. Retaining this snapshot is constant-time until a changed branch
+    /// is assigned, avoiding a full history serialization before every tap.
+    private func stateSnapshot() -> [String: Any] { state }
 
     /// Every user-visible mutation either reaches both guarded replicas or is rolled
     /// back in memory. This prevents the UI from getting ahead of durable state.
     private func withStateTransaction(
         allowBlockedRecovery: Bool = false,
+        batchesChanged: Bool = false,
+        changedBatchIDs: Set<String>? = nil,
         _ mutation: () throws -> Void
     ) throws {
-        let priorState = try stateSnapshot()
+        let priorState = stateSnapshot()
         let priorBlocked = persistenceBlocked
         let priorWarning = persistenceWarning
         do {
@@ -1068,7 +1125,7 @@ final class PressBenchStore: ObservableObject {
                 persistenceWarning = nil
             }
             try mutation()
-            try persist()
+            try persist(batchesChanged: batchesChanged, changedBatchIDs: changedBatchIDs)
         } catch {
             state = priorState
             if error is PressBenchPersistence.PersistenceError {
@@ -1083,9 +1140,11 @@ final class PressBenchStore: ObservableObject {
         }
     }
 
-    private func persist() throws {
+    private func persist(batchesChanged: Bool, changedBatchIDs: Set<String>?) throws {
         if persistenceBlocked { throw StoreError.persistenceBlocked }
-        try persistence.save(state)
+        try persistence.save(
+            state, batchesChanged: batchesChanged, changedBatchIDs: changedBatchIDs
+        )
         lastErrorCode = nil
         generation &+= 1
     }
@@ -1098,7 +1157,13 @@ final class PressBenchStore: ObservableObject {
 
     func errorLocalizationKey(_ error: Error? = nil) -> String {
         let code = (error.map { String(describing: $0) } ?? lastErrorCode ?? "").lowercased()
-        if code.contains("capacity_required") || code.contains("presslimitreached") { return "error.freeLimit" }
+        if code.contains("byte_capacity") || code.contains("data_budget") || code.contains("record_size") ||
+            code.contains("physical_limit") || code.contains("storage_write_failed") ||
+            code.contains("filewriteoutofspace") || code.contains("code=640") ||
+            code.contains("disk full") || code.contains("no space left") || code.contains("not enough space") {
+            return "error.deviceStorage"
+        }
+        if code.contains("batch_capacity_required") || code.contains("presslimitreached") { return "error.freeLimit" }
         if code.contains("timer_plan_incomplete") || code.contains("timer_stage_incomplete") { return "run.completeTimerFirst" }
         if code.contains("qc_required") { return "qc.due" }
         if code.contains("invalid_number") || code.contains("invalidnumber") { return "error.invalidNumber" }
@@ -1183,7 +1248,23 @@ final class PressBenchStore: ObservableObject {
             pressure: localizedPreset(string(raw["pressure"]), group: .pressureDescriptions),
             machineNickname: localizedMachineNickname(raw),
             platen: localizedPreset(string(raw["platenZone"]), group: .platenSizes),
-            lastUsedAt: date(raw["lastUsedAt"])
+            lastUsedAt: date(raw["lastUsedAt"]),
+            instructionSource: localizedPreset(
+                string((raw["instructionSource"] as? [String: Any])?["name"]),
+                group: .instructionSources
+            ),
+            instructionReference: string((raw["instructionSource"] as? [String: Any])?["reference"]),
+            instructionCheckedDate: string((raw["instructionSource"] as? [String: Any])?["checkedDate"]),
+            blankSupplier: string(raw["blankSupplier"]),
+            blankSku: string(raw["blankSku"]),
+            blankLot: string(raw["blankLot"]),
+            blankColourSize: string(raw["blankColourSize"]),
+            transferSupplier: string(raw["transferSupplier"]),
+            transferSku: string(raw["transferSku"]),
+            transferLot: string(raw["transferLot"]),
+            designRevision: string(raw["designRevision"]),
+            printerInkPaperProfile: string(raw["printerInkPaperProfile"]),
+            accessoriesPlacementCooling: string(raw["accessoriesPlacementCooling"])
         )
     }
 
@@ -1203,7 +1284,8 @@ final class PressBenchStore: ObservableObject {
             active: raw["archived"] as? Bool != true,
             brand: brand,
             model: model,
-            notes: string(raw["notes"])
+            notes: string(raw["notes"]),
+            lastExternalCheckDate: string(raw["lastExternalCheckDate"])
         )
     }
 
@@ -1233,6 +1315,11 @@ final class PressBenchStore: ObservableObject {
             material: localizedPreset(string(recipe?["blankMaterial"]), group: .materials),
             transferMedium: localizedPreset(string(recipe?["transferMedium"]), group: .transferMedia),
             machineName: localizedMachineNickname(recipe),
+            instructionSource: [
+                localizedPreset(string((recipe?["instructionSource"] as? [String: Any])?["name"]), group: .instructionSources),
+                string((recipe?["instructionSource"] as? [String: Any])?["reference"])
+            ].filter { !$0.isEmpty }.joined(separator: " · "),
+            instructionCheckedDate: string((recipe?["instructionSource"] as? [String: Any])?["checkedDate"]),
             processStages: (recipe?["steps"] as? [[String: Any]] ?? []).enumerated().map { index, stage in
                 let stageType = string(stage["stageType"])
                 let storedName = string(stage["name"])

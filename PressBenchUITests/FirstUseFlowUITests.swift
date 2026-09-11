@@ -5,19 +5,8 @@ final class FirstUseFlowUITests: XCTestCase {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.launchEnvironment["PRESSBENCH_UI_TEST_USAGE_SERVICE"] = UUID().uuidString
-        app.launchArguments += ["--pressbench-ui-test-reset", "--pressbench-ui-test-lifetime-product", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launchArguments += ["--pressbench-ui-test-reset", "--pressbench-ui-test-subscription-products", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
-
-        XCTAssertTrue(app.staticTexts["Welcome to PressBench"].waitForExistence(timeout: 8))
-        XCTAssertTrue(tapButton("pb.onboarding.continue", app: app, timeout: 20),
-                      "The first onboarding action must settle inside the Face ID viewport")
-        let acknowledgement = app.buttons.matching(identifier: "pb.onboarding.accept").firstMatch
-        if !acknowledgement.waitForExistence(timeout: 8) {
-            _ = tapButton("pb.onboarding.continue", app: app, timeout: 8)
-        }
-        XCTAssertTrue(acknowledgement.waitForExistence(timeout: 8))
-        acknowledgement.tap()
-        app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch.tap()
 
         XCTAssertTrue(app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch.waitForExistence(timeout: 8))
         let moreTab = app.tabBars.buttons["More"]
@@ -32,18 +21,15 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(plan.waitForExistence(timeout: 4))
         plan.tap()
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["Unlock forever · $39.99"].waitForExistence(timeout: 5))
-        capture("face-id-lifetime-paywall")
+        XCTAssertTrue(app.buttons["Subscribe · $12.99"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons.matching(identifier: "pb.upgrade.annual").firstMatch.exists)
+        capture("face-id-subscription-paywall")
         app.buttons["Cancel"].firstMatch.tap()
         let backup = app.buttons.matching(identifier: "pb.settings.backup").firstMatch
         XCTAssertTrue(backup.waitForExistence(timeout: 4))
         XCTAssertTrue(backup.isHittable, "Backup must remain in the first Settings viewport")
         assertControlSurface(backup, name: "Create Backup")
 
-        let maintenance = app.descendants(matching: .any).matching(identifier: "pb.settings.maintenance").firstMatch
-        makeHittable(maintenance, in: app)
-        assertControlSurface(maintenance, name: "Maintenance")
-        maintenance.tap()
         let deleteLocalData = app.buttons.matching(identifier: "pb.settings.deleteLocalData").firstMatch
         XCTAssertTrue(deleteLocalData.waitForExistence(timeout: 4))
         makeHittable(deleteLocalData, in: app)
@@ -54,38 +40,18 @@ final class FirstUseFlowUITests: XCTestCase {
         capture("face-id-prioritized-settings")
     }
 
-    func testZeroPatienceFirstUseShowsOnlyNextActionAndChainsMachineToSetup() {
+    func testZeroPatienceFirstUseReturnsHomeThenOffersSetupStartChoices() {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.launchEnvironment["PRESSBENCH_UI_TEST_USAGE_SERVICE"] = UUID().uuidString
         app.launchArguments += ["--pressbench-ui-test-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["Welcome to PressBench"].waitForExistence(timeout: 8))
-        XCTAssertTrue(app.descendants(matching: .any)["pb.onboarding.temperatureUnit"].exists)
-        XCTAssertTrue(app.buttons["°F"].exists)
-        XCTAssertTrue(app.buttons["°C"].exists)
-        XCTAssertTrue(app.buttons["°F"].isSelected)
-        capture("01-onboarding")
-
-        let preferencesContinue = app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch
-        XCTAssertTrue(preferencesContinue.waitForExistence(timeout: 3))
-        preferencesContinue.tap()
-        let acknowledgement = app.buttons.matching(identifier: "pb.onboarding.accept").firstMatch
-        XCTAssertTrue(acknowledgement.waitForExistence(timeout: 3))
-        acknowledgement.tap()
-        let legalContinue = app.buttons.matching(identifier: "pb.onboarding.continue").firstMatch
-        XCTAssertTrue(legalContinue.isEnabled)
-        legalContinue.tap()
-        if app.alerts.firstMatch.waitForExistence(timeout: 2) {
-            app.alerts.firstMatch.buttons.firstMatch.tap()
-        }
-
         let firstUseAction = app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch
         XCTAssertTrue(firstUseAction.waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["Add your first machine"].exists)
         XCTAssertFalse(app.staticTexts["Ready to build your first setup"].exists)
-        capture("02-next-action-only")
+        capture("01-next-action-only")
 
         let moreTab = app.tabBars.buttons["More"]
         XCTAssertTrue(waitForHittable(moreTab, timeout: 8))
@@ -98,7 +64,7 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(plan.waitForExistence(timeout: 4))
         assertControlSurface(plan, name: "Unlock PressBench Pro")
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].exists)
-        XCTAssertTrue(app.staticTexts["Free runs left: 3 of 3"].exists)
+        XCTAssertTrue(app.staticTexts["Free runs left: 2 of 2"].exists)
         let backup = app.buttons.matching(identifier: "pb.settings.backup").firstMatch
         XCTAssertTrue(backup.exists)
         XCTAssertTrue(backup.isHittable, "Backup must remain in the first Settings viewport")
@@ -121,16 +87,57 @@ final class FirstUseFlowUITests: XCTestCase {
 
         app.tabBars.buttons["Home"].tap()
         app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch.tap()
-        let name = app.textFields["Name"]
-        XCTAssertTrue(name.waitForExistence(timeout: 4))
-        capture("04-machine-required-fields")
-        choose("pb.choice.platen", option: "15 × 15 in", app: app)
-        XCTAssertEqual(name.value as? String, "15 × 15 in")
+        let catalogMachine = app.buttons.matching(identifier: "pb.machine.catalog").firstMatch
+        XCTAssertTrue(catalogMachine.waitForExistence(timeout: 4))
+        XCTAssertTrue(app.buttons.matching(identifier: "pb.machine.manual").firstMatch.exists)
+        XCTAssertFalse(app.textFields["Name"].exists)
+        XCTAssertFalse(app.textFields["Platen *"].exists)
+        capture("04-machine-start-choices")
+        catalogMachine.tap()
+        choose("pb.choice.machineBrand", option: "HTVRONT", app: app)
+        choose("pb.choice.machineModel", option: "Auto Heat Press 2", app: app)
+        XCTAssertFalse(app.textFields["Name"].exists)
+        XCTAssertFalse(app.textFields["Platen *"].exists)
+        capture("04-machine-brand-model-only")
         app.buttons["Save"].tap()
 
+        XCTAssertTrue(app.staticTexts["Create a setup"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.navigationBars["Setup"].exists)
+        capture("05-machine-save-returns-home")
+        app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch.tap()
         XCTAssertTrue(app.navigationBars["Setup"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons.matching(identifier: "pb.setup.presetPicker").firstMatch.exists)
+        XCTAssertTrue(app.buttons.matching(identifier: "pb.setup.presetBasePicker").firstMatch.exists)
+        XCTAssertTrue(app.buttons.matching(identifier: "pb.setup.savedBase").firstMatch.exists)
+        XCTAssertTrue(app.buttons.matching(identifier: "pb.setup.manual").firstMatch.exists)
+        XCTAssertTrue(app.staticTexts["Use a preset as is"].exists)
         XCTAssertFalse(app.textFields["pb.setup.title"].exists)
-        capture("05-chained-setup-editor")
+        capture("05-setup-start-choices")
+
+        app.buttons.matching(identifier: "pb.setup.presetPicker").firstMatch.tap()
+        chooseSystemPicker(
+            "pb.setup.presetMaterialFilter",
+            option: "100% polyester T-shirt",
+            app: app
+        )
+        let easyWeed = app.buttons.matching(identifier: "pb.setup.preset.Siser|EasyWeed").firstMatch
+        XCTAssertTrue(waitForInteractable(easyWeed, timeout: 5))
+        easyWeed.tap()
+        let exactMaterial = app.buttons.matching(identifier: "pb.choice.material").firstMatch
+        XCTAssertTrue(exactMaterial.waitForExistence(timeout: 5))
+        XCTAssertFalse(exactMaterial.isEnabled, "An exact preset must lock its selected compatible material")
+        XCTAssertTrue(app.staticTexts["100% polyester T-shirt"].exists)
+        XCTAssertFalse(app.buttons.matching(identifier: "pb.choice.transfer").firstMatch.isEnabled)
+        capture("05a-filtered-exact-preset")
+        app.buttons["Cancel"].firstMatch.tap()
+        let discardPreset = app.buttons["Discard"].firstMatch
+        XCTAssertTrue(discardPreset.waitForExistence(timeout: 4))
+        discardPreset.tap()
+        let createSetupAgain = app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch
+        XCTAssertTrue(waitForInteractable(createSetupAgain, timeout: 5))
+        createSetupAgain.tap()
+        XCTAssertTrue(app.buttons.matching(identifier: "pb.setup.manual").firstMatch.waitForExistence(timeout: 5))
+        app.buttons.matching(identifier: "pb.setup.manual").firstMatch.tap()
 
         choose("pb.choice.material", option: "100% cotton T-shirt", app: app)
         choose("pb.choice.transfer", option: "Heat transfer vinyl (HTV)", app: app)
@@ -143,29 +150,29 @@ final class FirstUseFlowUITests: XCTestCase {
         makeHittable(saveSetup, in: app)
         saveSetup.tap()
 
-        let generatedSetupTitle = "100% cotton T-shirt · Heat transfer vinyl (HTV) · 15 × 15 in"
+        let generatedSetupTitle = "100% cotton T-shirt · Heat transfer vinyl (HTV) · HTVRONT Auto Heat Press 2"
         let startNewRun = app.buttons.matching(identifier: "pb.home.startRun").firstMatch
         XCTAssertTrue(waitForInteractable(startNewRun, timeout: 8))
         capture("06-ready-to-run")
         startNewRun.tap()
-        let exactRepeat = app.buttons["Exact repeat"].firstMatch
-        XCTAssertTrue(waitForHittable(exactRepeat, timeout: 8),
-                      "A single runnable setup must bypass redundant setup selection")
+        let startRun = app.buttons.matching(identifier: "Start Run").firstMatch
+        XCTAssertTrue(waitForInteractable(startRun, timeout: 8),
+                      "A single runnable setup must open run configuration directly")
         XCTAssertFalse(app.buttons.matching(identifier: "pb.startRun.setup").firstMatch.exists)
         capture("06a-single-setup-direct-start")
-        assertControlSurface(exactRepeat, name: "Exact repeat")
-        tapEdge(exactRepeat, horizontal: 0.1)
-        let continueRun = app.buttons["Continue"].firstMatch
-        makeHittable(continueRun, in: app)
-        XCTAssertTrue(waitForInteractable(continueRun, timeout: 5))
-        continueRun.tap()
-        let startRun = app.buttons.matching(identifier: "Start Run").firstMatch
         makeHittable(startRun, in: app)
         XCTAssertTrue(waitForInteractable(startRun, timeout: 5))
         startRun.tap()
 
         let confirmInstructions = app.buttons["Confirm instructions"]
-        XCTAssertTrue(waitForInteractable(confirmInstructions, timeout: 8))
+        XCTAssertTrue(confirmInstructions.waitForExistence(timeout: 8))
+        XCTAssertFalse(confirmInstructions.isEnabled)
+        for check in ["instructions", "materials", "press", "platen", "artwork"] {
+            let control = app.buttons.matching(identifier: "pb.preflight.\(check)").firstMatch
+            XCTAssertTrue(waitForInteractable(control, timeout: 5), "Missing preflight check: \(check)")
+            control.tap()
+        }
+        XCTAssertTrue(waitForInteractable(confirmInstructions, timeout: 5))
         capture("07-run-preflight")
         confirmInstructions.tap()
         let startTimer = app.buttons["Start timer"]
@@ -219,20 +226,20 @@ final class FirstUseFlowUITests: XCTestCase {
             "-AppleLanguages", "(en)", "-AppleLocale", "en_US"
         ]
         app.launch()
-        XCTAssertTrue(app.staticTexts["Free runs left: 0 of 3"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["Free runs left: 0 of 2"].waitForExistence(timeout: 8))
         let cappedStartRun = app.buttons.matching(identifier: "pb.home.startRun").firstMatch
         XCTAssertTrue(waitForInteractable(cappedStartRun, timeout: 8))
         cappedStartRun.tap()
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["The lifetime purchase is unavailable right now. Try again in a moment."].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons["Unlock forever"].isEnabled)
+        XCTAssertTrue(app.staticTexts["Subscriptions are unavailable right now. Try again in a moment."].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["Subscribe"].isEnabled)
         let unavailablePurchase = app.buttons.matching(identifier: "pb.upgrade.purchase").firstMatch
         let retryProduct = app.buttons.matching(identifier: "pb.upgrade.retry").firstMatch
         let restorePurchaseFromPaywall = app.buttons.matching(identifier: "pb.upgrade.restore").firstMatch
         assertControlSurface(unavailablePurchase, name: "Unavailable purchase")
         assertControlSurface(retryProduct, name: "Retry product")
         assertControlSurface(restorePurchaseFromPaywall, name: "Restore purchase")
-        capture("12-fourth-run-upgrade")
+        capture("12-third-run-upgrade")
 
         app.buttons["Cancel"].firstMatch.tap()
         let runsTab = app.tabBars.buttons["Runs"]
@@ -282,7 +289,7 @@ final class FirstUseFlowUITests: XCTestCase {
         app.launchArguments = ["--pressbench-ui-test-pro", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         XCTAssertTrue(app.buttons.matching(identifier: "pb.home.startRun").firstMatch.waitForExistence(timeout: 8))
-        XCTAssertFalse(app.staticTexts["Free runs left: 0 of 3"].exists)
+        XCTAssertFalse(app.staticTexts["Free runs left: 0 of 2"].exists)
         let proSettingsLink = app.buttons.matching(identifier: "pb.more.settings").firstMatch
         XCTAssertTrue(openTab("More", until: proSettingsLink, app: app))
         XCTAssertTrue(waitForHittable(proSettingsLink, timeout: 20))
@@ -326,6 +333,19 @@ final class FirstUseFlowUITests: XCTestCase {
                       "The choice sheet must close after selecting an option")
         XCTAssertTrue(waitForHittable(field, timeout: 12),
                       "The selected field must return as the active editor control")
+    }
+
+    private func chooseSystemPicker(_ identifier: String, option: String, app: XCUIApplication) {
+        let field = app.descendants(matching: .any).matching(identifier: identifier).firstMatch
+        makeHittable(field, in: app)
+        field.tap()
+        let button = app.buttons[option].firstMatch
+        let text = app.staticTexts[option].firstMatch
+        let choice = button.waitForExistence(timeout: 4) ? button : text
+        XCTAssertTrue(choice.waitForExistence(timeout: 4), "Missing picker option: \(option)")
+        makeHittable(choice, in: app)
+        choice.tap()
+        XCTAssertTrue(field.waitForExistence(timeout: 8), "The picker must close after selection")
     }
 
     private func makeHittable(_ element: XCUIElement, in app: XCUIApplication) {

@@ -1,5 +1,14 @@
 import Foundation
 
+enum PBInputLimits {
+    static let maximumQuantity = 999_999
+    static let maximumStages = 20
+    static let maximumIssues = 100
+    static let maximumRepeatCount = 99
+    static let maximumDurationSeconds = 9_999
+    static let maximumTemperature = Decimal(999)
+}
+
 struct Setup: Identifiable, Hashable {
     let id: String
     var title: String
@@ -18,6 +27,19 @@ struct Setup: Identifiable, Hashable {
     var machineNickname: String = ""
     var platen: String = ""
     var lastUsedAt: Date? = nil
+    var instructionSource: String = ""
+    var instructionReference: String = ""
+    var instructionCheckedDate: String = ""
+    var blankSupplier: String = ""
+    var blankSku: String = ""
+    var blankLot: String = ""
+    var blankColourSize: String = ""
+    var transferSupplier: String = ""
+    var transferSku: String = ""
+    var transferLot: String = ""
+    var designRevision: String = ""
+    var printerInkPaperProfile: String = ""
+    var accessoriesPlacementCooling: String = ""
 }
 
 enum SetupStatus: String, CaseIterable, Hashable {
@@ -115,6 +137,7 @@ struct MachineProfile: Identifiable, Hashable {
     var brand: String = ""
     var model: String = ""
     var notes: String = ""
+    var lastExternalCheckDate: String = ""
 }
 
 struct DashboardMetrics {
@@ -131,6 +154,7 @@ struct MachineDraft: Equatable {
     var model: String = ""
     var platen: String = ""
     var notes: String = ""
+    var lastExternalCheckDate: String = ""
 }
 
 struct SetupDraft: Equatable {
@@ -144,8 +168,20 @@ struct SetupDraft: Equatable {
     var pressure: String = ""
     var sourceName: String = ""
     var sourceReference: String = ""
+    var sourceCheckedDate: String = ""
+    var sourceRevision: String = ""
     var defaultQuantity: String = "1"
     var notes: String = ""
+    var blankSupplier: String = ""
+    var blankSku: String = ""
+    var blankLot: String = ""
+    var blankColourSize: String = ""
+    var transferSupplier: String = ""
+    var transferSku: String = ""
+    var transferLot: String = ""
+    var designRevision: String = ""
+    var printerInkPaperProfile: String = ""
+    var accessoriesPlacementCooling: String = ""
     var stages: [SetupStageDraft] = []
 }
 
@@ -191,6 +227,7 @@ struct ResultDraftInput: Equatable {
     var rework: String = "0"
     var notes: String = ""
     var explicitAllGood: Bool = false
+    var reworkConfirmed: Bool = false
     var saveChoice: String = "batch_only"
     var variantTitle: String = ""
     var issues: [IssueDraftInput] = []

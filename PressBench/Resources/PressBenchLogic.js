@@ -125,12 +125,14 @@
   ]);
   const ISSUE_DISPOSITIONS = new Set(["reworked", "discarded"]);
   const REVIEW_STATUSES = new Set(["complete", "legacy_needs_review"]);
-  const MAX_RECORDS = 1000;
+  // Collections are limited by available device storage, not by a PressBench
+  // record quota. Narrow per-record limits remain to reject malformed input.
+  const MAX_RECORDS = Number.MAX_SAFE_INTEGER;
   const MAX_STAGES = 20;
   const MAX_ISSUES = 100;
   const MAX_CORRECTIONS = 100;
-  const MAX_BACKUP_BYTES = 10_000_000;
-  const MAX_DATA_BYTES = 8_000_000;
+  const MAX_BACKUP_BYTES = Number.MAX_SAFE_INTEGER;
+  const MAX_DATA_BYTES = Number.MAX_SAFE_INTEGER;
   const MAX_RECORD_BYTES = 1_000_000;
   const TERMS_VERSION = "APP-018-TERMS-v2";
   const SAFETY_ACK_VERSION = "APP-018-SAFETY-v2";
@@ -259,7 +261,9 @@
 
   function text(value, maxLength) {
     if (value === null || value === undefined) return "";
-    const cleaned = String(value).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "").trim();
+    let converted;
+    try { converted = String(value); } catch (_) { return ""; }
+    const cleaned = converted.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "").trim();
     const limit = Number.isInteger(maxLength) && maxLength >= 0 ? maxLength : 5000;
     if (cleaned.length <= limit) return cleaned;
     let end = limit;
@@ -607,13 +611,14 @@
     };
   }
 
-  function validateMachineProfile(value) {
+  function validateMachineProfile(value, boundary, utcOffsetMinutes) {
     const profile = normalizeMachineProfile(value, true);
     const errors = [];
     if (!text(value && value.id, 100)) errors.push("id");
     if (!profile.nickname) errors.push("nickname");
     if (value && value.lastExternalCheckDate && !isCivilDate(value.lastExternalCheckDate)) errors.push("lastExternalCheckDate");
-    if (value && value.lastExternalCheckDate && !civilDateNotAfter(value.lastExternalCheckDate)) errors.push("lastExternalCheckDate");
+    if (value && value.lastExternalCheckDate &&
+        !civilDateNotAfter(value.lastExternalCheckDate, boundary, utcOffsetMinutes)) errors.push("lastExternalCheckDate");
     return errors;
   }
 
@@ -918,7 +923,7 @@
       throw new Error("reuse_class");
     }
     if (kind === SETUP_REUSE_CLASSES.SAME_PRODUCT_VARIANT) {
-      const safeFields = new Set(["title", "notes", "defaultQuantity"]);
+      const safeFields = new Set(["title", "notes", "defaultQuantity", "blankColourSize"]);
       if (Object.keys(edits).some(function (key) { return !safeFields.has(key); })) {
         throw new Error("materially_different_reuse_required");
       }
@@ -1465,7 +1470,10 @@
   }
 
   function normalizeSearch(value) {
-    return String(value === null || value === undefined ? "" : value).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[Iı]/g, "i").toLowerCase();
+    let converted;
+    try { converted = String(value === null || value === undefined ? "" : value); }
+    catch (_) { return ""; }
+    return converted.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[Iı]/g, "i").toLowerCase();
   }
 
   const recipeSearchCache = new WeakMap();
@@ -1992,7 +2000,9 @@
         evidence.quantityWaste === 0 && evidence.quantityReworked === 0 && Array.isArray(evidence.issues) && evidence.issues.length === 0 &&
         evidence.setupChangedDuringRun === false && evidence.authorizationBasis !== "legacy_migration" &&
         (!evidence.firstPiece || evidence.firstPiece.outcome === "not_required" || evidence.firstPiece.outcome === "pass") &&
-        validateBatch(evidence).length === 0 && validateRunnableRecipe(recipe).length === 0 && instructionSourceChecked(recipe.instructionSource) &&
+        validateBatch(evidence).length === 0 &&
+        validateRunnableRecipe(recipe, evidence.startedAt || evidence.completedAt, evidence.utcOffsetMinutes).length === 0 &&
+        instructionSourceChecked(recipe.instructionSource) &&
         instructionReferenceValid(recipe, batchById, evidence.startedAt || evidence.completedAt, evidence.id) &&
         evidence.instructionCheckedAt && evidence.instructionCheckFingerprint === exactSetupFingerprint(evidence.recipe) &&
         exactSetupFingerprint(recipe) === exactSetupFingerprint(evidence.recipe));
@@ -2009,7 +2019,8 @@
       evidence.quantityGood === evidence.quantityPlanned && evidence.quantityWaste === 0 && evidence.quantityReworked === 0 &&
       Array.isArray(evidence.issues) && evidence.issues.length === 0 && evidence.setupChangedDuringRun === false &&
       evidence.authorizationBasis !== "legacy_migration" && (!evidence.firstPiece || evidence.firstPiece.outcome === "not_required" ||
-        evidence.firstPiece.outcome === "pass") && validateBatch(evidence).length === 0 && validateRunnableRecipe(recipe).length === 0 &&
+        evidence.firstPiece.outcome === "pass") && validateBatch(evidence).length === 0 &&
+      validateRunnableRecipe(recipe, evidence.startedAt || evidence.completedAt, evidence.utcOffsetMinutes).length === 0 &&
       instructionSourceChecked(recipe.instructionSource) && instructionReferenceValid(recipe, batchById,
         evidence.startedAt || evidence.completedAt, evidence.id) && evidence.instructionCheckedAt &&
       evidence.instructionCheckFingerprint === exactSetupFingerprint(evidence.recipe) &&
@@ -2201,7 +2212,7 @@
     let parsed;
     try { parsed = JSON.parse(raw.replace(/^\uFEFF/, "")); } catch (error) { throw new Error("backup_json"); }
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("backup_shape");
-    if (!isBoundedJsonValue(parsed, 60, 1000000)) throw new Error("backup_shape");
+    if (!isBoundedJsonValue(parsed, 60, Number.MAX_SAFE_INTEGER)) throw new Error("backup_shape");
     const schemaVersion = parsed.schemaVersion;
     if (parsed.schema !== "press-bench-log" || ![1, 2, 3, 4].includes(schemaVersion) || (parsed.appId !== undefined && parsed.appId !== "APP-018")) throw new Error("backup_schema");
     if (schemaVersion === 4) {
@@ -2460,19 +2471,21 @@
 
   const D = root.PressBenchDomain;
   const FREE_RECIPE_LIMIT = D.MAX_RECORDS;
-  const FREE_BATCH_LIMIT = 3;
+  const FREE_BATCH_LIMIT = 2;
   const MAX_DETAILED_REPORT_ROWS = 12000;
   const STARTER_TEMPLATE_VERSION = "APP-018-STRUCTURES-v5";
   const STARTER_PREFIX = "starter-template-";
   const MONETIZATION_MODEL = Object.freeze({
     free: { savedSetups: FREE_RECIPE_LIMIT, completedPresses: FREE_BATCH_LIMIT, timedTrial: false },
     ios: Object.freeze({
-      productId: "pressbench_unlimited_lifetime_ios_v2",
-      legacyProductIds: Object.freeze(["pressbench_unlimited_lifetime_ios", "pressbench_unlimited_monthly_ios"]),
-      legacySubscriptionProductIds: Object.freeze(["pressbench_unlimited_monthly_ios"]),
-      productType: "non_consumable", recurring: false, restoreAction: true,
+      productId: "pressbench_unlimited_monthly_ios",
+      productIds: Object.freeze(["pressbench_unlimited_monthly_ios", "pressbench_unlimited_annual_ios"]),
+      productType: "auto_renewable_subscription", recurring: true, restoreAction: true,
       benefits: Object.freeze(["unlimited_presses", "pdf_xlsx_reports"]),
-      pricing: Object.freeze({ baseStorefront: "US", baseCurrency: "USD", baseAmountMinor: 3999, geoPriced: true })
+      pricing: Object.freeze({
+        baseStorefront: "US", baseCurrency: "USD", monthlyBaseAmountMinor: 1299,
+        annualBaseAmountMinor: 11999, geoPriced: true
+      })
     }),
     android: Object.freeze({
       productId: "pressbench_unlimited_lifetime_android",
@@ -2870,17 +2883,12 @@
 
   function matchesCurrentProduct(entitlement) {
     const currentIos = entitlement.platform === "ios" && entitlement.sourceStore === "app_store" &&
-      entitlement.productType === "non_consumable" &&
-      entitlement.productId === B.MONETIZATION_MODEL.ios.productId && entitlement.verificationSource === "storekit2";
-    const legacyIos = entitlement.platform === "ios" && entitlement.sourceStore === "app_store" &&
-      B.MONETIZATION_MODEL.ios.legacyProductIds.includes(entitlement.productId) &&
-      (B.MONETIZATION_MODEL.ios.legacySubscriptionProductIds.includes(entitlement.productId) ?
-        entitlement.productType === "auto_renewable_subscription" : entitlement.productType === "non_consumable") &&
-      entitlement.verificationSource === "storekit2";
+      entitlement.productType === "auto_renewable_subscription" &&
+      B.MONETIZATION_MODEL.ios.productIds.includes(entitlement.productId) && entitlement.verificationSource === "storekit2";
     const currentAndroid = entitlement.productType === "non_consumable" &&
       entitlement.platform === "android" && entitlement.sourceStore === "google_play" &&
         entitlement.productId === B.MONETIZATION_MODEL.android.productId && entitlement.verificationSource === "play_billing";
-    return currentIos || legacyIos || currentAndroid;
+    return currentIos || currentAndroid;
   }
 
   function evaluateEntitlement(value, at) {
@@ -2937,17 +2945,13 @@
     const sourceStore = platform === "ios" ? "app_store" : "google_play";
     const productId = D.text(event.productId, 180);
     const expectedProductId = platform === "ios" ? B.MONETIZATION_MODEL.ios.productId : B.MONETIZATION_MODEL.android.productId;
-    const supportedProductIds = platform === "ios" ?
-      [expectedProductId].concat(B.MONETIZATION_MODEL.ios.legacyProductIds) : [expectedProductId];
+    const supportedProductIds = platform === "ios" ? B.MONETIZATION_MODEL.ios.productIds : [expectedProductId];
     const purchaseState = PURCHASE_STATES.has(event.purchaseState) ? event.purchaseState : "not_purchased";
     if (["purchased", "pending", "unverified", "expired", "refunded", "revoked"].includes(purchaseState) &&
         !supportedProductIds.includes(productId)) {
       throw new Error("store_product_mismatch");
     }
-    const productType = platform === "ios" ?
-      (productId === B.MONETIZATION_MODEL.ios.productId ? "non_consumable" :
-       B.MONETIZATION_MODEL.ios.legacySubscriptionProductIds.includes(productId) ? "auto_renewable_subscription" : "non_consumable") :
-      "non_consumable";
+    const productType = platform === "ios" ? "auto_renewable_subscription" : "non_consumable";
     if (event.productType && event.productType !== productType) throw new Error("store_product_type");
     const now = instant(at === undefined ? Date.now() : at);
     if (!now) throw new Error("entitlement_now");
@@ -3295,6 +3299,7 @@
         nextDraft.runId !== previousDraft.runId || nextDraft.resultId !== previousDraft.resultId ||
         nextDraft.completedAt !== previousDraft.completedAt ||
         nextDraft.revision === previousDraft.revision && JSON.stringify(nextDraft) !== JSON.stringify(previousDraft) ||
+        previousDraft.revision >= Number.MAX_SAFE_INTEGER ||
         nextDraft.revision > previousDraft.revision + 1 ||
         nextDraft.revision > previousDraft.revision && new Date(nextDraft.savedAt).getTime() <
           new Date(previousDraft.savedAt).getTime())) return false;
@@ -3337,7 +3342,8 @@
     }
     if (next.id !== current.id || next.revision < current.revision) return false;
     if (next.revision === current.revision) return JSON.stringify(next) === JSON.stringify(current);
-    return next.revision === current.revision + 1 && new Date(next.savedAt).getTime() >= new Date(current.savedAt).getTime();
+    return current.revision < Number.MAX_SAFE_INTEGER && next.revision === current.revision + 1 &&
+      new Date(next.savedAt).getTime() >= new Date(current.savedAt).getTime();
   }
 
   function sessionEnvelopeValid(session) {
@@ -3423,6 +3429,8 @@
         try {
           const revisionRecord = await requestResult(transaction.objectStore("meta").get("revision"));
           const currentRevision = revisionRecord && Number.isInteger(revisionRecord.value) ? revisionRecord.value : 0;
+          if (!Number.isSafeInteger(currentRevision) || currentRevision < 0 ||
+              currentRevision >= Number.MAX_SAFE_INTEGER) throw new Error("storage_revision_exhausted");
           if (this.revision === null) this.revision = currentRevision;
           if (currentRevision !== this.revision) throw new Error("storage_stale_write");
           await mutator(transaction);
@@ -3737,6 +3745,8 @@
     _commit(mutator) {
       const latest = fallbackInitialEnvelope();
       if (latest.revision !== this.envelope.revision) throw new Error("storage_stale_write");
+      if (!Number.isSafeInteger(this.envelope.revision) || this.envelope.revision < 0 ||
+          this.envelope.revision >= Number.MAX_SAFE_INTEGER) throw new Error("storage_revision_exhausted");
       const nextData = deepCopy(this.data); mutator(nextData);
       const limit = root.PressBenchDomain && Number(root.PressBenchDomain.MAX_RECORDS) || 1000;
       if ((nextData.machines || []).length > limit || (nextData.recipes || []).length > limit || (nextData.batches || []).length > limit) throw new Error("record_limit");
@@ -3748,12 +3758,12 @@
         assertCanonicalStoredData(domain, nextData.machines || [], nextData.recipes || [], nextData.batches || [], nextData.settings);
         assertStorageGraph(domain, nextData.machines || [], nextData.recipes || [], nextData.batches || [], nextData.session);
         const operationalPayload = Object.assign({}, nextData, { preRestoreRecovery: null, lastRestore: null });
-        if (domain.utf8ByteLength(JSON.stringify(operationalPayload)) > 2_000_000) throw new Error("data_budget");
-        if (domain.utf8ByteLength(JSON.stringify(nextData)) > 4_500_000) throw new Error("recovery_budget");
+        if (domain.utf8ByteLength(JSON.stringify(operationalPayload)) > domain.MAX_DATA_BYTES) throw new Error("data_budget");
+        if (domain.utf8ByteLength(JSON.stringify(nextData)) > domain.MAX_DATA_BYTES) throw new Error("recovery_budget");
         const reservedRun = nextData.session && nextData.session.activeRun;
         if (reservedRun && reservedRun.permit && reservedRun.permit.state === "reserved" &&
             domain.utf8ByteLength(JSON.stringify(Object.assign({}, operationalPayload, { session: null }))) +
-              Number(reservedRun.permit.reservedBytes || 0) > 2_000_000) throw new Error("byte_capacity_required");
+              Number(reservedRun.permit.reservedBytes || 0) > domain.MAX_DATA_BYTES) throw new Error("byte_capacity_required");
       }
       const next = { format: 2, revision: this.envelope.revision + 1, savedAt: Date.now(), data: nextData };
       let durable = false;
@@ -4081,7 +4091,7 @@
   const SAVE_CHOICES = new Set(["batch_only", "update_recipe", "save_variant"]);
 
   function clone(value) {
-    if (!D.isBoundedJsonValue(value, 40, 1000000)) throw new Error("storage_corrupt");
+    if (!D.isBoundedJsonValue(value, 40, Number.MAX_SAFE_INTEGER)) throw new Error("storage_corrupt");
     return JSON.parse(JSON.stringify(value));
   }
 
@@ -4096,7 +4106,7 @@
   }
 
   function activeDataLimit(storageMode) {
-    return storageMode === "compatible" ? 2_000_000 : D.MAX_DATA_BYTES;
+    return D.MAX_DATA_BYTES;
   }
 
   function measureDataBytes(recipes, batches, settings, session) {
@@ -4325,7 +4335,7 @@
   const ARCHITECTURE_REQUIREMENTS = Object.freeze({
     operationalDataLocation: "device_only", publisherOperationalDataAccess: false, accountRequired: false,
     publisherCloudSync: false, trackingSdk: false, advertisingSdk: "none", remotePushToken: false,
-    routineNetworkBoundary: "store_entitlement_only", automaticOsBackupForOperationalDatabase: "excluded",
+    routineNetworkBoundary: "store_entitlement_only", automaticOsBackupForOperationalDatabase: "included_when_device_backup_enabled",
     nativeStoreVerificationRequired: true, entitlementPortableBackup: false,
     manualJsonBackupEncrypted: false, notificationContent: "generic_no_job_reference",
     equipmentControlOrMeasurement: false
@@ -4400,17 +4410,8 @@
   }
 
   function operationalReadiness(settings) {
-    const value = D.normalizeSettings(settings);
-    const missing = [];
-    if (value.termsAcceptedVersion !== D.TERMS_VERSION || !value.termsAcceptedAt) missing.push("terms_acceptance");
-    if (value.safetyAcceptedVersion !== D.SAFETY_ACK_VERSION || !value.safetyAcceptedAt) missing.push("safety_acceptance");
-    if (value.privacyNoticeVersionViewed !== D.PRIVACY_NOTICE_VERSION || !value.privacyNoticeViewedAt) {
-      missing.push("privacy_notice_presentation");
-    }
-    if (!value.temperatureUnitConfirmedAt || value.confirmedTemperatureUnit !== value.defaultUnit) {
-      missing.push("temperature_unit_confirmation");
-    }
-    return Object.freeze({ ready: missing.length === 0, missing: Object.freeze(missing) });
+    D.normalizeSettings(settings);
+    return Object.freeze({ ready: true, missing: Object.freeze([]) });
   }
 
   function requireOperationalReadiness(settings) {
@@ -4517,7 +4518,7 @@
       normalized.proofResetAt = definitionChanged || restoredFromArchive ? mutationAt : (existing.proofResetAt || "");
     }
     const runnableCandidate = Object.assign({}, normalized, { status: "trial" });
-    normalized.status = D.validateRunnableRecipe(runnableCandidate).length ? "draft" : "trial";
+    normalized.status = D.validateRunnableRecipe(runnableCandidate, now).length ? "draft" : "trial";
     normalized.verifiedAt = ""; normalized.verifiedBatchId = "";
     normalized.provenEvidenceCount = 0;
     normalized.persistedOperationalFingerprintV4 = currentFingerprint;
@@ -4544,7 +4545,7 @@
     if (graphErrors.some(function (error) { return error.includes("instructionSource.priorBatchId"); })) throw new Error("instruction_reference");
     if (graphErrors.length) throw new Error("graph_integrity");
     if (D.utf8ByteLength(JSON.stringify(setup)) > D.MAX_RECORD_BYTES) throw new Error("record_size");
-    const dataLimit = value.storageMode === "compatible" ? 2_000_000 : D.MAX_DATA_BYTES;
+    const dataLimit = D.MAX_DATA_BYTES;
     const payloadBytes = D.utf8ByteLength(JSON.stringify({ machines: value.machines || [], setups: projected,
       batches: batches, settings: value.settings || null, session: value.session || null }));
     if (payloadBytes > dataLimit) throw new Error("data_budget");
@@ -4561,7 +4562,7 @@
     const machine = D.normalizeMachineProfile(Object.assign({}, machineValue, existing ? {
       id: existing.id, createdAt: existing.createdAt, updatedAt: mutationAt
     } : {}), Boolean(existing) || Boolean(suppliedId));
-    const errors = D.validateMachineProfile(machine); if (errors.length) throw Object.assign(new Error("machine_validation"), { fields: errors });
+    const errors = D.validateMachineProfile(machine, now); if (errors.length) throw Object.assign(new Error("machine_validation"), { fields: errors });
     if (!D.validateV4MachineRaw(machine)) throw new Error("machine_schema");
     if (D.utf8ByteLength(JSON.stringify(machine)) > D.MAX_RECORD_BYTES) throw new Error("record_size");
     const projected = machines.filter(function (item) { return item.id !== machine.id; }).concat(machine);
@@ -4596,7 +4597,7 @@
     const nextSetups = setupsOf(value).map(function (setup) { return resetById.get(setup.id) || setup; });
     const graphErrors = D.graphIntegrityErrors(projected, nextSetups, value.batches || []);
     if (graphErrors.length) throw Object.assign(new Error("graph_integrity"), { fields: graphErrors });
-    const dataLimit = value.storageMode === "compatible" ? 2_000_000 : D.MAX_DATA_BYTES;
+    const dataLimit = D.MAX_DATA_BYTES;
     if (D.utf8ByteLength(JSON.stringify({ machines: projected, setups: nextSetups, batches: value.batches || [],
       settings: value.settings || null, session: value.session || null })) > dataLimit) throw new Error("data_budget");
     return { machine: machine, machines: projected, setups: nextSetups, recipes: nextSetups,
@@ -4673,7 +4674,11 @@
     const quantity = Number(run && run.quantity || 0);
     const unproven = run && run.firstPiece && run.firstPiece.required === true;
     if (!run || run.runMode !== "production" || quantity < 10) return Object.freeze({ enabled: false, firstAt: null, every: null });
-    return Object.freeze({ enabled: true, firstAt: 1, every: unproven ? 10 : 25 });
+    // A passed first piece is already the initial quality check and is credited
+    // as processed item 1. Do not stop the operator for a duplicate QC check on
+    // that same item; the next check is one full interval later.
+    const firstPieceAlreadyChecked = unproven && run.firstPiece.outcome === "pass";
+    return Object.freeze({ enabled: true, firstAt: firstPieceAlreadyChecked ? 11 : 1, every: unproven ? 10 : 25 });
   }
 
   function qcDueForRun(run) {
@@ -4796,7 +4801,7 @@
     };
     permit.intentFingerprint = runIntentFingerprint(run); Object.freeze(permit);
     const session = sessionSnapshot(run, null, value.session && value.session.setupDraft);
-    const dataLimit = value.storageMode === "compatible" ? 2_000_000 : D.MAX_DATA_BYTES;
+    const dataLimit = D.MAX_DATA_BYTES;
     const basePayload = { machines: value.machines || [], recipes: recipes, batches: batches, settings: value.settings || null, session: null };
     const fullPayload = Object.assign({}, basePayload, { session: session });
     if (D.utf8ByteLength(JSON.stringify(basePayload)) + reservationBytes > dataLimit ||
@@ -5269,6 +5274,8 @@
     const effectiveSavedAt = new Date(savedAt).getTime() < new Date(run.resultPendingAt).getTime() ? run.resultPendingAt : savedAt;
     validateResultFacts(run, result);
     const previous = run.resultDraft;
+    if (previous && (!Number.isSafeInteger(previous.revision) || previous.revision < 1 ||
+        previous.revision >= Number.MAX_SAFE_INTEGER)) throw new Error("result_revision_exhausted");
     const draft = Object.assign({}, result, {
       schemaVersion: RESULT_DRAFT_SCHEMA_VERSION, runId: run.id, resultId: run.resultId,
       revision: previous ? previous.revision + 1 : 1, savedAt: atIso(effectiveSavedAt),
@@ -5339,7 +5346,8 @@
       batch.outcome === "success" && batch.quantityProcessed === batch.quantityPlanned && batch.quantityGood === batch.quantityPlanned &&
       batch.quantityWaste === 0 && batch.quantityReworked === 0 && Array.isArray(batch.issues) && batch.issues.length === 0 &&
       batch.setupChangedDuringRun === false && batch.authorizationBasis !== "legacy_migration" &&
-      D.validateRunnableRecipe(setup).length === 0 && D.instructionSourceChecked(setup.instructionSource) &&
+      D.validateRunnableRecipe(setup, batch.startedAt || batch.completedAt, batch.utcOffsetMinutes).length === 0 &&
+      D.instructionSourceChecked(setup.instructionSource) &&
       (!batch.firstPiece || batch.firstPiece.outcome === "not_required" || batch.firstPiece.outcome === "pass") &&
       D.instructionReferenceValid(setup, batchById, batch.startedAt || batch.completedAt, batch.id) &&
       batch.instructionCheckedAt && batch.instructionCheckFingerprint === D.exactSetupFingerprint(batch.recipe) &&
@@ -5359,7 +5367,8 @@
       if (evidence.length && !recipe.archived) {
         recipe.status = "verified"; recipe.verifiedAt = evidence[0].completedAt; recipe.verifiedBatchId = evidence[0].id;
       } else if (recipe.status === "verified") {
-        recipe.status = D.validateRunnableRecipe(recipe).length ? "draft" : "trial"; recipe.verifiedAt = ""; recipe.verifiedBatchId = "";
+        recipe.status = D.validateRunnableRecipe(recipe, timestamp).length ? "draft" : "trial";
+        recipe.verifiedAt = ""; recipe.verifiedBatchId = "";
       }
       recipe.provenEvidenceCount = evidence.length;
       recipe.persistedOperationalFingerprintV4 = D.operationalFingerprintV4(recipe);
@@ -5478,7 +5487,7 @@
       const reservedNewSetup = run.permit.setupSlotReserved === true && !live;
       const variantId = reservedNewSetup ? sourceSetupId : run.permit.variantSetupId;
       const variant = D.normalizeRecipe(Object.assign({}, actual, { id: variantId,
-        title: reservedNewSetup ? actual.title : D.text(result.variantTitle || `${actual.title} — Variant`, 140), status: "trial",
+        title: reservedNewSetup ? actual.title : D.text(result.variantTitle || `${actual.title}: Variant`, 140), status: "trial",
         verifiedAt: "", verifiedBatchId: "", provenEvidenceCount: 0,
       persistedOperationalFingerprintV4: D.operationalFingerprintV4(actual), createdAt: reservedNewSetup ? run.reservedAt : result.completedAt,
         updatedAt: result.completedAt, lastUsedAt: result.completedAt }), actual.temperatureUnit, true);
@@ -5526,13 +5535,13 @@
       const graphErrors = D.graphIntegrityErrors(value.machines, canonical.recipes, canonical.batches);
       if (graphErrors.some(function (error) { return error.includes("machineProfileId"); })) throw new Error("machine_reference");
       if (graphErrors.some(function (error) { return error.includes("instructionSource.priorBatchId"); })) throw new Error("instruction_reference");
-      if (graphErrors.length) throw new Error("graph_integrity");
+      if (graphErrors.length) throw Object.assign(new Error("graph_integrity"), { fields: graphErrors });
     }
     const committedBatch = canonical.batches.find(function (item) { return item.id === batch.id; }) || batch;
     const committedRecipe = recipeToSave ? canonical.recipes.find(function (item) { return item.id === recipeToSave.id; }) || recipeToSave : null;
     const payloadBytes = D.utf8ByteLength(JSON.stringify({ machines: value.machines || [], recipes: canonical.recipes,
       batches: canonical.batches, settings: value.settings || null }));
-    const dataLimit = value.storageMode === "compatible" ? 2_000_000 : D.MAX_DATA_BYTES;
+    const dataLimit = D.MAX_DATA_BYTES;
     if (!D.validateV4BatchRaw(committedBatch)) throw Object.assign(new Error("batch_schema"), { fields: D.validateBatch(committedBatch), record: committedBatch });
     if (payloadBytes > dataLimit || D.utf8ByteLength(JSON.stringify(committedBatch)) > D.MAX_RECORD_BYTES) throw new Error("data_budget");
     return { batch: committedBatch, setup: committedRecipe, recipe: committedRecipe,
@@ -5662,6 +5671,8 @@
     const session = sessionValue && typeof sessionValue === "object" ? clone(sessionValue) :
       { schemaVersion: SESSION_SCHEMA_VERSION, activeRun: null, setupDraft: null, savedAt: atIso(options && options.now) };
     const prior = session.setupDraft; const requestedAt = atIso(options && options.now);
+    if (prior && (!Number.isSafeInteger(prior.revision) || prior.revision < 1 ||
+        prior.revision >= Number.MAX_SAFE_INTEGER)) throw new Error("setup_draft_revision_exhausted");
     const savedAt = prior && new Date(requestedAt).getTime() < new Date(prior.savedAt).getTime() ? prior.savedAt : requestedAt;
     const baseSetupId = options && Object.prototype.hasOwnProperty.call(options, "baseSetupId")
       ? options.baseSetupId : prior && prior.baseSetupId;
@@ -5840,7 +5851,7 @@
     });
     const machinesById = new Map((source.machines || []).map(function (raw) {
       const machine = D.normalizeMachineProfile(raw, true); return [machine.id, machine];
-    }).filter(function (entry) { return entry[0] && D.validateMachineProfile(entry[1]).length === 0; }));
+    }).filter(function (entry) { return entry[0] && D.validateMachineProfile(entry[1], now).length === 0; }));
     recipes = recipes.map(function (recipe) {
       if (!recipe.machineProfileId && recipe.machineNickname) {
         const fingerprint = D.operationalFingerprint(recipe).slice(7, 23); const id = `legacy-machine-${fingerprint}`;
@@ -5850,7 +5861,7 @@
           steps: recipe.steps.map(function (step) { return Object.assign({}, step, { machineProfileId: id }); }),
           status: recipe.status === "verified" ? "trial" : recipe.status, verifiedAt: "", verifiedBatchId: "" }), recipe.temperatureUnit, true);
       }
-      if (D.validateRunnableRecipe(Object.assign({}, recipe, { archived: false })).length) {
+      if (D.validateRunnableRecipe(Object.assign({}, recipe, { archived: false }), now).length) {
         recipe = D.normalizeRecipe(Object.assign({}, recipe, {
           status: "draft", verifiedAt: "", verifiedBatchId: "", provenEvidenceCount: 0,
           persistedOperationalFingerprintV4: D.operationalFingerprintV4(recipe)
@@ -5869,7 +5880,7 @@
     const value = context || {};
     if (value.session && (value.session.activeRun || value.session.setupDraft)) throw new Error("active_recovery_conflict");
     const preview = inspectBackup(raw); const parsed = preview.parsed;
-    const restoreLimit = value.storageMode === "compatible" ? 2_000_000 : D.MAX_DATA_BYTES;
+    const restoreLimit = D.MAX_DATA_BYTES;
     if (D.utf8ByteLength(JSON.stringify({ machines: parsed.machines, recipes: parsed.recipes, batches: parsed.batches,
       settings: parsed.settings, session: null })) > restoreLimit) throw new Error("data_budget");
     const recoveryPoint = preRestoreBackup(value);
@@ -5984,9 +5995,18 @@
     if (typeof recordsOrFilter === "number") return { allowed: false, reason: "dataset_required" };
     const records = Array.isArray(recordsOrFilter) ? recordsOrFilter :
       LEGACY_ADAPTER.analyticsBatches(context && context.batches || [], recordsOrFilter || {});
-    const rows = records.length;
-    if (kind === "xlsx" && rows > B.MAX_DETAILED_REPORT_ROWS) return { allowed: false, reason: "detailed_row_limit", maximumRows: B.MAX_DETAILED_REPORT_ROWS };
-    return { allowed: true, reason: "paid_report", detailedRows: rows };
+    const setupIds = new Set();
+    let detailedRows = records.length;
+    records.forEach(function (record) {
+      const setupId = D.batchSetupId(record);
+      if (setupId) setupIds.add(setupId);
+      detailedRows += Array.isArray(record && record.issues) ? record.issues.length : 0;
+    });
+    detailedRows += setupIds.size;
+    if (detailedRows > B.MAX_DETAILED_REPORT_ROWS) {
+      return { allowed: false, reason: "detailed_row_limit", maximumRows: B.MAX_DETAILED_REPORT_ROWS };
+    }
+    return { allowed: true, reason: "paid_report", detailedRows: detailedRows };
   }
 
   function planReport(context, format, recordsOrFilter, now) {
@@ -5996,7 +6016,7 @@
     const records = Array.isArray(recordsOrFilter) ? recordsOrFilter :
       LEGACY_ADAPTER.analyticsBatches(context && context.batches || [], recordsOrFilter || {});
     const canonical = records.map(function (record) { return clone(record); });
-    return { allowed: true, reason: capability.reason, format: kind, detailedRows: canonical.length,
+    return { allowed: true, reason: capability.reason, format: kind, detailedRows: capability.detailedRows,
       recordIds: canonical.map(function (record) { return record.id; }),
       datasetFingerprint: `sha256:${D.sha256(JSON.stringify(canonical))}`, records: canonical };
   }

@@ -3,7 +3,6 @@ import UIKit
 
 struct SettingsView: View {
     @EnvironmentObject private var store: PressBenchStore
-    @AppStorage("pressbench.onboarding.completed") private var onboardingCompleted = true
     @AppStorage(AppLanguageStorage.key) private var languageRaw = AppLanguage.detected().rawValue
     @AppStorage("pressbench.temperature.unit") private var temperatureUnitRaw = Locale.current.measurementSystem == .us ? "F" : "C"
     @AppStorage(PBAppearancePreference.storageKey) private var appearanceRaw = PBAppearancePreference.light.rawValue
@@ -27,8 +26,12 @@ struct SettingsView: View {
     @State private var backupOperationInProgress = false
     @State private var pendingRestoreRaw = ""
     @State private var restoreSummary = ""
+    @State private var showingNotificationSettings = false
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
+    private var backupNeedsAttention: Bool {
+        backupLastSuccessAt <= 0 || Date().timeIntervalSince1970 - backupLastSuccessAt > 30 * 24 * 60 * 60
+    }
 
     var body: some View {
         List {
@@ -52,34 +55,11 @@ struct SettingsView: View {
 
             planSection
             backupSection
-
-            Section {
-                NavigationLink {
-                    PreferencesSettingsView()
-                        .environmentObject(store)
-                } label: {
-                    Label {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(t("settings.general"))
-                            Text("\(AppLanguageStorage.resolved(rawValue: languageRaw).nativeName) · °\(temperatureUnitRaw)")
-                                .font(.caption)
-                                .foregroundStyle(PBTheme.secondary)
-                        }
-                    } icon: {
-                        Image(systemName: "slider.horizontal.3")
-                    }
-                    .pbFullSurfaceTarget()
-                }
-                .accessibilityIdentifier("pb.settings.general")
-            }
+            preferencesSection
+            presentationSection
 
             Section {
                 DisclosureGroup {
-                    Button { onboardingCompleted = false } label: {
-                        Label(t("more.viewOnboarding"), systemImage: "arrow.counterclockwise")
-                            .pbFullSurfaceTarget()
-                    }
-                    .disabled(store.activeRun != nil)
                     Link(destination: PressBenchPolicyLinks.support) {
                         Label(t("common.support"), systemImage: "questionmark.circle")
                             .pbFullSurfaceTarget()
@@ -108,18 +88,12 @@ struct SettingsView: View {
             }
 
             Section {
-                DisclosureGroup {
-                    Button(role: .destructive) { showingDeleteConfirmation = true } label: {
-                        Label(t("settings.deleteLocalData"), systemImage: "trash")
-                            .pbFullSurfaceTarget()
-                    }
-                    .accessibilityIdentifier("pb.settings.deleteLocalData")
-                    .disabled(store.activeRun != nil)
-                } label: {
-                    Label(t("common.maintenance"), systemImage: "wrench.and.screwdriver")
+                Button(role: .destructive) { showingDeleteConfirmation = true } label: {
+                    Label(t("settings.deleteLocalData"), systemImage: "trash")
                         .pbFullSurfaceTarget()
                 }
-                .accessibilityIdentifier("pb.settings.maintenance")
+                .accessibilityIdentifier("pb.settings.deleteLocalData")
+                .disabled(store.activeRun != nil)
             }
         }
         .environment(\.defaultMinListRowHeight, 64)
@@ -165,6 +139,14 @@ struct SettingsView: View {
         } message: {
             Text(t("runState.completed") + "\n" + restoreSummary)
         }
+        .alert(t("common.notifications"), isPresented: $showingNotificationSettings) {
+            Button(t("accessibility.openSettings")) {
+                if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+            }
+            Button(t("common.cancel"), role: .cancel) {}
+        } message: {
+            Text(t("common.notifications") + ". " + t("accessibility.openSettings") + ".")
+        }
         .fileExporter(
             isPresented: $showingBackupExporter,
             document: backupDocument,
@@ -178,6 +160,76 @@ struct SettingsView: View {
             allowsMultipleSelection: false,
             onCompletion: handleBackupImport
         )
+        .onChange(of: hapticsEnabled) { _, _ in syncPresentationPreferences() }
+        .onChange(of: soundEnabled) { _, _ in syncPresentationPreferences() }
+        .onChange(of: notificationsEnabled) { _, enabled in
+            if enabled {
+                Task {
+                    let allowed = await PBTimerNotification.requestPermissionIfNeeded()
+                    guard !allowed else { return }
+                    await MainActor.run {
+                        notificationsEnabled = false
+                        showingNotificationSettings = true
+                    }
+                }
+            } else {
+                PBTimerNotification.cancel()
+            }
+        }
+    }
+
+    private var languageBinding: Binding<AppLanguage> {
+        Binding(
+            get: { AppLanguageStorage.resolved(rawValue: languageRaw) },
+            set: { newValue in
+                languageRaw = newValue.rawValue
+                store.updateLanguage(newValue, locale: Locale.current)
+            }
+        )
+    }
+
+    private var temperatureBinding: Binding<String> {
+        Binding(
+            get: { temperatureUnitRaw },
+            set: { newValue in
+                temperatureUnitRaw = newValue
+                store.updateTemperatureUnit(newValue)
+            }
+        )
+    }
+
+    @ViewBuilder
+    private var preferencesSection: some View {
+        Section {
+            LanguageDropdown(selection: languageBinding, titleKey: "common.language", systemImage: "globe")
+            Picker(selection: temperatureBinding) {
+                Text("°F").tag("F")
+                Text("°C").tag("C")
+            } label: {
+                Label(t("settings.temperatureUnit"), systemImage: "thermometer.medium")
+            }
+            .pickerStyle(.menu)
+        }
+    }
+
+    @ViewBuilder
+    private var presentationSection: some View {
+        Section {
+            Toggle(isOn: $notificationsEnabled) {
+                Label(t("common.notifications"), systemImage: "bell.badge")
+            }
+            Toggle(isOn: $hapticsEnabled) {
+                Label(t("settings.hapticFeedback"), systemImage: "hand.tap")
+            }
+            Toggle(isOn: $soundEnabled) {
+                Label(t("settings.timerSound"), systemImage: "speaker.wave.2")
+            }
+            NavigationLink { AccessibilitySettingsView() } label: {
+                Label(t("common.accessibility"), systemImage: "accessibility")
+                    .pbFullSurfaceTarget()
+            }
+        }
+        .tint(PBTheme.primary)
     }
 
     @ViewBuilder
@@ -189,7 +241,7 @@ struct SettingsView: View {
                     .font(.headline)
                     .foregroundStyle(store.isPro ? PBTheme.successInk : PBTheme.navy)
                 if store.isPro {
-                    Link(destination: store.canManageMonthlySubscription ?
+                    Link(destination: store.canManageSubscription ?
                          PressBenchPolicyLinks.manageSubscription : PressBenchPolicyLinks.purchases) {
                         Label(t("upgrade.manage"), systemImage: "creditcard")
                             .pbFullSurfaceTarget()
@@ -224,9 +276,9 @@ struct SettingsView: View {
     private var backupSection: some View {
         Section {
             VStack(alignment: .leading, spacing: 8) {
-                Label(t("backup.optionalTitle"), systemImage: "externaldrive.fill")
+                Label(t("backup.optionalTitle"), systemImage: backupNeedsAttention ? "externaldrive.badge.exclamationmark" : "checkmark.circle.fill")
                     .font(.headline)
-                    .foregroundStyle(PBTheme.navy)
+                    .foregroundStyle(backupNeedsAttention ? PBTheme.warningInk : PBTheme.successInk)
                 Text(t("backup.optionalBody"))
                     .font(.caption)
                     .foregroundStyle(PBTheme.secondary)
@@ -241,7 +293,8 @@ struct SettingsView: View {
                             .font(.caption).foregroundStyle(PBTheme.secondary)
                     }
                 } icon: {
-                    Image(systemName: "checkmark.circle.fill").foregroundStyle(PBTheme.successInk)
+                    Image(systemName: backupNeedsAttention ? "exclamationmark.triangle.fill" : "checkmark.circle.fill")
+                        .foregroundStyle(backupNeedsAttention ? PBTheme.warningInk : PBTheme.successInk)
                 }
                 .accessibilityElement(children: .combine)
             }
@@ -283,7 +336,6 @@ struct SettingsView: View {
             hapticsEnabled = true
             soundEnabled = true
             backupLastSuccessAt = 0
-            onboardingCompleted = false
             PBTimerNotification.cancel()
         } catch {
             present(error)
@@ -342,7 +394,9 @@ struct SettingsView: View {
                     defer { if accessed { url.stopAccessingSecurityScopedResource() } }
                     let values = try url.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey])
                     guard values.isRegularFile == true,
-                          (values.fileSize ?? 0) <= PressBenchBackupDocument.maximumBytes else {
+                          let fileSize = values.fileSize,
+                          fileSize > 0,
+                          fileSize <= PressBenchBackupDocument.maximumSafeImportBytes else {
                         throw PressBenchBackupDocument.BackupDocumentError.invalid
                     }
                     let data = try Data(contentsOf: url, options: [.mappedIfSafe])
@@ -387,101 +441,6 @@ struct SettingsView: View {
         failureMessageKey = store.errorLocalizationKey(error)
         failed = true
         PBFeedback.error()
-    }
-}
-
-private struct PreferencesSettingsView: View {
-    @EnvironmentObject private var store: PressBenchStore
-    @AppStorage(AppLanguageStorage.key) private var languageRaw = AppLanguage.detected().rawValue
-    @AppStorage("pressbench.temperature.unit") private var temperatureUnitRaw = Locale.current.measurementSystem == .us ? "F" : "C"
-    @AppStorage("pressbench.notifications.enabled") private var notificationsEnabled = false
-    @AppStorage("pressbench.haptics.enabled") private var hapticsEnabled = true
-    @AppStorage("pressbench.sound.enabled") private var soundEnabled = true
-    @Environment(\.pbLanguage) private var language
-    @Environment(\.locale) private var locale
-    @State private var showingNotificationSettings = false
-
-    private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
-
-    private var languageBinding: Binding<AppLanguage> {
-        Binding(
-            get: { AppLanguageStorage.resolved(rawValue: languageRaw) },
-            set: { newValue in
-                languageRaw = newValue.rawValue
-                store.updateLanguage(newValue, locale: Locale.current)
-            }
-        )
-    }
-
-    private var temperatureBinding: Binding<String> {
-        Binding(
-            get: { temperatureUnitRaw },
-            set: { newValue in
-                temperatureUnitRaw = newValue
-                store.updateTemperatureUnit(newValue)
-            }
-        )
-    }
-
-    var body: some View {
-        List {
-            Section {
-                LanguageDropdown(selection: languageBinding, titleKey: "common.language", systemImage: "globe")
-                Picker(selection: temperatureBinding) {
-                    Text("°F").tag("F")
-                    Text("°C").tag("C")
-                } label: {
-                    Label(t("settings.temperatureUnit"), systemImage: "thermometer.medium")
-                }
-                .pickerStyle(.menu)
-            }
-
-            Section {
-                Toggle(isOn: $notificationsEnabled) {
-                    Label(t("common.notifications"), systemImage: "bell.badge")
-                }
-                Toggle(isOn: $hapticsEnabled) {
-                    Label(t("settings.hapticFeedback"), systemImage: "hand.tap")
-                }
-                Toggle(isOn: $soundEnabled) {
-                    Label(t("settings.timerSound"), systemImage: "speaker.wave.2")
-                }
-                NavigationLink { AccessibilitySettingsView() } label: {
-                    Label(t("common.accessibility"), systemImage: "accessibility")
-                        .pbFullSurfaceTarget()
-                }
-            }
-            .tint(PBTheme.primary)
-        }
-        .environment(\.defaultMinListRowHeight, 64)
-        .scrollContentBackground(.hidden)
-        .background(PBTheme.canvasGradient)
-        .tint(PBTheme.primary)
-        .navigationTitle(t("settings.general"))
-        .onChange(of: hapticsEnabled) { _, _ in syncPresentationPreferences() }
-        .onChange(of: soundEnabled) { _, _ in syncPresentationPreferences() }
-        .onChange(of: notificationsEnabled) { _, enabled in
-            if enabled {
-                Task {
-                    let allowed = await PBTimerNotification.requestPermissionIfNeeded()
-                    guard !allowed else { return }
-                    await MainActor.run {
-                        notificationsEnabled = false
-                        showingNotificationSettings = true
-                    }
-                }
-            } else {
-                PBTimerNotification.cancel()
-            }
-        }
-        .alert(t("common.notifications"), isPresented: $showingNotificationSettings) {
-            Button(t("accessibility.openSettings")) {
-                if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
-            }
-            Button(t("common.cancel"), role: .cancel) {}
-        } message: {
-            Text(t("common.notifications") + ". " + t("accessibility.openSettings") + ".")
-        }
     }
 
     private func syncPresentationPreferences() {

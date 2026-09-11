@@ -3,7 +3,6 @@ import SwiftUI
 @main
 struct PressBenchApp: App {
     @StateObject private var store: PressBenchStore
-    @AppStorage("pressbench.onboarding.completed") private var onboardingCompleted = false
     @AppStorage(AppLanguageStorage.key) private var languageRaw = AppLanguage.detected().rawValue
 
     init() {
@@ -18,13 +17,7 @@ struct PressBenchApp: App {
             let language = AppLanguageStorage.resolved(rawValue: languageRaw)
             let locale = Locale(identifier: language.localeIdentifier(deviceLocale: .current))
 
-            Group {
-                if onboardingCompleted && store.operationalReady {
-                    RootTabView()
-                } else {
-                    OnboardingFlowView(completed: $onboardingCompleted)
-                }
-            }
+            RootTabView()
             .environmentObject(store)
             .environment(\.pbLanguage, language)
             .environment(\.locale, locale)

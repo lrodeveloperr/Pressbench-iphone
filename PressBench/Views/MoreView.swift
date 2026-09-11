@@ -1,13 +1,12 @@
 import SwiftUI
 
 struct MoreView: View {
-    @EnvironmentObject private var store: PressBenchStore
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
     private var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "N/A"
     }
 
     var body: some View {
@@ -24,8 +23,6 @@ struct MoreView: View {
                         NavigationLink { ReportsView() } label: { menuRow("report.productionReport", icon: "doc.richtext") }
                             .buttonStyle(.plain)
                             .accessibilityIdentifier("pb.more.reports")
-                        Divider().opacity(0.35)
-                        Button { store.selectedTab = 2 } label: { menuRow("common.batchHistory", icon: "list.clipboard") }.buttonStyle(.plain)
                         Divider().opacity(0.35)
                         NavigationLink { MachinesView() } label: { menuRow("machines.title", icon: "rectangle.stack") }.buttonStyle(.plain)
                     }

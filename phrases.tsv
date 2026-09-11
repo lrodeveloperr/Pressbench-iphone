@@ -270,7 +270,7 @@
 270	Local storage needs recovery before this action can continue.	error.storageRecovery
 271	The backup could not be verified or restored.	error.backupRestore
 272	Repeat	stage.repeat
-273	Proven means qualifying operator-entered runs for this exact setup. It is not manufacturer validation, certification, or a safety determination.	setup.provenBoundary
+273	Shop-proven means qualifying operator-entered runs for this exact setup. It is not manufacturer validation, durability testing, certification, or a safety determination.	setup.provenBoundary
 274	Text size	accessibility.textSize
 275	Managed in iOS Settings	accessibility.systemManaged
 276	Reduce Motion	accessibility.reduceMotion
@@ -302,8 +302,8 @@
 302	Complete the required setup fields to continue.	setup.completeRequired
 303	Test runs make one item.	run.testQuantityHelp
 304	Unlock PressBench Pro	upgrade.title
-305	Unlimited press runs and PDF or XLSX reports. One-time purchase.	upgrade.body
-306	Unlock forever	upgrade.unlock
+305	Unlimited press runs and PDF or XLSX reports. Choose a monthly or annual subscription.	upgrade.body
+306	Subscribe	upgrade.unlock
 307	Restore purchase	upgrade.restore
 308	Back up your data	backup.optionalTitle
 309	Choose where to save a backup file in Files.	backup.optionalBody
@@ -325,3 +325,4 @@
 325	Complete the timer before continuing.	run.completeTimerFirst
 326	Last successful backup	backup.lastSuccessful
 327	Permanently delete “%1$@”? This cannot be undone.	run.deleteRecordConfirm
+328	Your device does not have enough available storage. Free some space, then try again.	error.deviceStorage

@@ -7,6 +7,11 @@ private enum FirstPieceEvidenceAction: String, Identifiable {
     var id: String { rawValue }
 }
 
+private struct PreflightItem: Identifiable {
+    let id: String
+    let title: String
+}
+
 struct ActiveRunView: View {
     let runID: String
     @EnvironmentObject private var store: PressBenchStore
@@ -24,6 +29,7 @@ struct ActiveRunView: View {
     @State private var customCycleQuantity = "1"
     @State private var showingIssue = false
     @State private var failureMessageKey = "common.actionFailed"
+    @State private var preflightChecks = Set<String>()
     @AppStorage("pressbench.notifications.enabled") private var notificationsEnabled = false
     @ScaledMetric(relativeTo: .largeTitle) private var timerSize: CGFloat = 48
     private let ticker = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
@@ -142,10 +148,10 @@ struct ActiveRunView: View {
 
     private func runFacts(_ run: BatchRun) -> some View {
         LazyVGrid(columns: dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())] : [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-            RunFact(value: run.temperature.isEmpty ? "—" : run.temperature, labelKey: "common.temperature")
-            RunFact(value: run.duration.isEmpty ? "—" : run.duration, labelKey: "common.durationSeconds")
-            RunFact(value: run.pressure.isEmpty ? "—" : run.pressure, labelKey: "common.pressure")
-            RunFact(value: run.platen.isEmpty ? "—" : run.platen, labelKey: "common.platen")
+            RunFact(value: run.temperature.isEmpty ? "N/A" : run.temperature, labelKey: "common.temperature")
+            RunFact(value: run.duration.isEmpty ? "N/A" : run.duration, labelKey: "common.durationSeconds")
+            RunFact(value: run.pressure.isEmpty ? "N/A" : run.pressure, labelKey: "common.pressure")
+            RunFact(value: run.platen.isEmpty ? "N/A" : run.platen, labelKey: "common.platen")
         }
     }
 
@@ -207,8 +213,10 @@ struct ActiveRunView: View {
     private func actionArea(_ run: BatchRun) -> some View {
         switch run.phase {
         case "preflight":
-            primaryButton("run.confirmInstructions", icon: "checkmark.shield") { store.confirmInstructions() }
             preflightCard(run)
+            preflightChecklist
+            PBPrimaryButton(title: t("run.confirmInstructions"), icon: "checkmark.shield") { store.confirmInstructions() }
+                .disabled(preflightChecks.count != preflightItems.count)
             discardButtonIfEligible(run)
         case "first_piece":
             timerControls(run)
@@ -247,13 +255,19 @@ struct ActiveRunView: View {
             VStack(alignment: .leading, spacing: 12) {
                 Label(t("run.confirmInstructions"), systemImage: "checkmark.shield.fill")
                     .font(.title3.bold()).foregroundStyle(PBTheme.navy)
-                LabeledContent(t("common.material"), value: run.material.isEmpty ? "—" : run.material)
-                LabeledContent(t("common.transferMedium"), value: run.transferMedium.isEmpty ? "—" : run.transferMedium)
-                LabeledContent(t("run.machine"), value: run.machineName.isEmpty ? "—" : run.machineName)
+                LabeledContent(t("common.material"), value: run.material.isEmpty ? "N/A" : run.material)
+                LabeledContent(t("common.transferMedium"), value: run.transferMedium.isEmpty ? "N/A" : run.transferMedium)
+                LabeledContent(t("run.machine"), value: run.machineName.isEmpty ? "N/A" : run.machineName)
                 Divider()
                 Text(t("report.instructionSource")).font(.caption.weight(.bold)).foregroundStyle(PBTheme.secondary)
-                Text(run.instructionSource.isEmpty ? "—" : run.instructionSource).font(.subheadline.weight(.semibold))
-                if !run.instructionCheckedDate.isEmpty { Text(run.instructionCheckedDate).font(.caption).foregroundStyle(PBTheme.secondary) }
+                Text(run.instructionSource.isEmpty ? "N/A" : run.instructionSource).font(.subheadline.weight(.semibold))
+                if let url = sourceURL(run.instructionSource) {
+                    Link(destination: url) {
+                        Label(t("common.reference"), systemImage: "arrow.up.right.square")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(minHeight: PBTheme.minimumTarget)
+                    }
+                }
                 if !run.processStages.isEmpty {
                     Divider()
                     ForEach(Array(run.processStages.enumerated()), id: \.element.id) { index, stage in
@@ -269,6 +283,45 @@ struct ActiveRunView: View {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private var preflightItems: [PreflightItem] {
+        [
+            PreflightItem(id: "instructions", title: t("run.confirmInstructions")),
+            PreflightItem(id: "materials", title: t("common.material") + " / " + t("common.transferMedium")),
+            PreflightItem(id: "press", title: t("common.temperature") + " / " + t("common.pressure")),
+            PreflightItem(id: "platen", title: t("run.machine") + " / " + t("common.platen")),
+            PreflightItem(id: "artwork", title: t("issue.cause.design") + " / " + t("stage.placement"))
+        ]
+    }
+
+    private func sourceURL(_ source: String) -> URL? {
+        guard let candidate = source.split(whereSeparator: \.isWhitespace).last,
+              let url = URL(string: String(candidate)), url.scheme == "https" else { return nil }
+        return url
+    }
+
+    private var preflightChecklist: some View {
+        PBCard {
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(preflightItems) { item in
+                    let selected = preflightChecks.contains(item.id)
+                    Button {
+                        if selected { preflightChecks.remove(item.id) }
+                        else { preflightChecks.insert(item.id) }
+                        PBFeedback.tap()
+                    } label: {
+                        Label(item.title, systemImage: selected ? "checkmark.circle.fill" : "circle")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(selected ? PBTheme.successInk : PBTheme.text)
+                            .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .leading)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("pb.preflight.\(item.id)")
                 }
             }
         }
@@ -300,6 +353,18 @@ struct ActiveRunView: View {
 
     private func firstPieceActions(_ run: BatchRun) -> some View {
         VStack(spacing: 12) {
+            PBCard {
+                VStack(alignment: .leading, spacing: 9) {
+                    Label(t("qc.title"), systemImage: "checkmark.shield")
+                        .font(.headline)
+                    ForEach(["adhesion", "alignment", "color_shift", "scorch", "edge_lift"], id: \.self) { item in
+                        Label(t("issue.symptom.\(item)"), systemImage: "circle")
+                            .font(.subheadline)
+                            .foregroundStyle(PBTheme.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
             primaryButton("run.firstPiecePass", icon: "checkmark.circle.fill") {
                 do {
                     try store.recordFirstPiecePass()
@@ -349,14 +414,16 @@ struct ActiveRunView: View {
                                     .shadow(color: PBTheme.controlShadow, radius: 8, x: 0, y: 5)
                             }
                             .buttonStyle(PBTactileButtonStyle())
-                            .disabled(!timerPlanReady(run) || run.processed + quantity > run.planned || qcDue(run))
+                            .disabled(!timerPlanReady(run) || quantity > run.planned - run.processed || qcDue(run))
                             }
                         }
                         HStack(spacing: 10) {
                             TextField(t("report.quantity"), text: $customCycleQuantity)
                                 .keyboardType(.numberPad).textFieldStyle(.roundedBorder).frame(maxWidth: 110)
                             Button {
-                                guard let quantity = Int(customCycleQuantity), quantity > 0 else {
+                                guard let quantity = Int(customCycleQuantity),
+                                      (1...PBInputLimits.maximumQuantity).contains(quantity),
+                                      quantity <= run.planned - run.processed else {
                                     failureMessageKey = "error.invalidNumber"; failed = true; return
                                 }
                                 store.completeCycle(items: quantity); PBFeedback.count()
@@ -366,7 +433,9 @@ struct ActiveRunView: View {
                                 .foregroundStyle(.white).background(PBTheme.primaryActionFill, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
                             }
                             .buttonStyle(PBTactileButtonStyle())
-                            .disabled(!timerPlanReady(run) || qcDue(run) || (Int(customCycleQuantity).map { $0 <= 0 || run.processed + $0 > run.planned } ?? true))
+                            .disabled(!timerPlanReady(run) || qcDue(run) || (Int(customCycleQuantity).map {
+                                $0 <= 0 || $0 > PBInputLimits.maximumQuantity || $0 > run.planned - run.processed
+                            } ?? true))
                         }
                         Button { store.undoCycle(); PBFeedback.undo() } label: {
                         Label(t("run.undoLastCount"), systemImage: "arrow.uturn.backward")
@@ -432,6 +501,13 @@ struct ActiveRunView: View {
                 Divider()
                 LabeledContent(t("report.reworkedUnits"), value: result.rework)
                 Divider()
+                LabeledContent(t("report.final"), value: String(finalGoodUnits))
+                    .font(.headline)
+                if (Int(result.rework) ?? 0) > 0 {
+                    Toggle(t("report.reworkedUnits") + " · " + t("qc.pass"), isOn: $result.reworkConfirmed)
+                        .tint(PBTheme.success)
+                }
+                Divider()
                 if cleanAllGood(run) {
                     Label(t("result.allGood"), systemImage: "checkmark.seal.fill")
                         .font(.subheadline.weight(.semibold)).foregroundStyle(PBTheme.successInk)
@@ -450,6 +526,7 @@ struct ActiveRunView: View {
                                 .contentShape(Rectangle())
                         }
                             .accessibilityLabel(t("report.issuesExceptions"))
+                            .disabled(result.issues.count >= PBInputLimits.maximumIssues)
                     }
                     ForEach($result.issues) { $issue in
                         VStack(alignment: .leading, spacing: 10) {
@@ -570,8 +647,15 @@ struct ActiveRunView: View {
     }
 
     private func syncIssueTotals() {
-        result.waste = String(result.issues.filter { $0.disposition == "discarded" }.reduce(0) { $0 + (Int($1.quantity) ?? 0) })
-        result.rework = String(result.issues.filter { $0.disposition == "reworked" }.reduce(0) { $0 + (Int($1.quantity) ?? 0) })
+        result.waste = String(issueTotal("discarded"))
+        result.rework = String(issueTotal("reworked"))
+    }
+
+    private func issueTotal(_ disposition: String) -> Int {
+        result.issues.filter { $0.disposition == disposition }.reduce(0) { total, issue in
+            let quantity = min(PBInputLimits.maximumQuantity, max(0, Int(issue.quantity) ?? 0))
+            return min(PBInputLimits.maximumQuantity, total + quantity)
+        }
     }
 
     private func timerPlanReady(_ run: BatchRun) -> Bool {
@@ -596,11 +680,20 @@ struct ActiveRunView: View {
     }
 
     private func resultReady(_ run: BatchRun) -> Bool {
-        guard let processed = Int(result.processed), (0...run.planned).contains(processed) else { return false }
+        guard let processed = Int(result.processed), (0...run.planned).contains(processed),
+              processed <= PBInputLimits.maximumQuantity,
+              result.issues.count <= PBInputLimits.maximumIssues else { return false }
         if processed < run.planned && result.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return false }
-        return result.issues.allSatisfy {
-            (Int($0.quantity).map { $0 > 0 } == true) && !$0.note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let waste = issueTotal("discarded"), reworked = issueTotal("reworked")
+        return waste <= processed && reworked <= processed - waste &&
+            (reworked == 0 || result.reworkConfirmed) && result.issues.allSatisfy {
+            (Int($0.quantity).map { (1...PBInputLimits.maximumQuantity).contains($0) } == true) &&
+                !$0.note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
+    }
+
+    private var finalGoodUnits: Int {
+        max(0, (Int(result.processed) ?? 0) - issueTotal("discarded"))
     }
 
     @ViewBuilder
@@ -824,7 +917,11 @@ private struct IssueCaptureSheet: View {
                             Label(t("issue.add"), systemImage: "checkmark.circle.fill").font(.headline).frame(maxWidth: .infinity, minHeight: 58)
                                 .foregroundStyle(.white).background(PBTheme.primaryActionFill, in: RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous))
                         }.buttonStyle(PBTactileButtonStyle())
-                            .disabled((Int(issue.quantity).map { $0 <= 0 } ?? true) || issue.note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                            .disabled(
+                                (Int(issue.quantity).map {
+                                    !(1...PBInputLimits.maximumQuantity).contains($0)
+                                } ?? true) || issue.note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                            )
                     }
                 }.padding(PBTheme.pagePadding)
             }
