@@ -128,7 +128,7 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertFalse(app.buttons.matching(identifier: "pb.choice.transfer").firstMatch.isEnabled)
         capture("05a-filtered-exact-preset")
         app.buttons["Cancel"].firstMatch.tap()
-        let discardPreset = app.buttons.matching(identifier: "pb.editor.discardChanges").firstMatch
+        let discardPreset = app.buttons["Discard changes"].firstMatch
         XCTAssertTrue(discardPreset.waitForExistence(timeout: 4))
         discardPreset.tap()
         let createSetupAgain = app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch
@@ -215,7 +215,6 @@ final class FirstUseFlowUITests: XCTestCase {
         deleteRecord.tap()
         XCTAssertTrue(app.staticTexts["Permanently delete “\(generatedSetupTitle)”? This cannot be undone."].waitForExistence(timeout: 3))
         capture("11-identified-delete-warning")
-        app.buttons["Cancel"].firstMatch.tap()
 
         app.terminate()
         app.launchArguments = [
