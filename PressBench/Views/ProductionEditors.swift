@@ -131,6 +131,7 @@ struct MachineEditorView: View {
             .alert("PressBench", isPresented: $failed) { Button(t("common.ok"), role: .cancel) {} } message: { Text(t(failureMessageKey)) }
             .confirmationDialog(t("editor.discardChanges"), isPresented: $showingDiscard, titleVisibility: .visible) {
                 Button(t("editor.discard"), role: .destructive) { dismiss() }
+                    .accessibilityIdentifier("pb.editor.discardChanges")
                 Button(t("common.cancel"), role: .cancel) {}
             }
         }

@@ -35,7 +35,6 @@ final class FirstUseFlowUITests: XCTestCase {
         assertControlSurface(deleteLocalData, name: "Delete local data")
         tapEdge(deleteLocalData, horizontal: 0.9)
         XCTAssertTrue(app.staticTexts["This permanently deletes machines, setups, runs, and local settings from this device. Your App Store purchase is not deleted."].waitForExistence(timeout: 4))
-        app.buttons["Cancel"].firstMatch.tap()
         capture("face-id-prioritized-settings")
     }
 
@@ -129,6 +128,9 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertFalse(app.buttons.matching(identifier: "pb.choice.transfer").firstMatch.isEnabled)
         capture("05a-filtered-exact-preset")
         app.buttons["Cancel"].firstMatch.tap()
+        let discardPreset = app.buttons.matching(identifier: "pb.editor.discardChanges").firstMatch
+        XCTAssertTrue(discardPreset.waitForExistence(timeout: 4))
+        discardPreset.tap()
         let createSetupAgain = app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch
         XCTAssertTrue(waitForInteractable(createSetupAgain, timeout: 5))
         createSetupAgain.tap()
