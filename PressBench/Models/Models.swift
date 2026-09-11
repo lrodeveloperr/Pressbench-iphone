@@ -6,7 +6,7 @@ enum PBInputLimits {
     static let maximumIssues = 100
     static let maximumRepeatCount = 99
     static let maximumDurationSeconds = 9_999
-    static let maximumTemperature = Decimal(999)
+    static let maximumTemperature = 999.0
 }
 
 struct Setup: Identifiable, Hashable {
