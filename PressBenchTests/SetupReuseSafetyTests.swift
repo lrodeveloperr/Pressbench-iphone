@@ -114,6 +114,10 @@ final class SetupReuseSafetyTests: XCTestCase {
         basedDraft.title = "Polyester setup based on cotton"
         basedDraft.material = "Polyester tee"
         basedDraft.stages[0].temperature = "290"
+        basedDraft.stages[0].durationSeconds = "15"
+        basedDraft.stages[0].pressure = "Medium"
+        basedDraft.sourceName = "Supplier instructions"
+        basedDraft.sourceReference = "S-2"
         let basedID = try store.saveSetup(basedDraft, temperatureUnit: "F")
         let based = try XCTUnwrap(store.canonicalReportSetups.first { ($0["id"] as? String) == basedID })
         XCTAssertNotEqual(basedID, sourceID)

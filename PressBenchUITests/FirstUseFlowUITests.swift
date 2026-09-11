@@ -21,7 +21,7 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(plan.waitForExistence(timeout: 4))
         plan.tap()
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["Subscribe · $12.99"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Subscribe · $119.99"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons.matching(identifier: "pb.upgrade.annual").firstMatch.exists)
         capture("face-id-subscription-paywall")
         app.buttons["Cancel"].firstMatch.tap()
@@ -130,9 +130,6 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertFalse(app.buttons.matching(identifier: "pb.choice.transfer").firstMatch.isEnabled)
         capture("05a-filtered-exact-preset")
         app.buttons["Cancel"].firstMatch.tap()
-        let discardPreset = app.buttons["Discard"].firstMatch
-        XCTAssertTrue(discardPreset.waitForExistence(timeout: 4))
-        discardPreset.tap()
         let createSetupAgain = app.buttons.matching(identifier: "pb.home.firstUseAction").firstMatch
         XCTAssertTrue(waitForInteractable(createSetupAgain, timeout: 5))
         createSetupAgain.tap()

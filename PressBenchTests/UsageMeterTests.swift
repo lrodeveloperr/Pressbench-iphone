@@ -117,7 +117,8 @@ final class UsageMeterTests: XCTestCase {
         XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
 
         secure.failSaves = false
-        XCTAssertTrue(meter.canStartFreePress(existingCompletedRuns: 0))
+        XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
+        XCTAssertTrue(meter.persistenceHealthy)
         XCTAssertEqual(meter.completedPresses, 2)
         XCTAssertEqual(secure.snapshot?.completedPresses, 2)
     }

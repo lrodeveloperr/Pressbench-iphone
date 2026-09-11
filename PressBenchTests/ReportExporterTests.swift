@@ -32,9 +32,12 @@ final class ReportExporterTests: XCTestCase {
         XCTAssertTrue(archiveText.contains("t=\"inlineStr\""))
         XCTAssertFalse(archiveText.contains("2099-12-31"), "Internal source-review dates must not appear in customer reports")
         XCTAssertFalse(archiveText.contains("<f>"))
-        XCTAssertFalse(archiveText.contains("\u{000B}"))
-        XCTAssertFalse(archiveText.contains("\u{FFFE}"))
         XCTAssertTrue(archiveText.contains("&amp;&lt;&gt;"))
+
+        let sanitized = PressBenchReportExporter.xml("+SUM(1,1)\u{000B}\u{FFFE}&<>")
+        XCTAssertFalse(sanitized.contains("\u{000B}"))
+        XCTAssertFalse(sanitized.contains("\u{FFFE}"))
+        XCTAssertTrue(sanitized.contains("&amp;&lt;&gt;"))
     }
 
 }

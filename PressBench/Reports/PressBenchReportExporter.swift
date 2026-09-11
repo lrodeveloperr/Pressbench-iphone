@@ -449,7 +449,7 @@ enum PressBenchReportExporter {
         while n > 0 { n -= 1; result = String(UnicodeScalar(65 + (n % 26))!) + result; n /= 26 }
         return result
     }
-    private static func xml(_ value: String) -> String {
+    static func xml(_ value: String) -> String {
         let xml10 = String(value.unicodeScalars.filter { scalar in
             scalar.value == 0x9 || scalar.value == 0xA || scalar.value == 0xD ||
                 (0x20...0xD7FF).contains(scalar.value) ||
