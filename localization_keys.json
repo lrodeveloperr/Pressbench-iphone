@@ -487,6 +487,10 @@
     "context": "Machines",
     "source": "Machines"
   },
+  "machines.search": {
+    "context": "Machines search prompt",
+    "source": "Search machines"
+  },
   "machine.add": {
     "context": "Machine creation action",
     "source": "Add machine"
@@ -1187,6 +1191,10 @@
     "context": "Validation error",
     "source": "Select or create a production setup before continuing."
   },
+  "error.machineInUse": {
+    "context": "Machine deletion dependency error",
+    "source": "Delete or reassign the setups that use this machine first."
+  },
   "error.activeRunConflict": {
     "context": "Validation error",
     "source": "Finish or release the current reserved run before changing this record."
@@ -1353,7 +1361,7 @@
   },
   "setup.start.choose": {
     "context": "New setup start",
-    "source": "How do you want to begin?"
+    "source": "New setup"
   },
   "setup.start.presetBase": {
     "context": "New setup start",
@@ -1365,7 +1373,7 @@
   },
   "setup.start.manual": {
     "context": "New setup start",
-    "source": "Enter manually"
+    "source": "Create custom setup"
   },
   "setup.selectPreset": {
     "context": "Preset selection action and picker title",
@@ -1471,6 +1479,10 @@
     "context": "Setup archive action",
     "source": "Archive setup"
   },
+  "setup.delete": {
+    "context": "Setup deletion action",
+    "source": "Delete setup"
+  },
   "common.more": {
     "context": "More actions label",
     "source": "More"
@@ -1499,6 +1511,10 @@
     "context": "Machine archive action",
     "source": "Archive machine"
   },
+  "machine.delete": {
+    "context": "Machine deletion action",
+    "source": "Delete machine"
+  },
   "run.completeTimerFirst": {
     "context": "Run timer validation",
     "source": "Complete the timer before continuing."
@@ -1506,6 +1522,10 @@
   "backup.lastSuccessful": {
     "context": "Backup status",
     "source": "Last successful backup"
+  },
+  "record.deleteConfirm": {
+    "context": "Saved-record deletion confirmation",
+    "source": "Delete “%1$@”?"
   },
   "run.deleteRecordConfirm": {
     "context": "Completed-run deletion confirmation",

@@ -16,6 +16,12 @@ struct PressBenchOperatorFocusRootView: View {
     @State private var showsSettings = false
     @State private var showsUpgrade = false
     @State private var selectedSetupID: String?
+    @State private var creationMachineDraft: MachineDraft?
+    @State private var creationSetupDraft: SetupDraft?
+    @State private var creationStartsWithPreset = false
+    @State private var continueSetupAfterMachineSave = false
+    @State private var startRunAfterSetupSave = false
+    @State private var showsSetupChoice = false
 
     private var language: AppLanguage { AppLanguageStorage.resolved(rawValue: storedLanguage) }
 
@@ -38,7 +44,7 @@ struct PressBenchOperatorFocusRootView: View {
         .environment(\.layoutDirection, language.isRTL ? .rightToLeft : .leftToRight)
         .sheet(isPresented: $showsSettings) {
             NavigationStack {
-                SettingsView()
+                SettingsView(showsDoneButton: true)
             }
             .environment(\.pbLanguage, language)
             .environment(\.layoutDirection, language.isRTL ? .rightToLeft : .leftToRight)
@@ -49,6 +55,23 @@ struct PressBenchOperatorFocusRootView: View {
                 .pbEditorSheetStyle()
                 .environment(\.pbLanguage, language)
                 .environment(\.layoutDirection, language.isRTL ? .rightToLeft : .leftToRight)
+        }
+        .sheet(item: $creationMachineDraft, onDismiss: resumeSetupCreationAfterMachineSave) { draft in
+            OFMachineEditor(initialDraft: draft) {
+                continueSetupAfterMachineSave = true
+            }
+        }
+        .sheet(item: $creationSetupDraft) { draft in
+            OFSetupEditor(initialDraft: draft, startsWithPresets: creationStartsWithPreset) { setupID in
+                selectedSetupID = setupID
+                if startRunAfterSetupSave { destination = .run }
+                startRunAfterSetupSave = false
+            }
+        }
+        .confirmationDialog(text("setup.start.choose"), isPresented: $showsSetupChoice, titleVisibility: .visible) {
+            Button(text("setup.selectPreset")) { openSetupEditor(usePreset: true) }
+            Button(text("setup.start.manual")) { openSetupEditor(usePreset: false) }
+            Button(text("common.cancel"), role: .cancel) { startRunAfterSetupSave = false }
         }
         .onChange(of: scenePhase) { phase in
             guard phase == .active else { return }
@@ -117,7 +140,12 @@ struct PressBenchOperatorFocusRootView: View {
     }
 
     private var today: some View {
-        OFTodayView(destination: $destination, showsUpgrade: $showsUpgrade, selectedSetupID: $selectedSetupID)
+        OFTodayView(
+            destination: $destination,
+            showsUpgrade: $showsUpgrade,
+            selectedSetupID: $selectedSetupID,
+            requestRunStart: requestRunStart
+        )
             .operatorFocusToolbar(showsSettings: $showsSettings, accessibilityLabel: text("common.settings"))
     }
 
@@ -127,13 +155,58 @@ struct PressBenchOperatorFocusRootView: View {
     }
 
     private var setups: some View {
-        OFSetupsView(destination: $destination)
+        OFSetupsView {
+            requestSetupCreation(startRunAfterSave: false)
+        }
             .operatorFocusToolbar(showsSettings: $showsSettings, accessibilityLabel: text("common.settings"))
     }
 
     private var machines: some View {
-        OFMachinesView(destination: $destination)
+        OFMachinesView()
             .operatorFocusToolbar(showsSettings: $showsSettings, accessibilityLabel: text("common.settings"))
+    }
+
+    private func requestRunStart() {
+        if store.activeRun != nil {
+            destination = .run
+            return
+        }
+        guard store.canStartAnotherRun else {
+            showsUpgrade = true
+            return
+        }
+        if store.setups.contains(where: { $0.status != .archived }) {
+            destination = .run
+            return
+        }
+        requestSetupCreation(startRunAfterSave: true)
+    }
+
+    private func requestSetupCreation(startRunAfterSave: Bool) {
+        self.startRunAfterSetupSave = startRunAfterSave
+        guard store.machines.contains(where: \.active) else {
+            continueSetupAfterMachineSave = false
+            creationMachineDraft = store.machineDraft(for: nil)
+            return
+        }
+        showsSetupChoice = true
+    }
+
+    private func resumeSetupCreationAfterMachineSave() {
+        guard continueSetupAfterMachineSave else {
+            startRunAfterSetupSave = false
+            return
+        }
+        continueSetupAfterMachineSave = false
+        Task { @MainActor in
+            await Task.yield()
+            showsSetupChoice = true
+        }
+    }
+
+    private func openSetupEditor(usePreset: Bool) {
+        creationStartsWithPreset = usePreset
+        creationSetupDraft = store.setupDraft(for: nil)
     }
 
     @ViewBuilder
@@ -204,8 +277,11 @@ private extension View {
             ToolbarItem(placement: .topBarTrailing) {
                 Button { showsSettings.wrappedValue = true } label: {
                     Image(systemName: "gearshape")
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .accessibilityLabel(accessibilityLabel)
+                .accessibilityIdentifier("pb.settings")
             }
         }
     }
@@ -218,6 +294,7 @@ private struct OFTodayView: View {
     @Binding var destination: OFDestination
     @Binding var showsUpgrade: Bool
     @Binding var selectedSetupID: String?
+    let requestRunStart: () -> Void
 
     var body: some View {
         ScrollView {
@@ -238,11 +315,7 @@ private struct OFTodayView: View {
 
                 VStack(alignment: .leading, spacing: 14) {
                     Button {
-                        if store.canStartAnotherRun || store.activeRun != nil {
-                            destination = .run
-                        } else {
-                            showsUpgrade = true
-                        }
+                        requestRunStart()
                     } label: {
                         VStack(alignment: .leading, spacing: 14) {
                             HStack {
@@ -301,22 +374,15 @@ private struct OFTodayView: View {
 
                 OFMetricGrid(metrics: store.metrics)
 
-                HStack {
-                    Text(text("home.recentSetups"))
-                        .font(.headline)
-                    Spacer()
-                    Button(text("home.viewAll")) { destination = .setups }
-                        .font(.subheadline.bold())
-                }
+                if !store.recentSetups.isEmpty {
+                    HStack {
+                        Text(text("home.recentSetups"))
+                            .font(.headline)
+                        Spacer()
+                        Button(text("home.viewAll")) { destination = .setups }
+                            .font(.subheadline.bold())
+                    }
 
-                if store.recentSetups.isEmpty {
-                    OFEmptyState(
-                        icon: "slider.horizontal.3",
-                        title: text("setup.start.choose"),
-                        message: text("onboarding.ready.setup.body"),
-                        button: text("setup.start.manual")
-                    ) { destination = .setups }
-                } else {
                     ForEach(store.recentSetups.prefix(3)) { setup in
                         OFSetupRow(setup: setup) {
                             selectedSetupID = setup.id
@@ -394,8 +460,7 @@ private struct OFRunView: View {
                     }
                 }
             } else {
-                OFRunStartView(destination: $destination, showsUpgrade: $showsUpgrade,
-                               selectedSetupID: $selectedSetupID)
+                OFRunStartView(showsUpgrade: $showsUpgrade, selectedSetupID: $selectedSetupID)
             }
         }
         .navigationTitle(text("runs.title"))
@@ -451,7 +516,6 @@ private struct OFRunStartView: View {
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
     @EnvironmentObject private var store: PressBenchStore
-    @Binding var destination: OFDestination
     @Binding var showsUpgrade: Bool
     @Binding var selectedSetupID: String?
 
@@ -492,15 +556,8 @@ private struct OFRunStartView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                 }
-            } else if activeSetups.isEmpty {
+            } else if !activeSetups.isEmpty {
                 Section {
-                    OFEmptyState(icon: "slider.horizontal.3", title: text("setup.start.choose"),
-                                 message: text("onboarding.ready.setup.body"), button: text("setup.add")) {
-                        destination = .setups
-                    }
-                }
-            } else {
-                Section(text("setup.start.choose")) {
                     Picker(text("setups.title"), selection: $setupID) {
                         ForEach(activeSetups) { setup in
                             Text(setup.title).tag(setup.id)
@@ -620,19 +677,29 @@ private struct OFRunStartView: View {
 
 private struct OFSetupsView: View {
     @Environment(\.pbLanguage) private var language
-    @Environment(\.locale) private var locale
     @EnvironmentObject private var store: PressBenchStore
-    @Binding var destination: OFDestination
     @State private var search = ""
     @State private var setupDraft: SetupDraft?
-    @State private var startsWithPresets = false
-    @State private var showsAddChoice = false
+    let requestAddSetup: () -> Void
 
     var body: some View {
+        Group {
+            if activeSetups.isEmpty {
+                content
+            } else {
+                content.searchable(text: $search, prompt: text("setups.search"))
+            }
+        }
+        .navigationTitle(text("setups.title"))
+        .background(Color(uiColor: .systemGroupedBackground))
+        .sheet(item: $setupDraft) { draft in
+            OFSetupEditor(initialDraft: draft)
+        }
+    }
+
+    private var content: some View {
         VStack(spacing: 0) {
-            Button {
-                addSetup()
-            } label: {
+            Button(action: requestAddSetup) {
                 Label(text("setup.add"), systemImage: "plus.circle.fill")
                     .font(.headline)
                     .frame(maxWidth: .infinity, minHeight: 48)
@@ -640,52 +707,25 @@ private struct OFSetupsView: View {
             .buttonStyle(.borderedProminent)
             .padding()
 
-            setupList
-        }
-        .navigationTitle(text("setups.title"))
-        .background(Color(uiColor: .systemGroupedBackground))
-        .searchable(text: $search, prompt: text("setups.search"))
-        .sheet(item: $setupDraft) { draft in
-            OFSetupEditor(initialDraft: draft, startsWithPresets: startsWithPresets)
-        }
-        .confirmationDialog(text("setup.start.choose"), isPresented: $showsAddChoice, titleVisibility: .visible) {
-            Button(text("setup.selectPreset")) { openEditor(usePreset: true) }
-            Button(text("setup.start.manual")) { openEditor(usePreset: false) }
-            Button(text("common.cancel"), role: .cancel) { }
-        }
-    }
-
-    private var setupList: some View {
-        List(filteredSetups) { setup in
-            OFSetupRow(setup: setup) { setupDraft = store.setupDraft(for: setup.id) }
-        }
-        .overlay {
-            if filteredSetups.isEmpty {
-                OFEmptyState(icon: "slider.horizontal.3", title: text("setup.start.choose"),
-                             message: text("onboarding.ready.setup.body"),
-                             button: store.machines.contains(where: \.active) ? text("setup.add") : text("machine.add")) {
-                    addSetup()
+            if activeSetups.isEmpty {
+                Spacer()
+            } else {
+                List(filteredSetups) { setup in
+                    OFSetupRow(setup: setup) { setupDraft = store.setupDraft(for: setup.id) }
                 }
-                .padding()
             }
         }
     }
 
     private var filteredSetups: [Setup] {
-        store.setups.filter { search.isEmpty || $0.title.localizedCaseInsensitiveContains(search) || $0.material.localizedCaseInsensitiveContains(search) }
-    }
-
-    private func addSetup() {
-        guard store.machines.contains(where: \.active) else {
-            destination = .machines
-            return
+        activeSetups.filter {
+            search.isEmpty || $0.title.localizedCaseInsensitiveContains(search) ||
+                $0.material.localizedCaseInsensitiveContains(search)
         }
-        showsAddChoice = true
     }
 
-    private func openEditor(usePreset: Bool) {
-        startsWithPresets = usePreset
-        setupDraft = store.setupDraft(for: nil)
+    private var activeSetups: [Setup] {
+        store.setups.filter { $0.status != .archived }
     }
 
     private func text(_ key: String) -> String {
@@ -695,14 +735,26 @@ private struct OFSetupsView: View {
 
 private struct OFMachinesView: View {
     @Environment(\.pbLanguage) private var language
-    @Environment(\.locale) private var locale
     @EnvironmentObject private var store: PressBenchStore
-    @Binding var destination: OFDestination
     @State private var search = ""
     @State private var machineDraft: MachineDraft?
-    @State private var addingFirstMachine = false
 
     var body: some View {
+        Group {
+            if activeMachines.isEmpty {
+                content
+            } else {
+                content.searchable(text: $search, prompt: text("machines.search"))
+            }
+        }
+        .navigationTitle(text("machines.title"))
+        .background(Color(uiColor: .systemGroupedBackground))
+        .sheet(item: $machineDraft) { draft in
+            OFMachineEditor(initialDraft: draft)
+        }
+    }
+
+    private var content: some View {
         VStack(spacing: 0) {
             Button { beginAdd() } label: {
                 Label(text("machine.add"), systemImage: "plus.circle.fill")
@@ -712,56 +764,43 @@ private struct OFMachinesView: View {
             .buttonStyle(.borderedProminent)
             .padding()
 
-            List(filteredMachines) { machine in
-                Button {
-                    addingFirstMachine = false
-                    machineDraft = store.machineDraft(for: machine.id)
-                } label: {
-                    HStack(spacing: 12) {
-                        Image(systemName: "printer.fill")
-                            .frame(width: 42, height: 42)
-                            .foregroundStyle(OFTheme.accent)
-                            .background(OFTheme.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(machine.nickname).font(.headline)
-                            Text([machine.brand, machine.model, machine.platen].filter { !$0.isEmpty }.joined(separator: " · "))
-                                .font(.caption).foregroundStyle(.secondary)
+            if activeMachines.isEmpty {
+                Spacer()
+            } else {
+                List(filteredMachines) { machine in
+                    Button {
+                        machineDraft = store.machineDraft(for: machine.id)
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "printer.fill")
+                                .frame(width: 42, height: 42)
+                                .foregroundStyle(OFTheme.accent)
+                                .background(OFTheme.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(machine.nickname).font(.headline)
+                                Text([machine.brand, machine.model, machine.platen].filter { !$0.isEmpty }.joined(separator: " · "))
+                                    .font(.caption).foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.forward").font(.caption).foregroundStyle(.tertiary)
                         }
-                        Spacer()
-                        Image(systemName: "chevron.forward").font(.caption).foregroundStyle(.tertiary)
                     }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-            }
-            .overlay {
-                if filteredMachines.isEmpty {
-                    OFEmptyState(icon: "printer", title: text("machine.start.choose"),
-                                 message: text("onboarding.ready.machine.body"), button: text("machine.add")) {
-                        beginAdd()
-                    }
-                    .padding()
-                }
-            }
-        }
-        .navigationTitle(text("machines.title"))
-        .background(Color(uiColor: .systemGroupedBackground))
-        .searchable(text: $search, prompt: text("machines.title"))
-        .sheet(item: $machineDraft) { draft in
-            OFMachineEditor(initialDraft: draft) {
-                if addingFirstMachine { destination = .setups }
             }
         }
     }
 
     private var filteredMachines: [MachineProfile] {
-        store.machines.filter {
+        activeMachines.filter {
             search.isEmpty || $0.nickname.localizedCaseInsensitiveContains(search) ||
                 $0.brand.localizedCaseInsensitiveContains(search) || $0.model.localizedCaseInsensitiveContains(search)
         }
     }
 
+    private var activeMachines: [MachineProfile] { store.machines.filter(\.active) }
+
     private func beginAdd() {
-        addingFirstMachine = store.machines.isEmpty
         machineDraft = store.machineDraft(for: nil)
     }
 
@@ -777,11 +816,18 @@ private struct OFSetupEditor: View {
     @State private var showsPresets = false
     @State private var errorMessage = ""
     @State private var showsError = false
+    @State private var confirmsDelete = false
     private let startsWithPresets: Bool
+    private let onSaved: ((String) -> Void)?
 
-    init(initialDraft: SetupDraft, startsWithPresets: Bool = false) {
+    init(
+        initialDraft: SetupDraft,
+        startsWithPresets: Bool = false,
+        onSaved: ((String) -> Void)? = nil
+    ) {
         _draft = State(initialValue: initialDraft)
         self.startsWithPresets = startsWithPresets
+        self.onSaved = onSaved
     }
 
     var body: some View {
@@ -840,6 +886,15 @@ private struct OFSetupEditor: View {
                     TextField(text("common.reference"), text: $draft.sourceReference)
                 }
                 Section(text("common.notes")) { TextField(text("common.notes"), text: $draft.notes, axis: .vertical) }
+                if !draft.id.isEmpty {
+                    Section {
+                        Button(role: .destructive) { confirmsDelete = true } label: {
+                            Label(text("setup.delete"), systemImage: "trash")
+                                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                        }
+                        .accessibilityIdentifier("pb.setup.delete")
+                    }
+                }
             }
             .navigationTitle(text("setup.title"))
             .onAppear {
@@ -858,6 +913,10 @@ private struct OFSetupEditor: View {
             .alert(text("common.actionFailed"), isPresented: $showsError) {
                 Button(text("common.ok"), role: .cancel) { }
             } message: { Text(errorMessage) }
+            .confirmationDialog(deleteConfirmationTitle, isPresented: $confirmsDelete, titleVisibility: .visible) {
+                Button(text("setup.delete"), role: .destructive) { deleteSetup() }
+                Button(text("common.cancel"), role: .cancel) { }
+            }
         }
     }
 
@@ -896,7 +955,28 @@ private struct OFSetupEditor: View {
 
     private func save() {
         do {
-            _ = try store.saveSetup(draft, temperatureUnit: store.temperatureUnit, locale: locale)
+            let setupID = try store.saveSetup(draft, temperatureUnit: store.temperatureUnit, locale: locale)
+            onSaved?(setupID)
+            dismiss()
+        } catch {
+            errorMessage = text(store.errorLocalizationKey(error))
+            showsError = true
+        }
+    }
+
+    private var deleteConfirmationTitle: String {
+        let name = draft.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        return PBL10n.format(
+            "record.deleteConfirm",
+            language: language,
+            locale: locale,
+            (name.isEmpty ? text("setup.title") : name) as NSString
+        )
+    }
+
+    private func deleteSetup() {
+        do {
+            try store.deleteSetup(id: draft.id)
             dismiss()
         } catch {
             errorMessage = text(store.errorLocalizationKey(error))
@@ -945,6 +1025,7 @@ private struct OFMachineEditor: View {
     @State private var draft: MachineDraft
     @State private var errorMessage = ""
     @State private var showsError = false
+    @State private var confirmsDelete = false
     private let onSaved: (() -> Void)?
 
     init(initialDraft: MachineDraft, onSaved: (() -> Void)? = nil) {
@@ -971,6 +1052,15 @@ private struct OFMachineEditor: View {
                     TextField(text("common.platen"), text: $draft.platen)
                     TextField(text("common.notes"), text: $draft.notes, axis: .vertical)
                 }
+                if !draft.id.isEmpty {
+                    Section {
+                        Button(role: .destructive) { confirmsDelete = true } label: {
+                            Label(text("machine.delete"), systemImage: "trash")
+                                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                        }
+                        .accessibilityIdentifier("pb.machine.delete")
+                    }
+                }
             }
             .navigationTitle(text("machines.title"))
             .onChange(of: draft.brand) { _ in
@@ -990,6 +1080,10 @@ private struct OFMachineEditor: View {
             .alert(text("common.actionFailed"), isPresented: $showsError) {
                 Button(text("common.ok"), role: .cancel) { }
             } message: { Text(errorMessage) }
+            .confirmationDialog(deleteConfirmationTitle, isPresented: $confirmsDelete, titleVisibility: .visible) {
+                Button(text("machine.delete"), role: .destructive) { deleteMachine() }
+                Button(text("common.cancel"), role: .cancel) { }
+            }
         }
     }
 
@@ -1000,6 +1094,26 @@ private struct OFMachineEditor: View {
             dismiss()
         }
         catch { errorMessage = text(store.errorLocalizationKey(error)); showsError = true }
+    }
+
+    private var deleteConfirmationTitle: String {
+        let name = draft.nickname.trimmingCharacters(in: .whitespacesAndNewlines)
+        return PBL10n.format(
+            "record.deleteConfirm",
+            language: language,
+            locale: locale,
+            (name.isEmpty ? text("machines.title") : name) as NSString
+        )
+    }
+
+    private func deleteMachine() {
+        do {
+            try store.archiveMachine(id: draft.id)
+            dismiss()
+        } catch {
+            errorMessage = text(store.errorLocalizationKey(error))
+            showsError = true
+        }
     }
     private func text(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 }
@@ -1056,24 +1170,6 @@ private struct OFKeyValueCard: View {
             }
         }
         .padding(.horizontal)
-        .background(OFTheme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-    }
-}
-
-private struct OFEmptyState: View {
-    let icon: String
-    let title: String
-    let message: String
-    let button: String
-    let action: () -> Void
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: icon).font(.largeTitle).foregroundStyle(OFTheme.accent)
-            Text(title).font(.headline).multilineTextAlignment(.center)
-            Text(message).font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
-            Button(button, action: action).buttonStyle(.borderedProminent)
-        }
-        .frame(maxWidth: .infinity).padding(22)
         .background(OFTheme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 }

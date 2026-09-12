@@ -389,6 +389,19 @@ final class PressBenchStore: ObservableObject {
         try withStateTransaction { state["recipes"] = plan["setups"] as? [[String: Any]] ?? rawRecipes }
     }
 
+    /// Removes a saved setup while preserving completed-run snapshots and
+    /// refusing to invalidate an active run that depends on it.
+    func deleteSetup(id: String) throws {
+        let plan = try bridge.dictionary(
+            bridge.process("planDeleteSetup", [context, id]),
+            context: "setup delete plan"
+        )
+        try withStateTransaction {
+            state["recipes"] = plan["setups"] as? [[String: Any]] ?? rawRecipes
+        }
+        pendingReusedSetups.removeValue(forKey: id)
+    }
+
     private func setupDraft(from raw: [String: Any]) -> SetupDraft {
         let rawStages = raw["steps"] as? [[String: Any]] ?? []
         return SetupDraft(
@@ -1219,11 +1232,11 @@ final class PressBenchStore: ObservableObject {
         if code.contains("timer_plan_incomplete") || code.contains("timer_stage_incomplete") { return "run.completeTimerFirst" }
         if code.contains("qc_required") { return "qc.due" }
         if code.contains("invalid_number") || code.contains("invalidnumber") { return "error.invalidNumber" }
-        if code.contains("machine_in_use") { return "error.machineInUse" }
+        if code.contains("machine_in_use") || code.contains("machineinuse") { return "error.machineInUse" }
         if code.contains("issue") || code.contains("coverage") { return "error.issueCoverage" }
         if code.contains("machine") { return "error.machineRequired" }
         if code.contains("setup") { return "error.setupRequired" }
-        if code.contains("active_run_conflict") { return "error.activeRunConflict" }
+        if code.contains("active_run_conflict") || code.contains("activerunconflict") { return "error.activeRunConflict" }
         if code.contains("transition") || code.contains("result_state") || code.contains("active_run_missing") { return "error.runState" }
         if code.contains("permit") { return "error.storageRecovery" }
         if code.contains("persistence") || code.contains("replica") || code.contains("corrupt") { return "error.storageRecovery" }

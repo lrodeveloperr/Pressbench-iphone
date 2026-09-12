@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 
 struct SettingsView: View {
+    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var store: PressBenchStore
     @AppStorage(AppLanguageStorage.key) private var languageRaw = AppLanguage.detected().rawValue
     @AppStorage("pressbench.temperature.unit") private var temperatureUnitRaw = Locale.current.measurementSystem == .us ? "F" : "C"
@@ -27,6 +28,11 @@ struct SettingsView: View {
     @State private var pendingRestoreRaw = ""
     @State private var restoreSummary = ""
     @State private var showingNotificationSettings = false
+    private let showsDoneButton: Bool
+
+    init(showsDoneButton: Bool = false) {
+        self.showsDoneButton = showsDoneButton
+    }
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
     private var backupNeedsAttention: Bool {
@@ -103,6 +109,15 @@ struct SettingsView: View {
         .tint(PBTheme.primary)
         .navigationTitle(t("settings.title"))
         .toolbar(.visible, for: .navigationBar)
+        .toolbar {
+            if showsDoneButton {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(t("common.done")) { dismiss() }
+                        .fontWeight(.semibold)
+                        .accessibilityIdentifier("pb.settings.done")
+                }
+            }
+        }
         .sheet(isPresented: $showingUpgrade) {
             ProUpgradeView().environmentObject(store).pbEditorSheetStyle()
         }

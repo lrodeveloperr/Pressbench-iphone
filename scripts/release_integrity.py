@@ -111,6 +111,20 @@ require(all(marker in root_tabs for marker in [
 require(root_tabs.count('usage.freeRunsRemaining') >= 3 and
         root_tabs.count('PBUsageMeter.freePressLimit') >= 3,
         'reviewer-visible five-run counter is missing from an operator decision point')
+require('OFEmptyState' not in root_tabs and
+        'onboarding.ready.setup.body' not in root_tabs and
+        root_tabs.count('Label(text("setup.add")') == 1 and
+        root_tabs.count('Label(text("machine.add")') == 1,
+        'Operator Focus reintroduced duplicate or explanatory first-use actions')
+require(all(marker in root_tabs for marker in [
+            'requestRunStart: requestRunStart', 'resumeSetupCreationAfterMachineSave',
+            'setup.selectPreset', 'setup.start.manual', 'machines.search']),
+        'direct machine-to-setup-to-run routing or contextual search is incomplete')
+require(all(marker in root_tabs for marker in [
+            'pb.settings', '.frame(width: 44, height: 44)',
+            'pb.setup.delete', 'pb.machine.delete', 'record.deleteConfirm']) and
+        'bridge.process("planDeleteSetup"' in (root/'PressBench/Models/PressBenchStore.swift').read_text(encoding='utf-8'),
+        'Settings first-tap target or safe setup/machine deletion path is incomplete')
 
 app=(root/'PressBench/App/PressBenchApp.swift').read_text(encoding='utf-8')
 settings_view=(root/'PressBench/Views/SettingsView.swift').read_text(encoding='utf-8')
@@ -577,12 +591,12 @@ require(all(marker not in settings_view for marker in [
 
 catalog=json.loads((root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8'))
 require(len(catalog.get('languages',[])) == 31, 'language choice count is not 31')
-require(len(catalog.get('strings',{})) == 378, 'reviewed localization catalog must contain 378 keys')
+require(len(catalog.get('strings',{})) == 383, 'reviewed localization catalog must contain 383 keys')
 require(all(key not in catalog.get('strings',{}) for key in [
             'home.greeting', 'home.startRun.body', 'report.sourceChecked']),
         'retired customer copy remains in the runtime localization catalog')
 language_tests=(root/'PressBenchTests/LanguageSupportTests.swift').read_text(encoding='utf-8')
-require('XCTAssertEqual(PBL10n.catalog.strings.count, 378)' in language_tests,
+require('XCTAssertEqual(PBL10n.catalog.strings.count, 383)' in language_tests,
         'unit-test localization count is stale')
 boundary = catalog.get('strings',{}).get('setup.provenBoundary',{})
 require(bool(boundary), 'localized Proven evidence boundary is missing')
@@ -601,7 +615,7 @@ for key, item in metadata.items():
 build_l10n=(root/'build_l10n.py').read_text(encoding='utf-8')
 assemble=(root/'assemble_catalog.py').read_text(encoding='utf-8')
 require('setup.provenBoundary' in build_l10n and 'raise SystemExit(\'Legacy' not in build_l10n,
-        'build_l10n.py is not the live 378-key canonical generator')
+        'build_l10n.py is not the live 383-key canonical generator')
 purchase_manager=(root/'PressBench/Services/PurchaseManager.swift').read_text(encoding='utf-8')
 require(purchase_manager.count('let productsLoaded = await loadProducts()') == 2 and
         purchase_manager.count('if !productsLoaded, state == .free { state = productLoadState }') == 2 and
