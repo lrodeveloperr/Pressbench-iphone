@@ -1,0 +1,347 @@
+{
+  "Other / custom": {
+    "pt": "Outra / personalizada",
+    "he": "אחר / מותאם אישית",
+    "zh-Hant": "其他／自訂"
+  },
+  "Manual clamshell press": {
+    "pt": "Prensa articulada manual",
+    "he": "מכבש צדפה ידני",
+    "zh-Hant": "手動掀蓋式熱壓機"
+  },
+  "Automatic clamshell press": {
+    "pt": "Prensa articulada automática",
+    "he": "מכבש צדפה אוטומטי",
+    "zh-Hant": "自動掀蓋式熱壓機"
+  },
+  "Swing-away press": {
+    "pt": "Prensa de braço giratório",
+    "he": "מכבש זרוע מסתובבת",
+    "zh-Hant": "旋臂式熱壓機"
+  },
+  "Pneumatic single-platen press": {
+    "pt": "Prensa pneumática de base única",
+    "he": "מכבש פנאומטי עם פלטה אחת",
+    "zh-Hant": "單壓板氣動熱壓機"
+  },
+  "Pneumatic dual-platen press": {
+    "pt": "Prensa pneumática de base dupla",
+    "he": "מכבש פנאומטי עם שתי פלטות",
+    "zh-Hant": "雙壓板氣動熱壓機"
+  },
+  "Cap or headwear press": {
+    "pt": "Prensa para bonés ou chapéus",
+    "he": "מכבש לכובעים",
+    "zh-Hant": "帽類熱壓機"
+  },
+  "Mug or tumbler press": {
+    "pt": "Prensa para canecas ou copos altos",
+    "he": "מכבש לספלים או כוסות תרמיות",
+    "zh-Hant": "馬克杯或保溫杯熱壓機"
+  },
+  "Portable hand press": {
+    "pt": "Prensa manual portátil",
+    "he": "מכבש ידני נייד",
+    "zh-Hant": "可攜式手持熱壓機"
+  },
+  "Large-format press": {
+    "pt": "Prensa de grande formato",
+    "he": "מכבש בפורמט גדול",
+    "zh-Hant": "大尺寸熱壓機"
+  },
+  "Calender or roll press": {
+    "pt": "Calandra ou prensa de rolo",
+    "he": "מכבש קלנדר או גלילים",
+    "zh-Hant": "熱昇華滾筒機"
+  },
+  "Multipurpose press": {
+    "pt": "Prensa multifunções",
+    "he": "מכבש רב־תכליתי",
+    "zh-Hant": "多功能熱壓機"
+  },
+  "Clamshell": {
+    "pt": "Articulada",
+    "he": "צדפה",
+    "zh-Hant": "掀蓋式"
+  },
+  "Automatic": {
+    "pt": "Automática",
+    "he": "אוטומטי",
+    "zh-Hant": "自動式"
+  },
+  "Swing-away": {
+    "pt": "Braço giratório",
+    "he": "זרוע מסתובבת",
+    "zh-Hant": "旋臂式"
+  },
+  "Pneumatic": {
+    "pt": "Pneumática",
+    "he": "פנאומטי",
+    "zh-Hant": "氣動式"
+  },
+  "Dual platen": {
+    "pt": "Base dupla",
+    "he": "פלטה כפולה",
+    "zh-Hant": "雙壓板"
+  },
+  "Cap": {
+    "pt": "Bonés",
+    "he": "כובעים",
+    "zh-Hant": "帽類"
+  },
+  "Mug": {
+    "pt": "Canecas/copos",
+    "he": "ספלים/כוסות",
+    "zh-Hant": "杯類"
+  },
+  "Portable": {
+    "pt": "Portátil",
+    "he": "נייד",
+    "zh-Hant": "可攜式"
+  },
+  "Large format": {
+    "pt": "Grande formato",
+    "he": "פורמט גדול",
+    "zh-Hant": "大尺寸"
+  },
+  "Calender": {
+    "pt": "Calandra",
+    "he": "קלנדר",
+    "zh-Hant": "滾筒式"
+  },
+  "Multipurpose": {
+    "pt": "Multifunções",
+    "he": "רב־תכליתי",
+    "zh-Hant": "多功能"
+  },
+  "Cap platen": {
+    "pt": "Base para bonés",
+    "he": "פלטה לכובעים",
+    "zh-Hant": "帽類壓板"
+  },
+  "Hat platen": {
+    "pt": "Base para bonés",
+    "he": "פלטה לכובעים",
+    "zh-Hant": "帽類壓板"
+  },
+  "Mug element": {
+    "pt": "Resistência para canecas",
+    "he": "גוף חימום לספלים",
+    "zh-Hant": "馬克杯加熱元件"
+  },
+  "Ball platen": {
+    "pt": "Base para bolas",
+    "he": "פלטה לכדורים",
+    "zh-Hant": "球類壓板"
+  },
+  "Flat / hat / tumbler modules": {
+    "pt": "Módulos plano / boné / copo alto",
+    "he": "מודולים שטוחים / לכובעים / לכוסות",
+    "zh-Hant": "平面／帽類／保溫杯模組"
+  },
+  "Straight tumbler / glass element": {
+    "pt": "Resistência para copo alto reto / vidro",
+    "he": "גוף חימום לכוס ישרה / זכוכית",
+    "zh-Hant": "直筒保溫杯／玻璃杯加熱元件"
+  },
+  "Phone-case vacuum bed": {
+    "pt": "Base de vácuo para capas de telemóvel",
+    "he": "משטח ואקום לכיסויי טלפון",
+    "zh-Hant": "手機殼真空平台"
+  },
+  "Mini platen": {
+    "pt": "Base mini",
+    "he": "פלטה זעירה",
+    "zh-Hant": "迷你壓板"
+  },
+  "Tumbler element": {
+    "pt": "Resistência para copos altos",
+    "he": "גוף חימום לכוסות תרמיות",
+    "zh-Hant": "保溫杯加熱元件"
+  },
+  "Medium": {
+    "pt": "Média",
+    "he": "בינוני",
+    "zh-Hant": "中"
+  },
+  "Firm": {
+    "pt": "Alta",
+    "he": "חזק",
+    "zh-Hant": "高"
+  },
+  "Hot": {
+    "pt": "A quente",
+    "he": "חם",
+    "zh-Hant": "熱撕"
+  },
+  "Warm": {
+    "pt": "A morno",
+    "he": "חמים",
+    "zh-Hant": "溫撕"
+  },
+  "Cold": {
+    "pt": "A frio",
+    "he": "קר",
+    "zh-Hant": "冷撕"
+  },
+  "Hot or cold": {
+    "pt": "A quente ou a frio",
+    "he": "חם או קר",
+    "zh-Hant": "熱撕或冷撕"
+  },
+  "Warm or cold": {
+    "pt": "A morno ou a frio",
+    "he": "חמים או קר",
+    "zh-Hant": "溫撕或冷撕"
+  },
+  "Hot or warm": {
+    "pt": "A quente ou a morno",
+    "he": "חם או חמים",
+    "zh-Hant": "熱撕或溫撕"
+  },
+  "Completely cold": {
+    "pt": "Completamente frio",
+    "he": "קר לחלוטין",
+    "zh-Hant": "完全冷卻後撕除"
+  },
+  "Hot; then apply top layer": {
+    "pt": "Retirar a quente; depois aplicar a camada superior",
+    "he": "להסיר חם; לאחר מכן להניח את השכבה העליונה",
+    "zh-Hant": "熱撕；再貼上層材料"
+  },
+  "Warm after at least 15 s": {
+    "pt": "A morno, após pelo menos 15 s",
+    "he": "חמים לאחר 15 שניות לפחות",
+    "zh-Hant": "至少 15 秒後溫撕"
+  },
+  "Warm or cold after 5–10 s": {
+    "pt": "A morno ou a frio após 5–10 s",
+    "he": "חמים או קר לאחר 5–10 שניות",
+    "zh-Hant": "5–10 秒後溫撕或冷撕"
+  },
+  "Warm after 3–5 s": {
+    "pt": "A morno após 3–5 s",
+    "he": "חמים לאחר 3–5 שניות",
+    "zh-Hant": "3–5 秒後溫撕"
+  },
+  "Confirm the current instructions for the exact blank before production.": {
+    "pt": "Confirme as instruções atuais para a peça exata antes da produção.",
+    "he": "יש לבדוק לפני הייצור את ההוראות העדכניות עבור המוצר המדויק.",
+    "zh-Hant": "生產前請確認該空白素材的最新操作說明。"
+  },
+  "Use one heat application only. Confirm the current instructions for layering and the exact blank.": {
+    "pt": "Faça apenas uma aplicação de calor. Confirme as instruções atuais relativas a camadas e à peça exata.",
+    "he": "יש לבצע הפעלת חום אחת בלבד ולבדוק את ההוראות העדכניות לשכבות ולמוצר המדויק.",
+    "zh-Hant": "僅可熱壓一次。請確認疊層方式與空白素材的最新說明。"
+  },
+  "Wait 24 hours before the first wash and follow the current product care instructions.": {
+    "pt": "Aguarde 24 horas antes da primeira lavagem e siga as instruções atuais de conservação do produto.",
+    "he": "יש להמתין 24 שעות לפני הכביסה הראשונה ולפעול לפי הוראות הטיפול העדכניות של המוצר.",
+    "zh-Hant": "首次洗滌前請等待 24 小時，並遵循產品最新保養說明。"
+  },
+  "Sublimated polyester": {
+    "pt": "Poliéster sublimado",
+    "he": "פוליאסטר מודפס בסובלימציה",
+    "zh-Hant": "已昇華聚酯纖維"
+  },
+  "Stretch fabric": {
+    "pt": "Tecido elástico",
+    "he": "בד גמיש",
+    "zh-Hant": "彈性布料"
+  },
+  "Nylon": {
+    "pt": "Nylon",
+    "he": "ניילון",
+    "zh-Hant": "尼龍"
+  },
+  "Leather": {
+    "pt": "Couro",
+    "he": "עור",
+    "zh-Hant": "皮革"
+  },
+  "EasyWeed Adhesive: foil base": {
+    "pt": "EasyWeed Adhesive: base para folha metalizada",
+    "he": "EasyWeed Adhesive: בסיס לפויל",
+    "zh-Hant": "EasyWeed Adhesive：金屬箔底層"
+  },
+  "Easy Puff Glitter: two presses": {
+    "pt": "Easy Puff Glitter: duas prensagens",
+    "he": "Easy Puff Glitter: שתי לחיצות",
+    "zh-Hant": "Easy Puff Glitter：壓燙兩次"
+  },
+  "Easy Puff: single heat application": {
+    "pt": "Easy Puff: uma aplicação de calor",
+    "he": "Easy Puff: הפעלת חום אחת",
+    "zh-Hant": "Easy Puff：僅熱壓一次"
+  },
+  "Easy Puff Metallic: two presses": {
+    "pt": "Easy Puff Metallic: duas prensagens",
+    "he": "Easy Puff Metallic: שתי לחיצות",
+    "zh-Hant": "Easy Puff Metallic：壓燙兩次"
+  },
+  "ColorPrint PU: matte or gloss": {
+    "pt": "ColorPrint PU: mate ou brilhante",
+    "he": "ColorPrint PU: מט או מבריק",
+    "zh-Hant": "ColorPrint PU：霧面或亮面"
+  },
+  "S-Print: matte": {
+    "pt": "S-Print: mate",
+    "he": "S-Print: מט",
+    "zh-Hant": "S-Print：霧面"
+  },
+  "Goof Proof: single colour · cotton or blend": {
+    "pt": "Goof Proof: uma cor · algodão ou mistura",
+    "he": "Goof Proof: צבע אחד · כותנה או תערובת",
+    "zh-Hant": "Goof Proof：單色 · 棉或混紡"
+  },
+  "Goof Proof: single colour · polyester": {
+    "pt": "Goof Proof: uma cor · poliéster",
+    "he": "Goof Proof: צבע אחד · פוליאסטר",
+    "zh-Hant": "Goof Proof：單色 · 聚酯纖維"
+  },
+  "Goof Proof: multicolour": {
+    "pt": "Goof Proof: multicolor",
+    "he": "Goof Proof: רב־צבעי",
+    "zh-Hant": "Goof Proof：多色"
+  },
+  "UltraColor Pro: cotton or blend": {
+    "pt": "UltraColor Pro: algodão ou mistura",
+    "he": "UltraColor Pro: כותנה או תערובת",
+    "zh-Hant": "UltraColor Pro：棉或混紡"
+  },
+  "UltraColor Pro: polyester": {
+    "pt": "UltraColor Pro: poliéster",
+    "he": "UltraColor Pro: פוליאסטר",
+    "zh-Hant": "UltraColor Pro：聚酯纖維"
+  },
+  "UltraColor Stretch: polyester or synthetic": {
+    "pt": "UltraColor Stretch: poliéster ou sintético",
+    "he": "UltraColor Stretch: פוליאסטר או חומר סינתטי",
+    "zh-Hant": "UltraColor Stretch：聚酯纖維或合成材質"
+  },
+  "UltraColor Stretch: cotton or blend": {
+    "pt": "UltraColor Stretch: algodão ou mistura",
+    "he": "UltraColor Stretch: כותנה או תערובת",
+    "zh-Hant": "UltraColor Stretch：棉或混紡"
+  },
+  "UltraColor Stretch with Blocker: polyester or synthetic": {
+    "pt": "UltraColor Stretch with Blocker: poliéster ou sintético",
+    "he": "UltraColor Stretch with Blocker: פוליאסטר או חומר סינתטי",
+    "zh-Hant": "UltraColor Stretch with Blocker：聚酯纖維或合成材質"
+  },
+  "UltraColor Stretch with Blocker: cotton or blend": {
+    "pt": "UltraColor Stretch with Blocker: algodão ou mistura",
+    "he": "UltraColor Stretch with Blocker: כותנה או תערובת",
+    "zh-Hant": "UltraColor Stretch with Blocker：棉或混紡"
+  },
+  "Express Names: fast application": {
+    "pt": "Express Names: aplicação rápida",
+    "he": "Express Names: יישום מהיר",
+    "zh-Hant": "Express Names：快速壓燙"
+  },
+  "Express Names: alternate low temperature": {
+    "pt": "Express Names: alternativa a baixa temperatura",
+    "he": "Express Names: חלופה בטמפרטורה נמוכה",
+    "zh-Hant": "Express Names：低溫替代設定"
+  }
+}

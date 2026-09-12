@@ -13,6 +13,7 @@ struct PBChoiceField: View {
     let cancelTitle: String
     var isEnabled: Bool = true
     var allowsOther: Bool = true
+    var displayValue: (String) -> String = { $0 }
 
     @State private var showingChoices = false
     @State private var customMode = false
@@ -42,7 +43,7 @@ struct PBChoiceField: View {
                     HStack(spacing: 12) {
                         VStack(alignment: .leading, spacing: 3) {
                             Text(title).font(.caption).foregroundStyle(PBTheme.secondary)
-                            Text(selection.isEmpty ? tapToSelectTitle : selection)
+                            Text(selection.isEmpty ? tapToSelectTitle : displayValue(selection))
                                 .foregroundStyle(selection.isEmpty ? PBTheme.secondary : PBTheme.text)
                                 .lineLimit(2)
                         }
@@ -76,6 +77,7 @@ struct PBChoiceField: View {
                 otherTitle: otherTitle,
                 cancelTitle: cancelTitle,
                 allowsOther: allowsOther,
+                displayValue: displayValue,
                 choose: { value in
                     selection = value
                     customMode = false
@@ -103,6 +105,7 @@ private struct PBChoicePickerSheet: View {
     let otherTitle: String
     let cancelTitle: String
     let allowsOther: Bool
+    let displayValue: (String) -> String
     let choose: (String) -> Void
     let chooseOther: () -> Void
     @State private var search = ""
@@ -121,7 +124,7 @@ private struct PBChoicePickerSheet: View {
                         isPresented = false
                     } label: {
                         HStack {
-                            Text(value).foregroundStyle(PBTheme.text)
+                            Text(displayValue(value)).foregroundStyle(PBTheme.text)
                             Spacer()
                             if selection == value {
                                 Image(systemName: "checkmark.circle.fill").foregroundStyle(PBTheme.primaryStrong)

@@ -28,14 +28,20 @@ enum PBL10n {
     }()
 
     static func text(_ key: String, language: AppLanguage, locale: Locale) -> String {
+        let code = language.localizationCode(for: locale)
+        return bidiSafeSystemText(rawText(key, language: language, locale: locale), code: code)
+    }
+
+    private static func rawText(_ key: String, language: AppLanguage, locale: Locale) -> String {
         guard let entry = catalog.strings[key] else { return key }
         let code = language.localizationCode(for: locale)
         return entry.translations[code] ?? entry.translations[language.rawValue] ?? entry.translations["en"] ?? entry.source
     }
 
     static func format(_ key: String, language: AppLanguage, locale: Locale, _ arguments: CVarArg...) -> String {
-        let format = text(key, language: language, locale: locale)
-        return String(format: format, locale: locale, arguments: arguments)
+        let code = language.localizationCode(for: locale)
+        let format = rawText(key, language: language, locale: locale)
+        return bidiSafeSystemText(String(format: format, locale: locale, arguments: arguments), code: code)
     }
 
     static func hasTranslation(_ key: String, code: String) -> Bool {
@@ -47,7 +53,76 @@ enum PBL10n {
     /// on-device setups. Operator-entered text and proper names are preserved.
     static func operationalText(_ value: String, language: AppLanguage, locale: Locale) -> String {
         let code = language.localizationCode(for: locale)
-        return rtlOperationalTranslations[code]?[value] ?? value
+        let translated = reviewedOperationalTranslations[value]?[code]
+            ?? localizedPublishedGuidance(value, code: code)
+            ?? rtlOperationalTranslations[code]?[value]
+            ?? value
+        guard translated != value || reviewedOperationalTranslations[value] != nil else { return value }
+        return bidiSafeSystemText(translated, code: code)
+    }
+
+    /// Adds display-only direction isolation for app-authored mixed Hebrew and
+    /// Latin text. Persisted operator input is never modified.
+    static func catalogText(_ value: String, language: AppLanguage, locale: Locale) -> String {
+        let code = language.localizationCode(for: locale)
+        let translated = reviewedOperationalTranslations[value]?[code] ?? value
+        return bidiSafeSystemText(translated, code: code)
+    }
+
+    /// Converts an unchanged localized catalog label back to its canonical
+    /// stored value. Freely edited operator text remains untouched.
+    static func canonicalCatalogText(_ value: String, language: AppLanguage, locale: Locale) -> String {
+        let code = language.localizationCode(for: locale)
+        let cleaned = value
+            .replacingOccurrences(of: "\u{2066}", with: "")
+            .replacingOccurrences(of: "\u{2067}", with: "")
+            .replacingOccurrences(of: "\u{2068}", with: "")
+            .replacingOccurrences(of: "\u{2069}", with: "")
+        return reviewedOperationalTranslations.first(where: { _, translations in
+            translations[code] == cleaned
+        })?.key ?? cleaned
+    }
+
+    private static let reviewedOperationalTranslations: [String: [String: String]] = {
+        let bundle = Bundle(for: PBLocalizationBundleMarker.self)
+        guard let url = bundle.url(forResource: "OperationalValueLocalizations", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let decoded = try? JSONDecoder().decode([String: [String: String]].self, from: data) else {
+            preconditionFailure("PressBench operational-value localization catalog is missing or invalid")
+        }
+        return decoded
+    }()
+
+    private static func localizedPublishedGuidance(_ value: String, code: String) -> String? {
+        let prefix = "Published range: "
+        guard value.hasPrefix(prefix) else { return nil }
+        let body = String(value.dropFirst(prefix.count))
+        guard let pressureRange = body.range(of: " pressure. ") else { return nil }
+        let leading = String(body[..<pressureRange.lowerBound])
+        let note = String(body[pressureRange.upperBound...])
+        guard let finalComma = leading.range(of: ", ", options: .backwards) else { return nil }
+        let measurements = String(leading[..<finalComma.lowerBound])
+        let pressureSource = String(leading[finalComma.upperBound...])
+        let pressure = reviewedOperationalTranslations[pressureSource.capitalized]?[code] ?? pressureSource
+        let localizedNote = reviewedOperationalTranslations[note]?[code] ?? note
+        switch code {
+        case "pt": return "Intervalo publicado: \(measurements), pressão \(pressure.lowercased()). \(localizedNote)"
+        case "he": return "הטווח שפורסם: \(measurements), לחץ \(pressure). \(localizedNote)"
+        case "zh-Hant": return "公布範圍：\(measurements)、壓力\(pressure)。\(localizedNote)"
+        default: return nil
+        }
+    }
+
+    private static func bidiSafeSystemText(_ value: String, code: String) -> String {
+        guard code == "he" else { return value }
+        let pattern = #"[A-Za-z0-9][A-Za-z0-9 .×°/%+\-–—:&'()]*"#
+        guard let expression = try? NSRegularExpression(pattern: pattern) else { return value }
+        let range = NSRange(value.startIndex..<value.endIndex, in: value)
+        return expression.stringByReplacingMatches(
+            in: value,
+            range: range,
+            withTemplate: "\u{2066}$0\u{2069}"
+        )
     }
 
     private static let rtlOperationalTranslations: [String: [String: String]] = [
@@ -66,8 +141,6 @@ enum PBL10n {
         ],
         "he": [
             "N/A": "לא זמין",
-            "EasyWeed": "איזי ויד",
-            "EasyWeed EcoStretch": "איזי ויד אקו סטרץ׳",
             "Confirm the current instructions for the exact blank before production.":
                 "יש לאמת את הוראות השימוש העדכניות עבור חומר הגלם המדויק לפני הייצור.",
             "Remove moisture and wrinkles before placement.":
@@ -124,7 +197,10 @@ enum PBFormat {
 
     /// Uses the international SI symbol rather than an English unit word.
     static func seconds(_ value: Int, locale: Locale) -> String {
-        "\(integer(value, locale: locale)) s"
+        let result = "\(integer(value, locale: locale)) s"
+        return locale.language.languageCode?.identifier.lowercased() == "he"
+            ? "\u{2066}\(result)\u{2069}"
+            : result
     }
 
     static func date(_ value: Date, locale: Locale, time: Bool = false) -> String {

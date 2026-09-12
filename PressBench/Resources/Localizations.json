@@ -157,7 +157,7 @@
       "translations": {
         "en": "Done",
         "es": "Listo",
-        "pt": "Concluído",
+        "pt": "Concluir",
         "fr": "Terminé",
         "de": "Fertig",
         "it": "Fine",
@@ -499,7 +499,7 @@
       "translations": {
         "en": "Platen",
         "es": "Plato",
-        "pt": "Prato",
+        "pt": "Base de prensagem",
         "fr": "Plateau",
         "de": "Pressplatte",
         "it": "Piastra",
@@ -917,7 +917,7 @@
       "translations": {
         "en": "Privacy Policy",
         "es": "Política de privacidad",
-        "pt": "Política de Privacidade",
+        "pt": "Política de privacidade",
         "fr": "Politique de confidentialité",
         "de": "Datenschutzrichtlinie",
         "it": "Informativa sulla privacy",
@@ -955,7 +955,7 @@
       "translations": {
         "en": "Terms of Use",
         "es": "Términos de uso",
-        "pt": "Termos de Utilização",
+        "pt": "Termos de utilização",
         "fr": "Conditions d’utilisation",
         "de": "Nutzungsbedingungen",
         "it": "Termini di utilizzo",
@@ -983,7 +983,7 @@
         "da": "Brugsvilkår",
         "nb": "Bruksvilkår",
         "el": "Όροι Χρήσης",
-        "he": "תנאי שימוש",
+        "he": "תנאי השימוש",
         "zh-Hant": "使用條款"
       }
     },
@@ -993,7 +993,7 @@
       "translations": {
         "en": "Safety Notice",
         "es": "Aviso de seguridad",
-        "pt": "Aviso de Segurança",
+        "pt": "Aviso de segurança",
         "fr": "Avis de sécurité",
         "de": "Sicherheitshinweis",
         "it": "Avviso di sicurezza",
@@ -1031,7 +1031,7 @@
       "translations": {
         "en": "Heat-Press Safety Notice",
         "es": "Aviso de seguridad de la prensa térmica",
-        "pt": "Aviso de Segurança da Prensa Térmica",
+        "pt": "Aviso de segurança da prensa térmica",
         "fr": "Avis de sécurité de la presse à chaud",
         "de": "Sicherheitshinweis zur Transferpresse",
         "it": "Avviso di sicurezza della termopressa",
@@ -1211,7 +1211,7 @@
         "da": "Hjem",
         "nb": "Hjem",
         "el": "Αρχική",
-        "he": "בית",
+        "he": "ראשי",
         "zh-Hant": "首頁"
       }
     },
@@ -1220,10 +1220,10 @@
       "source": "Setups",
       "translations": {
         "en": "Setups",
-        "es": "Procesos",
-        "pt": "Receitas",
+        "es": "Configuraciones",
+        "pt": "Processos",
         "fr": "Réglages",
-        "de": "Prozesse",
+        "de": "Setups",
         "it": "Setup",
         "nl": "Processen",
         "pl": "Procesy",
@@ -1258,10 +1258,10 @@
       "source": "Runs",
       "translations": {
         "en": "Runs",
-        "es": "Ejecuciones",
+        "es": "Tiradas",
         "pt": "Execuções",
         "fr": "Séries",
-        "de": "Durchläufe",
+        "de": "Läufe",
         "it": "Cicli",
         "nl": "Producties",
         "pl": "Przebiegi",
@@ -1286,9 +1286,9 @@
         "sv": "Körningar",
         "da": "Kørsler",
         "nb": "Kjøringer",
-        "el": "Παραγωγή",
+        "el": "Εκτελέσεις",
         "he": "הרצות ייצור",
-        "zh-Hant": "生產運行"
+        "zh-Hant": "生產作業"
       }
     },
     "tab.machines": {
@@ -1296,10 +1296,10 @@
       "source": "Machines",
       "translations": {
         "en": "Machines",
-        "es": "Máquinas",
+        "es": "Prensas",
         "pt": "Máquinas",
         "fr": "Presses",
-        "de": "Maschinen",
+        "de": "Pressen",
         "it": "Macchine",
         "nl": "Persen",
         "pl": "Maszyny",
@@ -1324,8 +1324,8 @@
         "sv": "Maskiner",
         "da": "Maskiner",
         "nb": "Maskiner",
-        "el": "Μηχανές",
-        "he": "מכונות",
+        "el": "Πρέσες",
+        "he": "מכבשים",
         "zh-Hant": "設備"
       }
     },
@@ -1668,7 +1668,7 @@
         "nb": "Kjører",
         "el": "Σε εξέλιξη",
         "he": "פועל",
-        "zh-Hant": "進行中"
+        "zh-Hant": "作業中"
       }
     },
     "runState.completed": {
@@ -1856,7 +1856,7 @@
         "sv": "Pressning",
         "da": "Presning",
         "nb": "Pressing",
-        "el": "Πίεση",
+        "el": "Πρεσάρισμα",
         "he": "לחיצה",
         "zh-Hant": "壓燙"
       }
@@ -2086,7 +2086,7 @@
         "nb": "Repeterbare oppsett. Registrerte kjøringer. Bedre produksjonskontroll.",
         "el": "Επαναλήψιμες ρυθμίσεις. Καταγεγραμμένες εκτελέσεις. Καλύτερος έλεγχος παραγωγής.",
         "he": "הגדרות שחוזרות על עצמן. הרצות מתועדות. ייצור מסודר יותר.",
-        "zh-Hant": "可重複的製程設定。可追蹤的生產運行。更穩定的生產。"
+        "zh-Hant": "可重複的製程設定。可追蹤的生產作業。更穩定的生產。"
       }
     },
     "onboarding.welcome.reuse.title": {
@@ -2162,7 +2162,7 @@
         "nb": "Hold vellykkede prosessdefinisjoner organisert og klare til neste produksjonskjøring.",
         "el": "Διατηρήστε τις επιτυχημένες περιγραφές διαδικασίας οργανωμένες και έτοιμες για την επόμενη εκτέλεση παραγωγής.",
         "he": "שמירה על הגדרות תהליך מוצלחות מסודרות ומוכנות להרצת הייצור הבאה.",
-        "zh-Hant": "將成功的製程定義整理好，為下一次生產運行做好準備。"
+        "zh-Hant": "將成功的製程定義整理好，供下一次生產作業使用。"
       }
     },
     "onboarding.welcome.structure.title": {
@@ -2476,7 +2476,7 @@
         "en": "PressBench is more than a timer or recipe notebook. Each run keeps a traceable production history around the setup you actually used.",
         "es": "PressBench es más que un temporizador o un cuaderno de recetas. Cada ejecución conserva un historial de producción trazable basado en la configuración que realmente usaste.",
         "pt": "O PressBench é mais do que um temporizador ou caderno de receitas. Cada execução mantém um histórico de produção rastreável baseado na configuração que realmente utilizou.",
-        "fr": "PressBench est plus qu’un minuteur ou un carnet de recettes. Chaque série conserve un historique de production traçable autour du réglage réellement utilisé.",
+        "fr": "PressBench est plus qu’un minuteur ou un carnet de recettes. Chaque série conserve un historique de production traçable lié au réglage réellement utilisé.",
         "de": "PressBench ist mehr als ein Timer oder Rezeptbuch. Jeder Lauf hält eine nachvollziehbare Produktionshistorie zu dem tatsächlich verwendeten Setup fest.",
         "it": "PressBench è più di un timer o un ricettario. Ogni ciclo mantiene una cronologia di produzione tracciabile basata sulla configurazione effettivamente utilizzata.",
         "nl": "PressBench is meer dan een timer of receptenboek. Elke run bewaart een traceerbare productiegeschiedenis rond de instelling die je daadwerkelijk hebt gebruikt.",
@@ -2504,7 +2504,7 @@
         "nb": "PressBench er mer enn en timer eller oppskriftsbok. Hver produksjonskjøring lagrer en sporbar produksjonshistorikk rundt oppsettet som faktisk ble brukt.",
         "el": "Το PressBench είναι κάτι περισσότερο από χρονόμετρο ή σημειωματάριο συνταγών. Κάθε εκτέλεση παραγωγής διατηρεί ιχνηλάσιμο ιστορικό με βάση τη ρύθμιση που χρησιμοποιήθηκε πραγματικά.",
         "he": "PressBench הוא יותר מטיימר או מחברת מתכונים. כל הרצת ייצור שומרת היסטוריית ייצור ניתנת למעקב לפי ההגדרה שבה נעשה שימוש בפועל.",
-        "zh-Hant": "PressBench 不只是計時器或配方筆記本。每次生產運行都會依照實際使用的製程設定保留可追蹤的生產記錄。"
+        "zh-Hant": "每次生產作業都會依照實際使用的製程設定保留可追蹤的生產記錄。"
       }
     },
     "onboarding.process.setup": {
@@ -2515,7 +2515,7 @@
         "es": "Configuración",
         "pt": "Configuração",
         "fr": "Réglage",
-        "de": "Einrichtung",
+        "de": "Setup",
         "it": "Configurazione",
         "nl": "Procesinstelling",
         "pl": "Konfiguracja",
@@ -3150,7 +3150,7 @@
         "nb": "Start med maskinen og prosessen du faktisk bruker. PressBench holder oppsett, produksjonskjøring og resultat koblet sammen.",
         "el": "Ξεκινήστε με τη μηχανή και τη διαδικασία που χρησιμοποιείτε πραγματικά. Το PressBench διατηρεί συνδεδεμένα τη ρύθμιση, την εκτέλεση παραγωγής και το αποτέλεσμα.",
         "he": "מתחילים במכונה ובתהליך שבהם משתמשים בפועל. PressBench שומר על הקשר בין ההגדרה, הרצת הייצור והתוצאה.",
-        "zh-Hant": "從實際使用的設備與製程開始。PressBench 會將製程設定、生產運行與結果連結起來。"
+        "zh-Hant": "從實際使用的設備與製程開始。PressBench 會將製程設定、生產作業與結果連結起來。"
       }
     },
     "onboarding.ready.machine.title": {
@@ -3273,7 +3273,7 @@
       "translations": {
         "en": "Record the exact process and source information.",
         "es": "Registra el proceso exacto y la información de la fuente.",
-        "pt": "Registe o processo exato e as informações da fonte.",
+        "pt": "Registe o processo exato e a origem das instruções.",
         "fr": "Enregistrez le processus exact et les informations de source.",
         "de": "Erfassen Sie den genauen Prozess und die Quellenangaben.",
         "it": "Registra il processo esatto e le informazioni sulla fonte.",
@@ -3340,7 +3340,7 @@
         "nb": "3. Registrer en produksjonskjøring",
         "el": "3. Καταγράψτε εκτέλεση παραγωγής",
         "he": "3. תיעוד הרצת ייצור",
-        "zh-Hant": "3. 記錄生產運行"
+        "zh-Hant": "3. 記錄生產作業"
       }
     },
     "onboarding.ready.run.body": {
@@ -3386,7 +3386,7 @@
       "source": "Start New Run",
       "translations": {
         "en": "Start New Run",
-        "es": "Iniciar nueva ejecución",
+        "es": "Iniciar nueva tirada",
         "pt": "Iniciar nova execução",
         "fr": "Démarrer une nouvelle série",
         "de": "Neuen Lauf starten",
@@ -3416,7 +3416,7 @@
         "nb": "Start ny kjøring",
         "el": "Νέα εκτέλεση",
         "he": "התחלת הרצה חדשה",
-        "zh-Hant": "開始新的生產運行"
+        "zh-Hant": "開始新的生產作業"
       }
     },
     "home.metric.setups": {
@@ -3605,7 +3605,7 @@
         "da": "Seneste opsætninger",
         "nb": "Nylige oppsett",
         "el": "Πρόσφατες ρυθμίσεις",
-        "he": "הגדרות אחרונות",
+        "he": "הגדרות תהליך אחרונות",
         "zh-Hant": "最近的製程設定"
       }
     },
@@ -3918,7 +3918,7 @@
       "source": "Clean runs: %@",
       "translations": {
         "en": "Clean runs: %@",
-        "es": "Ejecuciones sin incidencias: %@",
+        "es": "Tiradas sin incidencias: %@",
         "pt": "Execuções sem problemas: %@",
         "fr": "Séries sans défaut : %@",
         "de": "Fehlerfreie Läufe: %@",
@@ -3948,7 +3948,7 @@
         "nb": "Problemfrie kjøringer: %@",
         "el": "Εκτελέσεις χωρίς προβλήματα: %@",
         "he": "הרצות ללא בעיות: %@",
-        "zh-Hant": "無異常運行：%@"
+        "zh-Hant": "無異常作業：%@"
       }
     },
     "setups.recordedRunsCount": {
@@ -3956,7 +3956,7 @@
       "source": "Recorded runs: %@",
       "translations": {
         "en": "Recorded runs: %@",
-        "es": "Ejecuciones registradas: %@",
+        "es": "Tiradas registradas: %@",
         "pt": "Execuções registadas: %@",
         "fr": "Séries enregistrées : %@",
         "de": "Erfasste Läufe: %@",
@@ -3986,7 +3986,7 @@
         "nb": "Registrerte kjøringer: %@",
         "el": "Καταγεγραμμένες εκτελέσεις: %@",
         "he": "הרצות מתועדות: %@",
-        "zh-Hant": "已記錄運行：%@"
+        "zh-Hant": "已記錄作業：%@"
       }
     },
     "setups.notProven": {
@@ -4035,7 +4035,7 @@
         "es": "Configuración",
         "pt": "Configuração",
         "fr": "Réglage",
-        "de": "Einrichtung",
+        "de": "Setup",
         "it": "Configurazione",
         "nl": "Procesinstelling",
         "pl": "Konfiguracja",
@@ -4070,7 +4070,7 @@
       "source": "Start Run",
       "translations": {
         "en": "Start Run",
-        "es": "Iniciar ejecución",
+        "es": "Iniciar tirada",
         "pt": "Iniciar execução",
         "fr": "Démarrer la série",
         "de": "Lauf starten",
@@ -4100,7 +4100,7 @@
         "nb": "Start kjøring",
         "el": "Έναρξη εκτέλεσης",
         "he": "התחלת הרצה",
-        "zh-Hant": "開始運行"
+        "zh-Hant": "開始作業"
       }
     },
     "setup.lastProven": {
@@ -4146,7 +4146,7 @@
       "source": "Clean runs",
       "translations": {
         "en": "Clean runs",
-        "es": "Ejecuciones sin incidencias",
+        "es": "Tiradas sin incidencias",
         "pt": "Execuções sem problemas",
         "fr": "Séries sans défaut",
         "de": "Fehlerfreie Läufe",
@@ -4176,7 +4176,7 @@
         "nb": "Problemfrie kjøringer",
         "el": "Εκτελέσεις χωρίς προβλήματα",
         "he": "הרצות ללא בעיות",
-        "zh-Hant": "無異常運行"
+        "zh-Hant": "無異常作業"
       }
     },
     "setup.firstPass": {
@@ -4222,7 +4222,7 @@
       "source": "Runs",
       "translations": {
         "en": "Runs",
-        "es": "Ejecuciones",
+        "es": "Tiradas",
         "pt": "Execuções",
         "fr": "Séries",
         "de": "Produktionsläufe",
@@ -4252,7 +4252,7 @@
         "nb": "Produksjonskjøringer",
         "el": "Εκτελέσεις παραγωγής",
         "he": "הרצות ייצור",
-        "zh-Hant": "生產運行"
+        "zh-Hant": "生產作業"
       }
     },
     "runs.unitsProgress": {
@@ -4336,7 +4336,7 @@
       "source": "Active Run",
       "translations": {
         "en": "Active Run",
-        "es": "Ejecución activa",
+        "es": "Tirada activa",
         "pt": "Execução ativa",
         "fr": "Série active",
         "de": "Aktiver Lauf",
@@ -4366,7 +4366,7 @@
         "nb": "Aktiv kjøring",
         "el": "Ενεργή εκτέλεση",
         "he": "הרצה פעילה",
-        "zh-Hant": "目前運行"
+        "zh-Hant": "目前作業"
       }
     },
     "runs.batch": {
@@ -4412,7 +4412,7 @@
       "source": "Resume Run",
       "translations": {
         "en": "Resume Run",
-        "es": "Reanudar ejecución",
+        "es": "Reanudar tirada",
         "pt": "Retomar execução",
         "fr": "Reprendre la série",
         "de": "Lauf fortsetzen",
@@ -4442,7 +4442,7 @@
         "nb": "Fortsett kjøring",
         "el": "Συνέχιση εκτέλεσης",
         "he": "המשך הרצה",
-        "zh-Hant": "繼續運行"
+        "zh-Hant": "繼續作業"
       }
     },
     "runs.pause": {
@@ -4450,7 +4450,7 @@
       "source": "Pause Run",
       "translations": {
         "en": "Pause Run",
-        "es": "Pausar ejecución",
+        "es": "Pausar tirada",
         "pt": "Pausar execução",
         "fr": "Mettre la série en pause",
         "de": "Lauf pausieren",
@@ -4480,7 +4480,7 @@
         "nb": "Sett kjøring på pause",
         "el": "Παύση εκτέλεσης",
         "he": "השהיית הרצה",
-        "zh-Hant": "暫停運行"
+        "zh-Hant": "暫停作業"
       }
     },
     "runs.end": {
@@ -4488,7 +4488,7 @@
       "source": "End Run",
       "translations": {
         "en": "End Run",
-        "es": "Finalizar ejecución",
+        "es": "Finalizar tirada",
         "pt": "Terminar execução",
         "fr": "Terminer la série",
         "de": "Lauf beenden",
@@ -4518,7 +4518,7 @@
         "nb": "Avslutt kjøring",
         "el": "Τερματισμός εκτέλεσης",
         "he": "סיום הרצה",
-        "zh-Hant": "結束運行"
+        "zh-Hant": "結束作業"
       }
     },
     "runs.inProgress": {
@@ -4640,10 +4640,10 @@
       "source": "Machines",
       "translations": {
         "en": "Machines",
-        "es": "Máquinas",
+        "es": "Prensas",
         "pt": "Máquinas",
         "fr": "Presses",
-        "de": "Maschinen",
+        "de": "Pressen",
         "it": "Macchine",
         "nl": "Persen",
         "pl": "Maszyny",
@@ -4668,8 +4668,8 @@
         "sv": "Maskiner",
         "da": "Maskiner",
         "nb": "Maskiner",
-        "el": "Μηχανές",
-        "he": "מכונות",
+        "el": "Θερμοπρέσες",
+        "he": "מכבשים",
         "zh-Hant": "設備"
       }
     },
@@ -4716,7 +4716,7 @@
       "source": "Add machine",
       "translations": {
         "en": "Add machine",
-        "es": "Añadir máquina",
+        "es": "Añadir prensa",
         "pt": "Adicionar prensa",
         "fr": "Ajouter une presse",
         "de": "Presse hinzufügen",
@@ -5390,7 +5390,7 @@
         "sv": "Sammanfattning",
         "da": "Ledelsesresume",
         "nb": "Ledelsessammendrag",
-        "el": "Σύνοψη διοίκησης",
+        "el": "Σύνοψη αναφοράς",
         "he": "תקציר מנהלים",
         "zh-Hant": "執行摘要"
       }
@@ -5400,7 +5400,7 @@
       "source": "Run performance",
       "translations": {
         "en": "Run performance",
-        "es": "Rendimiento de las ejecuciones",
+        "es": "Rendimiento de las tiradas",
         "pt": "Desempenho das execuções",
         "fr": "Performance des séries",
         "de": "Leistung der Produktionsläufe",
@@ -5430,7 +5430,7 @@
         "nb": "Ytelse for produksjonskjøringer",
         "el": "Απόδοση εκτελέσεων παραγωγής",
         "he": "ביצועי הרצות ייצור",
-        "zh-Hant": "生產運行表現"
+        "zh-Hant": "生產作業成效"
       }
     },
     "report.issuesExceptions": {
@@ -5477,7 +5477,7 @@
       "translations": {
         "en": "Setup definitions",
         "es": "Definiciones de configuración",
-        "pt": "Definições das configurações",
+        "pt": "Parâmetros das configurações",
         "fr": "Définitions des réglages",
         "de": "Setup-Definitionen",
         "it": "Definizioni delle configurazioni",
@@ -5619,7 +5619,7 @@
         "da": "Udbytte ved første gennemløb",
         "nb": "Utbytte ved første gjennomløp",
         "el": "Απόδοση πρώτης διέλευσης",
-        "he": "תפוקה במעבר ראשון",
+        "he": "שיעור הצלחה במעבר ראשון",
         "zh-Hant": "一次良率"
       }
     },
@@ -5657,7 +5657,7 @@
         "da": "Endeligt udbytte",
         "nb": "Endelig utbytte",
         "el": "Τελική απόδοση",
-        "he": "תפוקה סופית",
+        "he": "שיעור הצלחה סופי",
         "zh-Hant": "最終良率"
       }
     },
@@ -5695,7 +5695,7 @@
         "da": "Omarbejdningsgrad",
         "nb": "Omarbeidingsgrad",
         "el": "Ποσοστό επανεργασίας",
-        "he": "שיעור עיבוד מחדש",
+        "he": "שיעור העיבוד מחדש",
         "zh-Hant": "重工率"
       }
     },
@@ -5733,7 +5733,7 @@
         "da": "Kassationsgrad",
         "nb": "Kassasjonsgrad",
         "el": "Ποσοστό απορρίψεων",
-        "he": "שיעור פסילות",
+        "he": "שיעור פסילה",
         "zh-Hant": "報廢率"
       }
     },
@@ -5858,7 +5858,7 @@
         "en": "Date",
         "es": "Fecha",
         "pt": "Data",
-        "fr": "Date du relevé",
+        "fr": "Date",
         "de": "Datum",
         "it": "Data",
         "nl": "Datum",
@@ -5935,7 +5935,7 @@
         "es": "Configuración",
         "pt": "Configuração",
         "fr": "Réglage",
-        "de": "Einrichtung",
+        "de": "Setup",
         "it": "Configurazione",
         "nl": "Procesinstelling",
         "pl": "Konfiguracja",
@@ -5998,8 +5998,8 @@
         "sv": "Bearbetat",
         "da": "Behandlet",
         "nb": "Behandlet",
-        "el": "Επεξεργασμένο",
-        "he": "עובד",
+        "el": "Επεξεργασμένα",
+        "he": "עובדו",
         "zh-Hant": "已處理"
       }
     },
@@ -6160,7 +6160,7 @@
       "source": "Suspected cause",
       "translations": {
         "en": "Suspected cause",
-        "es": "Causa sospechada",
+        "es": "Causa probable",
         "pt": "Causa suspeita",
         "fr": "Cause présumée",
         "de": "Vermutete Ursache",
@@ -6198,8 +6198,8 @@
       "source": "Disposition",
       "translations": {
         "en": "Disposition",
-        "es": "Disposición",
-        "pt": "Disposição",
+        "es": "Tratamiento",
+        "pt": "Destino",
         "fr": "Traitement",
         "de": "Verbleib",
         "it": "Destinazione",
@@ -6350,10 +6350,10 @@
       "source": "Machine / platen",
       "translations": {
         "en": "Machine / platen",
-        "es": "Máquina / plato",
+        "es": "Prensa / plato",
         "pt": "Máquina / prato",
-        "fr": "Machine / plateau",
-        "de": "Maschine / Pressplatte",
+        "fr": "Presse / plateau",
+        "de": "Presse / Pressplatte",
         "it": "Macchina / piastra",
         "nl": "Machine / persplaat",
         "pl": "Maszyna / płyta prasy",
@@ -6378,7 +6378,7 @@
         "sv": "Maskin / pressplatta",
         "da": "Maskine / presseplade",
         "nb": "Maskin / presseplate",
-        "el": "Μηχανή / πλάκα πρέσας",
+        "el": "Θερμοπρέσα / πλάκα",
         "he": "מכונה / פלטת לחיצה",
         "zh-Hant": "設備 / 壓板"
       }
@@ -6416,7 +6416,7 @@
         "sv": "Pressningssteg",
         "da": "Presningstrin",
         "nb": "Pressetrinn",
-        "el": "Στάδιο πίεσης",
+        "el": "Στάδιο πρεσαρίσματος",
         "he": "שלב לחיצה",
         "zh-Hant": "壓燙階段"
       }
@@ -6616,7 +6616,7 @@
       "source": "Runs",
       "translations": {
         "en": "Runs",
-        "es": "Ejecuciones",
+        "es": "Tiradas",
         "pt": "Execuções",
         "fr": "Séries",
         "de": "Produktionsläufe",
@@ -6646,7 +6646,7 @@
         "nb": "Produksjonskjøringer",
         "el": "Εκτελέσεις παραγωγής",
         "he": "הרצות ייצור",
-        "zh-Hant": "生產運行"
+        "zh-Hant": "生產作業"
       }
     },
     "report.sheet.setups": {
@@ -6988,7 +6988,7 @@
         "nb": "Varighet (sekunder)",
         "el": "Διάρκεια (δευτερόλεπτα)",
         "he": "משך (שניות)",
-        "zh-Hant": "時長（秒）"
+        "zh-Hant": "持續時間（秒）"
       }
     },
     "common.material": {
@@ -6996,10 +6996,10 @@
       "source": "Material",
       "translations": {
         "en": "Material",
-        "es": "Material de trabajo",
-        "pt": "Material usado",
+        "es": "Material",
+        "pt": "Material",
         "fr": "Matière",
-        "de": "Werkstoff",
+        "de": "Material",
         "it": "Materiale",
         "nl": "Materiaal",
         "pl": "Materiał",
@@ -7063,7 +7063,7 @@
         "da": "Transfermateriale",
         "nb": "Transfermateriale",
         "el": "Υλικό μεταφοράς",
-        "he": "חומר העברה",
+        "he": "אמצעי העברה",
         "zh-Hant": "轉印介質"
       }
     },
@@ -7102,7 +7102,7 @@
         "nb": "Gjenopprett kjøp",
         "el": "Επαναφορά αγορών",
         "he": "שחזור רכישות",
-        "zh-Hant": "回復購買"
+        "zh-Hant": "回復購買項目"
       }
     },
     "common.unlockPro": {
@@ -7338,10 +7338,10 @@
       "source": "OK",
       "translations": {
         "en": "OK",
-        "es": "Aceptar",
+        "es": "OK",
         "pt": "Confirmar",
-        "fr": "Valider",
-        "de": "Bestätigen",
+        "fr": "OK",
+        "de": "OK",
         "it": "Conferma",
         "nl": "Bevestigen",
         "pl": "Potwierdź",
@@ -7366,7 +7366,7 @@
         "sv": "Bekräfta",
         "da": "Bekræft",
         "nb": "Bekreft",
-        "el": "Επιβεβαίωση",
+        "el": "Εντάξει",
         "he": "אישור",
         "zh-Hant": "確定"
       }
@@ -7452,8 +7452,8 @@
       "source": "Language, units, feedback, backups, and support",
       "translations": {
         "en": "Language, units, feedback, backups, and support",
-        "es": "Idioma, unidades, respuesta, copias de seguridad y soporte",
-        "pt": "Idioma, unidades, resposta, cópias de segurança e suporte",
+        "es": "Idioma, unidades, vibración, copias de seguridad y soporte",
+        "pt": "Idioma, unidades, feedback, cópias de segurança e suporte",
         "fr": "Langue, unités, retours, sauvegardes et assistance",
         "de": "Sprache, Einheiten, Rückmeldung, Sicherungen und Support",
         "it": "Lingua, unità, feedback, backup e assistenza",
@@ -7491,7 +7491,7 @@
       "translations": {
         "en": "Storage recovery required",
         "es": "Se requiere recuperar el almacenamiento",
-        "pt": "É necessário recuperar o armazenamento",
+        "pt": "É necessário recuperar os dados locais",
         "fr": "Récupération du stockage requise",
         "de": "Speicherwiederherstellung erforderlich",
         "it": "È necessario recuperare l’archivio",
@@ -7519,8 +7519,8 @@
         "da": "Lageret skal gendannes",
         "nb": "Lagringen må gjenopprettes",
         "el": "Απαιτείται ανάκτηση αποθήκευσης",
-        "he": "נדרש שחזור אחסון",
-        "zh-Hant": "需要復原儲存資料"
+        "he": "נדרש שחזור הנתונים המקומיים",
+        "zh-Hant": "需要復原本機資料"
       }
     },
     "settings.hapticFeedback": {
@@ -7757,7 +7757,7 @@
       "translations": {
         "en": "Workspace tools",
         "es": "Herramientas de trabajo",
-        "pt": "Ferramentas de trabalho",
+        "pt": "Ferramentas de dados",
         "fr": "Outils de travail",
         "de": "Arbeitswerkzeuge",
         "it": "Strumenti di lavoro",
@@ -7785,8 +7785,8 @@
         "da": "Arbejdsredskaber",
         "nb": "Arbeidsverktøy",
         "el": "Εργαλεία εργασίας",
-        "he": "כלי עבודה",
-        "zh-Hant": "工作工具"
+        "he": "כלי נתונים",
+        "zh-Hant": "資料管理工具"
       }
     },
     "settings.createBackup": {
@@ -7938,7 +7938,7 @@
         "nb": "Angre siste gjenoppretting",
         "el": "Αναίρεση τελευταίας επαναφοράς",
         "he": "ביטול השחזור האחרון",
-        "zh-Hant": "復原上次還原"
+        "zh-Hant": "回復上次還原前的資料"
       }
     },
     "settings.restoreBackup": {
@@ -7947,7 +7947,7 @@
       "translations": {
         "en": "Restore this backup",
         "es": "Restaurar esta copia",
-        "pt": "Restaurar esta cópia",
+        "pt": "Restaurar esta cópia de segurança",
         "fr": "Restaurer cette sauvegarde",
         "de": "Diese Sicherung wiederherstellen",
         "it": "Ripristina questo backup",
@@ -7984,10 +7984,10 @@
       "source": "Machine",
       "translations": {
         "en": "Machine",
-        "es": "Máquina",
+        "es": "Prensa",
         "pt": "Máquina",
         "fr": "Presse",
-        "de": "Maschine",
+        "de": "Presse",
         "it": "Macchina",
         "nl": "Pers",
         "pl": "Maszyna",
@@ -8012,9 +8012,9 @@
         "sv": "Maskin",
         "da": "Maskine",
         "nb": "Maskin",
-        "el": "Μηχάνημα",
-        "he": "מכונה",
-        "zh-Hant": "設備"
+        "el": "Θερμοπρέσα",
+        "he": "מכבש",
+        "zh-Hant": "熱壓機"
       }
     },
     "run.previousStage": {
@@ -8137,7 +8137,7 @@
       "translations": {
         "en": "Stop with note",
         "es": "Detener con una nota",
-        "pt": "Parar com nota",
+        "pt": "Parar e adicionar nota",
         "fr": "Arrêter avec une note",
         "de": "Mit Notiz stoppen",
         "it": "Arresta con una nota",
@@ -8328,7 +8328,7 @@
         "en": "Record totals when the run ends",
         "es": "Registrar los totales al terminar",
         "pt": "Registar totais no fim da execução",
-        "fr": "Saisir les totaux à la fin du cycle",
+        "fr": "Saisir les totaux à la fin de la série",
         "de": "Summen am Laufende erfassen",
         "it": "Registra i totali al termine",
         "nl": "Totalen registreren wanneer de run eindigt",
@@ -8356,7 +8356,7 @@
         "nb": "Registrer totaler når kjøringen slutter",
         "el": "Καταγραφή συνόλων όταν τελειώσει η εκτέλεση",
         "he": "רישום הסכומים בסיום ההרצה",
-        "zh-Hant": "工作結束時記錄總數"
+        "zh-Hant": "生產作業結束時記錄總數"
       }
     },
     "run.pauseReason": {
@@ -8402,7 +8402,7 @@
       "source": "Run mode",
       "translations": {
         "en": "Run mode",
-        "es": "Modo de ejecución",
+        "es": "Modo de tirada",
         "pt": "Modo de execução",
         "fr": "Mode d’exécution",
         "de": "Laufmodus",
@@ -8432,7 +8432,7 @@
         "nb": "Kjøremodus",
         "el": "Λειτουργία εκτέλεσης",
         "he": "מצב הרצה",
-        "zh-Hant": "生產模式"
+        "zh-Hant": "作業模式"
       }
     },
     "run.mode.test": {
@@ -8440,9 +8440,9 @@
       "source": "Test run",
       "translations": {
         "en": "Test run",
-        "es": "Ejecución de prueba",
+        "es": "Tirada de prueba",
         "pt": "Execução de teste",
-        "fr": "Cycle de test",
+        "fr": "Série de test",
         "de": "Testlauf",
         "it": "Ciclo di prova",
         "nl": "Testrun",
@@ -8470,7 +8470,7 @@
         "nb": "Testkjøring",
         "el": "Δοκιμαστική εκτέλεση",
         "he": "הרצת בדיקה",
-        "zh-Hant": "測試工作"
+        "zh-Hant": "測試作業"
       }
     },
     "run.mode.production": {
@@ -8478,9 +8478,9 @@
       "source": "Production run",
       "translations": {
         "en": "Production run",
-        "es": "Ejecución de producción",
+        "es": "Tirada de producción",
         "pt": "Execução de produção",
-        "fr": "Cycle de production",
+        "fr": "Série de production",
         "de": "Produktionslauf",
         "it": "Ciclo di produzione",
         "nl": "Productierun",
@@ -8508,7 +8508,7 @@
         "nb": "Produksjonskjøring",
         "el": "Εκτέλεση παραγωγής",
         "he": "הרצת ייצור",
-        "zh-Hant": "生產工作"
+        "zh-Hant": "生產作業"
       }
     },
     "run.plannedQuantity": {
@@ -8517,7 +8517,7 @@
       "translations": {
         "en": "Planned quantity",
         "es": "Cantidad planificada",
-        "pt": "Quantidade planejada",
+        "pt": "Quantidade planeada",
         "fr": "Quantité prévue",
         "de": "Planmenge",
         "it": "Quantità pianificata",
@@ -8583,7 +8583,7 @@
         "da": "Jobreference",
         "nb": "Jobbreferanse",
         "el": "Αναφορά εργασίας",
-        "he": "אסמכתה למשימה",
+        "he": "מזהה עבודה",
         "zh-Hant": "工單參考"
       }
     },
@@ -8630,9 +8630,9 @@
       "source": "Count during the run",
       "translations": {
         "en": "Count during the run",
-        "es": "Contar durante la ejecución",
+        "es": "Contar durante la tirada",
         "pt": "Contar durante a execução",
-        "fr": "Compter pendant le cycle",
+        "fr": "Compter pendant la série",
         "de": "Während des Laufs zählen",
         "it": "Conta durante il ciclo",
         "nl": "Tellen tijdens de run",
@@ -8660,7 +8660,7 @@
         "nb": "Tell under kjøringen",
         "el": "Καταμέτρηση κατά την εκτέλεση",
         "he": "ספירה במהלך ההרצה",
-        "zh-Hant": "工作時記數"
+        "zh-Hant": "作業期間逐件計數"
       }
     },
     "run.progress.final": {
@@ -8698,7 +8698,7 @@
         "nb": "Registrer totaler til slutt",
         "el": "Καταγραφή συνόλων στο τέλος",
         "he": "רישום הסכומים בסוף",
-        "zh-Hant": "結束時記錄總數"
+        "zh-Hant": "作業結束時記錄總數"
       }
     },
     "run.confirmUnproven": {
@@ -8734,8 +8734,8 @@
         "sv": "Jag förstår att inställningen inte är beprövad",
         "da": "Jeg forstår, at denne opsætning ikke er afprøvet",
         "nb": "Jeg forstår at dette oppsettet ikke er utprøvd",
-        "el": "Κατανοώ ότι αυτή η ρύθμιση δεν είναι αποδεδειγμένη",
-        "he": "ברור לי שהגדרה זו עדיין לא הוכחה",
+        "el": "Κατανοώ ότι αυτή η ρύθμιση δεν έχει δοκιμαστεί",
+        "he": "ברור לי שהגדרת תהליך זו טרם נוסתה בהצלחה",
         "zh-Hant": "我瞭解此設定尚未經過驗證"
       }
     },
@@ -8810,8 +8810,8 @@
         "sv": "Kontrollen godkänd",
         "da": "Kontrol bestået",
         "nb": "Kontrollen bestått",
-        "el": "Ο έλεγχος πέρασε",
-        "he": "הבדיקה עברה",
+        "el": "Επιτυχής έλεγχος",
+        "he": "סימון הבדיקה כתקינה",
         "zh-Hant": "檢查通過"
       }
     },
@@ -8860,7 +8860,7 @@
         "en": "End run early",
         "es": "Finalizar antes de tiempo",
         "pt": "Terminar execução mais cedo",
-        "fr": "Terminer le cycle plus tôt",
+        "fr": "Terminer la série plus tôt",
         "de": "Lauf vorzeitig beenden",
         "it": "Termina il ciclo in anticipo",
         "nl": "Run voortijdig beëindigen",
@@ -8888,7 +8888,7 @@
         "nb": "Avslutt kjøringen tidlig",
         "el": "Πρόωρος τερματισμός εκτέλεσης",
         "he": "סיום ההרצה מוקדם",
-        "zh-Hant": "提前結束工作"
+        "zh-Hant": "提前結束作業"
       }
     },
     "qc.due": {
@@ -8897,7 +8897,7 @@
       "translations": {
         "en": "Quality check due",
         "es": "Control de calidad pendiente",
-        "pt": "Controlo de qualidade em falta",
+        "pt": "Controlo de qualidade necessário",
         "fr": "Contrôle qualité requis",
         "de": "Qualitätsprüfung fällig",
         "it": "Controllo qualità richiesto",
@@ -8963,7 +8963,7 @@
         "da": "Næste kvalitetskontrol ved %@ emner",
         "nb": "Neste kvalitetskontroll ved %@ elementer",
         "el": "Επόμενος έλεγχος στα %@ τεμάχια",
-        "he": "בדיקת האיכות הבאה ב־%@ פריטים",
+        "he": "בדיקת האיכות הבאה בפריט ה־%@",
         "zh-Hant": "在 %@ 件時進行下次品質檢查"
       }
     },
@@ -8975,7 +8975,7 @@
         "es": "Todas las unidades planificadas pasaron el control",
         "pt": "Todas as unidades planeadas foram aprovadas",
         "fr": "Toutes les unités prévues sont conformes",
-        "de": "Alle geplanten Einheiten haben bestanden",
+        "de": "Alle geplanten Einheiten haben die Qualitätsprüfung bestanden",
         "it": "Tutte le unità pianificate sono conformi",
         "nl": "Alle geplande eenheden zijn goedgekeurd",
         "pl": "Wszystkie zaplanowane sztuki przeszły kontrolę",
@@ -9002,7 +9002,7 @@
         "nb": "Alle planlagte enheter ble godkjent",
         "el": "Όλες οι προγραμματισμένες μονάδες πέρασαν τον έλεγχο",
         "he": "כל היחידות המתוכננות עברו בדיקה",
-        "zh-Hant": "所有計劃數量均通過檢查"
+        "zh-Hant": "所有計畫件數均通過檢查"
       }
     },
     "result.allGoodHelp": {
@@ -9012,8 +9012,8 @@
         "en": "Confirms zero rework, zero waste, and no issues.",
         "es": "Confirma cero retrabajo, cero desperdicio y ningún problema.",
         "pt": "Confirma zero retrabalho, zero desperdício e nenhum problema.",
-        "fr": "Confirme zéro retouche, zéro rebut et aucun problème.",
-        "de": "Bestätigt null Nacharbeit, null Ausschuss und keine Probleme.",
+        "fr": "Confirme l’absence de reprises, de rebut et de problèmes.",
+        "de": "Bestätigt: keine Nacharbeit, kein Ausschuss und keine Probleme.",
         "it": "Conferma zero rilavorazioni, zero scarti e nessun problema.",
         "nl": "Bevestigt nul herwerk, nul afval en geen problemen.",
         "pl": "Potwierdza brak poprawek, odpadów i problemów.",
@@ -9038,9 +9038,9 @@
         "sv": "Bekräftar noll omarbete, noll spill och inga problem.",
         "da": "Bekræfter nul omarbejde, nul spild og ingen problemer.",
         "nb": "Bekrefter null omarbeiding, null svinn og ingen problemer.",
-        "el": "Επιβεβαιώνει μηδενική επανεργασία, μηδενικά απορρίμματα και κανένα πρόβλημα.",
+        "el": "Επιβεβαιώνει ότι δεν υπάρχει επανεργασία, φύρα ή πρόβλημα.",
         "he": "מאשר שאין עיבוד מחדש, פסולת או בעיות.",
-        "zh-Hant": "確認無重工、無廢品且無問題。"
+        "zh-Hant": "確認無重工、無報廢且無問題。"
       }
     },
     "result.saveOutcome": {
@@ -9048,10 +9048,10 @@
       "source": "Save outcome",
       "translations": {
         "en": "Save outcome",
-        "es": "Resultado",
-        "pt": "Resultado",
-        "fr": "Résultat",
-        "de": "Ergebnis",
+        "es": "Guardar resultado",
+        "pt": "Guardar resultado",
+        "fr": "Enregistrer le résultat",
+        "de": "Ergebnis speichern",
         "it": "Risultato",
         "nl": "Resultaat",
         "pl": "Wynik",
@@ -9076,9 +9076,9 @@
         "sv": "Resultat",
         "da": "Resultat",
         "nb": "Resultat",
-        "el": "Αποτέλεσμα",
-        "he": "תוצאה",
-        "zh-Hant": "結果"
+        "el": "Αποθήκευση αποτελέσματος",
+        "he": "שמירת התוצאה",
+        "zh-Hant": "儲存結果"
       }
     },
     "result.batchOnly": {
@@ -9154,7 +9154,7 @@
         "nb": "Omarbeidede enheter besto kvalitetskontrollen",
         "el": "Οι επανεπεξεργασμένες μονάδες πέρασαν τον ποιοτικό έλεγχο",
         "he": "יחידות שעובדו מחדש עברו בקרת איכות",
-        "zh-Hant": "返工產品已通過品質檢查"
+        "zh-Hant": "重工件已通過品質檢查"
       }
     },
     "result.updateSetup": {
@@ -9230,7 +9230,7 @@
         "nb": "Lagre som ny variant",
         "el": "Αποθήκευση ως νέα παραλλαγή",
         "he": "שמירה כגרסה חדשה",
-        "zh-Hant": "另存為新變體"
+        "zh-Hant": "儲存為新版本"
       }
     },
     "result.variantTitle": {
@@ -9268,7 +9268,7 @@
         "nb": "Variantnavn",
         "el": "Τίτλος παραλλαγής",
         "he": "שם הגרסה",
-        "zh-Hant": "變體標題"
+        "zh-Hant": "版本名稱"
       }
     },
     "issue.title": {
@@ -9392,7 +9392,7 @@
         "en": "Reworked",
         "es": "Retrabajado",
         "pt": "Retrabalhado",
-        "fr": "Retouché",
+        "fr": "Repris",
         "de": "Nachgearbeitet",
         "it": "Rilavorato",
         "nl": "Herwerkt",
@@ -9419,7 +9419,7 @@
         "da": "Omarbejdet",
         "nb": "Omarbeidet",
         "el": "Επανεργάστηκε",
-        "he": "עובד מחדש",
+        "he": "עבר עיבוד מחדש",
         "zh-Hant": "重工"
       }
     },
@@ -10227,7 +10227,7 @@
       "translations": {
         "en": "Moisture",
         "es": "Humedad",
-        "pt": "Umidade",
+        "pt": "Humidade",
         "fr": "Humidité",
         "de": "Feuchtigkeit",
         "it": "Umidità",
@@ -10293,7 +10293,7 @@
         "da": "Forskudt overførsel",
         "nb": "Forskjøvet overføring",
         "el": "Μετατόπιση μεταφοράς",
-        "he": "הסטת העברה",
+        "he": "תזוזת ההדפס",
         "zh-Hant": "轉印偏移"
       }
     },
@@ -10330,8 +10330,8 @@
         "sv": "Kontaminering",
         "da": "Forurening",
         "nb": "Forurensning",
-        "el": "Μόλυνση",
-        "he": "זיהום",
+        "el": "Ρύπανση",
+        "he": "לכלוך",
         "zh-Hant": "污染"
       }
     },
@@ -10417,7 +10417,7 @@
       "translations": {
         "en": "Print supply",
         "es": "Suministro de impresión",
-        "pt": "Suprimento de impressão",
+        "pt": "Consumível de impressão",
         "fr": "Fourniture d’impression",
         "de": "Druckmaterial",
         "it": "Materiale di stampa",
@@ -10445,7 +10445,7 @@
         "da": "Printmateriale",
         "nb": "Utskriftsmateriale",
         "el": "Αναλώσιμο εκτύπωσης",
-        "he": "חומר הדפסה",
+        "he": "חומרי הדפסה",
         "zh-Hant": "列印耗材"
       }
     },
@@ -10455,7 +10455,7 @@
       "translations": {
         "en": "Equipment or power",
         "es": "Equipo o alimentación",
-        "pt": "Equipamento ou energia",
+        "pt": "Equipamento ou alimentação elétrica",
         "fr": "Équipement ou alimentation",
         "de": "Gerät oder Stromversorgung",
         "it": "Attrezzatura o alimentazione",
@@ -10721,7 +10721,7 @@
       "translations": {
         "en": "Moisture",
         "es": "Humedad",
-        "pt": "Umidade",
+        "pt": "Humidade",
         "fr": "Humidité",
         "de": "Feuchtigkeit",
         "it": "Umidità",
@@ -10949,7 +10949,7 @@
       "translations": {
         "en": "Equipment or power",
         "es": "Equipo o alimentación",
-        "pt": "Equipamento ou energia",
+        "pt": "Equipamento ou alimentação elétrica",
         "fr": "Équipement ou alimentation",
         "de": "Gerät oder Stromversorgung",
         "it": "Attrezzatura o alimentazione",
@@ -11015,7 +11015,7 @@
         "da": "Operatørafbrydelse",
         "nb": "Operatøravbrudd",
         "el": "Διακοπή χειριστή",
-        "he": "הפרעת מפעיל",
+        "he": "הפסקה מצד המפעיל",
         "zh-Hant": "操作員中斷"
       }
     },
@@ -11064,7 +11064,7 @@
         "en": "Discard unstarted run",
         "es": "Descartar tirada no iniciada",
         "pt": "Descartar execução não iniciada",
-        "fr": "Abandonner le cycle non démarré",
+        "fr": "Abandonner la série non démarrée",
         "de": "Nicht gestarteten Lauf verwerfen",
         "it": "Scarta ciclo non avviato",
         "nl": "Niet-gestarte run verwijderen",
@@ -11092,7 +11092,7 @@
         "nb": "Forkast ikke-startet kjøring",
         "el": "Απόρριψη εκτέλεσης που δεν ξεκίνησε",
         "he": "ביטול הרצה שלא התחילה",
-        "zh-Hant": "捨棄尚未開始的執行"
+        "zh-Hant": "捨棄尚未開始的作業"
       }
     },
     "run.discardUnstartedConfirm": {
@@ -11102,7 +11102,7 @@
         "en": "Discard this unstarted run? No batch record will be created.",
         "es": "¿Descartar esta tirada no iniciada? No se creará ningún registro de lote.",
         "pt": "Descartar esta execução não iniciada? Não será criado qualquer registo de lote.",
-        "fr": "Abandonner ce cycle non démarré ? Aucun enregistrement de lot ne sera créé.",
+        "fr": "Abandonner cette série non démarrée ? Aucun enregistrement de lot ne sera créé.",
         "de": "Diesen nicht gestarteten Lauf verwerfen? Es wird kein Chargenprotokoll erstellt.",
         "it": "Scartare questo ciclo non avviato? Non verrà creato alcun record del lotto.",
         "nl": "Deze niet-gestarte run verwijderen? Er wordt geen batchregistratie aangemaakt.",
@@ -11138,9 +11138,9 @@
       "source": "Discard unrecoverable run",
       "translations": {
         "en": "Discard unrecoverable run",
-        "es": "Descartar ejecución irrecuperable",
+        "es": "Descartar tirada irrecuperable",
         "pt": "Descartar execução irrecuperável",
-        "fr": "Abandonner le cycle irrécupérable",
+        "fr": "Abandonner la série irrécupérable",
         "de": "Nicht wiederherstellbaren Lauf verwerfen",
         "it": "Elimina ciclo non recuperabile",
         "nl": "Onherstelbare run verwijderen",
@@ -11168,7 +11168,7 @@
         "nb": "Forkast kjøring som ikke kan gjenopprettes",
         "el": "Απόρριψη μη ανακτήσιμης εκτέλεσης",
         "he": "מחיקת הרצה שלא ניתנת לשחזור",
-        "zh-Hant": "捨棄無法復原的運行"
+        "zh-Hant": "捨棄無法復原的作業"
       }
     },
     "run.discardRejectedConfirm": {
@@ -11205,7 +11205,7 @@
         "da": "Kassér “%1$@”? Alle ikke-gemte fremskridt, kvalitetskontroller og problemnoter mistes permanent. Der oprettes ingen batchregistrering.",
         "nb": "Forkaste «%1$@»? All ulagret fremdrift, kvalitetskontroller og problemnotater går tapt permanent. Ingen batchregistrering blir opprettet.",
         "el": "Απόρριψη του «%1$@»; Όλη η μη αποθηκευμένη πρόοδος, οι έλεγχοι ποιότητας και οι σημειώσεις προβλημάτων θα χαθούν οριστικά. Δεν θα δημιουργηθεί εγγραφή παρτίδας.",
-        "he": "למחוק את „%1$@”? כל ההתקדמות שלא נשמרה, בדיקות האיכות והערות הבעיות יאבדו לצמיתות. לא תיווצר רשומת אצווה.",
+        "he": "למחוק את ״%1$@״? כל ההתקדמות שלא נשמרה, בדיקות האיכות והערות הבעיות יאבדו לצמיתות. לא תיווצר רשומת אצווה.",
         "zh-Hant": "要捨棄「%1$@」嗎？所有尚未提交的進度、品質檢查和問題備註都將永久遺失，且不會建立批次記錄。"
       }
     },
@@ -11214,7 +11214,7 @@
       "source": "Enter a valid number.",
       "translations": {
         "en": "Enter a valid number.",
-        "es": "Introduzca un número válido.",
+        "es": "Introduce un número válido.",
         "pt": "Introduza um número válido.",
         "fr": "Saisissez un nombre valide.",
         "de": "Geben Sie eine gültige Zahl ein.",
@@ -11290,10 +11290,10 @@
       "source": "Select or create a machine before continuing.",
       "translations": {
         "en": "Select or create a machine before continuing.",
-        "es": "Seleccione o cree una máquina antes de continuar.",
+        "es": "Selecciona o crea una prensa antes de continuar.",
         "pt": "Selecione ou crie uma máquina antes de continuar.",
-        "fr": "Sélectionnez ou créez une machine avant de continuer.",
-        "de": "Wählen oder erstellen Sie eine Maschine, bevor Sie fortfahren.",
+        "fr": "Sélectionnez ou créez une presse avant de continuer.",
+        "de": "Wählen oder erstellen Sie eine Presse, bevor Sie fortfahren.",
         "it": "Seleziona o crea una macchina prima di continuare.",
         "nl": "Selecteer of maak een machine voordat u doorgaat.",
         "pl": "Przed kontynuowaniem wybierz lub utwórz maszynę.",
@@ -11318,9 +11318,9 @@
         "sv": "Välj eller skapa en maskin innan du fortsätter.",
         "da": "Vælg eller opret en maskine, før du fortsætter.",
         "nb": "Velg eller opprett en maskin før du fortsetter.",
-        "el": "Επιλέξτε ή δημιουργήστε ένα μηχάνημα πριν συνεχίσετε.",
+        "el": "Επιλέξτε ή δημιουργήστε μια θερμοπρέσα πριν συνεχίσετε.",
         "he": "לפני שממשיכים, יש לבחור מכונה או ליצור מכונה חדשה.",
-        "zh-Hant": "請先選取或建立機器，然後再繼續。"
+        "zh-Hant": "請先選取或新增熱壓機，然後再繼續。"
       }
     },
     "error.setupRequired": {
@@ -11328,9 +11328,9 @@
       "source": "Select or create a production setup before continuing.",
       "translations": {
         "en": "Select or create a production setup before continuing.",
-        "es": "Seleccione o cree una configuración de producción antes de continuar.",
+        "es": "Selecciona o crea una configuración de producción antes de continuar.",
         "pt": "Selecione ou crie uma configuração de produção antes de continuar.",
-        "fr": "Sélectionnez ou créez une configuration de production avant de continuer.",
+        "fr": "Sélectionnez ou créez un réglage de production avant de continuer.",
         "de": "Wählen oder erstellen Sie eine Produktionskonfiguration, bevor Sie fortfahren.",
         "it": "Seleziona o crea una configurazione di produzione prima di continuare.",
         "nl": "Selecteer of maak een productie-instelling voordat u doorgaat.",
@@ -11366,7 +11366,7 @@
       "source": "Delete or reassign the setups that use this machine first.",
       "translations": {
         "en": "Delete or reassign the setups that use this machine first.",
-        "es": "Primero elimine o reasigne las configuraciones que utilizan esta máquina.",
+        "es": "Elimina o reasigna primero las configuraciones que usan esta prensa.",
         "pt": "Elimine ou reatribua primeiro as configurações que utilizam esta prensa.",
         "fr": "Supprimez ou réaffectez d’abord les réglages qui utilisent cette presse.",
         "de": "Löschen Sie zuerst die Setups, die diese Presse verwenden, oder weisen Sie sie einer anderen Presse zu.",
@@ -11406,7 +11406,7 @@
         "en": "Finish or release the current reserved run before changing this record.",
         "es": "Finalice o libere la tirada reservada actual antes de modificar este registro.",
         "pt": "Conclua ou liberte a execução reservada atual antes de alterar este registo.",
-        "fr": "Terminez ou libérez le cycle réservé en cours avant de modifier cet enregistrement.",
+        "fr": "Terminez ou libérez la série réservée en cours avant de modifier cet enregistrement.",
         "de": "Beenden oder geben Sie den aktuell reservierten Lauf frei, bevor Sie diesen Datensatz ändern.",
         "it": "Termina o rilascia il ciclo attualmente riservato prima di modificare questo record.",
         "nl": "Rond de huidige gereserveerde run af of geef deze vrij voordat u deze registratie wijzigt.",
@@ -11434,7 +11434,7 @@
         "nb": "Fullfør eller frigi den gjeldende reserverte kjøringen før du endrer denne posten.",
         "el": "Ολοκληρώστε ή αποδεσμεύστε την τρέχουσα δεσμευμένη εκτέλεση πριν αλλάξετε αυτή την εγγραφή.",
         "he": "יש לסיים או לשחרר את ההרצה השמורה הנוכחית לפני שינוי הרשומה הזו.",
-        "zh-Hant": "請先完成或釋放目前保留的執行，然後再變更此記錄。"
+        "zh-Hant": "請先完成或釋放目前保留的作業，然後再變更此記錄。"
       }
     },
     "error.runState": {
@@ -11444,7 +11444,7 @@
         "en": "The run is not in the required state for that action.",
         "es": "La tirada no se encuentra en el estado requerido para esa acción.",
         "pt": "A execução não se encontra no estado necessário para essa ação.",
-        "fr": "Le cycle n’est pas dans l’état requis pour cette action.",
+        "fr": "La série n’est pas dans l’état requis pour cette action.",
         "de": "Der Lauf befindet sich nicht im erforderlichen Status für diese Aktion.",
         "it": "Il ciclo non è nello stato richiesto per questa azione.",
         "nl": "De run heeft niet de vereiste status voor die actie.",
@@ -11472,7 +11472,7 @@
         "nb": "Kjøringen har ikke statusen som kreves for handlingen.",
         "el": "Η εκτέλεση δεν βρίσκεται στην κατάσταση που απαιτείται για αυτή την ενέργεια.",
         "he": "ההרצה אינה במצב הנדרש לפעולה הזו.",
-        "zh-Hant": "執行未處於進行該動作所需的狀態。"
+        "zh-Hant": "作業目前的狀態不允許執行此操作。"
       }
     },
     "error.storageRecovery": {
@@ -11521,7 +11521,7 @@
         "es": "Tu dispositivo no tiene suficiente espacio disponible. Libera espacio e inténtalo de nuevo.",
         "pt": "O dispositivo não tem espaço disponível suficiente. Liberte algum espaço e tente novamente.",
         "fr": "Votre appareil ne dispose pas de suffisamment d’espace disponible. Libérez de l’espace, puis réessayez.",
-        "de": "Auf deinem Gerät ist nicht genügend Speicherplatz verfügbar. Gib Speicherplatz frei und versuche es erneut.",
+        "de": "Auf Ihrem Gerät ist nicht genügend Speicherplatz verfügbar. Geben Sie Speicherplatz frei und versuchen Sie es erneut.",
         "it": "Lo spazio disponibile sul dispositivo non è sufficiente. Libera spazio e riprova.",
         "nl": "Uw apparaat heeft onvoldoende beschikbare opslagruimte. Maak ruimte vrij en probeer het opnieuw.",
         "pl": "Na urządzeniu nie ma wystarczającej ilości wolnego miejsca. Zwolnij miejsce i spróbuj ponownie.",
@@ -11633,7 +11633,7 @@
       "translations": {
         "en": "“Proven in this shop” means qualifying operator-recorded results for this exact setup. It is not manufacturer validation, independent durability testing, certification, or a safety determination.",
         "es": "«Comprobado en este taller» significa que existen resultados válidos registrados por el operador para esta configuración exacta. No constituye una validación del fabricante, una prueba de durabilidad independiente, una certificación ni una evaluación de seguridad.",
-        "pt": "«Comprovado nesta oficina» significa que existem resultados elegíveis registados pelo operador para esta configuração exata. Não constitui validação do fabricante, ensaio de durabilidade independente, certificação nem avaliação de segurança.",
+        "pt": "«Testado neste espaço de trabalho» significa que existem resultados elegíveis registados pelo operador para esta configuração exata. Não constitui validação do fabricante, ensaio de durabilidade independente, certificação nem avaliação de segurança.",
         "fr": "« Éprouvé dans cet atelier » signifie que des résultats admissibles ont été enregistrés par l’opérateur pour ce réglage précis. Il ne s’agit ni d’une validation du fabricant, ni d’un essai de durabilité indépendant, ni d’une certification, ni d’une évaluation de sécurité.",
         "de": "„In diesem Betrieb bewährt“ bedeutet, dass der Bediener für genau dieses Setup qualifizierende Ergebnisse aufgezeichnet hat. Dies ist weder eine Herstellerfreigabe noch eine unabhängige Haltbarkeitsprüfung, Zertifizierung oder Sicherheitsbewertung.",
         "it": "“Testato in questo laboratorio” indica risultati idonei registrati dall’operatore per questa configurazione esatta. Non costituisce una convalida del produttore, una prova di durata indipendente, una certificazione o una valutazione di sicurezza.",
@@ -11661,7 +11661,7 @@
         "da": "“Afprøvet på dette værksted” betyder, at operatøren har registreret godkendte resultater for præcis denne opsætning. Det er ikke producentvalidering, en uafhængig holdbarhedstest, certificering eller en sikkerhedsvurdering.",
         "nb": "«Utprøvd på dette verkstedet» betyr at operatøren har registrert godkjente resultater for akkurat dette oppsettet. Det er ikke produsentvalidering, en uavhengig holdbarhetstest, sertifisering eller en sikkerhetsvurdering.",
         "el": "«Δοκιμασμένο σε αυτό το εργαστήριο» σημαίνει ότι ο χειριστής κατέγραψε αποτελέσματα που πληρούν τα κριτήρια για αυτήν ακριβώς τη ρύθμιση. Δεν αποτελεί επικύρωση κατασκευαστή, ανεξάρτητη δοκιμή αντοχής, πιστοποίηση ή αξιολόγηση ασφάλειας.",
-        "he": "„הוכח בסדנה זו” פירושו שהמפעיל תיעד תוצאות העומדות בתנאים עבור ההגדרה המדויקת הזאת. אין מדובר באימות של היצרן, בבדיקת עמידות עצמאית, בהסמכה או בקביעה בטיחותית.",
+        "he": "״נוסה בהצלחה בסדנה זו״ פירושו שהמפעיל תיעד תוצאות שעומדות בתנאים עבור הגדרת התהליך המדויקת הזאת. אין מדובר באימות של היצרן, בבדיקת עמידות עצמאית, בהסמכה או בקביעה בטיחותית.",
         "zh-Hant": "「已在本店驗證」是指操作員為此完全相同的設定記錄了符合條件的結果，並不代表製造商驗證、獨立耐久性測試、認證或安全判定。"
       }
     },
@@ -11823,7 +11823,7 @@
       "translations": {
         "en": "Managed in iOS Settings",
         "es": "Se gestiona en Ajustes de iOS",
-        "pt": "Gerenciado nos Ajustes do iOS",
+        "pt": "Gerido nas Definições do iOS",
         "fr": "Géré dans les réglages iOS",
         "de": "In den iOS-Einstellungen verwaltet",
         "it": "Gestito nelle Impostazioni di iOS",
@@ -11861,7 +11861,7 @@
       "translations": {
         "en": "Reduce Motion",
         "es": "Reducir movimiento",
-        "pt": "Reduzir Movimento",
+        "pt": "Reduzir movimento",
         "fr": "Réduire les animations",
         "de": "Bewegung reduzieren",
         "it": "Riduci movimento",
@@ -12013,7 +12013,7 @@
       "translations": {
         "en": "Open iOS Settings",
         "es": "Abrir Ajustes de iOS",
-        "pt": "Abrir Ajustes do iOS",
+        "pt": "Abrir Definições do iOS",
         "fr": "Ouvrir les réglages iOS",
         "de": "iOS-Einstellungen öffnen",
         "it": "Apri Impostazioni di iOS",
@@ -12051,7 +12051,7 @@
       "translations": {
         "en": "Delete Local Data",
         "es": "Eliminar datos locales",
-        "pt": "Apagar dados locais",
+        "pt": "Eliminar dados locais",
         "fr": "Supprimer les données locales",
         "de": "Lokale Daten löschen",
         "it": "Elimina dati locali",
@@ -12089,9 +12089,9 @@
       "translations": {
         "en": "This permanently deletes machines, setups, runs, and local settings from this device. Your App Store purchase is not deleted.",
         "es": "Esto elimina de forma permanente las máquinas, las configuraciones, las tiradas y los ajustes locales de este dispositivo. Tu compra en el App Store no se elimina.",
-        "pt": "Isso apaga permanentemente as máquinas, configurações, execuções e ajustes locais deste dispositivo. Sua compra na App Store não será apagada.",
-        "fr": "Cette action supprime définitivement de cet appareil les machines, les configurations, les séries et les réglages locaux. Votre achat sur l’App Store n’est pas supprimé.",
-        "de": "Dadurch werden Maschinen, Setups, Durchläufe und lokale Einstellungen dauerhaft von diesem Gerät gelöscht. Dein Kauf im App Store wird nicht gelöscht.",
+        "pt": "Isto elimina permanentemente as máquinas, configurações, execuções e definições locais deste dispositivo. A sua compra na App Store não será eliminada.",
+        "fr": "Cette action supprime définitivement de cet appareil les presses, les réglages de production, les séries et les paramètres locaux. Votre achat sur l’App Store n’est pas supprimé.",
+        "de": "Dadurch werden Pressen, Setups, Produktionsläufe und lokale Einstellungen dauerhaft von diesem Gerät gelöscht. Ihr Kauf im App Store wird nicht gelöscht.",
         "it": "Questo elimina definitivamente macchine, configurazioni, cicli e impostazioni locali da questo dispositivo. Il tuo acquisto sull’App Store non viene eliminato.",
         "nl": "Hiermee worden machines, setups, runs en lokale instellingen permanent van dit apparaat verwijderd. Je aankoop in de App Store wordt niet verwijderd.",
         "pl": "Spowoduje to trwałe usunięcie maszyn, konfiguracji, cykli i ustawień lokalnych z tego urządzenia. Zakup w App Store nie zostanie usunięty.",
@@ -12117,8 +12117,8 @@
         "da": "Dette sletter permanent maskiner, opsætninger, kørsler og lokale indstillinger fra denne enhed. Dit køb i App Store slettes ikke.",
         "nb": "Dette sletter maskiner, oppsett, kjøringer og lokale innstillinger permanent fra denne enheten. Kjøpet ditt i App Store slettes ikke.",
         "el": "Αυτή η ενέργεια διαγράφει οριστικά από τη συσκευή τα μηχανήματα, τις διαμορφώσεις, τις εκτελέσεις και τις τοπικές ρυθμίσεις. Η αγορά σας στο App Store δεν διαγράφεται.",
-        "he": "פעולה זו תמחק לצמיתות מהמכשיר את המכונות, ההגדרות, ההרצות וההעדפות המקומיות. הרכישה שלך ב-App Store לא תימחק.",
-        "zh-Hant": "這將從此裝置永久刪除機器、設定方案、運行紀錄和本機設定。你的 App Store 購買項目不會被刪除。"
+        "he": "פעולה זו תמחק לצמיתות מהמכשיר את המכבשים, הגדרות התהליך, הרצות הייצור וההגדרות המקומיות. הרכישה שלך ב‑App Store לא תימחק.",
+        "zh-Hant": "這會從此裝置永久刪除熱壓機、製程設定、生產作業記錄和本機設定。你的 App Store 購買項目不會被刪除。"
       }
     },
     "run.jobDifference": {
@@ -12278,9 +12278,9 @@
       "source": "Finish run",
       "translations": {
         "en": "Finish run",
-        "es": "Finalizar ejecución",
+        "es": "Finalizar tirada",
         "pt": "Terminar execução",
-        "fr": "Terminer le cycle",
+        "fr": "Terminer la série",
         "de": "Lauf beenden",
         "it": "Termina ciclo",
         "nl": "Run voltooien",
@@ -12308,7 +12308,7 @@
         "nb": "Fullfør kjøringen",
         "el": "Ολοκλήρωση εκτέλεσης",
         "he": "סיום ההרצה",
-        "zh-Hant": "結束工作"
+        "zh-Hant": "完成作業"
       }
     },
     "run.nextItem": {
@@ -12460,7 +12460,7 @@
         "nb": "Kjører den planlagte produksjonsmengden.",
         "el": "Εκτελεί την προγραμματισμένη ποσότητα παραγωγής.",
         "he": "מריצה את כמות הייצור המתוכננת.",
-        "zh-Hant": "依計畫數量進行生產。"
+        "zh-Hant": "依計畫件數進行生產。"
       }
     },
     "run.progress.live.help": {
@@ -12506,9 +12506,9 @@
       "source": "Enter the completed total when the run ends.",
       "translations": {
         "en": "Enter the completed total when the run ends.",
-        "es": "Introduce el total completado al finalizar la ejecución.",
+        "es": "Introduce el total completado al finalizar la tirada.",
         "pt": "Introduza o total concluído quando a execução terminar.",
-        "fr": "Saisissez le total terminé à la fin du cycle.",
+        "fr": "Saisissez le total terminé à la fin de la série.",
         "de": "Geben Sie am Laufende die fertige Gesamtmenge ein.",
         "it": "Inserisci il totale completato al termine del ciclo.",
         "nl": "Voer het voltooide totaal in wanneer de run eindigt.",
@@ -12535,8 +12535,8 @@
         "da": "Indtast det færdige totalantal, når kørslen slutter.",
         "nb": "Oppgi totalt ferdig antall når kjøringen slutter.",
         "el": "Εισαγάγετε το ολοκληρωμένο σύνολο όταν τελειώσει η εκτέλεση.",
-        "he": "יש להזין את הסכום שהושלם בסיום ההרצה.",
-        "zh-Hant": "工作結束時輸入已完成總數。"
+        "he": "יש להזין את המספר הכולל של הפריטים שהושלמו בסיום ההרצה.",
+        "zh-Hant": "作業結束時輸入完成件數。"
       }
     },
     "run.reuse.exactRepeat.help": {
@@ -12573,7 +12573,7 @@
         "da": "Brug samme materiale, transfer, maskine og proces.",
         "nb": "Bruk samme materiale, overføring, maskin og prosess.",
         "el": "Χρησιμοποιήστε το ίδιο υλικό, μεταφορά, μηχάνημα και διαδικασία.",
-        "he": "יש להשתמש באותו חומר, העברה, מכונה ותהליך.",
+        "he": "יש להשתמש באותו חומר, אמצעי העברה, מכבש ותהליך.",
         "zh-Hant": "使用相同的材料、轉印方式、設備和流程。"
       }
     },
@@ -12848,10 +12848,10 @@
       "source": "How do you want to add this machine?",
       "translations": {
         "en": "How do you want to add this machine?",
-        "es": "¿Cómo quieres añadir esta máquina?",
+        "es": "¿Cómo quieres añadir esta prensa?",
         "pt": "Como quer adicionar esta máquina?",
-        "fr": "Comment voulez-vous ajouter cette machine ?",
-        "de": "Wie möchten Sie diese Maschine hinzufügen?",
+        "fr": "Comment voulez-vous ajouter cette presse ?",
+        "de": "Wie möchten Sie diese Presse hinzufügen?",
         "it": "Come vuoi aggiungere questa macchina?",
         "nl": "Hoe wilt u deze machine toevoegen?",
         "pl": "Jak chcesz dodać tę maszynę?",
@@ -12876,9 +12876,9 @@
         "sv": "Hur vill du lägga till den här maskinen?",
         "da": "Hvordan vil du tilføje denne maskine?",
         "nb": "Hvordan vil du legge til denne maskinen?",
-        "el": "Πώς θέλετε να προσθέσετε αυτό το μηχάνημα;",
+        "el": "Πώς θέλετε να προσθέσετε αυτή τη θερμοπρέσα;",
         "he": "איך תרצו להוסיף את המכונה הזאת?",
-        "zh-Hant": "您想如何新增這台機器？"
+        "zh-Hant": "你想如何新增這台熱壓機？"
       }
     },
     "machine.start.catalog": {
@@ -12886,10 +12886,10 @@
       "source": "Pick a machine",
       "translations": {
         "en": "Pick a machine",
-        "es": "Elegir una máquina",
+        "es": "Elegir una prensa",
         "pt": "Escolher uma máquina",
-        "fr": "Choisir une machine",
-        "de": "Maschine auswählen",
+        "fr": "Choisir une presse",
+        "de": "Presse auswählen",
         "it": "Scegli una macchina",
         "nl": "Een machine kiezen",
         "pl": "Wybierz maszynę",
@@ -12914,7 +12914,7 @@
         "sv": "Välj en maskin",
         "da": "Vælg en maskine",
         "nb": "Velg en maskin",
-        "el": "Επιλογή μηχανήματος",
+        "el": "Επιλογή θερμοπρέσας",
         "he": "בחירת מכונה",
         "zh-Hant": "選擇機器"
       }
@@ -13191,7 +13191,7 @@
       "translations": {
         "en": "Third-party names identify products only. No affiliation or endorsement. Verify current instructions before production.",
         "es": "Los nombres de terceros solo identifican productos. No existe afiliación ni respaldo. Verifica las instrucciones vigentes antes de producir.",
-        "pt": "Os nomes de terceiros servem apenas para identificar produtos. Não existe afiliação nem endosso. Confirme as instruções atuais antes da produção.",
+        "pt": "Os nomes de terceiros servem apenas para identificar produtos. Não implicam qualquer afiliação nem recomendação. Confirme as instruções atuais antes da produção.",
         "fr": "Les noms de tiers servent uniquement à identifier les produits. Aucune affiliation ni approbation. Vérifiez les instructions en vigueur avant la production.",
         "de": "Namen Dritter dienen nur zur Produktidentifikation. Keine Verbindung oder Empfehlung. Prüfen Sie vor der Produktion die aktuellen Anweisungen.",
         "it": "I nomi di terzi servono solo a identificare i prodotti. Nessuna affiliazione o approvazione. Verifica le istruzioni aggiornate prima della produzione.",
@@ -13219,7 +13219,7 @@
         "da": "Tredjepartsnavne bruges kun til at identificere produkter. Ingen tilknytning eller anbefaling. Kontrollér de aktuelle instruktioner før produktion.",
         "nb": "Tredjepartsnavn brukes bare til å identifisere produkter. Ingen tilknytning eller anbefaling. Kontroller gjeldende instruksjoner før produksjon.",
         "el": "Τα ονόματα τρίτων χρησιμοποιούνται μόνο για την αναγνώριση προϊόντων. Δεν υπάρχει σύνδεση ή έγκριση. Ελέγξτε τις ισχύουσες οδηγίες πριν από την παραγωγή.",
-        "he": "שמות צדדים שלישיים משמשים לזיהוי מוצרים בלבד. אין שיוך או תמיכה. יש לבדוק את ההוראות העדכניות לפני הייצור.",
+        "he": "שמות של צדדים שלישיים משמשים לזיהוי מוצרים בלבד. אין בכך משום קשר מסחרי או המלצה. יש לבדוק את ההוראות העדכניות לפני הייצור.",
         "zh-Hant": "第三方名稱僅用於識別產品，不代表任何關聯或認可。生產前請核對最新說明。"
       }
     },
@@ -13230,8 +13230,8 @@
         "en": "Test runs make one item.",
         "es": "Las pruebas producen un artículo.",
         "pt": "As execuções de teste produzem um item.",
-        "fr": "Un cycle de test produit un article.",
-        "de": "Testläufe erstellen ein Teil.",
+        "fr": "Une série de test produit un article.",
+        "de": "Ein Testlauf erzeugt ein Teil.",
         "it": "Le prove producono un articolo.",
         "nl": "Een testrun maakt één item.",
         "pl": "Próba tworzy jedną sztukę.",
@@ -13304,10 +13304,10 @@
       "source": "Unlimited press runs and PDF or XLSX reports.",
       "translations": {
         "en": "Unlimited press runs and PDF or XLSX reports.",
-        "es": "Ejecuciones ilimitadas e informes PDF o XLSX.",
-        "pt": "Prensagens ilimitadas e relatórios PDF ou XLSX.",
-        "fr": "Pressages illimités et rapports PDF ou XLSX.",
-        "de": "Unbegrenzte Pressvorgänge und PDF- oder XLSX-Berichte.",
+        "es": "Tiradas ilimitadas e informes PDF o XLSX.",
+        "pt": "Execuções de prensagem ilimitadas e relatórios em PDF ou XLSX.",
+        "fr": "Séries de pressage illimitées et rapports PDF ou XLSX.",
+        "de": "Unbegrenzte Produktionsläufe und PDF- oder XLSX-Berichte.",
         "it": "Pressature illimitate e report PDF o XLSX.",
         "nl": "Onbeperkt persen en PDF- of XLSX-rapporten.",
         "pl": "Nielimitowane prasowania i raporty PDF lub XLSX.",
@@ -13332,9 +13332,9 @@
         "sv": "Obegränsade pressningar och PDF- eller XLSX-rapporter.",
         "da": "Ubegrænsede presninger og PDF- eller XLSX-rapporter.",
         "nb": "Ubegrensede pressinger og PDF- eller XLSX-rapporter.",
-        "el": "Απεριόριστες πρέσες και αναφορές PDF ή XLSX.",
-        "he": "לחיצות ללא הגבלה ודוחות PDF או XLSX.",
-        "zh-Hant": "無限次壓燙及 PDF 或 XLSX 報告。"
+        "el": "Απεριόριστες εκτελέσεις παραγωγής και αναφορές PDF ή XLSX.",
+        "he": "הרצות ייצור ללא הגבלה ודוחות PDF או XLSX.",
+        "zh-Hant": "不限次數的生產作業，以及 PDF 或 XLSX 報告。"
       }
     },
     "upgrade.unlock": {
@@ -13371,7 +13371,7 @@
         "da": "Abonner",
         "nb": "Abonner",
         "el": "Εγγραφή",
-        "he": "הרשמה",
+        "he": "הצטרפות למינוי",
         "zh-Hant": "訂閱"
       }
     },
@@ -13381,7 +13381,7 @@
       "translations": {
         "en": "Free runs used",
         "es": "Tiradas gratuitas utilizadas",
-        "pt": "Produções gratuitas utilizadas",
+        "pt": "Execuções gratuitas utilizadas",
         "fr": "Séries gratuites utilisées",
         "de": "Kostenlose Produktionsläufe genutzt",
         "it": "Cicli gratuiti utilizzati",
@@ -13410,7 +13410,7 @@
         "nb": "Brukte gratis produksjonskjøringer",
         "el": "Δωρεάν παραγωγές που χρησιμοποιήθηκαν",
         "he": "הרצות ייצור חינמיות שנוצלו",
-        "zh-Hant": "已使用的免費生產次數"
+        "zh-Hant": "已使用的免費作業次數"
       }
     },
     "upgrade.monthly": {
@@ -13570,9 +13570,9 @@
       "source": "Free runs remaining: %1$@ of %2$@",
       "translations": {
         "en": "Free runs remaining: %1$@ of %2$@",
-        "es": "Ejecuciones gratis restantes: %1$@ de %2$@",
+        "es": "Tiradas gratis restantes: %1$@ de %2$@",
         "pt": "Execuções gratuitas restantes: %1$@ de %2$@",
-        "fr": "Cycles gratuits restants : %1$@ sur %2$@",
+        "fr": "Séries gratuites restantes : %1$@ sur %2$@",
         "de": "Verbleibende Gratisläufe: %1$@ von %2$@",
         "it": "Cicli gratuiti rimasti: %1$@ di %2$@",
         "nl": "Gratis runs over: %1$@ van %2$@",
@@ -13600,7 +13600,7 @@
         "nb": "Gratis kjøringer igjen: %1$@ av %2$@",
         "el": "Δωρεάν εκτελέσεις που απομένουν: %1$@ από %2$@",
         "he": "הרצות חינמיות שנותרו: %1$@ מתוך %2$@",
-        "zh-Hant": "剩餘免費工作次數：%1$@/%2$@"
+        "zh-Hant": "剩餘免費作業次數：%1$@／%2$@"
       }
     },
     "usage.freeRunCountingRule": {
@@ -13608,10 +13608,10 @@
       "source": "A run counts only after you complete and save it.",
       "translations": {
         "en": "A run counts only after you complete and save it.",
-        "es": "Una ejecución solo cuenta cuando la completas y la guardas.",
+        "es": "Una tirada solo cuenta cuando la completas y la guardas.",
         "pt": "Uma execução só é contabilizada depois de concluída e guardada.",
-        "fr": "Un cycle n’est comptabilisé qu’une fois terminé et enregistré.",
-        "de": "Ein Durchlauf zählt erst, wenn du ihn abschließt und speicherst.",
+        "fr": "Une série n’est comptabilisée qu’une fois terminée et enregistrée.",
+        "de": "Ein Produktionslauf wird erst gezählt, nachdem Sie ihn abgeschlossen und gespeichert haben.",
         "it": "Un ciclo viene conteggiato solo dopo che lo completi e lo salvi.",
         "nl": "Een run telt pas mee nadat je deze hebt voltooid en opgeslagen.",
         "pl": "Przebieg liczy się dopiero po jego zakończeniu i zapisaniu.",
@@ -13637,8 +13637,8 @@
         "da": "En kørsel tæller først, når du har gennemført og gemt den.",
         "nb": "En kjøring telles først når du har fullført og lagret den.",
         "el": "Μια εκτέλεση υπολογίζεται μόνο αφού την ολοκληρώσετε και την αποθηκεύσετε.",
-        "he": "הפעלה נספרת רק לאחר השלמתה ושמירתה.",
-        "zh-Hant": "僅在完成並儲存後，才會計入一次工作。"
+        "he": "הרצת ייצור נספרת רק לאחר השלמתה ושמירתה.",
+        "zh-Hant": "只有在完成並儲存後，才會計入一次作業。"
       }
     },
     "upgrade.pricePerMonthFormat": {
@@ -13723,7 +13723,7 @@
       "translations": {
         "en": "No active PressBench Pro purchase was found for this Apple Account.",
         "es": "No se encontró una compra activa de PressBench Pro para esta cuenta de Apple.",
-        "pt": "Não foi encontrada uma compra ativa do PressBench Pro nesta conta Apple.",
+        "pt": "Não foi encontrada nenhuma subscrição PressBench Pro ativa nesta Conta Apple.",
         "fr": "Aucun achat PressBench Pro actif n’a été trouvé pour ce compte Apple.",
         "de": "Für diesen Apple Account wurde kein aktiver PressBench-Pro-Kauf gefunden.",
         "it": "Nessun acquisto PressBench Pro attivo trovato per questo account Apple.",
@@ -13751,8 +13751,8 @@
         "da": "Der blev ikke fundet et aktivt PressBench Pro-køb for denne Apple-konto.",
         "nb": "Fant ikke noe aktivt PressBench Pro-kjøp for denne Apple-kontoen.",
         "el": "Δεν βρέθηκε ενεργή αγορά PressBench Pro για αυτόν τον λογαριασμό Apple.",
-        "he": "לא נמצאה רכישת PressBench Pro פעילה עבור חשבון Apple זה.",
-        "zh-Hant": "找不到此 Apple 帳號有效的 PressBench Pro 購買項目。"
+        "he": "לא נמצא מינוי PressBench Pro פעיל בחשבון Apple זה.",
+        "zh-Hant": "此 Apple 帳號沒有有效的 PressBench Pro 訂閱。"
       }
     },
     "purchase.unavailable": {
@@ -13763,7 +13763,7 @@
         "es": "Las suscripciones no están disponibles ahora. Inténtalo de nuevo en un momento.",
         "pt": "As subscrições não estão disponíveis agora. Tente novamente em instantes.",
         "fr": "Les abonnements sont indisponibles pour le moment. Réessayez dans un instant.",
-        "de": "Abonnements sind derzeit nicht verfügbar. Versuche es gleich noch einmal.",
+        "de": "Abonnements sind derzeit nicht verfügbar. Versuchen Sie es gleich noch einmal.",
         "it": "Gli abbonamenti non sono disponibili al momento. Riprova tra poco.",
         "nl": "Abonnementen zijn nu niet beschikbaar. Probeer het zo opnieuw.",
         "pl": "Subskrypcje są teraz niedostępne. Spróbuj ponownie za chwilę.",
@@ -13951,7 +13951,7 @@
       "translations": {
         "en": "Back up your data",
         "es": "Haz una copia de tus datos",
-        "pt": "Faça uma cópia dos seus dados",
+        "pt": "Crie uma cópia de segurança dos seus dados",
         "fr": "Sauvegardez vos données",
         "de": "Daten sichern",
         "it": "Esegui il backup dei dati",
@@ -13980,7 +13980,7 @@
         "nb": "Sikkerhetskopier dataene dine",
         "el": "Δημιουργήστε αντίγραφο των δεδομένων σας",
         "he": "גיבוי הנתונים שלך",
-        "zh-Hant": "備份您的資料"
+        "zh-Hant": "備份資料"
       }
     },
     "backup.optionalBody": {
@@ -14105,7 +14105,7 @@
         "es": "Archivar configuración",
         "pt": "Arquivar configuração",
         "fr": "Archiver le réglage",
-        "de": "Einrichtung archivieren",
+        "de": "Setup archivieren",
         "it": "Archivia configurazione",
         "nl": "Instelling archiveren",
         "pl": "Archiwizuj ustawienie",
@@ -14257,7 +14257,7 @@
         "es": "Repetir esta configuración",
         "pt": "Repetir esta configuração",
         "fr": "Répéter ce réglage",
-        "de": "Diese Einrichtung wiederholen",
+        "de": "Dieses Setup wiederholen",
         "it": "Ripeti questa configurazione",
         "nl": "Deze instelling herhalen",
         "pl": "Powtórz to ustawienie",
@@ -14406,10 +14406,10 @@
       "source": "Archive machine",
       "translations": {
         "en": "Archive machine",
-        "es": "Archivar máquina",
+        "es": "Archivar prensa",
         "pt": "Arquivar máquina",
-        "fr": "Archiver la machine",
-        "de": "Maschine archivieren",
+        "fr": "Archiver la presse",
+        "de": "Presse archivieren",
         "it": "Archivia macchina",
         "nl": "Machine archiveren",
         "pl": "Archiwizuj maszynę",
@@ -14434,8 +14434,8 @@
         "sv": "Arkivera maskin",
         "da": "Arkivér maskine",
         "nb": "Arkiver maskin",
-        "el": "Αρχειοθέτηση μηχανήματος",
-        "he": "העברת המכונה לארכיון",
+        "el": "Αρχειοθέτηση θερμοπρέσας",
+        "he": "העברת מכבש החום לארכיון",
         "zh-Hant": "封存設備"
       }
     },
@@ -14444,7 +14444,7 @@
       "source": "Delete machine",
       "translations": {
         "en": "Delete machine",
-        "es": "Eliminar máquina",
+        "es": "Eliminar prensa",
         "pt": "Eliminar prensa",
         "fr": "Supprimer la presse",
         "de": "Presse löschen",
@@ -14483,7 +14483,7 @@
       "translations": {
         "en": "Complete the timer before continuing.",
         "es": "Completa el temporizador antes de continuar.",
-        "pt": "Conclua o temporizador antes de continuar.",
+        "pt": "Aguarde que o temporizador termine antes de continuar.",
         "fr": "Terminez le minuteur avant de continuer.",
         "de": "Schließen Sie zuerst den Timer ab.",
         "it": "Completa il timer prima di continuare.",
@@ -14559,7 +14559,7 @@
       "translations": {
         "en": "Delete “%1$@”?",
         "es": "¿Eliminar “%1$@”?",
-        "pt": "Eliminar “%1$@”?",
+        "pt": "Eliminar «%1$@»?",
         "fr": "Supprimer « %1$@ » ?",
         "de": "„%1$@“ löschen?",
         "it": "Eliminare “%1$@”?",
@@ -14587,7 +14587,7 @@
         "da": "Slet “%1$@”?",
         "nb": "Slette «%1$@»?",
         "el": "Διαγραφή του «%1$@»;",
-        "he": "למחוק את „%1$@”?",
+        "he": "למחוק את ״%1$@״?",
         "zh-Hant": "刪除「%1$@」嗎？"
       }
     },
@@ -14597,7 +14597,7 @@
       "translations": {
         "en": "Permanently delete “%1$@”? This cannot be undone.",
         "es": "¿Eliminar “%1$@” de forma permanente? Esta acción no se puede deshacer.",
-        "pt": "Eliminar “%1$@” permanentemente? Esta ação não pode ser anulada.",
+        "pt": "Eliminar «%1$@» permanentemente? Esta ação não pode ser anulada.",
         "fr": "Supprimer définitivement « %1$@ » ? Cette action est irréversible.",
         "de": "„%1$@“ dauerhaft löschen? Dies kann nicht rückgängig gemacht werden.",
         "it": "Eliminare definitivamente “%1$@”? Questa azione non può essere annullata.",
@@ -14625,7 +14625,7 @@
         "da": "Slet “%1$@” permanent? Dette kan ikke fortrydes.",
         "nb": "Slette «%1$@» permanent? Dette kan ikke angres.",
         "el": "Οριστική διαγραφή του «%1$@»; Αυτή η ενέργεια δεν αναιρείται.",
-        "he": "למחוק את „%1$@” לצמיתות? לא ניתן לבטל פעולה זו.",
+        "he": "למחוק את ״%1$@״ לצמיתות? לא ניתן לבטל פעולה זו.",
         "zh-Hant": "要永久刪除「%1$@」嗎？此操作無法復原。"
       }
     }

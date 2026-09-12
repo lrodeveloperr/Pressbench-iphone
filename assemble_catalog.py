@@ -25,6 +25,9 @@ OPERATIONAL_TRANSLATIONS = json.loads((root/'operational_translations.json').rea
 OPERATIONAL_KEYS = set(OPERATIONAL_TRANSLATIONS)
 OPERATOR_FOCUS_TRANSLATIONS = json.loads((root/'operator_focus_translations.json').read_text(encoding='utf-8'))
 OPERATOR_FOCUS_KEYS = set(OPERATOR_FOCUS_TRANSLATIONS)
+REVIEWED_LOCALIZATION_OVERRIDES = json.loads(
+    (root/'reviewed_localization_overrides.json').read_text(encoding='utf-8')
+)
 DIRECT_NEW_KEYS = {
   'run.finishRun', 'run.nextItem', 'error.freeLimit', 'backup.signInFailed',
   'run.mode.test.help', 'run.mode.production.help',
@@ -509,6 +512,9 @@ for key in keys:
     item['translations']['zh-Hant']=runtime_placeholders(zhh_text)
     for lang, text in KEY_OVERRIDES.get(key, {}).items():
         item['translations'][lang] = runtime_placeholders(text)
+    for lang, locale_overrides in REVIEWED_LOCALIZATION_OVERRIDES.items():
+        if key in locale_overrides:
+            item['translations'][lang] = runtime_placeholders(locale_overrides[key])
     catalog['strings'][key]=item
 
 resources=root/'PressBench/Resources'

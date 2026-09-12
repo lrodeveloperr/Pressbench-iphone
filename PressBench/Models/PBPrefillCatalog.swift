@@ -80,6 +80,22 @@ enum PBPrefillCatalog {
         return target.indices.contains(index) ? target[index] : value
     }
 
+    /// Converts a recognized localized catalog choice back to the canonical
+    /// English storage value. Unrecognized operator-entered text is preserved.
+    static func canonicalValue(_ value: String, for group: Group) -> String {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty,
+              let translations = localizationCatalog.groups[group.rawValue] else { return value }
+        let folded = normalized(trimmed)
+        for choices in translations.values {
+            if let index = choices.firstIndex(where: { normalized($0) == folded }) {
+                let canonical = english(group)
+                return canonical.indices.contains(index) ? canonical[index] : value
+            }
+        }
+        return value
+    }
+
     // English projections remain available for release audits and tests.
     static var platenSizes: [String] { english(.platenSizes) }
     static var materials: [String] { english(.materials) }

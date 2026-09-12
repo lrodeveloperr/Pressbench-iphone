@@ -765,7 +765,10 @@ private struct OFMachinesView: View {
                                 .background(OFTheme.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(machine.nickname).font(.headline)
-                                Text([machine.brand, machine.model, machine.platen].filter { !$0.isEmpty }.joined(separator: " · "))
+                                Text([machine.brand, machine.model, machine.platen]
+                                    .filter { !$0.isEmpty }
+                                    .map(catalogText)
+                                    .joined(separator: " · "))
                                     .font(.caption).foregroundStyle(.secondary)
                             }
                             Spacer()
@@ -792,6 +795,9 @@ private struct OFMachinesView: View {
     }
 
     private func text(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
+    private func catalogText(_ value: String) -> String {
+        PBL10n.catalogText(value, language: language, locale: locale)
+    }
 }
 
 private struct OFSetupEditor: View {
@@ -826,13 +832,13 @@ private struct OFSetupEditor: View {
                     Text(text("setup.presetDisclaimer"))
                 }
                 Section(text("setup.title")) {
-                    TextField(text("common.name"), text: $draft.title)
+                    TextField(text("common.name"), text: localizedCatalogBinding($draft.title))
                     Picker(text("run.machine"), selection: $draft.machineID) {
                         Text(text("common.tapToSelect")).tag("")
                         ForEach(store.machines.filter(\.active)) { machine in Text(machine.nickname).tag(machine.id) }
                     }
-                    TextField(text("common.material"), text: $draft.material)
-                    TextField(text("common.transferMedium"), text: $draft.transferMedium)
+                    TextField(text("common.material"), text: localizedCatalogBinding($draft.material, group: .materials))
+                    TextField(text("common.transferMedium"), text: localizedCatalogBinding($draft.transferMedium, group: .transferMedia))
                 }
                 ForEach(draft.stages.indices, id: \.self) { index in
                     Section {
@@ -847,11 +853,11 @@ private struct OFSetupEditor: View {
                                 .keyboardType(.decimalPad)
                             TextField(text("common.durationSeconds"), text: stageBinding(index, \.durationSeconds))
                                 .keyboardType(.numberPad)
-                            TextField(text("common.pressure"), text: stageBinding(index, \.pressure))
+                            TextField(text("common.pressure"), text: localizedStageBinding(index, \.pressure, group: .pressureDescriptions))
                             TextField(text("stage.repeatCount"), text: stageBinding(index, \.repeatCount))
                                 .keyboardType(.numberPad)
                         }
-                        TextField(text("stage.instruction"), text: stageBinding(index, \.instruction), axis: .vertical)
+                        TextField(text("stage.instruction"), text: localizedStageBinding(index, \.instruction), axis: .vertical)
                         if draft.stages.count > 1 {
                             Button(text("stage.remove"), role: .destructive) { draft.stages.remove(at: index) }
                         }
@@ -869,7 +875,7 @@ private struct OFSetupEditor: View {
                         .keyboardType(.numberPad)
                 }
                 Section(text("report.instructionSource")) {
-                    TextField(text("common.name"), text: $draft.sourceName)
+                    TextField(text("common.name"), text: localizedCatalogBinding($draft.sourceName, group: .instructionSources))
                     TextField(text("common.reference"), text: $draft.sourceReference)
                 }
                 Section(text("common.notes")) { TextField(text("common.notes"), text: $draft.notes, axis: .vertical) }
@@ -918,24 +924,52 @@ private struct OFSetupEditor: View {
         }
     }
 
+    private func localizedCatalogBinding(
+        _ binding: Binding<String>,
+        group: PBPrefillCatalog.Group? = nil
+    ) -> Binding<String> {
+        Binding(
+            get: {
+                let value = group.map {
+                    PBPrefillCatalog.localizedValue(binding.wrappedValue, for: $0, language: language, locale: locale)
+                } ?? binding.wrappedValue
+                return PBL10n.catalogText(value, language: language, locale: locale)
+            },
+            set: { value in
+                let cleaned = PBL10n.canonicalCatalogText(value, language: language, locale: locale)
+                binding.wrappedValue = group.map {
+                    PBPrefillCatalog.canonicalValue(cleaned, for: $0)
+                } ?? cleaned
+            }
+        )
+    }
+
+    private func localizedStageBinding(
+        _ index: Int,
+        _ keyPath: WritableKeyPath<SetupStageDraft, String>,
+        group: PBPrefillCatalog.Group? = nil
+    ) -> Binding<String> {
+        localizedCatalogBinding(stageBinding(index, keyPath), group: group)
+    }
+
     private func apply(_ entry: PBSetupPresetCatalog.Entry) {
         var stages = [SetupStageDraft(
-            stageType: "press", name: "", instruction: operational(entry.applicationNote),
+            stageType: "press", name: "", instruction: entry.applicationNote,
             temperature: String(entry.temperatureF), temperatureUnit: "F",
             durationSeconds: String(entry.durationSeconds),
-            pressure: PBPrefillCatalog.localizedValue(entry.pressure, for: .pressureDescriptions, language: language, locale: locale)
+            pressure: entry.pressure
         )]
         if let second = entry.secondPress {
             stages.append(SetupStageDraft(
-                stageType: "postpress", name: "", instruction: operational(entry.aftercare),
+                stageType: "postpress", name: "", instruction: entry.aftercare,
                 temperature: String(second.temperatureF), temperatureUnit: "F",
                 durationSeconds: String(second.durationSeconds),
-                pressure: PBPrefillCatalog.localizedValue(second.pressure, for: .pressureDescriptions, language: language, locale: locale)
+                pressure: second.pressure
             ))
         }
-        draft.title = operational(entry.name)
-        draft.material = PBPrefillCatalog.localizedValue(entry.material, for: .materials, language: language, locale: locale)
-        draft.transferMedium = operational(entry.name)
+        draft.title = entry.name
+        draft.material = entry.material
+        draft.transferMedium = entry.name
         draft.sourceName = entry.brand
         draft.sourceReference = entry.sourceURL.absoluteString
         draft.sourceCheckedDate = entry.sourceCheckedDate
@@ -993,8 +1027,8 @@ private struct OFPresetPicker: View {
             }) { entry in
                 Button { select(entry) } label: {
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(operational(entry.name)).font(.headline)
-                        Text("\(entry.brand) · \(entry.temperatureLabel) · \(entry.durationLabel) · \(localizedPressure(entry.pressure))")
+                        Text(catalog(entry.name)).font(.headline)
+                        Text("\(catalog(entry.brand)) · \(catalog(entry.temperatureLabel)) · \(catalog(entry.durationLabel)) · \(localizedPressure(entry.pressure))")
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
@@ -1007,8 +1041,8 @@ private struct OFPresetPicker: View {
     }
 
     private func text(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
-    private func operational(_ value: String) -> String {
-        PBL10n.operationalText(value, language: language, locale: locale)
+    private func catalog(_ value: String) -> String {
+        PBL10n.catalogText(value, language: language, locale: locale)
     }
     private func localizedPressure(_ value: String) -> String {
         PBPrefillCatalog.localizedValue(value, for: .pressureDescriptions, language: language, locale: locale)
@@ -1037,17 +1071,17 @@ private struct OFMachineEditor: View {
                 Section(text("machine.start.catalog")) {
                     Picker(text("common.brand"), selection: $draft.brand) {
                         Text(text("common.tapToSelect")).tag("")
-                        ForEach(PBMachineCatalog.brands, id: \.self) { Text($0).tag($0) }
+                        ForEach(PBMachineCatalog.brands, id: \.self) { Text(catalogText($0)).tag($0) }
                     }
                     Picker(text("common.model"), selection: $draft.model) {
                         Text(text("common.tapToSelect")).tag("")
-                        ForEach(PBMachineCatalog.models(for: draft.brand), id: \.self) { Text($0).tag($0) }
+                        ForEach(PBMachineCatalog.models(for: draft.brand), id: \.self) { Text(catalogText($0)).tag($0) }
                     }
                     .disabled(draft.brand.isEmpty)
                 }
                 Section {
-                    TextField(text("common.name"), text: $draft.nickname)
-                    TextField(text("common.platen"), text: $draft.platen)
+                    TextField(text("common.name"), text: localizedNicknameBinding)
+                    TextField(text("common.platen"), text: localizedPlatenBinding)
                     TextField(text("common.notes"), text: $draft.notes, axis: .vertical)
                 }
                 if !draft.id.isEmpty {
@@ -1114,6 +1148,36 @@ private struct OFMachineEditor: View {
         }
     }
     private func text(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
+    private func catalogText(_ value: String) -> String {
+        PBL10n.catalogText(value, language: language, locale: locale)
+    }
+    private var localizedPlatenBinding: Binding<String> {
+        Binding(
+            get: { catalogText(draft.platen) },
+            set: {
+                draft.platen = PBL10n.canonicalCatalogText($0, language: language, locale: locale)
+            }
+        )
+    }
+    private var localizedNicknameBinding: Binding<String> {
+        Binding(
+            get: {
+                let identity = [draft.brand, draft.model].filter { !$0.isEmpty }.joined(separator: " ")
+                if !identity.isEmpty && draft.nickname == identity {
+                    return [draft.brand, draft.model].filter { !$0.isEmpty }.map(catalogText).joined(separator: " ")
+                }
+                if draft.nickname == draft.platen { return catalogText(draft.platen) }
+                return draft.nickname
+            },
+            set: { value in
+                let identity = [draft.brand, draft.model].filter { !$0.isEmpty }.joined(separator: " ")
+                let localizedIdentity = [draft.brand, draft.model].filter { !$0.isEmpty }.map(catalogText).joined(separator: " ")
+                if !identity.isEmpty && value == localizedIdentity { draft.nickname = identity }
+                else if value == catalogText(draft.platen) { draft.nickname = draft.platen }
+                else { draft.nickname = PBL10n.canonicalCatalogText(value, language: language, locale: locale) }
+            }
+        )
+    }
 }
 
 private struct OFSetupRow: View {

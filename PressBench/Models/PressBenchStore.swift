@@ -289,16 +289,13 @@ final class PressBenchStore: ObservableObject {
     func machineDraft(for id: String?) -> MachineDraft {
         guard let id, let raw = rawMachines.first(where: { ($0["id"] as? String) == id }) else { return MachineDraft() }
         let rawPlaten = string(raw["platenOrZone"])
-        let localizedPlaten = localizedPreset(rawPlaten, group: .platenSizes)
         let rawNickname = string(raw["nickname"])
-        let localizedNickname = string(raw["brand"]).isEmpty && string(raw["model"]).isEmpty && rawNickname == rawPlaten
-            ? localizedPlaten : rawNickname
         return MachineDraft(
             id: id,
-            nickname: localizedNickname,
+            nickname: rawNickname,
             brand: string(raw["brand"]),
             model: string(raw["model"]),
-            platen: localizedPlaten,
+            platen: rawPlaten,
             notes: string(raw["notes"]),
             lastExternalCheckDate: string(raw["lastExternalCheckDate"])
         )
@@ -408,14 +405,14 @@ final class PressBenchStore: ObservableObject {
         let rawStages = raw["steps"] as? [[String: Any]] ?? []
         return SetupDraft(
             id: string(raw["id"]),
-            title: localizedSetupTitle(raw),
-            material: localizedPreset(string(raw["blankMaterial"]), group: .materials),
-            transferMedium: localizedOperationalValue(localizedPreset(string(raw["transferMedium"]), group: .transferMedia)),
+            title: string(raw["title"]),
+            material: string(raw["blankMaterial"]),
+            transferMedium: string(raw["transferMedium"]),
             machineID: string(raw["machineProfileId"]),
             temperature: numberText(raw["temperature"]),
             durationSeconds: numberText(raw["pressTimeSeconds"]),
-            pressure: localizedPreset(string(raw["pressure"]), group: .pressureDescriptions),
-            sourceName: localizedPreset(string((raw["instructionSource"] as? [String: Any])?["name"]), group: .instructionSources),
+            pressure: string(raw["pressure"]),
+            sourceName: string((raw["instructionSource"] as? [String: Any])?["name"]),
             sourceReference: string((raw["instructionSource"] as? [String: Any])?["reference"]),
             sourceCheckedDate: string((raw["instructionSource"] as? [String: Any])?["checkedDate"]),
             sourceRevision: string((raw["instructionSource"] as? [String: Any])?["revision"]),
@@ -438,14 +435,14 @@ final class PressBenchStore: ObservableObject {
                     id: string(step["id"]).isEmpty ? UUID().uuidString : string(step["id"]),
                     stageType: stageType,
                     name: isCanonicalStageName(storedName, for: stageType) ? "" : storedName,
-                    instruction: localizedOperationalValue(string(step["instruction"])),
+                    instruction: string(step["instruction"]),
                     temperature: numberText(step["temperature"]),
                     temperatureUnit: string(step["temperatureUnit"]).isEmpty ? string(raw["temperatureUnit"]) : string(step["temperatureUnit"]),
                     durationSeconds: numberText(step["durationSeconds"]),
-                    pressure: localizedPreset(string(step["pressure"]), group: .pressureDescriptions),
+                    pressure: string(step["pressure"]),
                     repeatCount: numberText(step["repeatCount"]).isEmpty ? "1" : numberText(step["repeatCount"]),
-                    placementAction: localizedPreset(string(step["placementAction"]), group: .placementActions),
-                    finishAction: localizedPreset(string(step["finishAction"]), group: .finishActions)
+                    placementAction: string(step["placementAction"]),
+                    finishAction: string(step["finishAction"])
                 )
             }
         )
@@ -1326,7 +1323,9 @@ final class PressBenchStore: ObservableObject {
                 instruction: localizedOperationalValue(string(step["instruction"])),
                 repeatCount: max(1, int(step["repeatCount"])),
                 placementAction: localizedPreset(string(step["placementAction"]), group: .placementActions),
-                finishAction: localizedPreset(string(step["finishAction"]), group: .finishActions),
+                finishAction: localizedOperationalValue(
+                    localizedPreset(string(step["finishAction"]), group: .finishActions)
+                ),
                 stageType: stageType
             )
         }
@@ -1346,7 +1345,7 @@ final class PressBenchStore: ObservableObject {
             duration: durationText(raw),
             pressure: localizedPreset(string(raw["pressure"]), group: .pressureDescriptions),
             machineNickname: localizedMachineNickname(raw),
-            platen: localizedPreset(string(raw["platenZone"]), group: .platenSizes),
+            platen: localizedOperationalValue(localizedPreset(string(raw["platenZone"]), group: .platenSizes)),
             lastUsedAt: date(raw["lastUsedAt"]),
             instructionSource: localizedPreset(
                 string((raw["instructionSource"] as? [String: Any])?["name"]),
@@ -1371,10 +1370,17 @@ final class PressBenchStore: ObservableObject {
         guard let id = raw["id"] as? String, !id.isEmpty else { return nil }
         let brand = string(raw["brand"]), model = string(raw["model"])
         let identity = [brand, model].filter { !$0.isEmpty }.joined(separator: " ")
+        let localizedIdentity = [brand, model]
+            .filter { !$0.isEmpty }
+            .map(localizedOperationalValue)
+            .joined(separator: " ")
         let rawPlaten = string(raw["platenOrZone"])
-        let localizedPlaten = localizedPreset(rawPlaten, group: .platenSizes)
+        let localizedPlaten = localizedOperationalValue(localizedPreset(rawPlaten, group: .platenSizes))
         let rawNickname = string(raw["nickname"])
-        let localizedNickname = identity.isEmpty && rawNickname == rawPlaten ? localizedPlaten : rawNickname
+        let localizedNickname: String
+        if identity.isEmpty && rawNickname == rawPlaten { localizedNickname = localizedPlaten }
+        else if !identity.isEmpty && rawNickname == identity { localizedNickname = localizedIdentity }
+        else { localizedNickname = rawNickname }
         return MachineProfile(
             id: id,
             nickname: localizedNickname,
@@ -1408,7 +1414,7 @@ final class PressBenchStore: ObservableObject {
             phase: "completed",
             temperature: temperatureText(recipe),
             pressure: localizedPreset(string(recipe?["pressure"]), group: .pressureDescriptions),
-            platen: localizedPreset(string(recipe?["platenZone"]), group: .platenSizes),
+            platen: localizedOperationalValue(localizedPreset(string(recipe?["platenZone"]), group: .platenSizes)),
             jobReference: string(raw["jobReference"]),
             duration: durationText(recipe),
             material: localizedPreset(string(recipe?["blankMaterial"]), group: .materials),
@@ -1427,7 +1433,9 @@ final class PressBenchStore: ObservableObject {
                              value: stageValue(stage), instruction: localizedOperationalValue(string(stage["instruction"])),
                              repeatCount: max(1, int(stage["repeatCount"])),
                              placementAction: localizedPreset(string(stage["placementAction"]), group: .placementActions),
-                             finishAction: localizedPreset(string(stage["finishAction"]), group: .finishActions), stageType: stageType)
+                             finishAction: localizedOperationalValue(
+                                 localizedPreset(string(stage["finishAction"]), group: .finishActions)
+                             ), stageType: stageType)
             },
             setupID: string(raw["recipeId"]),
             waste: int(raw["quantityWaste"]),
@@ -1473,7 +1481,7 @@ final class PressBenchStore: ObservableObject {
             phase: phase,
             temperature: temperatureText(setup),
             pressure: localizedPreset(string(setup?["pressure"]), group: .pressureDescriptions),
-            platen: localizedPreset(string(setup?["platenZone"]), group: .platenSizes),
+            platen: localizedOperationalValue(localizedPreset(string(setup?["platenZone"]), group: .platenSizes)),
             jobReference: string(raw["jobReference"]),
             duration: durationText(setup),
             timerRemaining: remaining,
@@ -1497,7 +1505,9 @@ final class PressBenchStore: ObservableObject {
                              instruction: localizedOperationalValue(string(stage["instruction"])),
                              repeatCount: max(1, int(stage["repeatCount"])),
                              placementAction: localizedPreset(string(stage["placementAction"]), group: .placementActions),
-                             finishAction: localizedPreset(string(stage["finishAction"]), group: .finishActions),
+                             finishAction: localizedOperationalValue(
+                                 localizedPreset(string(stage["finishAction"]), group: .finishActions)
+                             ),
                              stageType: stageType)
             },
             progressMode: string(raw["progressMode"]).isEmpty ? "final_confirmation" : string(raw["progressMode"]),
@@ -1515,7 +1525,9 @@ final class PressBenchStore: ObservableObject {
             currentStageRepeatCount: string(currentTimerStage?["stageType"]) == string(sourceStep?["stageType"])
                 ? max(1, int(sourceStep?["repeatCount"])) : 1,
             currentStagePlacementAction: localizedPreset(string(sourceStep?["placementAction"]), group: .placementActions),
-            currentStageFinishAction: localizedPreset(string(sourceStep?["finishAction"]), group: .finishActions),
+            currentStageFinishAction: localizedOperationalValue(
+                localizedPreset(string(sourceStep?["finishAction"]), group: .finishActions)
+            ),
             canDiscardUnstarted: raw["productionStarted"] as? Bool != true,
             firstPieceRequired: (raw["firstPiece"] as? [String: Any])?["required"] as? Bool == true,
             currentStageType: string(currentTimerStage?["stageType"]),

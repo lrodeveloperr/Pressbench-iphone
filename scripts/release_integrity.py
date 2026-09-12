@@ -667,12 +667,16 @@ durable_keys=['setup.provenBoundary','settings.appearance','appearance.system','
               'accessibility.openSettings','settings.deleteLocalData','settings.deleteLocalDataMessage',
               'run.jobDifference','run.exactRepeat','run.sameProductVariant','run.materiallyDifferent']
 operator_focus=json.loads((root/'operator_focus_translations.json').read_text(encoding='utf-8'))
+reviewed_overrides=json.loads((root/'reviewed_localization_overrides.json').read_text(encoding='utf-8'))
 for code in [item for item in catalog['languages'] if item != 'en'] + ['zh-Hant']:
     lines=(root/f'translations/{code}.txt').read_text(encoding='utf-8').splitlines()
     require(len(lines) == 286, f'canonical translation line count is not 286: {code}')
     for key in durable_keys:
         index=key_to_index.get(key)
-        canonical_translation = operator_focus.get(key, {}).get(code, lines[index] if index is not None else '')
+        canonical_translation = reviewed_overrides.get(code, {}).get(
+            key,
+            operator_focus.get(key, {}).get(code, lines[index] if index is not None else '')
+        )
         require(index is not None and canonical_translation == catalog['strings'][key]['translations'][code],
                 f'canonical translation does not regenerate {key}:{code}')
 for key, entry in catalog.get('strings',{}).items():
@@ -687,7 +691,7 @@ for key in ['report.sheet.summary', 'report.sheet.runs', 'report.sheet.setups', 
 # cannot silently drift from the approved subscription model.
 with tempfile.TemporaryDirectory(prefix='pressbench-l10n-') as temp_name:
     temp = Path(temp_name)
-    for filename in ['build_l10n.py', 'assemble_catalog.py', 'phrases.tsv', 'monetization_translations.json', 'operational_translations.json', 'operator_focus_translations.json']:
+    for filename in ['build_l10n.py', 'assemble_catalog.py', 'phrases.tsv', 'monetization_translations.json', 'operational_translations.json', 'operator_focus_translations.json', 'reviewed_localization_overrides.json']:
         shutil.copy2(root/filename, temp/filename)
     shutil.copytree(root/'translations', temp/'translations')
     (temp/'PressBench/Resources').mkdir(parents=True)

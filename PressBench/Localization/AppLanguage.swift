@@ -10,7 +10,7 @@ enum AppLanguage: String, CaseIterable, Identifiable, Codable {
         switch self {
         case .en: "English"
         case .es: "Español"
-        case .pt: "Português"
+        case .pt: "Português (Portugal)"
         case .fr: "Français"
         case .de: "Deutsch"
         case .it: "Italiano"
@@ -50,7 +50,7 @@ enum AppLanguage: String, CaseIterable, Identifiable, Codable {
         switch self {
         case .en: return region == "CA" ? "en-CA" : region == "GB" ? "en-GB" : "en-US"
         case .es: return region == "ES" ? "es-ES" : "es-MX"
-        case .pt: return region == "BR" ? "pt-BR" : "pt-PT"
+        case .pt: return "pt-PT"
         case .fr: return region == "CA" ? "fr-CA" : "fr-FR"
         case .zh:
             return script == "hant" || ["TW", "HK", "MO"].contains(region) ? "zh-Hant" : "zh-Hans"

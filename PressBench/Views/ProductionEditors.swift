@@ -28,6 +28,9 @@ struct MachineEditorView: View {
         self.onSaved = onSaved
     }
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
+    private func catalogText(_ value: String) -> String {
+        PBL10n.catalogText(value, language: language, locale: locale)
+    }
 
     var body: some View {
         NavigationStack {
@@ -57,7 +60,8 @@ struct MachineEditorView: View {
                             tapToSelectTitle: t("common.tapToSelect"),
                             otherTitle: t("issue.symptom.other"),
                             cancelTitle: t("common.cancel"),
-                            allowsOther: false
+                            allowsOther: false,
+                            displayValue: catalogText
                         )
                         if draft.brand.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             LabeledContent(t("common.model") + " *", value: t("common.tapToSelect"))
@@ -71,7 +75,8 @@ struct MachineEditorView: View {
                                 tapToSelectTitle: t("common.tapToSelect"),
                                 otherTitle: t("issue.symptom.other"),
                                 cancelTitle: t("common.cancel"),
-                                allowsOther: false
+                                allowsOther: false,
+                                displayValue: catalogText
                             )
                         }
                     }
@@ -878,10 +883,11 @@ private struct PBSetupPresetPicker: View {
                                 dismiss()
                             } label: {
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(preset.name).font(.headline).foregroundStyle(PBTheme.text)
+                                    Text(PBL10n.operationalText(preset.name, language: language, locale: locale))
+                                        .font(.headline).foregroundStyle(PBTheme.text)
                                     Text(preset.compatibleMaterials.map(localizedMaterial).joined(separator: " · "))
                                         .font(.caption).foregroundStyle(PBTheme.muted)
-                                    Text("\(preset.brand) · \(preset.temperatureLabel) · \(preset.durationLabel) · \(preset.pressure)")
+                                    Text("\(PBL10n.catalogText(preset.brand, language: language, locale: locale)) · \(PBL10n.catalogText(preset.temperatureLabel, language: language, locale: locale)) · \(PBL10n.catalogText(preset.durationLabel, language: language, locale: locale)) · \(PBPrefillCatalog.localizedValue(preset.pressure, for: .pressureDescriptions, language: language, locale: locale))")
                                         .font(.caption).foregroundStyle(PBTheme.secondary)
                                 }
                                 .frame(maxWidth: .infinity, minHeight: PBTheme.minimumTarget, alignment: .leading)

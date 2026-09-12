@@ -16,6 +16,12 @@ IDENTICAL_TO_ENGLISH_ALLOWLIST={
     'app.name', 'more.versionFormat', 'runs.unitsProgress',
     'onboarding.temperature.fahrenheit', 'onboarding.temperature.celsius'
 }
+REVIEWED_IDENTICAL_PAIRS={
+    ('tab.setups','de'), ('onboarding.process.setup','de'),
+    ('setup.title','de'), ('report.setup','de'), ('report.date','fr'),
+    ('common.material','pt'), ('common.material','de'), ('common.material','es'),
+    ('common.ok','de'), ('common.ok','es'), ('common.ok','fr')
+}
 for key,item in c.get('strings',{}).items():
     tr=item.get('translations',{})
     if set(tr)!=expected_codes: errors.append(f'{key}: translation-code set mismatch')
@@ -24,7 +30,7 @@ for key,item in c.get('strings',{}).items():
         text=tr.get(code,'')
         if not isinstance(text,str) or not text.strip(): errors.append(f'{key}/{code}: empty')
         if len(ph.findall(text))!=len(source_ph): errors.append(f'{key}/{code}: placeholder mismatch')
-        if code != 'en' and key not in IDENTICAL_TO_ENGLISH_ALLOWLIST and text.strip() == tr.get('en','').strip():
+        if code != 'en' and key not in IDENTICAL_TO_ENGLISH_ALLOWLIST and (key,code) not in REVIEWED_IDENTICAL_PAIRS and text.strip() == tr.get('en','').strip():
             errors.append(f'{key}/{code}: untranslated English value')
 # Catalog and canonical source inventory must describe exactly the same keys.
 inventory=json.loads((ROOT/'localization_keys.json').read_text(encoding='utf-8'))
@@ -76,6 +82,14 @@ for path in list((ROOT/'PressBench/Views').rglob('*.swift')) + list((ROOT/'Press
 store_source=(ROOT/'PressBench/Models/PressBenchStore.swift').read_text(encoding='utf-8')
 report_source=(ROOT/'PressBench/Reports/PressBenchReportExporter.swift').read_text(encoding='utf-8')
 localization_source=(ROOT/'PressBench/Localization/PBLocalization.swift').read_text(encoding='utf-8')
+operational_catalog=json.loads((ROOT/'PressBench/Resources/OperationalValueLocalizations.json').read_text(encoding='utf-8'))
+if len(operational_catalog) != 69:
+    errors.append(f'operational-value catalog: expected 69 source values, found {len(operational_catalog)}')
+for source,translations in operational_catalog.items():
+    if set(translations) != {'pt','he','zh-Hant'}:
+        errors.append(f'operational-value catalog/{source!r}: locale-code set mismatch')
+    if any(not isinstance(value,str) or not value.strip() for value in translations.values()):
+        errors.append(f'operational-value catalog/{source!r}: empty translation')
 for fragment in ['stage: "Completed"', '"\\(duration) sec"', '"\\(value) s"', '"\\($0)s"', 'stageName(']:
     if fragment in store_source:
         errors.append(f'PressBenchStore.swift: English projection fragment remains: {fragment}')
@@ -84,6 +98,7 @@ for fragment in ['batch["outcome"] as? String', '.text("datasetFingerprint")', '
         errors.append(f'PressBenchReportExporter.swift: raw English/internal report value remains: {fragment}')
 for required in [
     'static func seconds', 'static func decimal',
+    'OperationalValueLocalizations', 'static func operationalText', 'static func catalogText',
     'case "first_piece": return "onboarding.process.firstPiece"',
     'case "result_pending", "committing": return "onboarding.process.result"',
     'case "completed": return "runState.completed"',
@@ -100,7 +115,11 @@ for required in ['localizedIssueValue(', 'PBFormat.seconds(duration, locale: loc
 prefill_source=(ROOT/'PressBench/Models/PBPrefillCatalog.swift').read_text(encoding='utf-8')
 prefill_catalog=json.loads((ROOT/'PressBench/Resources/PrefillLocalizations.json').read_text(encoding='utf-8'))
 prefill_canonical=json.loads((ROOT/'prefill_localization_source.json').read_text(encoding='utf-8'))
-prefill_overrides=json.loads((ROOT/'prefill_translation_overrides.json').read_text(encoding='utf-8'))
+prefill_overrides={}
+for override_path in [ROOT/'prefill_translation_overrides.json', ROOT/'reviewed_prefill_overrides.json']:
+    for group,locales in json.loads(override_path.read_text(encoding='utf-8')).items():
+        for code,replacements in locales.items():
+            prefill_overrides.setdefault(group,{}).setdefault(code,{}).update(replacements)
 prefill_counts={
     'platenSizes':18, 'materials':20, 'transferMedia':18, 'pressureDescriptions':5,
     'instructionSources':5, 'placementActions':16, 'finishActions':16

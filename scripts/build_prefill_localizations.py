@@ -16,6 +16,7 @@ import urllib.request
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_PATH = ROOT / "prefill_localization_source.json"
 OVERRIDES_PATH = ROOT / "prefill_translation_overrides.json"
+REVIEWED_OVERRIDES_PATH = ROOT / "reviewed_prefill_overrides.json"
 OUTPUT_PATH = ROOT / "PressBench/Resources/PrefillLocalizations.json"
 
 LANGUAGES = [
@@ -90,11 +91,12 @@ def localized_dimensions(values):
 
 
 def apply_overrides(catalog):
-    overrides = json.loads(OVERRIDES_PATH.read_text(encoding="utf-8"))
-    for group, locales in overrides.items():
-        for code, replacements in locales.items():
-            for index, value in replacements.items():
-                catalog["groups"][group][code][int(index)] = value
+    for path in (OVERRIDES_PATH, REVIEWED_OVERRIDES_PATH):
+        overrides = json.loads(path.read_text(encoding="utf-8"))
+        for group, locales in overrides.items():
+            for code, replacements in locales.items():
+                for index, value in replacements.items():
+                    catalog["groups"][group][code][int(index)] = value
 
 
 def main():

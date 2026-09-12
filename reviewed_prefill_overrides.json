@@ -1,0 +1,433 @@
+{
+  "platenSizes": {
+    "pt": {
+      "13": "Base para chapéus/bonés",
+      "15": "Prensa térmica para copos altos",
+      "16": "Prensa térmica para pratos",
+      "17": "Base de prensagem intercambiável"
+    },
+    "he": {
+      "13": "פלטה לכובעים",
+      "14": "מכבש חום לספלים",
+      "15": "מכבש חום לכוסות תרמיות",
+      "16": "מכבש חום לצלחות"
+    },
+    "zh-Hant": {
+      "13": "帽類壓板",
+      "15": "保溫杯熱壓機",
+      "16": "盤子熱壓機",
+      "17": "可更換壓板"
+    },
+    "de": {
+      "13": "Pressplatte für Kappen/Hüte",
+      "14": "Tassenpresse",
+      "15": "Tumbler-Presse",
+      "16": "Tellerpresse"
+    },
+    "el": {
+      "13": "Πλάκα για καπέλα",
+      "14": "Θερμοπρέσα για κούπες",
+      "15": "Θερμοπρέσα για ποτήρια τύπου tumbler",
+      "16": "Θερμοπρέσα για πιάτα"
+    },
+    "es": {
+      "13": "Plato para gorras/sombreros",
+      "15": "Prensa térmica para vasos tipo tumbler",
+      "16": "Prensa térmica para platos",
+      "17": "Plato intercambiable"
+    },
+    "fr": {
+      "16": "Presse à chaud pour assiettes"
+    }
+  },
+  "materials": {
+    "pt": {
+      "0": "T-shirt 100% algodão",
+      "1": "T-shirt 100% poliéster",
+      "3": "Peça em tecido de três fibras",
+      "4": "Poliéster técnico",
+      "6": "Sweatshirt com ou sem capuz",
+      "7": "Saco de lona",
+      "8": "Saco de algodão",
+      "13": "Copo térmico revestido",
+      "15": "Placa de fibra dura revestida",
+      "16": "Peça de ardósia em branco",
+      "17": "Peça de vidro em branco",
+      "18": "Peça de madeira em branco"
+    },
+    "he": {
+      "3": "בגד מבד תלת־תערובת",
+      "4": "פוליאסטר לביגוד ספורט",
+      "7": "תיק קנבס",
+      "9": "כובע מצחייה או כובע",
+      "13": "כוס תרמית מצופה",
+      "16": "לוח צפחה להדפסה",
+      "17": "משטח זכוכית להדפסה",
+      "18": "משטח עץ להדפסה"
+    },
+    "zh-Hant": {
+      "1": "100% 聚酯纖維 T 恤",
+      "3": "三纖混紡衣物",
+      "4": "機能性聚酯纖維",
+      "5": "聚酯塗層布料",
+      "6": "連帽上衣或運動衫",
+      "9": "棒球帽或一般帽款",
+      "13": "塗層保溫杯",
+      "16": "空白石板",
+      "17": "空白玻璃胚",
+      "18": "空白木製胚料"
+    },
+    "de": {
+      "4": "Funktionspolyester",
+      "12": "Keramiktasse",
+      "13": "Beschichteter Trinkbecher"
+    },
+    "el": {
+      "0": "Μπλουζάκι από 100% βαμβάκι",
+      "3": "Ένδυμα από μείγμα τριών ινών",
+      "4": "Τεχνικό πολυεστερικό ύφασμα",
+      "6": "Φούτερ με ή χωρίς κουκούλα",
+      "7": "Τσάντα από καμβά",
+      "9": "Καπέλο",
+      "16": "Πλάκα σχιστόλιθου για εκτύπωση",
+      "17": "Γυάλινο τεμάχιο για εκτύπωση",
+      "18": "Ξύλινο τεμάχιο για εκτύπωση"
+    },
+    "es": {
+      "7": "Bolsa de lona",
+      "8": "Bolsa de algodón",
+      "9": "Gorra o sombrero",
+      "15": "Tablero de fibra revestido",
+      "16": "Pieza de pizarra sin imprimir",
+      "17": "Pieza de vidrio sin imprimir",
+      "18": "Pieza de madera sin imprimir"
+    },
+    "fr": {
+      "3": "Vêtement en mélange de trois fibres",
+      "4": "Polyester technique",
+      "17": "Support en verre non imprimé",
+      "18": "Support en bois non imprimé"
+    }
+  },
+  "transferMedia": {
+    "pt": {
+      "0": "Vinil de transferência térmica (HTV)",
+      "1": "HTV elástico",
+      "3": "HTV flocado",
+      "4": "HTV expansível",
+      "5": "HTV refletor",
+      "6": "HTV para impressão",
+      "7": "Transferência direta para película (DTF)",
+      "8": "Transfer serigráfico",
+      "10": "Papel transfer para impressora a jato de tinta",
+      "11": "Papel transfer para impressora laser",
+      "12": "Transfer de toner branco",
+      "14": "Emblema bordado",
+      "15": "Emblema tecido",
+      "16": "Emblema adesivo",
+      "17": "Transfer com folha metalizada"
+    },
+    "he": {
+      "0": "ויניל להעברה בחום (HTV)",
+      "1": "HTV גמיש",
+      "2": "HTV נצנצים",
+      "4": "HTV מתנפח",
+      "5": "HTV מחזיר אור",
+      "7": "העברה ישירה לפילם (DTF)",
+      "8": "טרנספר בדפוס רשת",
+      "9": "טרנספר סובלימציה",
+      "10": "נייר טרנספר למדפסת הזרקת דיו",
+      "11": "נייר טרנספר למדפסת לייזר",
+      "12": "טרנספר בטונר לבן",
+      "13": "טרנספר אבני חן",
+      "16": "טלאי דביק",
+      "17": "טרנספר פויל"
+    },
+    "zh-Hant": {
+      "0": "熱轉印膜（HTV）",
+      "1": "彈性 HTV",
+      "2": "亮粉 HTV",
+      "3": "植絨 HTV",
+      "4": "發泡 HTV",
+      "5": "反光 HTV",
+      "6": "可列印 HTV",
+      "7": "直接膠膜轉印（DTF）",
+      "12": "白色碳粉轉印",
+      "14": "刺繡布章",
+      "15": "織標布章",
+      "16": "背膠布章",
+      "17": "金屬箔轉印"
+    },
+    "de": {
+      "0": "Textiltransferfolie (HTV)",
+      "1": "Stretch-HTV",
+      "3": "Flock-HTV",
+      "7": "Direct-to-Film-Transfer (DTF)",
+      "9": "Sublimationstransfer",
+      "12": "Weißtoner-Transfer",
+      "16": "Klebeaufnäher"
+    },
+    "el": {
+      "0": "Βινύλιο θερμομεταφοράς (HTV)",
+      "1": "Ελαστικό HTV",
+      "7": "Μεταφορά απευθείας σε φιλμ (DTF)",
+      "14": "Κεντημένο σήμα",
+      "15": "Υφαντό σήμα",
+      "16": "Αυτοκόλλητο σήμα"
+    },
+    "es": {
+      "0": "Vinilo termotransferible (HTV)",
+      "1": "HTV elástico",
+      "2": "HTV con purpurina",
+      "3": "HTV flocado",
+      "13": "Transfer de strass",
+      "16": "Parche adhesivo"
+    },
+    "fr": {
+      "0": "Vinyle thermocollant (HTV)",
+      "1": "HTV extensible",
+      "3": "HTV floqué",
+      "4": "HTV expansé (Puff)",
+      "10": "Papier transfert jet d’encre",
+      "17": "Film de transfert métallisé"
+    }
+  },
+  "pressureDescriptions": {
+    "pt": {
+      "0": "Muito baixa",
+      "1": "Baixa",
+      "2": "Média",
+      "3": "Alta",
+      "4": "Muito alta"
+    },
+    "he": {
+      "0": "לחץ חלש מאוד",
+      "1": "לחץ חלש",
+      "2": "לחץ בינוני",
+      "3": "לחץ חזק",
+      "4": "לחץ חזק מאוד"
+    },
+    "zh-Hant": {
+      "0": "極低",
+      "1": "低",
+      "2": "中",
+      "3": "高",
+      "4": "極高"
+    },
+    "de": {
+      "1": "Leicht"
+    },
+    "el": {
+      "0": "Πολύ χαμηλή",
+      "1": "Χαμηλή",
+      "2": "Μέτρια",
+      "3": "Υψηλή",
+      "4": "Πολύ υψηλή"
+    },
+    "es": {
+      "0": "Muy ligera",
+      "1": "Ligera",
+      "2": "Media",
+      "3": "Firme",
+      "4": "Muy firme"
+    },
+    "fr": {
+      "0": "Très légère",
+      "1": "Légère",
+      "2": "Moyenne"
+    }
+  },
+  "instructionSources": {
+    "pt": {
+      "3": "Resultado de teste validado"
+    },
+    "zh-Hant": {
+      "3": "已驗證的測試結果",
+      "4": "先前的成功批次"
+    },
+    "de": {
+      "4": "Vorherige erfolgreiche Charge"
+    },
+    "fr": {
+      "4": "Lot précédent conforme"
+    }
+  },
+  "placementActions": {
+    "pt": {
+      "0": "Centrar na base de prensagem",
+      "1": "Alinhar pelo colarinho",
+      "3": "Usar uma régua de alinhamento",
+      "4": "Usar um guia de posicionamento",
+      "5": "Usar uma almofada de prensagem",
+      "6": "Usar um tapete resistente ao calor",
+      "8": "Usar uma capa na base inferior",
+      "9": "Usar uma folha de proteção",
+      "10": "Fixar com fita adesiva resistente ao calor",
+      "11": "Pré-formar a peça",
+      "12": "Enfiar a peça na base inferior",
+      "13": "Evitar costuras e fechos de correr",
+      "14": "Confirmar que o desenho está espelhado",
+      "15": "Confirmar o lado correto de impressão"
+    },
+    "he": {
+      "0": "למרכז על פלטת הלחיצה",
+      "1": "ליישר לפי קו הצווארון",
+      "2": "ליישר לפי התפר",
+      "3": "להשתמש בסרגל יישור",
+      "4": "להשתמש בתבנית מיקום",
+      "5": "להשתמש בכרית לחיצה",
+      "6": "להשתמש במשטח עמיד בחום",
+      "7": "להשתמש במשטח ספוג",
+      "8": "להשתמש בכיסוי לפלטה התחתונה",
+      "9": "להשתמש ביריעת מגן",
+      "10": "לקבע בסרט הדבקה עמיד בחום",
+      "11": "לעצב מראש את הבגד",
+      "12": "להלביש את הבגד על הפלטה התחתונה",
+      "13": "להימנע מתפרים ומרוכסנים",
+      "14": "לוודא שהגרפיקה מוצגת במראה",
+      "15": "לוודא שצד ההדפסה נכון"
+    },
+    "zh-Hant": {
+      "0": "置中於壓板",
+      "1": "對齊領口",
+      "2": "對齊車縫線",
+      "3": "使用定位尺",
+      "4": "使用定位治具",
+      "5": "使用熱壓枕",
+      "8": "使用下壓板保護套",
+      "9": "使用保護紙",
+      "10": "用耐熱膠帶固定",
+      "11": "預先整平衣物",
+      "12": "將衣物套入下壓板",
+      "13": "避開車縫線與拉鍊",
+      "14": "確認圖稿已水平翻轉",
+      "15": "確認使用正確的列印面"
+    },
+    "de": {
+      "0": "Auf der Pressplatte zentrieren",
+      "3": "Ausrichtungslineal verwenden",
+      "4": "Positionierhilfe verwenden",
+      "6": "Hitzebeständige Unterlage verwenden",
+      "8": "Bezug für die untere Pressplatte verwenden",
+      "10": "Mit hitzebeständigem Klebeband fixieren",
+      "11": "Textil vorformen",
+      "12": "Textil auf die untere Pressplatte aufziehen",
+      "14": "Prüfen, ob das Motiv gespiegelt ist"
+    },
+    "el": {
+      "4": "Χρησιμοποιήστε οδηγό τοποθέτησης",
+      "5": "Χρησιμοποιήστε μαξιλάρι πρέσας",
+      "8": "Χρησιμοποιήστε κάλυμμα κάτω πλάκας",
+      "10": "Στερεώστε με θερμοανθεκτική ταινία",
+      "11": "Προσχηματίστε το ένδυμα",
+      "14": "Επιβεβαιώστε ότι το σχέδιο είναι ανεστραμμένο"
+    },
+    "es": {
+      "0": "Centrar en el plato",
+      "4": "Usar plantilla de colocación",
+      "5": "Usar almohadilla de prensado",
+      "6": "Usar almohadilla resistente al calor",
+      "8": "Usar funda para el plato inferior",
+      "9": "Usar lámina protectora",
+      "10": "Fijar con cinta resistente al calor",
+      "11": "Preformar la prenda",
+      "12": "Colocar la prenda sobre el plato inferior",
+      "14": "Comprobar que el diseño esté invertido"
+    },
+    "fr": {
+      "3": "Utiliser une règle d’alignement",
+      "5": "Utiliser un coussin de pressage",
+      "6": "Utiliser un coussin résistant à la chaleur",
+      "8": "Utiliser une housse de plateau inférieur",
+      "10": "Fixer avec du ruban résistant à la chaleur",
+      "11": "Préformer le vêtement",
+      "14": "Vérifier que le motif est inversé",
+      "15": "Vérifier le bon côté d’impression"
+    }
+  },
+  "finishActions": {
+    "pt": {
+      "0": "Retirar o suporte do transfer enquanto está quente",
+      "1": "Retirar o suporte do transfer enquanto está morno",
+      "2": "Retirar o suporte do transfer depois de arrefecer",
+      "3": "Deixar arrefecer na horizontal",
+      "4": "Prensar novamente com uma folha de proteção",
+      "5": "Prensar novamente sem o suporte do transfer",
+      "6": "Retirar lentamente o suporte do transfer",
+      "7": "Retirar rapidamente o suporte do transfer",
+      "8": "Verificar as bordas",
+      "9": "Verificar a cor",
+      "10": "Verificar o alinhamento",
+      "11": "Testar a elasticidade da peça depois de arrefecer",
+      "12": "Empilhar apenas depois de arrefecer",
+      "13": "Pendurar depois de arrefecer",
+      "14": "Colocar na grelha de arrefecimento",
+      "15": "Registar o resultado da primeira peça"
+    },
+    "he": {
+      "0": "להסיר את שכבת הגיבוי של חומר ההעברה כשהיא חמה",
+      "1": "להסיר את שכבת הגיבוי של חומר ההעברה כשהיא חמימה",
+      "2": "להסיר את שכבת הגיבוי של חומר ההעברה לאחר הקירור",
+      "3": "להניח לקירור במצב שטוח",
+      "4": "ללחוץ שוב עם יריעת מגן",
+      "5": "ללחוץ שוב ללא שכבת הגיבוי",
+      "6": "להסיר לאט את שכבת הגיבוי",
+      "7": "להסיר במהירות את שכבת הגיבוי",
+      "8": "לבדוק את הקצוות",
+      "9": "לבדוק את הצבע",
+      "10": "לבדוק את היישור",
+      "11": "לבדוק את גמישות הבגד לאחר הקירור",
+      "12": "לערום רק לאחר הקירור",
+      "13": "לתלות רק לאחר הקירור",
+      "14": "להעביר למתקן הקירור",
+      "15": "לתעד את תוצאת הפריט הראשון"
+    },
+    "zh-Hant": {
+      "0": "趁熱撕除轉印離型膜",
+      "1": "溫熱時撕除轉印離型膜",
+      "2": "冷卻後撕除轉印離型膜",
+      "3": "平放冷卻",
+      "4": "覆蓋保護紙後再次壓燙",
+      "5": "撕除離型膜後再次壓燙",
+      "6": "慢慢撕除轉印離型膜",
+      "7": "快速撕除轉印離型膜",
+      "9": "檢查色彩",
+      "11": "冷卻後測試衣物彈性",
+      "13": "冷卻後吊掛"
+    },
+    "de": {
+      "4": "Erneut mit Schutzfolie pressen",
+      "5": "Erneut ohne Trägerfolie pressen",
+      "15": "Ergebnis des Erstteils dokumentieren"
+    },
+    "el": {
+      "3": "Αφήστε το να κρυώσει σε επίπεδη θέση",
+      "4": "Πρεσάρετε ξανά με προστατευτικό φύλλο",
+      "5": "Πρεσάρετε ξανά χωρίς το υπόστρωμα μεταφοράς",
+      "11": "Ελέγξτε την ελαστικότητα του ενδύματος αφού κρυώσει",
+      "14": "Μεταφέρετε το προϊόν στη σχάρα ψύξης",
+      "15": "Καταγράψτε το αποτέλεσμα του πρώτου τεμαχίου"
+    },
+    "es": {
+      "0": "Retirar el soporte del transfer en caliente",
+      "1": "Retirar el soporte del transfer en templado",
+      "2": "Retirar el soporte del transfer una vez frío",
+      "4": "Prensar de nuevo con lámina protectora",
+      "5": "Prensar de nuevo sin el soporte del transfer",
+      "6": "Retirar lentamente el soporte del transfer",
+      "7": "Retirar rápidamente el soporte del transfer",
+      "9": "Inspeccionar el color",
+      "11": "Comprobar la elasticidad de la prenda una vez fría",
+      "15": "Documentar el resultado de la primera pieza"
+    },
+    "fr": {
+      "1": "Retirer le support de transfert lorsqu’il est tiède",
+      "4": "Presser à nouveau avec la feuille de protection",
+      "5": "Presser à nouveau sans le support de transfert",
+      "6": "Retirer lentement le support de transfert",
+      "7": "Retirer rapidement le support de transfert",
+      "11": "Vérifier l’élasticité du vêtement après refroidissement",
+      "15": "Consigner le résultat de la première pièce"
+    }
+  }
+}

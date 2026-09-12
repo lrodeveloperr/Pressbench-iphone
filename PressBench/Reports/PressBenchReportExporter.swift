@@ -177,8 +177,8 @@ enum PressBenchReportExporter {
                 let instructionSource = setup["instructionSource"] as? [String: Any] ?? [:]
                 let facts = [
                     "\(PBReportLocalization.text("report.batch", language: language, locale: locale)): \((setup["reportBatchIDs"] as? [String] ?? []).joined(separator: ", "))",
-                    "\(PBReportLocalization.text("report.materialTransfer", language: language, locale: locale)): \(localizedPreset(setup["blankMaterial"] as? String, group: .materials, language: language, locale: locale)) / \(localizedPreset(setup["transferMedium"] as? String, group: .transferMedia, language: language, locale: locale))",
-                    "\(PBReportLocalization.text("report.machinePlaten", language: language, locale: locale)): \(localizedMachineNickname(setup, language: language, locale: locale)) / \(localizedPreset(setup["platenZone"] as? String, group: .platenSizes, language: language, locale: locale))",
+                    "\(PBReportLocalization.text("report.materialTransfer", language: language, locale: locale)): \(localizedPreset(setup["blankMaterial"] as? String, group: .materials, language: language, locale: locale)) / \(localizedOperational(localizedPreset(setup["transferMedium"] as? String, group: .transferMedia, language: language, locale: locale), language: language, locale: locale))",
+                    "\(PBReportLocalization.text("report.machinePlaten", language: language, locale: locale)): \(localizedMachineNickname(setup, language: language, locale: locale)) / \(localizedOperational(localizedPreset(setup["platenZone"] as? String, group: .platenSizes, language: language, locale: locale), language: language, locale: locale))",
                     "\(PBReportLocalization.text("report.instructionSource", language: language, locale: locale)): \(localizedPreset(instructionSource["name"] as? String, group: .instructionSources, language: language, locale: locale))",
                     "\(PBReportLocalization.text("common.reference", language: language, locale: locale)): \(instructionSource["reference"] as? String ?? "")"
                 ]
@@ -193,7 +193,7 @@ enum PressBenchReportExporter {
                 for (index, stage) in (setup["steps"] as? [[String: Any]] ?? []).enumerated() {
                     let summaryText = stageSummary(stage, index: index, language: language, locale: locale)
                     let summaryHeight = wrappedHeight(summaryText, font: .boldSystemFont(ofSize: 7.2), width: 520)
-                    let detailText = stageDetail(stage)
+                    let detailText = stageDetail(stage, language: language, locale: locale)
                     let detailHeight = detailText.isEmpty ? CGFloat(0) : wrappedHeight(detailText, font: .systemFont(ofSize: 7), width: 512)
                     let stageHeight = summaryHeight + detailHeight + 4
                     if cursor + stageHeight > 730 {
@@ -294,13 +294,13 @@ enum PressBenchReportExporter {
                     .text(localizedSetupTitle(setup, language: language, locale: locale)),
                     .text([
                         localizedPreset(setup["blankMaterial"] as? String, group: .materials, language: language, locale: locale),
-                        localizedPreset(setup["transferMedium"] as? String, group: .transferMedia, language: language, locale: locale)
+                        localizedOperational(localizedPreset(setup["transferMedium"] as? String, group: .transferMedia, language: language, locale: locale), language: language, locale: locale)
                     ].filter { !$0.isEmpty }.joined(separator: " / ")),
                     .text([
                         localizedMachineNickname(setup, language: language, locale: locale),
-                        localizedPreset(setup["platenZone"] as? String, group: .platenSizes, language: language, locale: locale)
+                        localizedOperational(localizedPreset(setup["platenZone"] as? String, group: .platenSizes, language: language, locale: locale), language: language, locale: locale)
                     ].filter { !$0.isEmpty }.joined(separator: " / ")),
-                    .text(stage.isEmpty ? "" : [stageSummary(stage, index: index, language: language, locale: locale), stageDetail(stage)].filter { !$0.isEmpty }.joined(separator: " · ")),
+                    .text(stage.isEmpty ? "" : [stageSummary(stage, index: index, language: language, locale: locale), stageDetail(stage, language: language, locale: locale)].filter { !$0.isEmpty }.joined(separator: " · ")),
                     .text([
                         localizedPreset(source["name"] as? String, group: .instructionSources, language: language, locale: locale),
                         source["reference"] as? String ?? ""
@@ -426,20 +426,29 @@ enum PressBenchReportExporter {
             ? PBReportLocalization.text(canonicalKey, language: language, locale: locale) : storedName
         let temperature = double(stage["temperature"]).map {
             "\(PBFormat.decimal($0, locale: locale))°\(stage["temperatureUnit"] as? String ?? "")"
-        } ?? ""
+        }.map { PBL10n.catalogText($0, language: language, locale: locale) } ?? ""
         let duration = int(stage["durationSeconds"])
         let durationLabel = duration > 0 ? PBFormat.seconds(duration, locale: locale) : ""
         let pressure = localizedPreset(stage["pressure"] as? String, group: .pressureDescriptions, language: language, locale: locale)
-        let machine = stage["machineNickname"] as? String ?? ""
-        let platen = localizedPreset(stage["platenZone"] as? String, group: .platenSizes, language: language, locale: locale)
+        let machine = localizedOperational(stage["machineNickname"] as? String ?? "", language: language, locale: locale)
+        let platen = localizedOperational(localizedPreset(stage["platenZone"] as? String, group: .platenSizes, language: language, locale: locale), language: language, locale: locale)
         let repeatCount = max(1, int(stage["repeatCount"]))
-        let repeatLabel = repeatCount > 1 ? "×\(repeatCount)" : ""
+        let repeatLabel = repeatCount > 1
+            ? PBL10n.catalogText("×\(repeatCount)", language: language, locale: locale)
+            : ""
         return ["\(index + 1). \(name)", machine, platen, temperature, durationLabel, pressure, repeatLabel]
             .filter { !$0.isEmpty }.joined(separator: " · ")
     }
-    private static func stageDetail(_ stage: [String: Any]) -> String {
-        [stage["instruction"], stage["placementAction"], stage["finishAction"]]
-            .compactMap { $0 as? String }
+    private static func stageDetail(_ stage: [String: Any], language: AppLanguage, locale: Locale) -> String {
+        [
+            localizedOperational(stage["instruction"] as? String ?? "", language: language, locale: locale),
+            localizedPreset(stage["placementAction"] as? String, group: .placementActions, language: language, locale: locale),
+            localizedOperational(
+                localizedPreset(stage["finishAction"] as? String, group: .finishActions, language: language, locale: locale),
+                language: language,
+                locale: locale
+            )
+        ]
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
             .joined(separator: " · ")
@@ -462,10 +471,16 @@ enum PressBenchReportExporter {
         let transfer = setup["transferMedium"] as? String ?? ""
         let machine = setup["machineNickname"] as? String ?? ""
         let generated = [material, transfer, machine].filter { !$0.isEmpty }.joined(separator: " · ")
-        guard !title.isEmpty, title == generated else { return title }
+        guard !title.isEmpty, title == generated else {
+            return localizedOperational(title, language: language, locale: locale)
+        }
         return [
             localizedPreset(material, group: .materials, language: language, locale: locale),
-            localizedPreset(transfer, group: .transferMedia, language: language, locale: locale),
+            localizedOperational(
+                localizedPreset(transfer, group: .transferMedia, language: language, locale: locale),
+                language: language,
+                locale: locale
+            ),
             localizedMachineNickname(setup, language: language, locale: locale)
         ].filter { !$0.isEmpty }.joined(separator: " · ")
     }
@@ -476,9 +491,17 @@ enum PressBenchReportExporter {
     ) -> String {
         let nickname = setup["machineNickname"] as? String ?? ""
         let platen = setup["platenZone"] as? String ?? ""
-        return nickname == platen
+        let display = nickname == platen
             ? localizedPreset(platen, group: .platenSizes, language: language, locale: locale)
             : nickname
+        return localizedOperational(display, language: language, locale: locale)
+    }
+    private static func localizedOperational(
+        _ value: String,
+        language: AppLanguage,
+        locale: Locale
+    ) -> String {
+        PBL10n.operationalText(value, language: language, locale: locale)
     }
     private static func localizedIssueValue(
         _ value: String?,
