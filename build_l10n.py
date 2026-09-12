@@ -352,7 +352,7 @@ KEYS = {
 'setup.presetDisclaimer': ('Preset setup footer', 'Third-party names identify products only. No affiliation or endorsement. Verify current instructions before production.'),
 'run.testQuantityHelp': ('Test-run quantity help', 'Test runs make one item.'),
 'upgrade.title': ('Upgrade title', 'Unlock PressBench Pro'),
-'upgrade.body': ('Upgrade explanation', 'Unlimited press runs and PDF or XLSX reports. Choose a monthly or annual subscription.'),
+'upgrade.body': ('Upgrade explanation', 'Unlimited press runs and PDF or XLSX reports.'),
 'upgrade.unlock': ('Upgrade action', 'Subscribe'),
 'usage.freeRunsUsed': ('Free allowance exhausted status', 'Free runs used'),
 'upgrade.monthly': ('Subscription plan', 'Monthly'),

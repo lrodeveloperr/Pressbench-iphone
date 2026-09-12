@@ -22,7 +22,7 @@ The Apple Developer team configured in the workflow is:
 
 `49SQ3XQ68Q`
 
-Before purchase testing, create one auto-renewable subscription group containing `pressbench_unlimited_monthly_ios` at US$9.99/month and `pressbench_unlimited_annual_ios` at US$89.99/year. Apply the approved geopriced schedules for other storefronts and add localized names, descriptions, review screenshots, privacy policy, and terms. Confirm that the visible counter starts at five and reaches zero only after five successfully saved runs. See `MONETIZATION.md`.
+Before purchase testing, configure the auto-renewable `pressbench_unlimited_monthly_ios` subscription at US$9.99/month. Apply the approved geopriced schedule for other storefronts and add localized names, descriptions, a review screenshot, privacy policy, and terms. Confirm that the visible counter starts at ten and reaches zero only after ten successfully saved runs. See `MONETIZATION.md`.
 
 The final iOS binary contains no advertising or tracking SDK. Before external testing, ensure App Store Connect privacy answers and the public privacy policy describe StoreKit plus user-owned backup files exported through Apple’s Files picker; PressBench has no backup account and does not upload backups automatically. No Google advertising declarations should remain.
 

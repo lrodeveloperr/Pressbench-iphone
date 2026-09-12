@@ -1397,7 +1397,7 @@
   },
   "upgrade.body": {
     "context": "Upgrade explanation",
-    "source": "Unlimited press runs and PDF or XLSX reports. Choose a monthly or annual subscription."
+    "source": "Unlimited press runs and PDF or XLSX reports."
   },
   "upgrade.unlock": {
     "context": "Upgrade action",
