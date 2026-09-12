@@ -266,7 +266,7 @@ private enum OFDestination: String, CaseIterable, Identifiable {
 }
 
 private enum OFTheme {
-    static let accent = Color(red: 0.14, green: 0.38, blue: 0.88)
+    static let accent = PBTheme.operatorAccent
     static let success = Color(red: 0.05, green: 0.52, blue: 0.34)
     static let surface = Color(uiColor: .secondarySystemGroupedBackground)
 }
@@ -570,18 +570,13 @@ private struct OFRunStartView: View {
                     TextField(text("run.jobReference"), text: $jobReference)
                 }
                 Section {
-                    Button {
+                    PBPrimaryButton(title: text("home.startRun.title"), icon: "play.fill") {
                         if activeSetups.first(where: { $0.id == setupID })?.status == .proven {
                             begin(confirmUnprovenProduction: false)
                         } else {
                             confirmsUnprovenProduction = true
                         }
-                    } label: {
-                        Label(text("home.startRun.title"), systemImage: "play.fill")
-                            .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
                     .disabled(setupID.isEmpty)
                 } footer: {
                     if !store.isPro {
@@ -700,12 +695,7 @@ private struct OFSetupsView: View {
 
     private var content: some View {
         VStack(spacing: 0) {
-            Button(action: requestAddSetup) {
-                Label(text("setup.add"), systemImage: "plus.circle.fill")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, minHeight: 48)
-            }
-            .buttonStyle(.borderedProminent)
+            PBPrimaryButton(title: text("setup.add"), icon: "plus.circle.fill", action: requestAddSetup)
             .padding()
 
             if activeSetups.isEmpty {
@@ -758,12 +748,7 @@ private struct OFMachinesView: View {
 
     private var content: some View {
         VStack(spacing: 0) {
-            Button { beginAdd() } label: {
-                Label(text("machine.add"), systemImage: "plus.circle.fill")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, minHeight: 48)
-            }
-            .buttonStyle(.borderedProminent)
+            PBPrimaryButton(title: text("machine.add"), icon: "plus.circle.fill") { beginAdd() }
             .padding()
 
             if activeMachines.isEmpty {
