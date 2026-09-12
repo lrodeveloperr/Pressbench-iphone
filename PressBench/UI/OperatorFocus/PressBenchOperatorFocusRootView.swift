@@ -677,6 +677,7 @@ private struct OFRunStartView: View {
 
 private struct OFSetupsView: View {
     @Environment(\.pbLanguage) private var language
+    @Environment(\.locale) private var locale
     @EnvironmentObject private var store: PressBenchStore
     @State private var search = ""
     @State private var setupDraft: SetupDraft?
@@ -735,6 +736,7 @@ private struct OFSetupsView: View {
 
 private struct OFMachinesView: View {
     @Environment(\.pbLanguage) private var language
+    @Environment(\.locale) private var locale
     @EnvironmentObject private var store: PressBenchStore
     @State private var search = ""
     @State private var machineDraft: MachineDraft?
