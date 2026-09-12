@@ -136,37 +136,37 @@ Use only these three screenshots, in this order. The localizations preserve Pres
 | Locale | 1. First-piece control | 2. Repeatable setup | 3. Quality evidence |
 |---|---|---|---|
 | English (`en`) | Catch problems before the full run | Repeat the setup that worked | See waste. Prove consistency. |
-| Spanish (`es`) | Detecta problemas antes del lote completo | Repite la configuración que funcionó | Mide el desperdicio. Demuestra consistencia. |
-| Portuguese (`pt`) | Detecte problemas antes do lote completo | Repita a configuração que funcionou | Veja o desperdício. Comprove a consistência. |
-| French (`fr`) | Repérez les défauts avant de lancer la série | Réutilisez le réglage qui a fait ses preuves | Mesurez le rebut. Prouvez votre régularité. |
-| German (`de`) | Probleme vor der ganzen Serie erkennen | Bewährte Einstellungen wiederverwenden | Ausschuss sehen. Konstanz belegen. |
-| Italian (`it`) | Trova i problemi prima dell'intero lotto | Ripeti la configurazione che ha funzionato | Misura gli scarti. Dimostra la costanza. |
-| Dutch (`nl`) | Vind problemen vóór de hele productieronde | Gebruik de bewezen procesinstelling opnieuw | Meet uitval. Toon constante kwaliteit. |
-| Polish (`pl`) | Wykryj problemy przed pełną serią | Powtórz konfigurację, która się sprawdziła | Kontroluj odpady. Potwierdź powtarzalność. |
-| Turkish (`tr`) | Toplu üretime geçmeden sorunları yakalayın | Sonuç veren ayarı yeniden kullanın | Fireyi görün. Tutarlılığı kanıtlayın. |
-| Romanian (`ro`) | Depistează problemele înaintea întregului lot | Repetă configurarea care a funcționat | Măsoară rebutul. Demonstrează consecvența. |
+| Spanish (`es`) | Detecta problemas antes de producir todo el lote | Repite la configuración que funcionó | Mide las mermas. Demuestra la consistencia. |
+| Portuguese (`pt`) | Detecte problemas antes de produzir o lote inteiro | Repita a configuração que funcionou | Meça o desperdício. Comprove a consistência. |
+| French (`fr`) | Repérez les défauts avant de lancer toute la série | Réutilisez le réglage qui a fait ses preuves | Mesurez les rebuts. Prouvez la régularité. |
+| German (`de`) | Probleme erkennen, bevor die ganze Serie läuft | Bewährte Einstellungen wiederverwenden | Ausschuss messen. Konstanz belegen. |
+| Italian (`it`) | Individua i problemi prima di produrre l’intero lotto | Ripeti la configurazione che ha funzionato | Misura gli scarti. Dimostra la costanza. |
+| Dutch (`nl`) | Signaleer problemen vóór de hele productierun | Gebruik de bewezen instellingen opnieuw | Meet uitval. Toon constante kwaliteit. |
+| Polish (`pl`) | Wykryj problemy przed całą serią | Powtórz sprawdzoną konfigurację | Zmierz odpady. Potwierdź powtarzalność. |
+| Turkish (`tr`) | Toplu üretime geçmeden sorunları yakalayın | İşe yarayan ayarı yeniden kullanın | Fireyi görün. Tutarlılığı kanıtlayın. |
+| Romanian (`ro`) | Depistează problemele înainte de a produce întregul lot | Repetă configurarea care a funcționat | Măsoară rebuturile. Demonstrează calitatea constantă. |
 | Czech (`cs`) | Odhalte problémy před spuštěním celé série | Znovu použijte osvědčené nastavení | Sledujte zmetky. Doložte stálou kvalitu. |
 | Ukrainian (`uk`) | Виявіть проблеми до запуску всієї партії | Повторіть налаштування, яке спрацювало | Контролюйте брак. Підтверджуйте стабільність. |
 | Russian (`ru`) | Выявляйте проблемы до запуска всей партии | Повторяйте настройку, которая сработала | Контролируйте брак. Подтверждайте стабильность. |
 | Arabic (`ar`) | اكتشف المشكلات قبل تشغيل الدفعة كاملة | كرّر الإعداد الذي نجح | راقب الفاقد. أثبت ثبات الجودة. |
-| Chinese, Simplified (`zh`) | 整批生产前发现问题 | 复用已验证的工艺设置 | 看清报废，验证稳定性 |
-| Japanese (`ja`) | 本番の生産前に問題を発見 | 実績のある工程設定を再利用 | 廃棄を見える化。安定した品質を証明。 |
-| Korean (`ko`) | 본 생산 전에 문제를 잡으세요 | 검증된 공정 설정을 재사용하세요 | 폐기량을 확인하고 일관된 품질을 입증하세요 |
-| Hindi (`hi`) | पूरे उत्पादन से पहले समस्याएँ पकड़ें | सफल सेटअप को दोबारा इस्तेमाल करें | स्क्रैप देखें। निरंतरता साबित करें। |
-| Urdu (`ur`) | مکمل پیداوار سے پہلے مسائل پکڑیں | کامیاب سیٹ اپ دوبارہ استعمال کریں | ضیاع دیکھیں۔ یکسانیت ثابت کریں۔ |
-| Bengali (`bn`) | পুরো উৎপাদনের আগে সমস্যা ধরুন | সফল সেটআপটি আবার ব্যবহার করুন | বাতিলের পরিমাণ দেখুন। ধারাবাহিকতা প্রমাণ করুন। |
-| Vietnamese (`vi`) | Phát hiện lỗi trước khi chạy cả lô | Lặp lại thiết lập đã hiệu quả | Thấy rõ phế phẩm. Chứng minh độ ổn định. |
+| Chinese, Simplified (`zh`) | 整批生产前发现问题 | 复用已验证的工艺设置 | 看清报废。验证稳定性。 |
+| Japanese (`ja`) | 本番生産前に問題を発見 | 実績のある工程設定を再現 | ロスを可視化。安定した品質を証明。 |
+| Korean (`ko`) | 본 생산 전에 문제를 잡으세요 | 검증된 공정 설정을 재현하세요 | 폐기량을 확인하세요. 일관된 품질을 입증하세요. |
+| Hindi (`hi`) | पूरे उत्पादन से पहले समस्याएँ पकड़ें | सफल सेटअप को दोबारा इस्तेमाल करें | स्क्रैप देखें। एक-जैसी गुणवत्ता साबित करें। |
+| Urdu (`ur`) | مکمل پیداوار سے پہلے مسائل پکڑیں | کامیاب سیٹ اَپ دوبارہ استعمال کریں | ضیاع دیکھیں۔ یکساں معیار ثابت کریں۔ |
+| Bengali (`bn`) | পুরো উৎপাদনের আগে সমস্যা ধরুন | সফল সেটআপটি আবার ব্যবহার করুন | বাতিলের পরিমাণ দেখুন। মানের ধারাবাহিকতা প্রমাণ করুন। |
+| Vietnamese (`vi`) | Phát hiện lỗi trước khi chạy cả lô | Dùng lại thiết lập đã có kết quả | Thấy rõ phế phẩm. Chứng minh chất lượng ổn định. |
 | Indonesian (`id`) | Temukan masalah sebelum produksi penuh | Ulangi pengaturan yang terbukti berhasil | Pantau produk terbuang. Buktikan konsistensi. |
-| Thai (`th`) | พบปัญหาก่อนเดินงานเต็มล็อต | ใช้การตั้งค่าที่ได้ผลซ้ำ | เห็นของเสียชัดเจน พิสูจน์ความสม่ำเสมอ |
-| Filipino (`fil`) | Mahuli ang problema bago ang buong production run | Gamitin muli ang setup na gumana | Tingnan ang waste. Patunayan ang consistency. |
-| Malay (`ms`) | Kesan masalah sebelum pengeluaran penuh | Guna semula tetapan yang terbukti berkesan | Lihat buangan. Buktikan konsistensi. |
+| Thai (`th`) | พบปัญหาก่อนเดินงานเต็มล็อต | ใช้การตั้งค่าที่ได้ผลซ้ำ | เห็นของเสียชัดเจน พิสูจน์คุณภาพที่สม่ำเสมอ |
+| Filipino (`fil`) | Tukuyin ang problema bago ang buong production run | Ulitin ang setup na gumana | Tingnan ang nasayang. Patunayan ang pare-parehong kalidad. |
+| Malay (`ms`) | Kesan masalah sebelum pengeluaran penuh | Guna semula tetapan yang terbukti berkesan | Lihat buangan. Buktikan mutu konsisten. |
 | Finnish (`fi`) | Havaitse ongelmat ennen koko tuotantoerää | Toista toimivaksi todettu asetus | Näe hylky. Osoita tasalaatuisuus. |
 | Swedish (`sv`) | Upptäck problem före hela körningen | Återanvänd inställningen som fungerade | Se kassationen. Bevisa jämn kvalitet. |
 | Danish (`da`) | Opdag problemer før hele produktionskørslen | Genbrug den opsætning, der virkede | Se kassationen. Dokumentér ensartethed. |
 | Norwegian Bokmål (`nb`) | Oppdag problemer før hele kjøringen | Gjenbruk oppsettet som fungerte | Se kassasjonen. Dokumenter jevn kvalitet. |
-| Greek (`el`) | Εντοπίστε προβλήματα στο πρώτο τεμάχιο | Επαναλάβετε τη ρύθμιση που απέδωσε | Μετρήστε τις απορρίψεις. Αποδείξτε τη συνέπεια. |
-| Hebrew (`he`) | זהו בעיות לפני ייצור האצווה כולה | השתמשו שוב בהגדרה שהצליחה | ראו את הפסילות. הוכיחו עקביות. |
-| Chinese, Traditional (`zh-Hant`) | 整批生產前發現問題 | 重複使用已驗證的製程設定 | 看清報廢，驗證穩定性 |
+| Greek (`el`) | Εντοπίστε προβλήματα πριν από την πλήρη παραγωγή | Επαναλάβετε τη ρύθμιση που απέδωσε | Μετρήστε τις απορρίψεις. Αποδείξτε τη συνέπεια. |
+| Hebrew (`he`) | אתרו בעיות לפני הרצת הייצור המלאה | חזרו על הגדרת התהליך שהצליחה | ראו את הפסילות. הוכיחו איכות עקבית. |
+| Chinese, Traditional (`zh-Hant`) | 整批生產前發現問題 | 重複使用已驗證的製程設定 | 看清報廢。驗證穩定性。 |
 
 The first screenshot shows the first-piece decision and run controls. The second shows a shop-proven, machine-specific setup. The third shows first-pass yield, rework, waste, and the PDF/XLSX export controls. Add `Offline · Any press brand · No account` as a small footer on screenshot three; do not allocate a separate screenshot to it.
 
