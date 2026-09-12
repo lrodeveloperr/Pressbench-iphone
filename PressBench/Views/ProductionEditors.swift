@@ -1140,6 +1140,10 @@ struct ProUpgradeView: View {
                             PBFormat.integer(PBUsageMeter.freePressLimit, locale: locale) as NSString
                         ))
                         .font(.headline).foregroundStyle(PBTheme.text).multilineTextAlignment(.center)
+                        Text(t("usage.freeRunCountingRule"))
+                            .font(.subheadline)
+                            .foregroundStyle(PBTheme.secondary)
+                            .multilineTextAlignment(.center)
                     }
                     if store.purchaseOperationInProgress { ProgressView().controlSize(.large) }
                     if store.purchaseState == .pending {

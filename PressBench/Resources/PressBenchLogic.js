@@ -2682,12 +2682,22 @@
     if (schemaVersion === 4) {
       const topLevelKeys = Object.keys(parsed).sort();
       const requiredKeys = ["appId", "batches", "encrypted", "exportedAt", "machines", "schema", "schemaVersion", "settings", "setups"];
-      const allowedKeys = new Set(requiredKeys.concat(["freeRunsUsed"]));
+      const allowedKeys = new Set(requiredKeys.concat(["freeRunsUsed", "freeRunLedger"]));
       if (requiredKeys.some(function (key) { return !Object.prototype.hasOwnProperty.call(parsed, key); }) ||
           topLevelKeys.some(function (key) { return !allowedKeys.has(key); })) throw new Error("backup_shape");
       if (parsed.appId !== "APP-018" || parsed.encrypted !== false || !exactIsoDate(parsed.exportedAt, false) ||
           !validatePortableSettingsRaw(parsed.settings) ||
-          (parsed.freeRunsUsed !== undefined && (!Number.isInteger(parsed.freeRunsUsed) || parsed.freeRunsUsed < 0 || parsed.freeRunsUsed > 5))) throw new Error("backup_shape");
+          (parsed.freeRunsUsed !== undefined && (!Number.isInteger(parsed.freeRunsUsed) || parsed.freeRunsUsed < 0 || parsed.freeRunsUsed > 10))) throw new Error("backup_shape");
+      if (parsed.freeRunLedger !== undefined) {
+        const ledger = parsed.freeRunLedger;
+        const ids = ledger && ledger.completedBatchIDs;
+        if (!ledger || typeof ledger !== "object" || Array.isArray(ledger) ||
+            Object.keys(ledger).sort().join("|") !== "completedBatchIDs|schemaVersion" ||
+            ledger.schemaVersion !== 2 || !Array.isArray(ids) || ids.length > 10 ||
+            new Set(ids).size !== ids.length || ids.some(function (id) {
+              return typeof id !== "string" || !id.trim() || utf8ByteLength(id.trim()) > 128;
+            })) throw new Error("backup_shape");
+      }
     }
     const rawRecipes = schemaVersion === 4 ? parsed.setups : parsed.recipes;
     if (!Array.isArray(rawRecipes) || !Array.isArray(parsed.batches) || (schemaVersion === 4 && !Array.isArray(parsed.machines))) throw new Error("backup_shape");
@@ -2935,7 +2945,7 @@
 
   const D = root.PressBenchDomain;
   const FREE_RECIPE_LIMIT = D.MAX_RECORDS;
-  const FREE_BATCH_LIMIT = 5;
+  const FREE_BATCH_LIMIT = 10;
   const MAX_DETAILED_REPORT_ROWS = 12000;
   const STARTER_TEMPLATE_VERSION = "APP-018-STRUCTURES-v6";
   const STARTER_PREFIX = "starter-template-";
@@ -2982,12 +2992,26 @@
     return (batches || []).filter(function (batch) { return !isStarterBatch(batch); }).length;
   }
 
+  function hasRecordedProduction(batch) {
+    return Number(batch && batch.quantityProcessed || 0) > 0 ||
+      Number(batch && batch.firstPiece && batch.firstPiece.attempts || 0) > 0;
+  }
+
+  function isQualifyingFreeBatch(batch) {
+    return Boolean(batch) && !isStarterBatch(batch) && batch.authorizationBasis === "free" &&
+      typeof batch.completedAt === "string" && Boolean(batch.completedAt) && hasRecordedProduction(batch);
+  }
+
+  function freeBatchCount(batches) {
+    return (batches || []).filter(isQualifyingFreeBatch).length;
+  }
+
   function usage(recipes, batches) {
     const setups = userRecipeCount(recipes);
     return {
       setups: setups,
       recipes: setups,
-      batches: userBatchCount(batches),
+      batches: freeBatchCount(batches),
       setupLimit: FREE_RECIPE_LIMIT,
       recipeLimit: FREE_RECIPE_LIMIT,
       batchLimit: FREE_BATCH_LIMIT
@@ -2999,7 +3023,7 @@
   // caller-supplied boolean.
   function canAdd(kind, recipes, batches, additional) {
     const setupKind = kind === "setup" || kind === "recipe";
-    const count = setupKind ? userRecipeCount(recipes) : userBatchCount(batches);
+    const count = setupKind ? userRecipeCount(recipes) : freeBatchCount(batches);
     const limit = setupKind ? FREE_RECIPE_LIMIT : FREE_BATCH_LIMIT;
     return count + (additional || 1) <= limit;
   }
@@ -3316,6 +3340,9 @@
     userRecipeCount: userRecipeCount,
     userSetupCount: userRecipeCount,
     userBatchCount: userBatchCount,
+    hasRecordedProduction: hasRecordedProduction,
+    isQualifyingFreeBatch: isQualifyingFreeBatch,
+    freeBatchCount: freeBatchCount,
     usage: usage,
     canAdd: canAdd,
     starterTemplates: starterTemplates,
@@ -3777,23 +3804,26 @@
         permit.intentFingerprint !== storageRunIntentFingerprint(run, domain) || run.transitionSequence !== 0) throw new Error("run_permit_invalid");
     const legacyReservation = permit.authorizationBasis === "legacy_migration" && run.legacyGrandfathered === true;
     if (run.phase !== "preflight" || (!legacyReservation && (run.productionStarted === true || run.instructionCheckedAt))) throw new Error("run_reservation_state");
-    const usage = { setups: business.userSetupCount(setups || []), batches: business.userBatchCount(batches || []) };
+    const totalBatchCount = business.userBatchCount(batches || []);
+    const usage = { setups: business.userSetupCount(setups || []), batches: business.freeBatchCount(batches || []) };
     if (!legacyReservation && (!permit.usageSnapshot || permit.usageSnapshot.setups !== usage.setups || permit.usageSnapshot.batches !== usage.batches)) {
       throw new Error("reservation_stale");
     }
     if (legacyReservation) {
-      if (usage.batches >= domain.MAX_RECORDS) throw new Error("record_limit");
+      if (totalBatchCount >= domain.MAX_RECORDS) throw new Error("record_limit");
       return;
     }
     const setupExists = (setups || []).some(function (setup) { return setup.id === sourceSetupId; });
     if (permit.setupSlotReserved === true ? setupExists : !setupExists) throw new Error("reservation_stale");
-    if (usage.batches >= domain.MAX_RECORDS || ((permit.setupSlotReserved || permit.variantSlotReserved) &&
+    if (totalBatchCount >= domain.MAX_RECORDS || ((permit.setupSlotReserved || permit.variantSlotReserved) &&
         usage.setups >= domain.MAX_RECORDS)) throw new Error("record_limit");
     const evaluated = access.evaluateEntitlement(entitlement, now === undefined ? run.reservedAt : now);
     const requiresPaid = usage.batches >= business.FREE_BATCH_LIMIT;
     if (requiresPaid && !evaluated.paidAccess) throw new Error("batch_capacity_required");
-    const expectedBasis = requiresPaid ? evaluated.authorizationBasis : "free";
-    if (permit.authorizationBasis !== expectedBasis) throw new Error("run_permit_invalid");
+    const expectedBasis = evaluated.paidAccess ? evaluated.authorizationBasis : "free";
+    const legacyFiveRunPaidReservation = evaluated.paidAccess && permit.authorizationBasis === "free" &&
+      permit.usageSnapshot && permit.usageSnapshot.freeBatchLimit === 5;
+    if (permit.authorizationBasis !== expectedBasis && !legacyFiveRunPaidReservation) throw new Error("run_permit_invalid");
   }
 
   function runSessionProgresses(current, next, domain) {
@@ -4931,7 +4961,7 @@
   }
 
   function usageOf(context) {
-    return { setups: B.userRecipeCount(setupsOf(context)), batches: B.userBatchCount(context && context.batches || []) };
+    return { setups: B.userRecipeCount(setupsOf(context)), batches: B.freeBatchCount(context && context.batches || []) };
   }
 
   function runIntentFingerprint(run) {
@@ -5359,8 +5389,7 @@
     const runId = D.uuid(); const resultId = D.uuid(); const setupFingerprint = D.exactSetupFingerprint(runSetup);
     const sourceSetupId = setup.id;
     const variantSlotReserved = existingSetup && recipes.length < D.MAX_RECORDS && source.reserveVariantSlot === true;
-    const requiresPaidCapacity = usage.batches >= B.FREE_BATCH_LIMIT;
-    const authorizationBasis = requiresPaidCapacity ? evaluation.authorizationBasis : "free";
+    const authorizationBasis = evaluation.paidAccess ? evaluation.authorizationBasis : "free";
     const quantity = runMode === "test" ? 1 : integer(source.quantity === undefined ? setup.defaultQuantity : source.quantity, 1, 999999, "quantity");
     const reservationBytes = D.MAX_RECORD_BYTES + (!existingSetup || variantSlotReserved ? MAX_SETUP_RESERVATION_BYTES : 0);
     const permit = { schemaVersion: PERMIT_SCHEMA_VERSION, id: D.uuid(), runId: runId, resultId: resultId,
@@ -6062,6 +6091,10 @@
     const live = recipes.find(function (item) { return item.id === sourceSetupId; }) || null;
     const legacyResult = run.legacyGrandfathered === true || run.permit.authorizationBasis === "legacy_migration" ||
       result.resultKind === "legacy_migrated";
+    const entitlementAtReservation = E.evaluateEntitlement(value.entitlement, run.reservedAt);
+    const upgradedPaidAuthorizationBasis = run.permit.authorizationBasis === "free" &&
+      run.permit.usageSnapshot && run.permit.usageSnapshot.freeBatchLimit === 5 && entitlementAtReservation.paidAccess
+      ? entitlementAtReservation.authorizationBasis : run.permit.authorizationBasis;
     let actual = D.normalizeRecipe(run.setup, run.setup.temperatureUnit, true);
     if (legacyResult) {
       actual = D.normalizeRecipe(Object.assign({}, actual, {
@@ -6124,7 +6157,7 @@
       productionStartedAt: run.productionStartedAt, instructionCheckedAt: run.instructionCheckedAt,
       instructionCheckFingerprint: run.instructionCheckFingerprint, operationalFingerprintV4: D.operationalFingerprintV4(actual),
       provenanceFingerprint: D.provenanceFingerprint(actual), exactSetupFingerprint: D.exactSetupFingerprint(actual),
-      authorizationBasis: legacyResult ? "legacy_migration" : run.permit.authorizationBasis
+      authorizationBasis: legacyResult ? "legacy_migration" : upgradedPaidAuthorizationBasis
     };
     let batch = D.normalizeBatch(batchInput, true);
     let errors = D.validateBatchInput(batch).concat(D.validateBatch(batch));

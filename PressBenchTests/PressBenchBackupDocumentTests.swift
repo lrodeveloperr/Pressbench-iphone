@@ -13,7 +13,7 @@ final class PressBenchBackupDocumentTests: XCTestCase {
             "setups": [],
             "batches": [],
             "settings": [:],
-            "freeRunsUsed": 3,
+            "freeRunLedger": ["schemaVersion": 2, "completedBatchIDs": ["free-1", "free-2", "free-3"]],
         ]
 
         let document = try PressBenchBackupDocument(payload: payload)
@@ -23,7 +23,8 @@ final class PressBenchBackupDocumentTests: XCTestCase {
         )
 
         XCTAssertEqual(object["schema"] as? String, "press-bench-log")
-        XCTAssertEqual((object["freeRunsUsed"] as? NSNumber)?.intValue, 3)
+        let ledger = try XCTUnwrap(object["freeRunLedger"] as? [String: Any])
+        XCTAssertEqual((ledger["completedBatchIDs"] as? [String])?.count, 3)
     }
 
     func testBackupDocumentRejectsEmptyOrForeignFiles() {

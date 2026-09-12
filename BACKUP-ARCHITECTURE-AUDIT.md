@@ -22,7 +22,7 @@ This follows Apple’s intended platform boundaries:
 | Import backup | Bounds the file before loading, uses security-scoped access, validates schema and references, then shows date, record counts, and post-restore free allowance. |
 | Confirm restore | Clearly states that local data will be replaced; the destructive action is explicit and cancel is safe. |
 | Restore commit | Atomically replaces machines, setups, runs, and settings; clears active-session state; preserves StoreKit entitlement. |
-| Delete local data | Deletes operational data but does not reset the five-run usage ledger or delete previously exported files. |
+| Delete local data | Deletes operational data but does not reset the ten-run usage ledger or delete previously exported files. |
 | Five free runs | Counts unique successfully committed run IDs only; failed, canceled, unsaved, duplicated, deleted, or older restored runs cannot replenish allowance. |
 | Cross-device restore | Uses the maximum of current secure usage, the backup’s monotonic count, and restored completed runs; never decrements usage. |
 | Persistence failure | Fails closed for free-run authorization and retries a transient Keychain failure without resetting the counter. |

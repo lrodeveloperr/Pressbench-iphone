@@ -22,44 +22,46 @@ final class UsageMeterTests: XCTestCase {
         let meter = PBUsageMeter(defaults: defaults)
 
         for index in 1...PBUsageMeter.freePressLimit {
-            XCTAssertTrue(meter.canStartFreePress(existingCompletedRuns: index - 1))
-            meter.recordCompletedPress(batchID: "batch-\(index)")
+            XCTAssertTrue(meter.canStartFreePress(qualifyingCompletedBatchIDs: []))
+            meter.recordCompletedPress(batchID: "batch-\(index)", authorizationBasis: "free", recordedProduction: true)
         }
 
         XCTAssertEqual(meter.completedPresses, PBUsageMeter.freePressLimit)
         XCTAssertEqual(meter.freePressesRemaining, 0)
-        XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
+        XCTAssertFalse(meter.canStartFreePress(qualifyingCompletedBatchIDs: []))
     }
 
     func testDeletingRunsCannotRestoreFreeUsage() {
         let meter = PBUsageMeter(defaults: defaults)
-        meter.reconcile(existingCompletedRuns: PBUsageMeter.freePressLimit)
+        meter.reconcile(qualifyingCompletedBatchIDs: Set((1...PBUsageMeter.freePressLimit).map { "batch-\($0)" }))
 
-        XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
+        XCTAssertFalse(meter.canStartFreePress(qualifyingCompletedBatchIDs: []))
         XCTAssertEqual(meter.completedPresses, PBUsageMeter.freePressLimit)
     }
 
     func testSameCompletionCannotBeCountedTwice() {
         let meter = PBUsageMeter(defaults: defaults)
-        meter.recordCompletedPress(batchID: "same-batch")
-        meter.recordCompletedPress(batchID: "same-batch")
+        meter.recordCompletedPress(batchID: "same-batch", authorizationBasis: "free", recordedProduction: true)
+        meter.recordCompletedPress(batchID: "same-batch", authorizationBasis: "free", recordedProduction: true)
 
         XCTAssertEqual(meter.completedPresses, 1)
     }
 
     func testNonAdjacentDuplicateCannotBeCountedTwice() {
         let meter = PBUsageMeter(defaults: defaults)
-        meter.recordCompletedPress(batchID: "batch-a")
-        meter.recordCompletedPress(batchID: "batch-b")
-        meter.recordCompletedPress(batchID: "batch-a")
+        meter.recordCompletedPress(batchID: "batch-a", authorizationBasis: "free", recordedProduction: true)
+        meter.recordCompletedPress(batchID: "batch-b", authorizationBasis: "free", recordedProduction: true)
+        meter.recordCompletedPress(batchID: "batch-a", authorizationBasis: "free", recordedProduction: true)
 
         XCTAssertEqual(meter.completedPresses, 2)
-        XCTAssertEqual(meter.freePressesRemaining, 0)
+        XCTAssertEqual(meter.freePressesRemaining, 8)
     }
 
     func testCounterNeverExceedsTheFreeLimit() {
         let meter = PBUsageMeter(defaults: defaults)
-        for index in 0..<20 { meter.recordCompletedPress(batchID: "batch-\(index)") }
+        for index in 0..<20 {
+            meter.recordCompletedPress(batchID: "batch-\(index)", authorizationBasis: "free", recordedProduction: true)
+        }
 
         XCTAssertEqual(meter.completedPresses, PBUsageMeter.freePressLimit)
         XCTAssertEqual(meter.freePressesRemaining, 0)
@@ -68,36 +70,36 @@ final class UsageMeterTests: XCTestCase {
     func testSecureLedgerSurvivesPreferenceReset() {
         let secure = InMemoryUsageStore()
         let first = PBUsageMeter(defaults: defaults, secureStore: secure)
-        first.recordCompletedPress(batchID: "batch-a")
-        first.recordCompletedPress(batchID: "batch-b")
+        first.recordCompletedPress(batchID: "batch-a", authorizationBasis: "free", recordedProduction: true)
+        first.recordCompletedPress(batchID: "batch-b", authorizationBasis: "free", recordedProduction: true)
 
         defaults.removePersistentDomain(forName: suiteName)
         let relaunched = PBUsageMeter(defaults: defaults, secureStore: secure)
 
         XCTAssertEqual(relaunched.completedPresses, 2)
-        XCTAssertEqual(relaunched.freePressesRemaining, 0)
-        relaunched.recordCompletedPress(batchID: "batch-a")
+        XCTAssertEqual(relaunched.freePressesRemaining, 8)
+        relaunched.recordCompletedPress(batchID: "batch-a", authorizationBasis: "free", recordedProduction: true)
         XCTAssertEqual(relaunched.completedPresses, 2)
     }
 
     func testOlderBackupCountCannotReduceExistingUsage() {
         let secure = InMemoryUsageStore()
         let meter = PBUsageMeter(defaults: defaults, secureStore: secure)
-        meter.reconcile(existingCompletedRuns: 2)
-        meter.reconcile(existingCompletedRuns: 1)
+        meter.reconcile(qualifyingCompletedBatchIDs: ["batch-a", "batch-b"])
+        meter.reconcile(qualifyingCompletedBatchIDs: ["batch-a"])
 
         XCTAssertEqual(meter.completedPresses, 2)
-        XCTAssertEqual(meter.freePressesRemaining, 0)
+        XCTAssertEqual(meter.freePressesRemaining, 8)
     }
 
     func testImportedUsageCanRaiseButNeverExceedLimit() {
         let secure = InMemoryUsageStore()
         let meter = PBUsageMeter(defaults: defaults, secureStore: secure)
 
-        meter.reconcile(existingCompletedRuns: 99)
+        meter.reconcile(qualifyingCompletedBatchIDs: Set((0..<99).map { "batch-\($0)" }))
 
         XCTAssertEqual(meter.completedPresses, PBUsageMeter.freePressLimit)
-        XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
+        XCTAssertFalse(meter.canStartFreePress(qualifyingCompletedBatchIDs: []))
     }
 
     func testPersistenceFailureFailsClosed() {
@@ -106,21 +108,30 @@ final class UsageMeterTests: XCTestCase {
         let meter = PBUsageMeter(defaults: defaults, secureStore: secure)
 
         XCTAssertFalse(meter.persistenceHealthy)
-        XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
+        XCTAssertFalse(meter.canStartFreePress(qualifyingCompletedBatchIDs: []))
     }
 
     func testTransientPersistenceFailureRecoversWithoutResettingUsage() {
         let secure = InMemoryUsageStore()
         secure.failSaves = true
         let meter = PBUsageMeter(defaults: defaults, secureStore: secure)
-        meter.reconcile(existingCompletedRuns: 2)
-        XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
+        meter.reconcile(qualifyingCompletedBatchIDs: ["batch-a", "batch-b"])
+        XCTAssertFalse(meter.canStartFreePress(qualifyingCompletedBatchIDs: []))
 
         secure.failSaves = false
-        XCTAssertFalse(meter.canStartFreePress(existingCompletedRuns: 0))
+        XCTAssertTrue(meter.canStartFreePress(qualifyingCompletedBatchIDs: []))
         XCTAssertTrue(meter.persistenceHealthy)
         XCTAssertEqual(meter.completedPresses, 2)
         XCTAssertEqual(secure.snapshot?.completedPresses, 2)
+    }
+
+    func testPaidAndUnproducedRunsDoNotConsumeFreeAllowance() {
+        let meter = PBUsageMeter(defaults: defaults)
+        meter.recordCompletedPress(batchID: "paid", authorizationBasis: "verified_active", recordedProduction: true)
+        meter.recordCompletedPress(batchID: "cancelled", authorizationBasis: "free", recordedProduction: false)
+
+        XCTAssertEqual(meter.completedPresses, 0)
+        XCTAssertEqual(meter.freePressesRemaining, 10)
     }
 }
 

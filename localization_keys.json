@@ -1425,7 +1425,11 @@
   },
   "usage.freeRunsRemaining": {
     "context": "Free usage status",
-    "source": "Free runs left: %1$@ of %2$@"
+    "source": "Free runs remaining: %1$@ of %2$@"
+  },
+  "usage.freeRunCountingRule": {
+    "context": "Free usage explanation",
+    "source": "A run counts only after you complete and save it."
   },
   "upgrade.pricePerMonthFormat": {
     "context": "Monthly subscription price",

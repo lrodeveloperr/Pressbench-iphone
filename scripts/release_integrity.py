@@ -10,7 +10,7 @@ def require(condition, message):
 
 logic = root/'PressBench/Resources/PressBenchLogic.js'
 logic_hash = hashlib.sha256(logic.read_bytes()).hexdigest()
-require(logic_hash == 'e70594888204a7499d296fab809e269c0d129a7456211021707a2e7e4ad904e5', f'logic hash changed: {logic_hash}')
+require(logic_hash == '6816b3bb7f5856a21aff0cc559bdfbe69bb27780d07edb1cae2ed51fdcda4f6d', f'logic hash changed: {logic_hash}')
 text = logic.read_text(encoding='utf-8')
 require(all(marker in text for marker in ['pressbench_unlimited_monthly_ios',
         'pressbench_unlimited_annual_ios',
@@ -25,9 +25,9 @@ require('pressbench_unlimited_lifetime_ios' not in text and 'legacyLifetimeProdu
 require(all(marker in text for marker in ['pressbench_unlimited_monthly_android',
         'pressbench_unlimited_annual_android']) and 'pressbench_unlimited_lifetime_android' not in text,
         'Android subscription parity is missing or the obsolete lifetime product remains')
-require('FREE_RECIPE_LIMIT = D.MAX_RECORDS' in text and 'FREE_BATCH_LIMIT = 5' in text and
+require('FREE_RECIPE_LIMIT = D.MAX_RECORDS' in text and 'FREE_BATCH_LIMIT = 10' in text and
         'setup_capacity_required' not in text,
-        'five-run free allowance or unrestricted setup library changed')
+        'ten-run free allowance or unrestricted setup library changed')
 require(all(marker in text for marker in [
             'MAX_RECORDS = Number.MAX_SAFE_INTEGER',
             'MAX_DATA_BYTES = Number.MAX_SAFE_INTEGER',
@@ -110,7 +110,7 @@ require(all(marker in root_tabs for marker in [
         'Operator Focus navigation, recovery, subscription, reports, or QC gate is incomplete')
 require(root_tabs.count('usage.freeRunsRemaining') >= 3 and
         root_tabs.count('PBUsageMeter.freePressLimit') >= 3,
-        'reviewer-visible five-run counter is missing from an operator decision point')
+        'reviewer-visible ten-run counter is missing from an operator decision point')
 require('OFEmptyState' not in root_tabs and
         'onboarding.ready.setup.body' not in root_tabs and
         root_tabs.count('Label(text("setup.add")') == 1 and
@@ -449,19 +449,21 @@ require(all(marker not in no_ad_surface for marker in [
         'SKAdNetworkItems', 'ca-app-pub-', 'PBAdvertising', 'pbBanner(', 'pb.ad.banner',
         'ads.report', 'ads.privacyChoices', 'ads.bannerLabel']),
         'advertising SDK, identifier, UI hook, or localization remains in the iOS release')
-require(all(marker in usage_source for marker in ['freePressLimit = 5', 'completedPresses',
-        'lastCreditedBatchID', 'creditedBatchIDs', 'canStartFreePress',
+require(all(marker in usage_source for marker in ['freePressLimit = 10', 'completedPresses',
+        'free-press-usage-v2', 'pressbench.usage.v2.creditedBatchIDs', 'canStartFreePress',
+        'authorizationBasis == "free"', 'recordedProduction',
         'PBKeychainUsageStore', 'kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly',
         'persistenceHealthy &&', 'retrySecurePersistenceIfNeeded']) and
         all(marker in store_source for marker in ['usageMeter.canStartFreePress', 'recordCompletedPress',
-            'case .pressLimitReached', 'usageLedgerUnavailable', 'alreadyCommitted', 'payload["freeRunsUsed"]',
-            'max(rawBatches.count, importedUsage)']),
-        'monotonic five-run ledger, reinstall persistence, or restore reconciliation is missing')
+            'case .pressLimitReached', 'usageLedgerUnavailable', 'alreadyCommitted', 'payload["freeRunLedger"]',
+            'qualifyingFreeBatchIDs', 'importedFreeRunIDs']) and
+        'existingCompletedRuns' not in usage_source and 'legacy-count-' not in usage_source,
+        'completion-only ten-run ledger, reinstall persistence, or restore reconciliation is missing')
 backup_restore_test=(root/'PressBenchTests/BackupRestoreTests.swift').read_text(encoding='utf-8')
 require(all(marker in backup_restore_test for marker in [
             'testRestoreCarriesUsageToAnotherDeviceWithoutImportingEntitlement',
             'testOlderRestoreNeverReducesCurrentUsage',
-            'XCTAssertEqual(targetUsage.snapshot?.completedPresses, 2)']),
+            'XCTAssertEqual(targetUsage.snapshot?.completedPresses, 3)']),
         'end-to-end backup/free-run reconciliation tests are missing')
 require('PressBenchReportExporter.pdf' in (root/'PressBench/Views/ReportsView.swift').read_text(), 'native PDF report not wired')
 require('PressBenchReportExporter.xlsx' in (root/'PressBench/Views/ReportsView.swift').read_text(), 'native XLSX report not wired')
@@ -558,11 +560,11 @@ require('--pressbench-ui-test-reset' in ui_test and '--pressbench-ui-test-reset'
         'UI test does not request a deterministic pre-store persistence reset')
 require(all(marker in ui_test for marker in ['--pressbench-ui-test-limit-reached',
         '--pressbench-ui-test-product-unavailable', '--pressbench-ui-test-pro',
-        'Free runs left: 0 of 5', 'Unlock PressBench Pro',
+        'Free runs remaining: 0 of 10', 'Unlock PressBench Pro',
         'Repeat this setup', 'capped-repeat-upgrade', 'app.tabBars.buttons["Runs"]',
         'pb.runs.screen', 'pb.more.reports', 'pb.reports.pdf',
         'free-report-requires-pro']),
-        'UI test does not cover the sixth-run paywall, capped Repeat, and free-report paywall')
+        'UI test does not cover the eleventh-run paywall, capped Repeat, and free-report paywall')
 
 more_view=(root/'PressBench/Views/MoreView.swift').read_text(encoding='utf-8')
 require(settings_view.index('planSection') < settings_view.index('backupSection') and
@@ -591,12 +593,12 @@ require(all(marker not in settings_view for marker in [
 
 catalog=json.loads((root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8'))
 require(len(catalog.get('languages',[])) == 31, 'language choice count is not 31')
-require(len(catalog.get('strings',{})) == 383, 'reviewed localization catalog must contain 383 keys')
+require(len(catalog.get('strings',{})) == 384, 'reviewed localization catalog must contain 384 keys')
 require(all(key not in catalog.get('strings',{}) for key in [
             'home.greeting', 'home.startRun.body', 'report.sourceChecked']),
         'retired customer copy remains in the runtime localization catalog')
 language_tests=(root/'PressBenchTests/LanguageSupportTests.swift').read_text(encoding='utf-8')
-require('XCTAssertEqual(PBL10n.catalog.strings.count, 383)' in language_tests,
+require('XCTAssertEqual(PBL10n.catalog.strings.count, 384)' in language_tests,
         'unit-test localization count is stale')
 boundary = catalog.get('strings',{}).get('setup.provenBoundary',{})
 require(bool(boundary), 'localized Proven evidence boundary is missing')
@@ -615,7 +617,7 @@ for key, item in metadata.items():
 build_l10n=(root/'build_l10n.py').read_text(encoding='utf-8')
 assemble=(root/'assemble_catalog.py').read_text(encoding='utf-8')
 require('setup.provenBoundary' in build_l10n and 'raise SystemExit(\'Legacy' not in build_l10n,
-        'build_l10n.py is not the live 383-key canonical generator')
+        'build_l10n.py is not the live 384-key canonical generator')
 purchase_manager=(root/'PressBench/Services/PurchaseManager.swift').read_text(encoding='utf-8')
 require(purchase_manager.count('let productsLoaded = await loadProducts()') == 2 and
         purchase_manager.count('if !productsLoaded, state == .free { state = productLoadState }') == 2 and

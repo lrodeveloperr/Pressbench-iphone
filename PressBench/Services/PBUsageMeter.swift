@@ -16,7 +16,7 @@ protocol PBUsagePersisting {
 /// the monotonic count to a replacement device without exporting Keychain data.
 struct PBKeychainUsageStore: PBUsagePersisting {
     private let service: String
-    private let account = "free-press-usage-v1"
+    private let account = "free-press-usage-v2"
 
     init(service: String = Bundle.main.bundleIdentifier ?? "com.goodusestudios.pressbench") {
         self.service = service
@@ -65,11 +65,10 @@ struct PBKeychainUsageStore: PBUsagePersisting {
 /// restoring an older backup, retrying a commit, or reinstalling the app must
 /// never create another free use.
 final class PBUsageMeter {
-    static let freePressLimit = 5
+    static let freePressLimit = 10
 
-    private static let completedKey = "pressbench.usage.completedPresses"
-    private static let lastCreditedBatchKey = "pressbench.usage.lastCreditedBatchID"
-    private static let creditedBatchIDsKey = "pressbench.usage.creditedBatchIDs"
+    private static let completedKey = "pressbench.usage.v2.completedPresses"
+    private static let creditedBatchIDsKey = "pressbench.usage.v2.creditedBatchIDs"
 
     private let defaults: UserDefaults
     private let secureStore: (any PBUsagePersisting)?
@@ -83,46 +82,47 @@ final class PBUsageMeter {
         guard let secureStore else { return }
         do {
             secureSnapshot = try secureStore.load()
-            let migrated = mergedSnapshot(extraCount: 0)
-            try secureStore.save(migrated)
-            secureSnapshot = migrated
-            writeCompatibilityCopy(migrated)
+            let normalized = mergedSnapshot(extraBatchIDs: [])
+            try secureStore.save(normalized)
+            secureSnapshot = normalized
+            writeLocalCopy(normalized)
         } catch {
             persistenceHealthy = false
         }
     }
 
     var completedPresses: Int {
-        min(
-            Self.freePressLimit,
-            max(0, max(defaults.integer(forKey: Self.completedKey), secureSnapshot?.completedPresses ?? 0))
-        )
+        currentCreditedIDs.count
     }
+
+    var creditedFreeBatchIDs: Set<String> { currentCreditedIDs }
 
     var freePressesRemaining: Int {
         max(0, Self.freePressLimit - completedPresses)
     }
 
-    func reconcile(existingCompletedRuns: Int) {
+    func reconcile(qualifyingCompletedBatchIDs: Set<String>) {
         retrySecurePersistenceIfNeeded()
-        let revised = mergedSnapshot(extraCount: existingCompletedRuns)
+        let revised = mergedSnapshot(extraBatchIDs: qualifyingCompletedBatchIDs)
         guard revised.completedPresses > completedPresses || revised.creditedBatchIDs != currentCreditedIDs else { return }
         persist(revised)
     }
 
-    func canStartFreePress(existingCompletedRuns: Int) -> Bool {
+    func canStartFreePress(qualifyingCompletedBatchIDs: Set<String>) -> Bool {
         retrySecurePersistenceIfNeeded()
-        reconcile(existingCompletedRuns: existingCompletedRuns)
+        reconcile(qualifyingCompletedBatchIDs: qualifyingCompletedBatchIDs)
         return persistenceHealthy && completedPresses < Self.freePressLimit
     }
 
-    func recordCompletedPress(batchID rawBatchID: String) {
+    func recordCompletedPress(batchID rawBatchID: String, authorizationBasis: String, recordedProduction: Bool) {
         let batchID = rawBatchID.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !batchID.isEmpty, batchID.utf8.count <= 128, completedPresses < Self.freePressLimit else { return }
+        guard authorizationBasis == "free", recordedProduction,
+              !batchID.isEmpty, batchID.utf8.count <= 128,
+              completedPresses < Self.freePressLimit else { return }
         var creditedIDs = currentCreditedIDs
         guard creditedIDs.insert(batchID).inserted else { return }
         let revised = PBUsageSnapshot(
-            completedPresses: min(Self.freePressLimit, max(completedPresses + 1, creditedIDs.count)),
+            completedPresses: min(Self.freePressLimit, creditedIDs.count),
             creditedBatchIDs: Set(creditedIDs.sorted().prefix(Self.freePressLimit))
         )
         persist(revised)
@@ -131,31 +131,30 @@ final class PBUsageMeter {
     private var currentCreditedIDs: Set<String> {
         var result = Set(defaults.stringArray(forKey: Self.creditedBatchIDsKey) ?? [])
         result.formUnion(secureSnapshot?.creditedBatchIDs ?? [])
-        if let legacyID = defaults.string(forKey: Self.lastCreditedBatchKey), !legacyID.isEmpty {
-            result.insert(legacyID)
-        }
-        return Set(result.sorted().prefix(Self.freePressLimit))
+        return normalizedIDs(result)
     }
 
-    private func mergedSnapshot(extraCount: Int) -> PBUsageSnapshot {
+    private func mergedSnapshot(extraBatchIDs: Set<String>) -> PBUsageSnapshot {
         var ids = currentCreditedIDs
-        let count = min(Self.freePressLimit, max(0, max(completedPresses, extraCount)))
-        var placeholder = 0
-        while ids.count < count {
-            placeholder += 1
-            ids.insert("legacy-count-\(placeholder)")
-        }
+        ids.formUnion(normalizedIDs(extraBatchIDs))
+        ids = normalizedIDs(ids)
         return PBUsageSnapshot(
-            completedPresses: max(count, min(Self.freePressLimit, ids.count)),
-            creditedBatchIDs: Set(ids.sorted().prefix(Self.freePressLimit))
+            completedPresses: ids.count,
+            creditedBatchIDs: ids
         )
+    }
+
+    private func normalizedIDs(_ ids: Set<String>) -> Set<String> {
+        let valid = ids.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty && $0.utf8.count <= 128 }
+        return Set(valid.sorted().prefix(Self.freePressLimit))
     }
 
     private func persist(_ snapshot: PBUsageSnapshot) {
         do {
             if let secureStore { try secureStore.save(snapshot) }
             secureSnapshot = snapshot
-            writeCompatibilityCopy(snapshot)
+            writeLocalCopy(snapshot)
         } catch {
             // A free action must never be granted when the durable ledger cannot
             // be trusted. The successfully committed run remains local, while
@@ -166,27 +165,26 @@ final class PBUsageMeter {
                 creditedBatchIDs: snapshot.creditedBatchIDs
             )
             secureSnapshot = fallback
-            writeCompatibilityCopy(fallback)
+            writeLocalCopy(fallback)
         }
     }
 
     private func retrySecurePersistenceIfNeeded() {
         guard !persistenceHealthy, let secureStore else { return }
         do {
-            let revised = mergedSnapshot(extraCount: completedPresses)
+            let revised = mergedSnapshot(extraBatchIDs: currentCreditedIDs)
             try secureStore.save(revised)
             secureSnapshot = revised
-            writeCompatibilityCopy(revised)
+            writeLocalCopy(revised)
             persistenceHealthy = true
         } catch {
             persistenceHealthy = false
         }
     }
 
-    private func writeCompatibilityCopy(_ snapshot: PBUsageSnapshot) {
+    private func writeLocalCopy(_ snapshot: PBUsageSnapshot) {
         defaults.set(snapshot.completedPresses, forKey: Self.completedKey)
         defaults.set(snapshot.creditedBatchIDs.sorted(), forKey: Self.creditedBatchIDsKey)
-        defaults.set(snapshot.creditedBatchIDs.sorted().last, forKey: Self.lastCreditedBatchKey)
     }
 }
 

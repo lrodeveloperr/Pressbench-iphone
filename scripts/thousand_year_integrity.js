@@ -197,7 +197,7 @@ function runCrossFileIntegrityTest() {
   for (const forbidden of [/\beval\s*\(/, /new\s+Function\s*\(/, /\bXMLHttpRequest\b/, /\bWebSocket\b/, /\bfetch\s*\(/]) {
     assert.equal(forbidden.test(logicSource), false, `forbidden runtime capability ${forbidden}`);
   }
-  assert.equal(B.FREE_BATCH_LIMIT, 5);
+  assert.equal(B.FREE_BATCH_LIMIT, 10);
   assert.equal(B.MONETIZATION_MODEL.ios.pricing.monthlyBaseAmountMinor, 999);
   assert.equal(B.MONETIZATION_MODEL.ios.pricing.annualBaseAmountMinor, 8999);
   assert.equal(B.MONETIZATION_MODEL.android.pricing.monthlyBaseAmountMinor, 999);

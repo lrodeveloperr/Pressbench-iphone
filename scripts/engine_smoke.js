@@ -52,7 +52,15 @@ const annualEntitlement = E.applyStoreEvent(E.normalizeEntitlement({}), annualEv
 assert.equal(E.evaluateEntitlement(annualEntitlement, iso(365 * 24 * 60 * 60)).paidAccess, true);
 assert.equal(E.evaluateEntitlement(annualEntitlement, iso(367 * 24 * 60 * 60)).paidAccess, false);
 
-assert.equal(B.FREE_BATCH_LIMIT, 5);
+assert.equal(B.FREE_BATCH_LIMIT, 10);
+const freeUsageFixture = {id:'free-1', authorizationBasis:'free', completedAt:now,
+  quantityProcessed:1, firstPiece:{attempts:0}};
+assert.equal(B.freeBatchCount([freeUsageFixture]), 1);
+assert.equal(B.freeBatchCount([
+  {...freeUsageFixture, id:'paid-1', authorizationBasis:'verified_active'},
+  {...freeUsageFixture, id:'cancelled-1', quantityProcessed:0, firstPiece:{attempts:0}},
+  {...freeUsageFixture, id:'attempted-1', quantityProcessed:0, firstPiece:{attempts:1}}
+]), 1);
 assert.equal(B.MONETIZATION_MODEL.ios.productType, 'auto_renewable_subscription');
 assert.equal(B.MONETIZATION_MODEL.ios.recurring, true);
 assert.equal(B.MONETIZATION_MODEL.ios.pricing.monthlyBaseAmountMinor, 999);
@@ -292,17 +300,24 @@ assert.equal(deletion.session, null);
 assert.equal(deletion.purchaseEntitlementUnaffected, true);
 assert.equal(Object.prototype.hasOwnProperty.call(deletion, 'entitlement'), false);
 
-// User-owned backup files may carry only the monotonic free-run count as an
-// extra schema-v4 field. Restore still rejects unknown fields and malformed
-// counts before producing any mutation plan.
+// User-owned backups carry explicit v2 free-run IDs. The legacy scalar remains
+// parseable for compatibility but is not proof of qualifying usage.
 const portableBackup = D.makeBackup(context.recipes, context.batches, context.settings, context.machines);
-portableBackup.freeRunsUsed = 3;
+portableBackup.freeRunLedger = {schemaVersion:2, completedBatchIDs:['free-1','free-2','free-3']};
 const portableRestore = P.planRestore({...context, session:null, storageMode:'native'}, JSON.stringify(portableBackup));
 assert.equal(portableRestore.target.batches.length, context.batches.length);
 assert.equal(portableRestore.entitlementUnaffected, true);
-for (const invalidValue of [-1, 6, 1.5, '3']) {
+for (const invalidValue of [-1, 11, 1.5, '3']) {
   const invalidBackup = {...portableBackup, freeRunsUsed:invalidValue};
   assert.throws(() => P.planRestore({...context, session:null, storageMode:'native'}, JSON.stringify(invalidBackup)), /backup_shape/);
+}
+for (const invalidLedger of [
+  {schemaVersion:1, completedBatchIDs:[]},
+  {schemaVersion:2, completedBatchIDs:['duplicate','duplicate']},
+  {schemaVersion:2, completedBatchIDs:Array.from({length:11}, (_, index) => `free-${index}`)}
+]) {
+  assert.throws(() => P.planRestore({...context, session:null, storageMode:'native'},
+    JSON.stringify({...portableBackup, freeRunLedger:invalidLedger})), /backup_shape/);
 }
 assert.throws(() => P.planRestore({...context, session:null, storageMode:'native'},
   JSON.stringify({...portableBackup, unexpectedField:true})), /backup_shape/);

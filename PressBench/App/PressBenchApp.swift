@@ -50,7 +50,10 @@ private enum PressBenchUITestBootstrap {
             }
         }
         if arguments.contains("--pressbench-ui-test-limit-reached") {
-            UserDefaults.standard.set(PBUsageMeter.freePressLimit, forKey: "pressbench.usage.completedPresses")
+            UserDefaults.standard.set(
+                (1...PBUsageMeter.freePressLimit).map { "ui-test-free-batch-\($0)" },
+                forKey: "pressbench.usage.v2.creditedBatchIDs"
+            )
         }
     }
 }

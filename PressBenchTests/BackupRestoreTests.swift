@@ -34,7 +34,7 @@ final class BackupRestoreTests: XCTestCase {
         XCTAssertNil(store.activeRun)
         XCTAssertFalse(store.hasRejectedRun)
         XCTAssertEqual(store.selectedTab, 0)
-        XCTAssertEqual(store.freePressesRemaining, 0)
+        XCTAssertEqual(store.freePressesRemaining, 8)
         XCTAssertEqual(usage.snapshot?.completedPresses, 2)
 
         let reloaded = try PressBenchStore(
@@ -45,7 +45,7 @@ final class BackupRestoreTests: XCTestCase {
         XCTAssertTrue(reloaded.machines.isEmpty)
         XCTAssertTrue(reloaded.setups.isEmpty)
         XCTAssertTrue(reloaded.runs.isEmpty)
-        XCTAssertEqual(reloaded.freePressesRemaining, 0)
+        XCTAssertEqual(reloaded.freePressesRemaining, 8)
     }
 
     func testRestoreCarriesUsageToAnotherDeviceWithoutImportingEntitlement() throws {
@@ -88,8 +88,8 @@ final class BackupRestoreTests: XCTestCase {
         try target.restoreBackup(raw: raw)
 
         XCTAssertEqual(target.machines.map(\.nickname), ["Backup machine"])
-        XCTAssertEqual(target.freePressesRemaining, 0)
-        XCTAssertEqual(targetUsage.snapshot?.completedPresses, 2)
+        XCTAssertEqual(target.freePressesRemaining, 7)
+        XCTAssertEqual(targetUsage.snapshot?.completedPresses, 3)
         XCTAssertFalse(target.isPro)
     }
 
@@ -127,8 +127,8 @@ final class BackupRestoreTests: XCTestCase {
 
         try target.restoreBackup(raw: raw)
 
-        XCTAssertEqual(target.freePressesRemaining, 0)
-        XCTAssertEqual(targetUsage.snapshot?.completedPresses, 2)
+        XCTAssertEqual(target.freePressesRemaining, 7)
+        XCTAssertEqual(targetUsage.snapshot?.completedPresses, 3)
     }
 
     private func temporaryDirectory() -> URL {

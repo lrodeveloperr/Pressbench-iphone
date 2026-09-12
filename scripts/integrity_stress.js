@@ -260,10 +260,10 @@ function runsReportsAndBackups(base) {
   assert.equal(P.reportCapability(live, 'xlsx', oversizedReport, now).reason, 'detailed_row_limit');
   assert.equal(P.reportCapability(live, 'pdf', oversizedReport, now).reason, 'detailed_row_limit');
   assert.equal(P.capacityStatus(live, now).access.canPremiumReports, true);
-  assert.equal(P.usageOf(live).batches, 1);
+  assert.equal(P.usageOf(live).batches, 0); // Paid-authorized history never consumes free capacity.
   const beyondLegacyCeiling = Array.from({ length: 2_500 }, (_, index) => ({ ...batch, id: `stress-${index}` }));
   const uncapped = P.capacityStatus({ ...live, batches: beyondLegacyCeiling }, now);
-  assert.equal(uncapped.usage.batches, 2_500);
+  assert.equal(uncapped.usage.batches, 0);
   assert.equal(uncapped.physicalBatchLimit, Number.MAX_SAFE_INTEGER);
   assert.equal(uncapped.access.canReserveBatch, true);
 
@@ -277,7 +277,7 @@ function runsReportsAndBackups(base) {
   assert.equal(deletedSetup.recipes.length, 0);
 
   const backup = D.makeBackup(live.recipes, live.batches, live.settings, live.machines);
-  backup.freeRunsUsed = 2;
+  backup.freeRunLedger = { schemaVersion: 2, completedBatchIDs: ['free-1', 'free-2'] };
   const parsed = D.parseBackup(JSON.stringify(backup));
   assert.equal(parsed.batches.length, 1);
   assert.equal(P.inspectBackup(JSON.stringify(backup)).batches, 1);
@@ -305,9 +305,10 @@ function adversarialAndLongevity(base, runData) {
     nativeVerificationId: 'storekit2:pending:stress'
   }, now);
   assert.equal(pending.paidAccess, false);
-  assert.equal(E.capabilities(E.normalizeEntitlement({}), { setups: 0, batches: 5 }, now).canReserveBatch, false);
+  assert.equal(E.capabilities(E.normalizeEntitlement({}), { setups: 0, batches: 10 }, now).canReserveBatch, false);
 
   const auth = P.authorizeRun(context, setup, { now, utcOffsetMinutes: 0, progressMode: 'final_confirmation', runMode: 'test' });
+  assert.notEqual(auth.run.permit.authorizationBasis, 'free');
   assert.equal(P.inspectActiveRunConflict({ session: auth.session }).runId, auth.run.id);
   assert.equal(P.permitValid(auth.run), true);
   assert.equal(P.instructionCheckValid(auth.run), false);

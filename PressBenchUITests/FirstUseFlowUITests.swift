@@ -62,7 +62,7 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(plan.waitForExistence(timeout: 4))
         assertControlSurface(plan, name: "Unlock PressBench Pro")
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].exists)
-        XCTAssertTrue(app.staticTexts["Free runs left: 5 of 5"].exists)
+        XCTAssertTrue(app.staticTexts["Free runs remaining: 10 of 10"].exists)
         let backup = app.buttons.matching(identifier: "pb.settings.backup").firstMatch
         XCTAssertTrue(backup.exists)
         XCTAssertTrue(backup.isHittable, "Backup must remain in the first Settings viewport")
@@ -223,7 +223,7 @@ final class FirstUseFlowUITests: XCTestCase {
             "-AppleLanguages", "(en)", "-AppleLocale", "en_US"
         ]
         app.launch()
-        XCTAssertTrue(app.staticTexts["Free runs left: 0 of 5"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["Free runs remaining: 0 of 10"].waitForExistence(timeout: 8))
         let cappedStartRun = app.buttons.matching(identifier: "pb.home.startRun").firstMatch
         XCTAssertTrue(waitForInteractable(cappedStartRun, timeout: 8))
         cappedStartRun.tap()
@@ -236,7 +236,7 @@ final class FirstUseFlowUITests: XCTestCase {
         assertControlSurface(unavailablePurchase, name: "Unavailable purchase")
         assertControlSurface(retryProduct, name: "Retry product")
         assertControlSurface(restorePurchaseFromPaywall, name: "Restore purchase")
-        capture("12-sixth-run-upgrade")
+        capture("12-eleventh-run-upgrade")
 
         app.buttons["Cancel"].firstMatch.tap()
         let runsTab = app.tabBars.buttons["Runs"]
@@ -286,7 +286,7 @@ final class FirstUseFlowUITests: XCTestCase {
         app.launchArguments = ["--pressbench-ui-test-pro", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         XCTAssertTrue(app.buttons.matching(identifier: "pb.home.startRun").firstMatch.waitForExistence(timeout: 8))
-        XCTAssertFalse(app.staticTexts["Free runs left: 0 of 5"].exists)
+        XCTAssertFalse(app.staticTexts["Free runs remaining: 0 of 10"].exists)
         let proSettingsLink = app.buttons.matching(identifier: "pb.more.settings").firstMatch
         XCTAssertTrue(openTab("More", until: proSettingsLink, app: app))
         XCTAssertTrue(waitForHittable(proSettingsLink, timeout: 20))

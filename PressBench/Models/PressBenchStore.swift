@@ -122,7 +122,9 @@ final class PressBenchStore: ObservableObject {
         purchaseObservation = purchases.objectWillChange.sink { [weak self] _ in
             self?.objectWillChange.send()
         }
-        usageMeter.reconcile(existingCompletedRuns: (state["batches"] as? [[String: Any]] ?? []).count)
+        usageMeter.reconcile(
+            qualifyingCompletedBatchIDs: Self.qualifyingFreeBatchIDs(in: state["batches"] as? [[String: Any]] ?? [])
+        )
     }
 
     func start() async {
@@ -215,7 +217,7 @@ final class PressBenchStore: ObservableObject {
         isPro && PurchaseManager.subscriptionProductIDs.contains(string(currentEntitlement["productId"]))
     }
     var freePressesRemaining: Int {
-        usageMeter.reconcile(existingCompletedRuns: rawBatches.count)
+        usageMeter.reconcile(qualifyingCompletedBatchIDs: qualifyingFreeBatchIDs)
         return usageMeter.freePressesRemaining
     }
     var canStartAnotherRun: Bool { isPro || freePressesRemaining > 0 }
@@ -633,10 +635,10 @@ final class PressBenchStore: ObservableObject {
 
     func startRun(_ draft: RunStartDraft) throws {
         if !isPro && !usageMeter.persistenceHealthy &&
-            !usageMeter.canStartFreePress(existingCompletedRuns: rawBatches.count) {
+            !usageMeter.canStartFreePress(qualifyingCompletedBatchIDs: qualifyingFreeBatchIDs) {
             throw StoreError.usageLedgerUnavailable
         }
-        guard isPro || usageMeter.canStartFreePress(existingCompletedRuns: rawBatches.count) else {
+        guard isPro || usageMeter.canStartFreePress(qualifyingCompletedBatchIDs: qualifyingFreeBatchIDs) else {
             throw StoreError.pressLimitReached
         }
         guard let raw = rawRecipes.first(where: { ($0["id"] as? String) == draft.setupID }) else { throw StoreError.setupMissing }
@@ -887,7 +889,12 @@ final class PressBenchStore: ObservableObject {
         }
         lastCompletedBatchID = committedID.isEmpty ? string(run["resultId"]) : committedID
         if plan["alreadyCommitted"] as? Bool != true {
-            usageMeter.recordCompletedPress(batchID: lastCompletedBatchID ?? "")
+            let committedBatch = plan["batch"] as? [String: Any]
+            usageMeter.recordCompletedPress(
+                batchID: lastCompletedBatchID ?? "",
+                authorizationBasis: string(committedBatch?["authorizationBasis"]),
+                recordedProduction: Self.hasRecordedProduction(committedBatch)
+            )
         }
         activeRunRouteID = lastCompletedBatchID
     }
@@ -958,10 +965,13 @@ final class PressBenchStore: ObservableObject {
             bridge.domain("makeBackup", [rawRecipes, rawBatches, state["settings"] ?? NSNull(), rawMachines]),
             context: "backup"
         )
-        // The free allowance is monotonic product state, not an entitlement.
-        // Carry it across a user-owned restore so deleted history cannot create
-        // another allowance on a replacement device.
-        payload["freeRunsUsed"] = usageMeter.completedPresses
+        // The v2 ledger carries only explicit qualifying free-run IDs. A scalar
+        // count cannot prove that a run was completed, saved, or free-authorized.
+        usageMeter.reconcile(qualifyingCompletedBatchIDs: qualifyingFreeBatchIDs)
+        payload["freeRunLedger"] = [
+            "schemaVersion": 2,
+            "completedBatchIDs": usageMeter.creditedFreeBatchIDs.sorted()
+        ]
         return payload
     }
 
@@ -976,13 +986,11 @@ final class PressBenchStore: ObservableObject {
             precise.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
             return precise.date(from: value) ?? ISO8601DateFormatter().date(from: value)
         }
-        let importedUsage = min(
-            PBUsageMeter.freePressLimit,
-            max(
-                (target["batches"] as? [Any])?.count ?? 0,
-                max(0, (source?["freeRunsUsed"] as? NSNumber)?.intValue ?? 0)
-            )
-        )
+        let targetBatches = target["batches"] as? [[String: Any]] ?? []
+        let importedUsage = Set(
+            importedFreeRunIDs(from: source).union(Self.qualifyingFreeBatchIDs(in: targetBatches))
+                .sorted().prefix(PBUsageMeter.freePressLimit)
+        ).count
         return BackupPreview(
             exportedAt: exportedAt,
             machines: (target["machines"] as? [Any])?.count ?? 0,
@@ -1024,10 +1032,7 @@ final class PressBenchStore: ObservableObject {
             throw StoreError.exportFailed
         }
         let source = try JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any]
-        let importedUsage = min(
-            PBUsageMeter.freePressLimit,
-            max(0, (source?["freeRunsUsed"] as? NSNumber)?.intValue ?? 0)
-        )
+        let importedFreeRunIDs = importedFreeRunIDs(from: source)
         try withStateTransaction(allowBlockedRecovery: true, batchesChanged: true) {
             state["machines"] = target["machines"] as? [[String: Any]] ?? []
             state["recipes"] = target["setups"] as? [[String: Any]] ?? []
@@ -1037,7 +1042,9 @@ final class PressBenchStore: ObservableObject {
             state["operatorIssueDrafts"] = [String: Any]()
             state["preRestoreRecovery"] = NSNull()
         }
-        usageMeter.reconcile(existingCompletedRuns: max(rawBatches.count, importedUsage))
+        usageMeter.reconcile(
+            qualifyingCompletedBatchIDs: importedFreeRunIDs.union(qualifyingFreeBatchIDs)
+        )
     }
 
     var canonicalReportBatches: [[String: Any]] { rawBatches }
@@ -1085,7 +1092,34 @@ final class PressBenchStore: ObservableObject {
     private var rawMachines: [[String: Any]] { state["machines"] as? [[String: Any]] ?? [] }
     private var rawRecipes: [[String: Any]] { state["recipes"] as? [[String: Any]] ?? [] }
     private var rawBatches: [[String: Any]] { state["batches"] as? [[String: Any]] ?? [] }
+    private var qualifyingFreeBatchIDs: Set<String> { Self.qualifyingFreeBatchIDs(in: rawBatches) }
     private var currentEntitlement: [String: Any] { state["entitlement"] as? [String: Any] ?? [:] }
+
+    private static func hasRecordedProduction(_ batch: [String: Any]?) -> Bool {
+        guard let batch else { return false }
+        let processed = (batch["quantityProcessed"] as? NSNumber)?.intValue ?? 0
+        let attempts = ((batch["firstPiece"] as? [String: Any])?["attempts"] as? NSNumber)?.intValue ?? 0
+        return processed > 0 || attempts > 0
+    }
+
+    private static func qualifyingFreeBatchIDs(in batches: [[String: Any]]) -> Set<String> {
+        Set(batches.compactMap { batch in
+            guard batch["authorizationBasis"] as? String == "free",
+                  !(batch["completedAt"] as? String ?? "").isEmpty,
+                  hasRecordedProduction(batch) else { return nil }
+            let id = (batch["id"] as? String ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            return !id.isEmpty && id.utf8.count <= 128 ? id : nil
+        })
+    }
+
+    private func importedFreeRunIDs(from source: [String: Any]?) -> Set<String> {
+        guard let ledger = source?["freeRunLedger"] as? [String: Any],
+              (ledger["schemaVersion"] as? NSNumber)?.intValue == 2,
+              let values = ledger["completedBatchIDs"] as? [String] else { return [] }
+        let valid = values.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty && $0.utf8.count <= 128 }
+        return Set(valid.sorted().prefix(PBUsageMeter.freePressLimit))
+    }
 
     private var context: [String: Any] {
         [
