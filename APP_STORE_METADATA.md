@@ -170,6 +170,18 @@ Use only these three screenshots, in this order. The localizations preserve Pres
 
 The first screenshot shows the first-piece decision and run controls. The second shows a shop-proven, machine-specific setup. The third shows first-pass yield, rework, waste, and the PDF/XLSX export controls. Add `Offline · Any press brand · No account` as a small footer on screenshot three; do not allocate a separate screenshot to it.
 
+## Locked iPhone screenshot shell
+
+- Export every iPhone asset as a 1290 × 2796 PNG for Apple's 6.9-inch screenshot slot.
+- Use phone container B: a front-facing, slim cool-titanium iPhone frame with a narrow black bezel, Dynamic Island, subtle side controls, and restrained shadow.
+- Keep the phone's scale, top edge, horizontal centre, bottom position, bezel, and shadow identical in all three images.
+- Keep every caption in the same fixed top band, centred, bold, cobalt blue, and limited to two lines.
+- Keep caption font size and line spacing identical across the set. For longer languages, tighten the native wording or rebalance the two-line break; never shrink one image independently.
+- Use the pale ice-blue/white industrial PressBench background system with subtle press geometry, alignment-grid details, cobalt depth, and restrained warm heat accents.
+- Background details may vary, but they must remain subordinate to the caption and authentic app interface.
+- The template phone screen stays blank until the real localized app capture is inserted. Replace only the screen interior; do not regenerate or move the device frame.
+- Do not fabricate interface content, metrics, buttons, reports, or production results.
+
 ## Product-page tests
 
 Run one variable at a time with App Store product page optimization:
