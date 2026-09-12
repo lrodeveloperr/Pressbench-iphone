@@ -106,15 +106,16 @@ require(all(marker in root_tabs for marker in [
             'NavigationSplitView', 'store.persistenceWarning != nil',
             'NavigationStack { SettingsView() }', 'ProUpgradeView()', 'ReportsView()',
             'ActiveRunView(runID: run.id, hidesTabBar: false)', 'CompletedRunDetailView(run: run)',
-            'Label(text("setup.add")', 'Label(text("machine.add")', 'activeRunBanner']),
+            'PBPrimaryButton(title: text("setup.add")',
+            'PBPrimaryButton(title: text("machine.add")', 'activeRunBanner']),
         'Operator Focus navigation, recovery, subscription, reports, or QC gate is incomplete')
 require(root_tabs.count('usage.freeRunsRemaining') >= 3 and
         root_tabs.count('PBUsageMeter.freePressLimit') >= 3,
         'reviewer-visible ten-run counter is missing from an operator decision point')
 require('OFEmptyState' not in root_tabs and
         'onboarding.ready.setup.body' not in root_tabs and
-        root_tabs.count('Label(text("setup.add")') == 1 and
-        root_tabs.count('Label(text("machine.add")') == 1,
+        root_tabs.count('PBPrimaryButton(title: text("setup.add")') == 1 and
+        root_tabs.count('PBPrimaryButton(title: text("machine.add")') == 1,
         'Operator Focus reintroduced duplicate or explanatory first-use actions')
 require(all(marker in root_tabs for marker in [
             'requestRunStart: requestRunStart', 'resumeSetupCreationAfterMachineSave',
@@ -391,11 +392,12 @@ require('NSPrivacyAccessedAPICategoryUserDefaults' in privacy and 'CA92.1' in pr
 require('<key>NSPrivacyTracking</key>\n    <false/>' in privacy, 'privacy manifest tracking flag changed')
 
 require(all(marker in editors for marker in [
-            'selectedPlan: PurchaseManager.Plan = .annual', 'planOption(.annual)', 'planOption(.monthly)',
-            'subscriptionDisplayPrice(for:', 'upgrade.renewalTerms', 'upgrade.restore',
+            'store.purchasePro(.monthly)', 'subscriptionDisplayPrice(for: .monthly)',
+            'upgrade.pricePerMonthFormat', 'upgrade.renewalTerms', 'upgrade.restore',
             'common.termsOfUse', 'common.privacyPolicy']) and
+        'planOption(.annual)' not in editors and 'pb.upgrade.annual' not in editors and
         '$12.99' not in editors and '$119.99' not in editors,
-        'subscription screen is missing a required plan, StoreKit price, renewal, restore, Terms, or Privacy disclosure')
+        'monthly-only subscription screen is missing StoreKit pricing, renewal, restore, Terms, or Privacy disclosure')
 report_exporter=(root/'PressBench/Reports/PressBenchReportExporter.swift').read_text(encoding='utf-8')
 report_localization=(root/'PressBench/Localization/ReportLocalization.swift').read_text(encoding='utf-8')
 require('report.sourceChecked' not in runs_view and 'report.sourceChecked' not in report_exporter and
@@ -435,6 +437,9 @@ usage_source=(root/'PressBench/Services/PBUsageMeter.swift').read_text()
 require(all(marker in purchase_source for marker in ['pressbench_unlimited_monthly_ios',
         'pressbench_unlimited_annual_ios', '.autoRenewable',
         'transaction.expirationDate']), 'native subscription verification is incomplete')
+require('offeredPlans: [Plan] = [.monthly]' in purchase_source and
+        'Product.products(for: Self.offeredPlans.map(\\.rawValue))' in purchase_source,
+        'iOS purchase catalog is not restricted to the approved monthly plan')
 require('pressbench_unlimited_lifetime_ios' not in purchase_source and
         'legacyLifetimeProductIDs' not in purchase_source,
         'unreleased iOS lifetime entitlement compatibility returned')
