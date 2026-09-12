@@ -46,6 +46,13 @@ require('PressBenchUITests:' in project and 'type: bundle.ui-testing' in project
         'first-use UI regression target is missing')
 require('TARGETED_DEVICE_FAMILY: "1,2"' in project,
         'production target must support both iPhone and iPad')
+required_orientations = {
+    'UIInterfaceOrientationPortrait', 'UIInterfaceOrientationPortraitUpsideDown',
+    'UIInterfaceOrientationLandscapeLeft', 'UIInterfaceOrientationLandscapeRight'
+}
+require(set(info_values.get('UISupportedInterfaceOrientations', [])) == required_orientations and
+        set(info_values.get('UISupportedInterfaceOrientations~ipad', [])) == required_orientations,
+        'universal release must declare all four multitasking orientations')
 require('CODE_SIGN_ENTITLEMENTS' not in project and not (root/'PressBench/PressBench.entitlements').exists(),
         'account or iCloud entitlements remain assigned to the app target')
 require(all(marker in testflight_workflow for marker in [
