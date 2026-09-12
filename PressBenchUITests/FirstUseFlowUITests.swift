@@ -21,8 +21,9 @@ final class FirstUseFlowUITests: XCTestCase {
         XCTAssertTrue(plan.waitForExistence(timeout: 4))
         plan.tap()
         XCTAssertTrue(app.staticTexts["Unlock PressBench Pro"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["Subscribe · $89.99"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons.matching(identifier: "pb.upgrade.annual").firstMatch.exists)
+        XCTAssertTrue(app.buttons["Subscribe · $9.99 per month"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.otherElements.matching(identifier: "pb.upgrade.monthly").firstMatch.exists)
+        XCTAssertFalse(app.otherElements.matching(identifier: "pb.upgrade.annual").firstMatch.exists)
         capture("face-id-subscription-paywall")
         app.buttons["Cancel"].firstMatch.tap()
         let backup = app.buttons.matching(identifier: "pb.settings.backup").firstMatch
