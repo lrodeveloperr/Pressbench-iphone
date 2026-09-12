@@ -52,11 +52,13 @@ const annualEntitlement = E.applyStoreEvent(E.normalizeEntitlement({}), annualEv
 assert.equal(E.evaluateEntitlement(annualEntitlement, iso(365 * 24 * 60 * 60)).paidAccess, true);
 assert.equal(E.evaluateEntitlement(annualEntitlement, iso(367 * 24 * 60 * 60)).paidAccess, false);
 
-assert.equal(B.FREE_BATCH_LIMIT, 2);
+assert.equal(B.FREE_BATCH_LIMIT, 5);
 assert.equal(B.MONETIZATION_MODEL.ios.productType, 'auto_renewable_subscription');
 assert.equal(B.MONETIZATION_MODEL.ios.recurring, true);
-assert.equal(B.MONETIZATION_MODEL.ios.pricing.monthlyBaseAmountMinor, 1299);
-assert.equal(B.MONETIZATION_MODEL.ios.pricing.annualBaseAmountMinor, 11999);
+assert.equal(B.MONETIZATION_MODEL.ios.pricing.monthlyBaseAmountMinor, 999);
+assert.equal(B.MONETIZATION_MODEL.ios.pricing.annualBaseAmountMinor, 8999);
+assert.equal(B.MONETIZATION_MODEL.android.pricing.monthlyBaseAmountMinor, 999);
+assert.equal(B.MONETIZATION_MODEL.android.pricing.annualBaseAmountMinor, 8999);
 assert.equal(E.capabilities(E.normalizeEntitlement({}), {setups:10, batches:0}, now).canCreateSetup, true);
 
 let wrongFailed = false;

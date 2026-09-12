@@ -82,8 +82,8 @@ check('pending and unacknowledged Android purchases do not unlock', () => {
   const android = E.applyStoreEvent({}, event({
     platform: 'android', verificationSource: 'play_billing',
     productId: B.MONETIZATION_MODEL.android.productId,
-    productType: 'non_consumable', purchaseToken: 'android-token', transactionId: '',
-    acknowledged: false, expiresAt: ''
+    productType: 'auto_renewable_subscription', purchaseToken: 'android-token', transactionId: '',
+    acknowledged: false
   }), at(0));
   assert.equal(android.paidAccess, false);
   assert.equal(android.requiresAcknowledgement, true);
@@ -106,8 +106,8 @@ check('stale store events and mismatched terminal transactions are rejected', ()
 });
 
 check('free usage boundary is exact', () => {
-  assert.equal(E.capabilities({}, { setups: 1000, batches: 1 }, at(0)).canReserveBatch, true);
-  assert.equal(E.capabilities({}, { setups: 1000, batches: 2 }, at(0)).canReserveBatch, false);
+  assert.equal(E.capabilities({}, { setups: 1000, batches: 4 }, at(0)).canReserveBatch, true);
+  assert.equal(E.capabilities({}, { setups: 1000, batches: 5 }, at(0)).canReserveBatch, false);
 });
 
 check('a fully fabricated persisted entitlement is rejected', () => {

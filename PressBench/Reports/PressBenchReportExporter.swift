@@ -62,6 +62,10 @@ enum PressBenchReportExporter {
                  font: .systemFont(ofSize: 8.5), color: .secondaryLabel,
                  rect: CGRect(x: 42, y: cursor, width: 528, height: 34))
             cursor += 42
+            draw("\(PBReportLocalization.text("report.reportingPeriod", language: language, locale: locale)): \(reportingPeriod(records, locale))",
+                 font: .systemFont(ofSize: 8.5), color: .secondaryLabel,
+                 rect: CGRect(x: 42, y: cursor, width: 528, height: 18))
+            cursor += 22
 
             let totals = reportTotals(records)
             section(PBReportLocalization.text("report.executiveSummary", language: language, locale: locale))
@@ -88,8 +92,9 @@ enum PressBenchReportExporter {
             }
 
             section(PBReportLocalization.text("report.runPerformance", language: language, locale: locale))
-            let headers = ["report.date", "report.batch", "report.setup", "report.processed", "report.firstPass", "report.final"]
-            let widths: [CGFloat] = [60, 80, 177, 60, 70, 69]
+            let headers = ["report.date", "report.batch", "report.setup", "report.processed", "report.final",
+                           "report.reworkedUnits", "report.wasteUnits", "report.firstPass", "report.finalYield"]
+            let widths: [CGFloat] = [48, 60, 120, 52, 44, 52, 44, 54, 54]
             func tableRow(_ values: [String], header: Bool = false) {
                 ensure(31)
                 var x: CGFloat = 42
@@ -100,17 +105,23 @@ enum PressBenchReportExporter {
                     UIColor(white: 0.88, alpha: 1).setStroke()
                     context.cgContext.stroke(rect)
                     draw(values[index], font: header ? .boldSystemFont(ofSize: 6.6) : .systemFont(ofSize: 6.4), color: .label,
-                         rect: rect.insetBy(dx: 3, dy: 5), alignment: index >= 3 && index <= 5 ? .right : .left)
+                         rect: rect.insetBy(dx: 3, dy: 5), alignment: index >= 3 ? .right : .left)
                     x += widths[index]
                 }
                 cursor += 30
             }
             tableRow(headers.map { PBReportLocalization.text($0, language: language, locale: locale) }, header: true)
             for batch in records {
+                if cursor + 31 > 730 {
+                    beginPage()
+                    section(PBReportLocalization.text("report.runPerformance", language: language, locale: locale))
+                    tableRow(headers.map { PBReportLocalization.text($0, language: language, locale: locale) }, header: true)
+                }
                 let recipe = batch["recipe"] as? [String: Any] ?? [:]
                 let processed = int(batch["quantityProcessed"])
                 let good = int(batch["quantityGood"])
                 let rework = int(batch["quantityReworked"])
+                let waste = int(batch["quantityWaste"])
                 let firstPass = processed > 0 ? Double(max(0, good - rework)) / Double(processed) : 0
                 let finalYield = processed > 0 ? Double(good) / Double(processed) : 0
                 tableRow([
@@ -118,6 +129,9 @@ enum PressBenchReportExporter {
                     batch["id"] as? String ?? "",
                     localizedSetupTitle(recipe, language: language, locale: locale),
                     formatInt(processed, locale),
+                    formatInt(good, locale),
+                    formatInt(rework, locale),
+                    formatInt(waste, locale),
                     formatPercent(firstPass, locale),
                     formatPercent(finalYield, locale)
                 ])
@@ -128,7 +142,10 @@ enum PressBenchReportExporter {
             for batch in records {
                 for issue in batch["issues"] as? [[String: Any]] ?? [] {
                     issueCount += 1
-                    ensure(44)
+                    if cursor + 44 > 730 {
+                        beginPage()
+                        section(PBReportLocalization.text("report.issuesExceptions", language: language, locale: locale))
+                    }
                     let line = [
                         batch["id"] as? String ?? "",
                         localizedIssueValue(issue["symptom"] as? String, prefix: "issue.symptom", language: language, locale: locale),
@@ -152,10 +169,14 @@ enum PressBenchReportExporter {
 
             section(PBReportLocalization.text("report.setupDefinitions", language: language, locale: locale))
             for setup in setups {
-                ensure(108)
+                if cursor + 104 > 730 {
+                    beginPage()
+                    section(PBReportLocalization.text("report.setupDefinitions", language: language, locale: locale))
+                }
                 let titleText = localizedSetupTitle(setup, language: language, locale: locale)
                 let instructionSource = setup["instructionSource"] as? [String: Any] ?? [:]
                 let facts = [
+                    "\(PBReportLocalization.text("report.batch", language: language, locale: locale)): \((setup["reportBatchIDs"] as? [String] ?? []).joined(separator: ", "))",
                     "\(PBReportLocalization.text("report.materialTransfer", language: language, locale: locale)): \(localizedPreset(setup["blankMaterial"] as? String, group: .materials, language: language, locale: locale)) / \(localizedPreset(setup["transferMedium"] as? String, group: .transferMedia, language: language, locale: locale))",
                     "\(PBReportLocalization.text("report.machinePlaten", language: language, locale: locale)): \(localizedMachineNickname(setup, language: language, locale: locale)) / \(localizedPreset(setup["platenZone"] as? String, group: .platenSizes, language: language, locale: locale))",
                     "\(PBReportLocalization.text("report.instructionSource", language: language, locale: locale)): \(localizedPreset(instructionSource["name"] as? String, group: .instructionSources, language: language, locale: locale))",
@@ -168,6 +189,27 @@ enum PressBenchReportExporter {
                     draw(fact, font: .systemFont(ofSize: 7.2), color: .secondaryLabel,
                          rect: CGRect(x: 50, y: cursor, width: 520, height: 16))
                     cursor += 16
+                }
+                for (index, stage) in (setup["steps"] as? [[String: Any]] ?? []).enumerated() {
+                    let summaryText = stageSummary(stage, index: index, language: language, locale: locale)
+                    let summaryHeight = wrappedHeight(summaryText, font: .boldSystemFont(ofSize: 7.2), width: 520)
+                    let detailText = stageDetail(stage)
+                    let detailHeight = detailText.isEmpty ? CGFloat(0) : wrappedHeight(detailText, font: .systemFont(ofSize: 7), width: 512)
+                    let stageHeight = summaryHeight + detailHeight + 4
+                    if cursor + stageHeight > 730 {
+                        beginPage()
+                        section(PBReportLocalization.text("report.setupDefinitions", language: language, locale: locale))
+                        draw(titleText, font: .boldSystemFont(ofSize: 9), color: .label,
+                             rect: CGRect(x: 42, y: cursor, width: 528, height: 18))
+                        cursor += 19
+                    }
+                    drawWrapped(summaryText, font: .boldSystemFont(ofSize: 7.2), color: .label,
+                                rect: CGRect(x: 50, y: cursor, width: 520, height: summaryHeight))
+                    if !detailText.isEmpty {
+                        drawWrapped(detailText, font: .systemFont(ofSize: 7), color: .secondaryLabel,
+                                    rect: CGRect(x: 58, y: cursor + summaryHeight, width: 512, height: detailHeight))
+                    }
+                    cursor += stageHeight
                 }
                 cursor += 7
             }
@@ -201,6 +243,7 @@ enum PressBenchReportExporter {
         let summaryRows: [[PBXLSXCell]] = [
             [.text(PBReportLocalization.text("report.productionReport", language: language, locale: locale))],
             [.text(PBReportLocalization.text("report.operatorValuesNotice", language: language, locale: locale))],
+            [.text(PBReportLocalization.text("report.reportingPeriod", language: language, locale: locale)), .text(reportingPeriod(records, locale))],
             [.text(PBReportLocalization.text("report.sampleSize", language: language, locale: locale)), .number(Double(records.count))],
             [.text(PBReportLocalization.text("report.unitsProcessed", language: language, locale: locale)), .number(Double(totals.processed))],
             [.text(PBReportLocalization.text("report.firstPassYield", language: language, locale: locale)), .number(totals.firstPassYield)],
@@ -208,27 +251,33 @@ enum PressBenchReportExporter {
             [.text(PBReportLocalization.text("report.reworkRate", language: language, locale: locale)), .number(totals.reworkRate)],
             [.text(PBReportLocalization.text("report.wasteRate", language: language, locale: locale)), .number(totals.wasteRate)]
         ]
-        zip.add("xl/worksheets/sheet1.xml", worksheetXML(summaryRows, percentRows: [5, 6, 7, 8]))
+        zip.add("xl/worksheets/sheet1.xml", worksheetXML(summaryRows, percentRows: [6, 7, 8, 9], widths: [34, 24], titleRows: [1]))
 
         var runRows = [[PBXLSXCell]]()
-        runRows.append(["report.date", "report.batch", "report.setup", "report.processed", "report.firstPass", "report.final"].map {
+        runRows.append(["report.date", "report.batch", "report.setup", "report.processed", "report.final",
+                        "report.reworkedUnits", "report.wasteUnits", "report.firstPass", "report.finalYield"].map {
             .text(PBReportLocalization.text($0, language: language, locale: locale))
         })
         for batch in records {
             let recipe = batch["recipe"] as? [String: Any] ?? [:]
             let processed = int(batch["quantityProcessed"]), good = int(batch["quantityGood"]), rework = int(batch["quantityReworked"])
+            let waste = int(batch["quantityWaste"])
             runRows.append([
                 .text(shortDate(batch["completedAt"] as? String, locale)),
                 .text(batch["id"] as? String ?? ""),
                 .text(localizedSetupTitle(recipe, language: language, locale: locale)),
                 .number(Double(processed)),
+                .number(Double(good)),
+                .number(Double(rework)),
+                .number(Double(waste)),
                 .number(processed > 0 ? Double(max(0, good - rework)) / Double(processed) : 0),
                 .number(processed > 0 ? Double(good) / Double(processed) : 0)
             ])
         }
-        zip.add("xl/worksheets/sheet2.xml", worksheetXML(runRows, percentColumns: [5, 6]))
+        zip.add("xl/worksheets/sheet2.xml", worksheetXML(runRows, percentColumns: [8, 9], widths: [15, 22, 30, 12, 12, 14, 12, 13, 13], headerRow: 1))
 
         var setupRows: [[PBXLSXCell]] = [[
+            .text(PBReportLocalization.text("report.batch", language: language, locale: locale)),
             .text(PBReportLocalization.text("report.setup", language: language, locale: locale)),
             .text(PBReportLocalization.text("report.materialTransfer", language: language, locale: locale)),
             .text(PBReportLocalization.text("report.machinePlaten", language: language, locale: locale)),
@@ -237,29 +286,29 @@ enum PressBenchReportExporter {
         ]]
         for setup in setups {
             let source = setup["instructionSource"] as? [String: Any] ?? [:]
-            let press = [
-                temperatureText(setup, locale: locale),
-                durationText(setup, locale: locale),
-                localizedPreset(setup["pressure"] as? String, group: .pressureDescriptions, language: language, locale: locale)
-            ].filter { !$0.isEmpty }.joined(separator: " · ")
-            setupRows.append([
-                .text(localizedSetupTitle(setup, language: language, locale: locale)),
-                .text([
-                    localizedPreset(setup["blankMaterial"] as? String, group: .materials, language: language, locale: locale),
-                    localizedPreset(setup["transferMedium"] as? String, group: .transferMedia, language: language, locale: locale)
-                ].filter { !$0.isEmpty }.joined(separator: " / ")),
-                .text([
-                    localizedMachineNickname(setup, language: language, locale: locale),
-                    localizedPreset(setup["platenZone"] as? String, group: .platenSizes, language: language, locale: locale)
-                ].filter { !$0.isEmpty }.joined(separator: " / ")),
-                .text(press),
-                .text([
-                    localizedPreset(source["name"] as? String, group: .instructionSources, language: language, locale: locale),
-                    source["reference"] as? String ?? ""
-                ].filter { !$0.isEmpty }.joined(separator: " · "))
-            ])
+            let steps = setup["steps"] as? [[String: Any]] ?? []
+            let exportedSteps = steps.isEmpty ? [[:]] : steps
+            for (index, stage) in exportedSteps.enumerated() {
+                setupRows.append([
+                    .text((setup["reportBatchIDs"] as? [String] ?? []).joined(separator: ", ")),
+                    .text(localizedSetupTitle(setup, language: language, locale: locale)),
+                    .text([
+                        localizedPreset(setup["blankMaterial"] as? String, group: .materials, language: language, locale: locale),
+                        localizedPreset(setup["transferMedium"] as? String, group: .transferMedia, language: language, locale: locale)
+                    ].filter { !$0.isEmpty }.joined(separator: " / ")),
+                    .text([
+                        localizedMachineNickname(setup, language: language, locale: locale),
+                        localizedPreset(setup["platenZone"] as? String, group: .platenSizes, language: language, locale: locale)
+                    ].filter { !$0.isEmpty }.joined(separator: " / ")),
+                    .text(stage.isEmpty ? "" : [stageSummary(stage, index: index, language: language, locale: locale), stageDetail(stage)].filter { !$0.isEmpty }.joined(separator: " · ")),
+                    .text([
+                        localizedPreset(source["name"] as? String, group: .instructionSources, language: language, locale: locale),
+                        source["reference"] as? String ?? ""
+                    ].filter { !$0.isEmpty }.joined(separator: " · "))
+                ])
+            }
         }
-        zip.add("xl/worksheets/sheet3.xml", worksheetXML(setupRows))
+        zip.add("xl/worksheets/sheet3.xml", worksheetXML(setupRows, widths: [26, 28, 34, 30, 52, 44], headerRow: 1))
 
         var issueRows: [[PBXLSXCell]] = [[
             .text(PBReportLocalization.text("report.batch", language: language, locale: locale)),
@@ -280,7 +329,7 @@ enum PressBenchReportExporter {
                 ])
             }
         }
-        zip.add("xl/worksheets/sheet4.xml", worksheetXML(issueRows))
+        zip.add("xl/worksheets/sheet4.xml", worksheetXML(issueRows, widths: [22, 24, 24, 18, 12, 44], headerRow: 1))
         return try write(zip.data(), name: "PressBench-Detailed-Report.xlsx")
     }
 
@@ -298,6 +347,18 @@ enum PressBenchReportExporter {
 
     private static func draw(_ text: String, font: UIFont, color: UIColor, rect: CGRect, alignment: NSTextAlignment = .left) {
         let style = NSMutableParagraphStyle(); style.alignment = alignment; style.lineBreakMode = .byTruncatingTail
+        (text as NSString).draw(in: rect, withAttributes: [.font: font, .foregroundColor: color, .paragraphStyle: style])
+    }
+    private static func wrappedHeight(_ text: String, font: UIFont, width: CGFloat) -> CGFloat {
+        let style = NSMutableParagraphStyle(); style.lineBreakMode = .byWordWrapping
+        return ceil((text as NSString).boundingRect(
+            with: CGSize(width: width, height: CGFloat.greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: [.font: font, .paragraphStyle: style], context: nil
+        ).height)
+    }
+    private static func drawWrapped(_ text: String, font: UIFont, color: UIColor, rect: CGRect) {
+        let style = NSMutableParagraphStyle(); style.lineBreakMode = .byWordWrapping
         (text as NSString).draw(in: rect, withAttributes: [.font: font, .foregroundColor: color, .paragraphStyle: style])
     }
 
@@ -324,6 +385,18 @@ enum PressBenchReportExporter {
         guard let value, let date = (try? Date.ISO8601FormatStyle(includingFractionalSeconds: true).parse(value)) ?? (try? Date.ISO8601FormatStyle().parse(value)) else { return value ?? "" }
         return date.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted).locale(locale))
     }
+    private static func reportingPeriod(_ records: [[String: Any]], _ locale: Locale) -> String {
+        let dates = records.compactMap { record -> Date? in
+            guard let value = record["completedAt"] as? String else { return nil }
+            return (try? Date.ISO8601FormatStyle(includingFractionalSeconds: true).parse(value)) ??
+                (try? Date.ISO8601FormatStyle().parse(value))
+        }.sorted()
+        guard let first = dates.first, let last = dates.last else { return "—" }
+        let style = Date.FormatStyle(date: .abbreviated, time: .omitted).locale(locale)
+        let firstText = first.formatted(style)
+        let lastText = last.formatted(style)
+        return firstText == lastText ? firstText : "\(firstText) – \(lastText)"
+    }
     private static func int(_ value: Any?) -> Int {
         if let value = value as? Int { return value }
         if let value = value as? NSNumber { return value.intValue }
@@ -344,6 +417,32 @@ enum PressBenchReportExporter {
     private static func durationText(_ setup: [String: Any], locale: Locale) -> String {
         let duration = int(setup["pressTimeSeconds"])
         return duration > 0 ? PBFormat.seconds(duration, locale: locale) : ""
+    }
+    private static func stageSummary(_ stage: [String: Any], index: Int, language: AppLanguage, locale: Locale) -> String {
+        let type = stage["stageType"] as? String ?? ""
+        let storedName = stage["name"] as? String ?? ""
+        let canonicalKey = "stage.\(type)"
+        let name = storedName.isEmpty && PBL10n.catalog.strings[canonicalKey] != nil
+            ? PBReportLocalization.text(canonicalKey, language: language, locale: locale) : storedName
+        let temperature = double(stage["temperature"]).map {
+            "\(PBFormat.decimal($0, locale: locale))°\(stage["temperatureUnit"] as? String ?? "")"
+        } ?? ""
+        let duration = int(stage["durationSeconds"])
+        let durationLabel = duration > 0 ? PBFormat.seconds(duration, locale: locale) : ""
+        let pressure = localizedPreset(stage["pressure"] as? String, group: .pressureDescriptions, language: language, locale: locale)
+        let machine = stage["machineNickname"] as? String ?? ""
+        let platen = localizedPreset(stage["platenZone"] as? String, group: .platenSizes, language: language, locale: locale)
+        let repeatCount = max(1, int(stage["repeatCount"]))
+        let repeatLabel = repeatCount > 1 ? "×\(repeatCount)" : ""
+        return ["\(index + 1). \(name)", machine, platen, temperature, durationLabel, pressure, repeatLabel]
+            .filter { !$0.isEmpty }.joined(separator: " · ")
+    }
+    private static func stageDetail(_ stage: [String: Any]) -> String {
+        [stage["instruction"], stage["placementAction"], stage["finishAction"]]
+            .compactMap { $0 as? String }
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " · ")
     }
     private static func localizedPreset(
         _ value: String?,
@@ -405,24 +504,50 @@ enum PressBenchReportExporter {
 
     private enum PBXLSXCell { case text(String), number(Double) }
 
-    private static func worksheetXML(_ rows: [[PBXLSXCell]], percentRows: Set<Int> = [], percentColumns: Set<Int> = []) -> String {
-        var output = #"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>"#
+    private static func worksheetXML(
+        _ rows: [[PBXLSXCell]],
+        percentRows: Set<Int> = [],
+        percentColumns: Set<Int> = [],
+        widths: [Double] = [],
+        headerRow: Int? = nil,
+        titleRows: Set<Int> = []
+    ) -> String {
+        var output = #"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">"#
+        if let headerRow {
+            output += "<sheetViews><sheetView workbookViewId=\"0\"><pane ySplit=\"\(headerRow)\" topLeftCell=\"A\(headerRow + 1)\" activePane=\"bottomLeft\" state=\"frozen\"/></sheetView></sheetViews>"
+        }
+        output += "<sheetFormatPr defaultRowHeight=\"18\"/>"
+        if !widths.isEmpty {
+            output += "<cols>" + widths.enumerated().map { index, width in
+                "<col min=\"\(index + 1)\" max=\"\(index + 1)\" width=\"\(width)\" customWidth=\"1\"/>"
+            }.joined() + "</cols>"
+        }
+        output += "<sheetData>"
         for (rowIndex, row) in rows.enumerated() {
             let excelRow = rowIndex + 1
-            output += "<row r=\"\(excelRow)\">"
+            let rowHeight = titleRows.contains(excelRow) ? " ht=\"28\" customHeight=\"1\"" : (headerRow == excelRow ? " ht=\"30\" customHeight=\"1\"" : "")
+            output += "<row r=\"\(excelRow)\"\(rowHeight)>"
             for (columnIndex, cell) in row.enumerated() {
                 let reference = "\(columnName(columnIndex + 1))\(excelRow)"
+                let baseStyle: Int
+                if titleRows.contains(excelRow) { baseStyle = 3 }
+                else if headerRow == excelRow { baseStyle = 2 }
+                else { baseStyle = 4 }
                 switch cell {
                 case .text(let value):
-                    output += "<c r=\"\(reference)\" t=\"inlineStr\"><is><t xml:space=\"preserve\">\(xml(value))</t></is></c>"
+                    output += "<c r=\"\(reference)\" s=\"\(baseStyle)\" t=\"inlineStr\"><is><t xml:space=\"preserve\">\(xml(value))</t></is></c>"
                 case .number(let value):
-                    let style = percentRows.contains(excelRow) || percentColumns.contains(columnIndex + 1) ? " s=\"1\"" : ""
-                    output += "<c r=\"\(reference)\"\(style)><v>\(value)</v></c>"
+                    let style = percentRows.contains(excelRow) || percentColumns.contains(columnIndex + 1) ? 1 : baseStyle
+                    output += "<c r=\"\(reference)\" s=\"\(style)\"><v>\(value)</v></c>"
                 }
             }
             output += "</row>"
         }
-        output += "</sheetData></worksheet>"
+        output += "</sheetData>"
+        if let headerRow, let maxColumns = rows.map(\.count).max(), maxColumns > 0 {
+            output += "<autoFilter ref=\"A\(headerRow):\(columnName(maxColumns))\(max(headerRow, rows.count))\"/>"
+        }
+        output += "</worksheet>"
         return output
     }
 
@@ -442,7 +567,7 @@ enum PressBenchReportExporter {
         return #"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>"# + sheets + "</sheets></workbook>"
     }
     private static func stylesXML() -> String {
-        #"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="0.0%"/></numFmts><fonts count="1"><font><sz val="11"/><name val="Aptos"/></font></fonts><fills count="1"><fill><patternFill patternType="none"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs></styleSheet>"#
+        #"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="0.0%"/></numFmts><fonts count="3"><font><sz val="11"/><name val="Aptos"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Aptos"/></font><font><b/><sz val="16"/><color rgb="FF173B72"/><name val="Aptos Display"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF245FC7"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="5"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFill="1" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf></cellXfs></styleSheet>"#
     }
     private static func columnName(_ index: Int) -> String {
         var n = index, result = ""

@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import PDFKit
 
 struct ReportsView: View {
     @EnvironmentObject private var store: PressBenchStore
@@ -9,6 +10,8 @@ struct ReportsView: View {
     @State private var failed = false
     @State private var generating = false
     @State private var showingShare = false
+    @State private var showingPreview = false
+    @State private var previewURL: URL?
     @State private var showingUpgrade = false
     @State private var pendingFormat: String?
     @State private var exportTask: Task<Void, Never>?
@@ -130,6 +133,16 @@ struct ReportsView: View {
                         Text([t("report.productionReport"), "PDF / XLSX"].joined(separator: " · "))
                             .font(.subheadline).foregroundStyle(PBTheme.secondary)
                         Button {
+                            startPreview()
+                        } label: {
+                            Label([t("report.productionReport"), "PDF"].joined(separator: " · "),
+                                  systemImage: "eye.fill")
+                                .pbFullSurfaceTarget()
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(generating || matchingRuns.isEmpty)
+                        .accessibilityIdentifier("pb.reports.preview")
+                        Button {
                             showingUpgrade = true
                         } label: {
                             HStack {
@@ -164,6 +177,32 @@ struct ReportsView: View {
         .overlay { if generating { ProgressView().controlSize(.large) } }
         .sheet(isPresented: $showingShare) {
             if let exportURL { ActivityShareView(items: [exportURL as Any]) }
+        }
+        .sheet(isPresented: $showingPreview) {
+            NavigationStack {
+                Group {
+                    if let previewURL {
+                        PDFReportPreview(url: previewURL)
+                    } else {
+                        ProgressView().controlSize(.large)
+                    }
+                }
+                .safeAreaInset(edge: .top) {
+                    Label(t("common.unlockPro"), systemImage: "lock.fill")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(PBTheme.navy)
+                        .frame(maxWidth: .infinity)
+                        .padding(10)
+                        .background(PBTheme.primarySoft)
+                }
+                .navigationTitle(t("report.productionReport"))
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(t("common.done")) { showingPreview = false }
+                    }
+                }
+            }
         }
         .sheet(isPresented: $showingUpgrade, onDismiss: {
             guard store.isPro, let format = pendingFormat else { pendingFormat = nil; return }
@@ -225,12 +264,60 @@ struct ReportsView: View {
         }
     }
 
+    private func startPreview() {
+        exportTask?.cancel()
+        generating = true
+        exportTask = Task { @MainActor in
+            await Task.yield()
+            defer {
+                generating = false
+                exportTask = nil
+            }
+            do {
+                let work = try prepareExport("PDF")
+                try Task.checkCancellation()
+                let worker = Task.detached(priority: .userInitiated) { try work.generate() }
+                let url = try await withTaskCancellationHandler {
+                    try await worker.value
+                } onCancel: {
+                    worker.cancel()
+                }
+                try Task.checkCancellation()
+                previewURL = url
+                showingPreview = true
+            } catch is CancellationError {
+                return
+            } catch {
+                failed = true
+            }
+        }
+    }
+
     private func prepareExport(_ format: String) throws -> ReportExportWork {
         let batchIDs = matchingBatchIDs
         let plan = try store.reportPlan(format: format.lowercased(), batchIDs: batchIDs)
         let payload = try JSONSerialization.data(withJSONObject: plan, options: [.sortedKeys])
         let setups = try JSONSerialization.data(withJSONObject: store.canonicalReportSetups(batchIDs: batchIDs), options: [.sortedKeys])
         return ReportExportWork(format: format, payload: payload, setups: setups, language: language, localeIdentifier: locale.identifier)
+    }
+}
+
+private struct PDFReportPreview: UIViewRepresentable {
+    let url: URL
+
+    func makeUIView(context: Context) -> PDFView {
+        let view = PDFView()
+        view.autoScales = true
+        view.displayMode = .singlePageContinuous
+        view.displayDirection = .vertical
+        view.document = PDFDocument(url: url)
+        return view
+    }
+
+    func updateUIView(_ view: PDFView, context: Context) {
+        if view.document?.documentURL != url {
+            view.document = PDFDocument(url: url)
+        }
     }
 }
 

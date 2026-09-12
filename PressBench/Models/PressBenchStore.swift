@@ -201,7 +201,7 @@ final class PressBenchStore: ObservableObject {
     func subscriptionDisplayPrice(for plan: PurchaseManager.Plan) -> String? {
         #if DEBUG || PRESSBENCH_UI_TESTING
         if ProcessInfo.processInfo.arguments.contains("--pressbench-ui-test-subscription-products") {
-            return plan == .monthly ? "$12.99" : "$119.99"
+            return plan == .monthly ? "$9.99" : "$89.99"
         }
         #endif
         return purchases.product(for: plan)?.displayPrice
@@ -654,6 +654,47 @@ final class PressBenchStore: ObservableObject {
     func recordFirstPieceAdjustment(note: String = "") throws {
         try transitionThrowing(event: ["type": "RECORD_FIRST_PIECE", "outcome": "adjust_retry", "note": note])
     }
+    func firstPieceAdjustmentDraft() -> FirstPieceAdjustmentDraft {
+        guard let setup = activeRunDictionary?["setup"] as? [String: Any] else { return FirstPieceAdjustmentDraft() }
+        let steps = setup["steps"] as? [[String: Any]] ?? []
+        return FirstPieceAdjustmentDraft(stages: steps.enumerated().map { index, step in
+            FirstPieceStageAdjustment(
+                id: string(step["id"]).isEmpty ? "stage-\(index)" : string(step["id"]),
+                name: string(step["name"]),
+                stageType: string(step["stageType"]),
+                temperature: double(step["temperature"]).map { PBFormat.decimal($0, locale: presentationLocale) } ?? "",
+                temperatureUnit: string(step["temperatureUnit"]),
+                durationSeconds: intOptional(step["durationSeconds"]).map { String($0) } ?? "",
+                pressure: string(step["pressure"])
+            )
+        })
+    }
+    func recordFirstPieceAdjustment(_ draft: FirstPieceAdjustmentDraft, note: String = "") throws {
+        guard var run = activeRunDictionary,
+              var setup = run["setup"] as? [String: Any],
+              var steps = setup["steps"] as? [[String: Any]],
+              steps.count == draft.stages.count else { throw StoreError.activeRunMissing }
+        run = try transitionRun(run, event: ["type": "RECORD_FIRST_PIECE", "outcome": "adjust_retry", "note": note])
+        for index in steps.indices {
+            let adjustment = draft.stages[index]
+            guard adjustment.stageType == string(steps[index]["stageType"]) else { throw StoreError.invalidSetup }
+            if ["press", "prepress", "postpress"].contains(adjustment.stageType) {
+                guard let temperature = decimal(adjustment.temperature, locale: presentationLocale), temperature.isFinite,
+                      let duration = Int(adjustment.durationSeconds), duration >= 0 else { throw StoreError.invalidNumber }
+                steps[index]["temperature"] = temperature
+                steps[index]["temperatureUnit"] = adjustment.temperatureUnit
+                steps[index]["durationSeconds"] = duration
+                steps[index]["pressure"] = adjustment.pressure.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+        }
+        setup["steps"] = steps
+        run = try transitionRun(run, event: ["type": "EDIT_SETUP", "setup": setup])
+        if !note.isEmpty, var firstPiece = run["firstPiece"] as? [String: Any] {
+            firstPiece["note"] = note
+            run["firstPiece"] = firstPiece
+        }
+        try withStateTransaction { replaceActiveRun(run) }
+    }
     func stopAfterFirstPiece(note: String = "") throws {
         try transitionThrowing(event: ["type": "RECORD_FIRST_PIECE", "outcome": "stop", "note": note])
     }
@@ -989,12 +1030,24 @@ final class PressBenchStore: ObservableObject {
     var canonicalReportBatches: [[String: Any]] { rawBatches }
     var canonicalReportSetups: [[String: Any]] { rawRecipes }
     func canonicalReportSetups(batchIDs: Set<String>) -> [[String: Any]] {
-        let setupIDs = Set(rawBatches.compactMap { batch -> String? in
-            guard batchIDs.contains(string(batch["id"])) else { return nil }
-            let id = string(batch["recipeId"])
-            return id.isEmpty ? nil : id
-        })
-        return rawRecipes.filter { setupIDs.contains(string($0["id"])) }
+        var snapshots = [[String: Any]]()
+        var indexes = [String: Int]()
+        for batch in rawBatches where batchIDs.contains(string(batch["id"])) {
+            guard var snapshot = batch["recipe"] as? [String: Any],
+                  let data = try? JSONSerialization.data(withJSONObject: snapshot, options: [.sortedKeys]),
+                  let fingerprint = String(data: data, encoding: .utf8) else { continue }
+            let batchID = string(batch["id"])
+            if let index = indexes[fingerprint] {
+                var linked = snapshots[index]["reportBatchIDs"] as? [String] ?? []
+                linked.append(batchID)
+                snapshots[index]["reportBatchIDs"] = linked
+            } else {
+                indexes[fingerprint] = snapshots.count
+                snapshot["reportBatchIDs"] = [batchID]
+                snapshots.append(snapshot)
+            }
+        }
+        return snapshots
     }
 
     // MARK: - Purchase bridge
@@ -1413,6 +1466,7 @@ final class PressBenchStore: ObservableObject {
             currentStagePlacementAction: localizedPreset(string(sourceStep?["placementAction"]), group: .placementActions),
             currentStageFinishAction: localizedPreset(string(sourceStep?["finishAction"]), group: .finishActions),
             canDiscardUnstarted: raw["productionStarted"] as? Bool != true,
+            firstPieceRequired: (raw["firstPiece"] as? [String: Any])?["required"] as? Bool == true,
             currentStageType: string(currentTimerStage?["stageType"]),
             setupID: string(raw["sourceSetupId"])
         )

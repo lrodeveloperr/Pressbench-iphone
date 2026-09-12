@@ -11,6 +11,10 @@
     "context": "Common",
     "source": "Continue"
   },
+  "common.done": {
+    "context": "Keyboard dismissal action",
+    "source": "Done"
+  },
   "common.openPressBench": {
     "context": "Common",
     "source": "Open PressBench"
@@ -143,9 +147,13 @@
     "context": "Primary navigation destination",
     "source": "Library"
   },
+  "status.ready": {
+    "context": "Operational readiness status",
+    "source": "Ready"
+  },
   "status.proven": {
     "context": "Status",
-    "source": "Shop-proven"
+    "source": "Proven in this shop"
   },
   "status.trial": {
     "context": "Status",
@@ -463,9 +471,25 @@
     "context": "Runs action",
     "source": "End Run"
   },
+  "runs.inProgress": {
+    "context": "Active-run recovery banner",
+    "source": "Run in progress"
+  },
+  "runs.continue": {
+    "context": "Active-run recovery action",
+    "source": "Continue run"
+  },
+  "runs.pauseAndLeave": {
+    "context": "Active-run navigation action",
+    "source": "Pause and leave"
+  },
   "machines.title": {
     "context": "Machines",
     "source": "Machines"
+  },
+  "machine.add": {
+    "context": "Machine creation action",
+    "source": "Add machine"
   },
   "machines.available": {
     "context": "Machines status",
@@ -633,7 +657,7 @@
   },
   "report.materialTransfer": {
     "context": "Report",
-    "source": "Material / transfer"
+    "source": "Material / transfer medium"
   },
   "report.machinePlaten": {
     "context": "Report",
@@ -913,7 +937,7 @@
   },
   "result.allGood": {
     "context": "Native operator workflow and settings",
-    "source": "All planned units were good"
+    "source": "All planned units passed"
   },
   "result.allGoodHelp": {
     "context": "Native operator workflow and settings",
@@ -925,7 +949,11 @@
   },
   "result.batchOnly": {
     "context": "Native operator workflow and settings",
-    "source": "Batch only"
+    "source": "Save to batch only"
+  },
+  "result.reworkPassedQC": {
+    "context": "Completed result confirmation",
+    "source": "Reworked units passed QC"
   },
   "result.updateSetup": {
     "context": "Native operator workflow and settings",
@@ -1185,7 +1213,7 @@
   },
   "setup.provenBoundary": {
     "context": "Setup evidence boundary",
-    "source": "Shop-proven means qualifying operator-entered runs for this exact setup. It is not manufacturer validation, durability testing, certification, or a safety determination."
+    "source": "“Proven in this shop” means qualifying operator-recorded results for this exact setup. It is not manufacturer validation, independent durability testing, certification, or a safety determination."
   },
   "appearance.system": {
     "context": "Appearance",
@@ -1249,7 +1277,7 @@
   },
   "run.materiallyDifferent": {
     "context": "Pre-run reuse selection",
-    "source": "Materially different"
+    "source": "Different material or process"
   },
   "run.finishRun": {
     "context": "Active run action",
@@ -1319,6 +1347,10 @@
     "context": "New machine start",
     "source": "Pick a machine"
   },
+  "machine.markCheckedToday": {
+    "context": "Machine maintenance action",
+    "source": "Mark checked today"
+  },
   "setup.start.choose": {
     "context": "New setup start",
     "source": "How do you want to begin?"
@@ -1336,8 +1368,12 @@
     "source": "Enter manually"
   },
   "setup.selectPreset": {
-    "context": "Preset as-is action and picker title",
-    "source": "Use a preset as is"
+    "context": "Preset selection action and picker title",
+    "source": "Use a preset"
+  },
+  "setup.add": {
+    "context": "Setup creation action",
+    "source": "Add setup"
   },
   "setup.presetDisclaimer": {
     "context": "Preset setup footer",
@@ -1358,6 +1394,10 @@
   "upgrade.unlock": {
     "context": "Upgrade action",
     "source": "Subscribe"
+  },
+  "usage.freeRunsUsed": {
+    "context": "Free allowance exhausted status",
+    "source": "Free runs used"
   },
   "upgrade.monthly": {
     "context": "Subscription plan",

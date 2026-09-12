@@ -106,6 +106,7 @@ struct BatchRun: Identifiable, Hashable {
     var currentStagePlacementAction: String = ""
     var currentStageFinishAction: String = ""
     var canDiscardUnstarted: Bool = false
+    var firstPieceRequired: Bool = false
     var currentStageType: String = ""
     var setupID: String = ""
     var waste: Int = 0
@@ -249,4 +250,18 @@ struct IssueDraftInput: Identifiable, Hashable, Codable {
     var suspectedCause: String = "unknown"
     var disposition: String = "discarded"
     var note: String = ""
+}
+
+struct FirstPieceStageAdjustment: Identifiable, Equatable {
+    var id: String
+    var name: String
+    var stageType: String
+    var temperature: String
+    var temperatureUnit: String
+    var durationSeconds: String
+    var pressure: String
+}
+
+struct FirstPieceAdjustmentDraft: Equatable {
+    var stages: [FirstPieceStageAdjustment] = []
 }

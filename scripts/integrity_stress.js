@@ -305,7 +305,7 @@ function adversarialAndLongevity(base, runData) {
     nativeVerificationId: 'storekit2:pending:stress'
   }, now);
   assert.equal(pending.paidAccess, false);
-  assert.equal(E.capabilities(E.normalizeEntitlement({}), { setups: 0, batches: 2 }, now).canReserveBatch, false);
+  assert.equal(E.capabilities(E.normalizeEntitlement({}), { setups: 0, batches: 5 }, now).canReserveBatch, false);
 
   const auth = P.authorizeRun(context, setup, { now, utcOffsetMinutes: 0, progressMode: 'final_confirmation', runMode: 'test' });
   assert.equal(P.inspectActiveRunConflict({ session: auth.session }).runId, auth.run.id);

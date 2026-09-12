@@ -103,7 +103,7 @@ struct MachineEditorView: View {
                             draft.lastExternalCheckDate = Self.localCivilDate()
                             PBFeedback.success()
                         } label: {
-                            Label(t("qc.pass"), systemImage: "checkmark.seal")
+                            Label(t("machine.markCheckedToday"), systemImage: "checkmark.seal")
                                 .frame(minHeight: PBTheme.minimumTarget)
                         }
                     }
@@ -112,7 +112,7 @@ struct MachineEditorView: View {
             .environment(\.defaultMinListRowHeight, PBTheme.minimumTarget)
             .scrollContentBackground(.hidden)
             .scrollDismissesKeyboard(.interactively)
-            .pbKeyboardDismissToolbar(t("common.ok"))
+            .pbKeyboardDismissToolbar(t("common.done"))
             .background(PBTheme.canvasGradient)
             .tint(PBTheme.primary)
             .navigationTitle(t("machines.title"))
@@ -497,7 +497,7 @@ struct SetupEditorView: View {
             .environment(\.defaultMinListRowHeight, PBTheme.minimumTarget)
             .scrollContentBackground(.hidden)
             .scrollDismissesKeyboard(.interactively)
-            .pbKeyboardDismissToolbar(t("common.ok"))
+            .pbKeyboardDismissToolbar(t("common.done"))
             .background(PBTheme.canvasGradient)
             .tint(PBTheme.primary)
             .navigationTitle(t("setup.title"))
@@ -1074,7 +1074,7 @@ struct RunConfigurationView: View {
                 .padding(PBTheme.pagePadding)
             }
             .scrollDismissesKeyboard(.interactively)
-            .pbKeyboardDismissToolbar(t("common.ok"))
+            .pbKeyboardDismissToolbar(t("common.done"))
             .background(PBTheme.canvasGradient)
             .navigationTitle(t("setup.startRun"))
             .navigationBarTitleDisplayMode(.inline)

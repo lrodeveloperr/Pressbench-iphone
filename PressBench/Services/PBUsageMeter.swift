@@ -65,7 +65,7 @@ struct PBKeychainUsageStore: PBUsagePersisting {
 /// restoring an older backup, retrying a commit, or reinstalling the app must
 /// never create another free use.
 final class PBUsageMeter {
-    static let freePressLimit = 2
+    static let freePressLimit = 5
 
     private static let completedKey = "pressbench.usage.completedPresses"
     private static let lastCreditedBatchKey = "pressbench.usage.lastCreditedBatchID"

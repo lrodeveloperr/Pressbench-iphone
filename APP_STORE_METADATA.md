@@ -8,10 +8,10 @@ PressBench is not a design marketplace, machine remote, order-management suite, 
 
 ## Pricing
 
-- Free: two successfully completed and saved runs.
-- PressBench Pro Monthly: US$12.99 per month.
-- PressBench Pro Annual: US$119.99 per year.
-- Annual is presented first and selected by default. It saves US$35.89, approximately 23%, compared with 12 monthly payments.
+- Free: five successfully completed and saved runs, with a visible remaining-runs counter.
+- PressBench Pro Monthly: US$9.99 per month.
+- PressBench Pro Annual: US$89.99 per year.
+- Annual is presented first and selected by default. It saves US$29.89, approximately 25%, compared with 12 monthly payments.
 - App Store Connect supplies geopriced storefront amounts. Customer-facing prices always come from StoreKit.
 - No trial, weekly plan, lifetime purchase, credits, advertising, or account.
 
@@ -25,7 +25,7 @@ PressBench is not a design marketplace, machine remote, order-management suite, 
 | Primary category | Business | |
 | Secondary category | Productivity | |
 | Keywords | `htv,dtf,sublimation,vinyl,shirt,tumbler,transfer,temp,timer,pressure,peel,rework,production,qc,ink` | 98 / 100 |
-| Promotional text | `Build machine-specific setups, run first-piece checks, follow timed stages, and track waste and rework. Two complete runs free. No account or tracking.` | 151 / 170 |
+| Promotional text | `Build machine-specific setups, run first-piece checks, follow timed stages, and track waste and rework. Five complete runs free. No account or tracking.` | 152 / 170 |
 
 The keyword field intentionally does not repeat words already indexed from the name or subtitle. Do not add competitor names or trademarked product names to keywords.
 
@@ -96,7 +96,7 @@ BUILT FOR THE PRESS FLOOR
 - Optional backup and restore through Apple Files.
 - Available in 31 app languages.
 
-Two successfully completed and saved runs are included at no charge. PressBench Pro unlocks unlimited runs and PDF/XLSX production reports.
+Five successfully completed and saved runs are included at no charge, with a visible remaining-runs counter. PressBench Pro unlocks unlimited runs and PDF/XLSX production reports. A populated PDF report can be previewed before purchase.
 
 Heat presses and materials vary. Treat every preset as an editable starting point, confirm current instructions for the exact product, and test before production.
 

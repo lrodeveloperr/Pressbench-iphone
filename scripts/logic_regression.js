@@ -169,5 +169,5 @@ const proofMilliseconds = Number(process.hrtime.bigint() - proofStarted) / 1e6;
 assert.equal(proof.cleanMatchingBatches, 8000);
 assert.ok(proofMilliseconds < 6000, `proofSummary took ${proofMilliseconds.toFixed(1)}ms`);
 
-assert.equal(B.FREE_BATCH_LIMIT, 2); // Approved monetization remains unchanged.
+assert.equal(B.FREE_BATCH_LIMIT, 5); // Approved five-run evaluation allowance.
 console.log(`LOGIC REGRESSION: PASS — max run, 150 pauses, 6,000-record clone, 8,000-record proof (${proofMilliseconds.toFixed(1)}ms)`);

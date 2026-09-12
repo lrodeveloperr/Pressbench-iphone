@@ -2935,7 +2935,7 @@
 
   const D = root.PressBenchDomain;
   const FREE_RECIPE_LIMIT = D.MAX_RECORDS;
-  const FREE_BATCH_LIMIT = 2;
+  const FREE_BATCH_LIMIT = 5;
   const MAX_DETAILED_REPORT_ROWS = 12000;
   const STARTER_TEMPLATE_VERSION = "APP-018-STRUCTURES-v6";
   const STARTER_PREFIX = "starter-template-";
@@ -2948,14 +2948,18 @@
       benefits: Object.freeze(["unlimited_presses", "pdf_xlsx_csv_reports", "job_margin_remake_tracking",
         "durability_proof", "layer_planning", "calibration_maintenance"]),
       pricing: Object.freeze({
-        baseStorefront: "US", baseCurrency: "USD", monthlyBaseAmountMinor: 1299,
-        annualBaseAmountMinor: 11999, geoPriced: true
+        baseStorefront: "US", baseCurrency: "USD", monthlyBaseAmountMinor: 999,
+        annualBaseAmountMinor: 8999, geoPriced: true
       })
     }),
     android: Object.freeze({
-      productId: "pressbench_unlimited_lifetime_android",
-      productType: "non_consumable", recurring: false, restoreAction: true,
-      pricing: Object.freeze({ baseStorefront: "US", baseCurrency: "USD", baseAmountMinor: 499, geoPriced: true })
+      productId: "pressbench_unlimited_monthly_android",
+      productIds: Object.freeze(["pressbench_unlimited_monthly_android", "pressbench_unlimited_annual_android"]),
+      productType: "auto_renewable_subscription", recurring: true, restoreAction: true,
+      pricing: Object.freeze({
+        baseStorefront: "US", baseCurrency: "USD", monthlyBaseAmountMinor: 999,
+        annualBaseAmountMinor: 8999, geoPriced: true
+      })
     }),
     priceSource: "store_product"
   });
@@ -3349,7 +3353,7 @@
   const ENTITLEMENT_TRUST_BOUNDARY = Object.freeze({
     authority: "native_store_adapter_only",
     ios: "StoreKit2_verified_current_entitlements_or_user_initiated_sync",
-    android: "PlayBilling_PURCHASED_verified_and_acknowledged_non_consumable",
+    android: "PlayBilling_PURCHASED_verified_and_acknowledged_subscription",
     rawCallerObjectsTrusted: false,
     portableBackupImportAllowed: false
   });
@@ -3437,9 +3441,9 @@
     const currentIos = entitlement.platform === "ios" && entitlement.sourceStore === "app_store" &&
       entitlement.productType === "auto_renewable_subscription" &&
       B.MONETIZATION_MODEL.ios.productIds.includes(entitlement.productId) && entitlement.verificationSource === "storekit2";
-    const currentAndroid = entitlement.productType === "non_consumable" &&
+    const currentAndroid = entitlement.productType === "auto_renewable_subscription" &&
       entitlement.platform === "android" && entitlement.sourceStore === "google_play" &&
-        entitlement.productId === B.MONETIZATION_MODEL.android.productId && entitlement.verificationSource === "play_billing";
+        B.MONETIZATION_MODEL.android.productIds.includes(entitlement.productId) && entitlement.verificationSource === "play_billing";
     return currentIos || currentAndroid;
   }
 
@@ -3503,14 +3507,13 @@
     if (event.verificationSource && event.verificationSource !== verificationSource) throw new Error("store_verification_source");
     const sourceStore = platform === "ios" ? "app_store" : "google_play";
     const productId = D.text(event.productId, 180);
-    const expectedProductId = platform === "ios" ? B.MONETIZATION_MODEL.ios.productId : B.MONETIZATION_MODEL.android.productId;
-    const supportedProductIds = platform === "ios" ? B.MONETIZATION_MODEL.ios.productIds : [expectedProductId];
+    const supportedProductIds = platform === "ios" ? B.MONETIZATION_MODEL.ios.productIds : B.MONETIZATION_MODEL.android.productIds;
     const purchaseState = PURCHASE_STATES.has(event.purchaseState) ? event.purchaseState : "not_purchased";
     if (["purchased", "pending", "unverified", "expired", "refunded", "revoked"].includes(purchaseState) &&
         !supportedProductIds.includes(productId)) {
       throw new Error("store_product_mismatch");
     }
-    const productType = platform === "ios" ? "auto_renewable_subscription" : "non_consumable";
+    const productType = "auto_renewable_subscription";
     if (event.productType && event.productType !== productType) throw new Error("store_product_type");
     const now = instant(at === undefined ? Date.now() : at);
     if (!now) throw new Error("entitlement_now");
@@ -5660,7 +5663,9 @@
       if (!completedTimerPlan(run.timer)) throw new Error("timer_plan_incomplete");
       run.firstPiece.attempts = integer((run.firstPiece.attempts || 0) + 1, 1, 99, "first_piece_attempts");
       run.firstPiece.attemptedAt = run.firstPiece.attemptedAt || timestamp; run.firstPiece.outcome = event.outcome;
-      run.firstPiece.completedAt = timestamp; run.firstPiece.note = D.text(event.note, 1000);
+      run.firstPiece.completedAt = timestamp;
+      const firstPieceNote = D.text(event.note, 1000);
+      if (firstPieceNote || !run.firstPiece.note) run.firstPiece.note = firstPieceNote;
       markPressedSetup(run, timestamp);
       run.firstPieceProcessedCredit = Math.max(Number(run.firstPieceProcessedCredit || 0), 1);
       run.processedCount = Math.max(run.processedCount, 1);

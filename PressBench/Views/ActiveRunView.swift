@@ -14,6 +14,8 @@ private struct PreflightItem: Identifiable {
 
 struct ActiveRunView: View {
     let runID: String
+    let hidesTabBar: Bool
+    let onPauseAndLeave: (() -> Void)?
     @EnvironmentObject private var store: PressBenchStore
     @Environment(\.dismiss) private var dismiss
     @Environment(\.pbLanguage) private var language
@@ -35,6 +37,12 @@ struct ActiveRunView: View {
     private let ticker = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
     private let issueSymptoms = ["unknown", "color_shift", "ghosting", "edge_lift", "adhesion", "scorch", "alignment", "incomplete_transfer", "uneven_heat_pressure", "moisture", "transfer_shift", "contamination", "substrate_defect", "design_setup", "print_supply", "equipment_power", "interrupted", "other"]
     private let issueCauses = ["unknown", "heat", "pressure", "time", "moisture", "placement", "transfer", "substrate", "design", "printer_ink_paper", "equipment_power", "operator_interruption", "other"]
+
+    init(runID: String, hidesTabBar: Bool = true, onPauseAndLeave: (() -> Void)? = nil) {
+        self.runID = runID
+        self.hidesTabBar = hidesTabBar
+        self.onPauseAndLeave = onPauseAndLeave
+    }
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
     private var run: BatchRun? {
@@ -96,9 +104,41 @@ struct ActiveRunView: View {
         }
         .navigationTitle(t("runs.activeRun"))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.hidden, for: .tabBar)
+        .toolbar(hidesTabBar ? .hidden : .visible, for: .tabBar)
+        .toolbar {
+            if let run, run.state != .completed {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        if run.phase == "running" {
+                            Button {
+                                store.pauseRun(reason: "operator_leave")
+                                onPauseAndLeave?()
+                            } label: {
+                                Label(t("runs.pauseAndLeave"), systemImage: "pause.circle")
+                            }
+                        } else if run.phase == "paused" {
+                            Button { store.resumeRun() } label: {
+                                Label(t("runs.continue"), systemImage: "play.circle")
+                            }
+                        }
+                        if run.canDiscardUnstarted {
+                            Button(t("run.discardUnstarted"), role: .destructive) {
+                                showingDiscardConfirmation = true
+                            }
+                        } else {
+                            Button(t("runs.end"), role: .destructive) {
+                                showingEndConfirmation = true
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    .accessibilityLabel(t("common.more"))
+                }
+            }
+        }
         .background(PBTheme.pageBackground.ignoresSafeArea())
-        .pbKeyboardDismissToolbar(t("common.ok"))
+        .pbKeyboardDismissToolbar(t("common.done"))
         .sheet(isPresented: $showingQC) { QCCheckSheet().environmentObject(store).pbEditorSheetStyle() }
         .sheet(isPresented: $showingIssue) {
             IssueCaptureSheet { issue in
@@ -111,8 +151,8 @@ struct ActiveRunView: View {
             .pbEditorSheetStyle()
         }
         .sheet(item: $firstPieceAction) { action in
-            FirstPieceEvidenceSheet(action: action) { note in
-                if action == .adjust { try store.recordFirstPieceAdjustment(note: note) }
+            FirstPieceEvidenceSheet(action: action) { adjustment, note in
+                if action == .adjust { try store.recordFirstPieceAdjustment(adjustment, note: note) }
                 else { try store.stopAfterFirstPiece(note: note) }
             }
             .environmentObject(store)
@@ -214,9 +254,11 @@ struct ActiveRunView: View {
         switch run.phase {
         case "preflight":
             preflightCard(run)
-            preflightChecklist
+            if run.firstPieceRequired {
+                preflightChecklist
+            }
             PBPrimaryButton(title: t("run.confirmInstructions"), icon: "checkmark.shield") { store.confirmInstructions() }
-                .disabled(preflightChecks.count != preflightItems.count)
+                .disabled(run.firstPieceRequired && preflightChecks.count != preflightItems.count)
             discardButtonIfEligible(run)
         case "first_piece":
             timerControls(run)
@@ -504,7 +546,7 @@ struct ActiveRunView: View {
                 LabeledContent(t("report.final"), value: String(finalGoodUnits))
                     .font(.headline)
                 if (Int(result.rework) ?? 0) > 0 {
-                    Toggle(t("report.reworkedUnits") + " · " + t("qc.pass"), isOn: $result.reworkConfirmed)
+                    Toggle(t("result.reworkPassedQC"), isOn: $result.reworkConfirmed)
                         .tint(PBTheme.success)
                 }
                 Divider()
@@ -549,10 +591,12 @@ struct ActiveRunView: View {
                             Picker(t("report.symptom"), selection: $issue.symptom) {
                                 ForEach(issueSymptoms, id: \.self) { Text(t("issue.symptom.\($0)")).tag($0) }
                             }.pickerStyle(.menu)
-                            Picker(t("report.suspectedCause"), selection: $issue.suspectedCause) {
-                                ForEach(issueCauses, id: \.self) { Text(t("issue.cause.\($0)")).tag($0) }
-                            }.pickerStyle(.menu)
-                            TextField(t("report.note") + " *", text: $issue.note).textFieldStyle(.roundedBorder)
+                            DisclosureGroup(t("common.more")) {
+                                Picker(t("report.suspectedCause"), selection: $issue.suspectedCause) {
+                                    ForEach(issueCauses, id: \.self) { Text(t("issue.cause.\($0)")).tag($0) }
+                                }.pickerStyle(.menu)
+                                TextField(t("report.note"), text: $issue.note).textFieldStyle(.roundedBorder)
+                            }
                         }
                         .padding(12).background(PBTheme.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
@@ -688,7 +732,8 @@ struct ActiveRunView: View {
         return waste <= processed && reworked <= processed - waste &&
             (reworked == 0 || result.reworkConfirmed) && result.issues.allSatisfy {
             (Int($0.quantity).map { (1...PBInputLimits.maximumQuantity).contains($0) } == true) &&
-                !$0.note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                (($0.symptom != "other" && $0.suspectedCause != "other") ||
+                 !$0.note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         }
     }
 
@@ -720,12 +765,13 @@ struct ActiveRunView: View {
 
 private struct FirstPieceEvidenceSheet: View {
     let action: FirstPieceEvidenceAction
-    let onCommit: (String) throws -> Void
+    let onCommit: (FirstPieceAdjustmentDraft, String) throws -> Void
     @EnvironmentObject private var store: PressBenchStore
     @Environment(\.dismiss) private var dismiss
     @Environment(\.pbLanguage) private var language
     @Environment(\.locale) private var locale
     @State private var note = ""
+    @State private var adjustment = FirstPieceAdjustmentDraft()
     @State private var failed = false
     @State private var failureMessageKey = "common.actionFailed"
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
@@ -737,6 +783,26 @@ private struct FirstPieceEvidenceSheet: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Label(t(action == .adjust ? "run.adjustRetry" : "run.stopWithNote"), systemImage: action == .adjust ? "arrow.triangle.2.circlepath" : "stop.circle.fill")
                             .font(.title3.bold())
+                        if action == .adjust {
+                            ForEach($adjustment.stages) { $stage in
+                                if ["press", "prepress", "postpress"].contains(stage.stageType) {
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text(stage.name.isEmpty ? t("stage.\(stage.stageType)") : stage.name)
+                                            .font(.subheadline.bold())
+                                        HStack {
+                                            TextField(t("common.temperature"), text: $stage.temperature)
+                                                .keyboardType(.decimalPad)
+                                            Text(stage.temperatureUnit).foregroundStyle(PBTheme.secondary)
+                                        }
+                                        TextField(t("common.durationSeconds"), text: $stage.durationSeconds)
+                                            .keyboardType(.numberPad)
+                                        TextField(t("common.pressure"), text: $stage.pressure)
+                                    }
+                                    .padding(10)
+                                    .background(PBTheme.surface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                }
+                            }
+                        }
                         Text(t("common.notes")).font(.subheadline.weight(.semibold))
                         TextEditor(text: $note)
                             .frame(minHeight: 130).padding(8)
@@ -745,7 +811,7 @@ private struct FirstPieceEvidenceSheet: View {
                 }
                 Button {
                     do {
-                        try onCommit(note.trimmingCharacters(in: .whitespacesAndNewlines))
+                        try onCommit(adjustment, note.trimmingCharacters(in: .whitespacesAndNewlines))
                         PBTimerNotification.cancel()
                         action == .adjust ? PBFeedback.warning() : PBFeedback.error()
                         dismiss()
@@ -760,13 +826,18 @@ private struct FirstPieceEvidenceSheet: View {
                         .foregroundStyle(.white)
                         .background(action == .adjust ? PBTheme.warningActionFill : PBTheme.errorActionFill, in: RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous))
                 }.buttonStyle(PBTactileButtonStyle())
-                    .disabled(note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .disabled(action == .stop && note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 Spacer()
             }
             .padding(PBTheme.pagePadding).background(PBTheme.pageBackground.ignoresSafeArea())
-            .pbKeyboardDismissToolbar(t("common.ok"))
+            .pbKeyboardDismissToolbar(t("common.done"))
             .navigationTitle(t("onboarding.process.firstPiece"))
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(t("common.cancel")) { dismiss() } } }
+            .onAppear {
+                if action == .adjust && adjustment.stages.isEmpty {
+                    adjustment = store.firstPieceAdjustmentDraft()
+                }
+            }
         }
         .alert("PressBench", isPresented: $failed) {
             Button(t("common.ok"), role: .cancel) {}
@@ -836,7 +907,7 @@ private struct QCCheckSheet: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .background(PBTheme.pageBackground.ignoresSafeArea())
-            .pbKeyboardDismissToolbar(t("common.ok"))
+            .pbKeyboardDismissToolbar(t("common.done"))
             .navigationTitle(t("qc.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(t("common.cancel")) { dismiss() } } }
@@ -901,8 +972,10 @@ private struct IssueCaptureSheet: View {
                         .pickerStyle(.segmented)
                         .frame(minHeight: PBTheme.minimumTarget)
                         Picker(t("report.symptom"), selection: $issue.symptom) { ForEach(symptoms, id: \.self) { Text(t("issue.symptom.\($0)")).tag($0) } }.pickerStyle(.menu)
-                        Picker(t("report.suspectedCause"), selection: $issue.suspectedCause) { ForEach(causes, id: \.self) { Text(t("issue.cause.\($0)")).tag($0) } }.pickerStyle(.menu)
-                        TextField(t("report.note") + " *", text: $issue.note).textFieldStyle(.roundedBorder)
+                        DisclosureGroup(t("common.more")) {
+                            Picker(t("report.suspectedCause"), selection: $issue.suspectedCause) { ForEach(causes, id: \.self) { Text(t("issue.cause.\($0)")).tag($0) } }.pickerStyle(.menu)
+                            TextField(t("report.note"), text: $issue.note).textFieldStyle(.roundedBorder)
+                        }
                         Button {
                             do {
                                 try onCommit(issue)
@@ -920,14 +993,16 @@ private struct IssueCaptureSheet: View {
                             .disabled(
                                 (Int(issue.quantity).map {
                                     !(1...PBInputLimits.maximumQuantity).contains($0)
-                                } ?? true) || issue.note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                                } ?? true) ||
+                                ((issue.symptom == "other" || issue.suspectedCause == "other") &&
+                                 issue.note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                             )
                     }
                 }.padding(PBTheme.pagePadding)
             }
             .scrollDismissesKeyboard(.interactively)
             .background(PBTheme.pageBackground.ignoresSafeArea())
-            .pbKeyboardDismissToolbar(t("common.ok"))
+            .pbKeyboardDismissToolbar(t("common.done"))
             .navigationTitle(t("report.issuesExceptions")).navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(t("common.cancel")) { dismiss() } } }
         }

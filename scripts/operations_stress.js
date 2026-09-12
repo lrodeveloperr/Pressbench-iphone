@@ -123,11 +123,12 @@ check('CSV rejects malformed quotes, headers and duplicate ids', () => {
   rejects('csv_duplicate_id', () => O.importJobsCsv(duplicate));
 });
 
-check('approved monetization values remain unchanged and paid CSV is gated', () => {
-  assert.equal(B.FREE_BATCH_LIMIT, 2);
-  assert.equal(B.MONETIZATION_MODEL.ios.pricing.monthlyBaseAmountMinor, 1299);
-  assert.equal(B.MONETIZATION_MODEL.ios.pricing.annualBaseAmountMinor, 11999);
-  assert.equal(B.MONETIZATION_MODEL.android.pricing.baseAmountMinor, 499);
+check('approved monetization values and paid CSV gate remain intact', () => {
+  assert.equal(B.FREE_BATCH_LIMIT, 5);
+  assert.equal(B.MONETIZATION_MODEL.ios.pricing.monthlyBaseAmountMinor, 999);
+  assert.equal(B.MONETIZATION_MODEL.ios.pricing.annualBaseAmountMinor, 8999);
+  assert.equal(B.MONETIZATION_MODEL.android.pricing.monthlyBaseAmountMinor, 999);
+  assert.equal(B.MONETIZATION_MODEL.android.pricing.annualBaseAmountMinor, 8999);
   assert.equal(E.capabilities({}, { setups: 0, batches: 0 }, now).canCsv, false);
 });
 

@@ -182,13 +182,14 @@ function runCalendarAndEntitlementBoundaryTest() {
   const purchaseAt = atYear(START_YEAR);
   const android = E.applyStoreEvent(E.normalizeEntitlement({}), {
     action: 'purchase', platform: 'android', userInitiated: true, nativeAdapterVerified: true,
-    verificationSource: 'play_billing', productId: 'pressbench_unlimited_lifetime_android',
-    productType: 'non_consumable', purchaseState: 'purchased', acknowledged: true,
-    transactionId: 'millennium-android-lifetime',
-    nativeVerificationId: 'play:millennium-android-lifetime:pressbench_unlimited_lifetime_android',
-    storeEventAt: purchaseAt
+    verificationSource: 'play_billing', productId: 'pressbench_unlimited_annual_android',
+    productType: 'auto_renewable_subscription', purchaseState: 'purchased', acknowledged: true,
+    transactionId: 'millennium-android-annual',
+    nativeVerificationId: 'play:millennium-android-annual:pressbench_unlimited_annual_android',
+    storeEventAt: purchaseAt, expiresAt: expiryFor(START_YEAR)
   }, purchaseAt).entitlement;
-  assert.equal(E.evaluateEntitlement(android, atYear(END_YEAR)).paidAccess, true);
+  assert.equal(E.evaluateEntitlement(android, atYear(START_YEAR, 1)).paidAccess, true);
+  assert.equal(E.evaluateEntitlement(android, atYear(END_YEAR)).paidAccess, false);
 }
 
 function runCrossFileIntegrityTest() {
@@ -196,10 +197,11 @@ function runCrossFileIntegrityTest() {
   for (const forbidden of [/\beval\s*\(/, /new\s+Function\s*\(/, /\bXMLHttpRequest\b/, /\bWebSocket\b/, /\bfetch\s*\(/]) {
     assert.equal(forbidden.test(logicSource), false, `forbidden runtime capability ${forbidden}`);
   }
-  assert.equal(B.FREE_BATCH_LIMIT, 2);
-  assert.equal(B.MONETIZATION_MODEL.ios.pricing.monthlyBaseAmountMinor, 1299);
-  assert.equal(B.MONETIZATION_MODEL.ios.pricing.annualBaseAmountMinor, 11999);
-  assert.equal(B.MONETIZATION_MODEL.android.pricing.baseAmountMinor, 499);
+  assert.equal(B.FREE_BATCH_LIMIT, 5);
+  assert.equal(B.MONETIZATION_MODEL.ios.pricing.monthlyBaseAmountMinor, 999);
+  assert.equal(B.MONETIZATION_MODEL.ios.pricing.annualBaseAmountMinor, 8999);
+  assert.equal(B.MONETIZATION_MODEL.android.pricing.monthlyBaseAmountMinor, 999);
+  assert.equal(B.MONETIZATION_MODEL.android.pricing.annualBaseAmountMinor, 8999);
 
   const starters = B.starterTemplates('F');
   assert.equal(starters.length, 15);
