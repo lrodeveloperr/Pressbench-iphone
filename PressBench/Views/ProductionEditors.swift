@@ -1123,90 +1123,98 @@ struct ProUpgradeView: View {
     @State private var showingFailure = false
     @State private var failureMessageKey = "purchase.failed"
     @State private var restoreFoundNothing = false
-    @State private var selectedPlan: PurchaseManager.Plan = .annual
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 18) {
-                    Image(systemName: "infinity.circle.fill").font(.system(size: 64)).foregroundStyle(PBTheme.primary)
-                    Text(t("upgrade.title")).font(.title.bold()).multilineTextAlignment(.center)
-                    Text(t("upgrade.body")).foregroundStyle(PBTheme.secondary).multilineTextAlignment(.center)
-                    if !store.isPro {
-                        Text(PBL10n.format(
-                            "usage.freeRunsRemaining", language: language, locale: locale,
-                            PBFormat.integer(store.freePressesRemaining, locale: locale) as NSString,
-                            PBFormat.integer(PBUsageMeter.freePressLimit, locale: locale) as NSString
-                        ))
-                        .font(.headline).foregroundStyle(PBTheme.text).multilineTextAlignment(.center)
-                        Text(t("usage.freeRunCountingRule"))
-                            .font(.subheadline)
-                            .foregroundStyle(PBTheme.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    if store.purchaseOperationInProgress { ProgressView().controlSize(.large) }
-                    if store.purchaseState == .pending {
-                        Label(t("purchase.pending"), systemImage: "clock.fill")
-                            .font(.subheadline.weight(.semibold)).foregroundStyle(PBTheme.warningInk)
-                            .multilineTextAlignment(.center)
-                    }
-                    if store.hasAvailableSubscription {
-                        VStack(spacing: 10) {
-                            planOption(.annual)
-                            planOption(.monthly)
+            ZStack {
+                Color(uiColor: .systemGroupedBackground).ignoresSafeArea()
+                ScrollView {
+                    VStack(spacing: 16) {
+                        subscriptionSummary
+
+                        if let price = monthlyPrice {
+                            monthlyPlan(price: price)
+                        } else if store.purchaseOperationInProgress || store.purchaseState == .loading {
+                            ProgressView()
+                                .controlSize(.large)
+                                .frame(maxWidth: .infinity, minHeight: 88)
+                                .accessibilityLabel(t("purchase.unavailable"))
+                        } else {
+                            unavailableMessage
                         }
-                    }
-                    if !store.hasAvailableSubscription && store.purchaseState != .loading {
-                        Label(t("purchase.unavailable"), systemImage: "exclamationmark.triangle.fill")
-                            .font(.subheadline.weight(.semibold)).foregroundStyle(PBTheme.warningInk)
+
+                        if store.purchaseState == .pending {
+                            Label(t("purchase.pending"), systemImage: "clock.fill")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(PBTheme.warningInk)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                        }
+
+                        Text(t("upgrade.renewalTerms"))
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
-                        Button { retryProduct() } label: {
-                            Text(t("common.retry"))
+
+                        Button { restore() } label: {
+                            Text(t("upgrade.restore"))
                                 .font(.headline)
                                 .pbFullSurfaceTarget(alignment: .center)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.large)
-                        .accessibilityIdentifier("pb.upgrade.retry")
+                        .accessibilityIdentifier("pb.upgrade.restore")
                         .disabled(store.purchaseOperationInProgress)
+
+                        if restoreFoundNothing {
+                            Text(t("purchase.notFound"))
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+
+                        ViewThatFits(in: .horizontal) {
+                            HStack(spacing: 20) { policyLinks }
+                            VStack(spacing: 12) { policyLinks }
+                        }
+                        .font(.footnote.weight(.semibold))
                     }
-                    PBPrimaryButton(title: subscribeTitle, icon: "creditcard.fill") { purchase() }
-                        .accessibilityIdentifier("pb.upgrade.purchase")
-                        .disabled(store.purchaseOperationInProgress || store.purchaseState == .pending || selectedPrice == nil)
-                    Text(t("upgrade.renewalTerms"))
-                        .font(.footnote)
-                        .foregroundStyle(PBTheme.secondary)
-                        .multilineTextAlignment(.center)
-                    Button { restore() } label: {
-                        Text(t("upgrade.restore"))
-                            .font(.headline)
-                            .pbFullSurfaceTarget(alignment: .center)
-                    }
-                    .accessibilityIdentifier("pb.upgrade.restore")
-                    .disabled(store.purchaseOperationInProgress)
-                    if restoreFoundNothing {
-                        Text(t("purchase.notFound"))
-                            .font(.subheadline).foregroundStyle(PBTheme.secondary).multilineTextAlignment(.center)
-                    }
-                    ViewThatFits(in: .horizontal) {
-                        HStack(spacing: 20) { policyLinks }
-                        VStack(spacing: 12) { policyLinks }
-                    }
-                    .font(.footnote.weight(.semibold))
+                    .frame(maxWidth: 620)
+                    .frame(maxWidth: .infinity)
+                    .padding(16)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(PBTheme.pagePadding)
             }
-            .background(PBTheme.canvasGradient.ignoresSafeArea())
-            .navigationTitle(t("upgrade.title")).navigationBarTitleDisplayMode(.inline)
+            .safeAreaInset(edge: .bottom) { purchaseBar }
+            .tint(PBTheme.operatorAccent)
+            .navigationTitle(t("upgrade.title"))
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(t("common.cancel")) { dismiss() } } }
             .alert("PressBench", isPresented: $showingFailure) {
                 Button(t("common.ok"), role: .cancel) {}
             } message: { Text(t(failureMessageKey)) }
         }
-        .onAppear { selectAvailablePlanIfNeeded() }
-        .onChange(of: store.purchaseState) { _, _ in selectAvailablePlanIfNeeded() }
+    }
+
+    private var subscriptionSummary: some View {
+        VStack(spacing: 10) {
+            Text(t("upgrade.body"))
+                .font(.title3.bold())
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.center)
+            if !store.isPro {
+                Text(PBL10n.format(
+                    "usage.freeRunsRemaining", language: language, locale: locale,
+                    PBFormat.integer(store.freePressesRemaining, locale: locale) as NSString,
+                    PBFormat.integer(PBUsageMeter.freePressLimit, locale: locale) as NSString
+                ))
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(20)
+        .background(Color(uiColor: .secondarySystemGroupedBackground),
+                    in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
     @ViewBuilder private var policyLinks: some View {
@@ -1216,60 +1224,78 @@ struct ProUpgradeView: View {
             .frame(minHeight: PBTheme.minimumTarget)
     }
 
-    private func planOption(_ plan: PurchaseManager.Plan) -> some View {
-        let selected = selectedPlan == plan
-        let price = store.subscriptionDisplayPrice(for: plan)
-        return Button { selectedPlan = plan } label: {
-            HStack(spacing: 12) {
-                Image(systemName: selected ? "checkmark.circle.fill" : "circle")
-                    .font(.title3)
-                    .foregroundStyle(selected ? PBTheme.primaryStrong : PBTheme.secondary)
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(t(plan == .monthly ? "upgrade.monthly" : "upgrade.annual"))
-                        .font(.headline)
-                        .foregroundStyle(PBTheme.text)
-                    Text(price ?? t("purchase.unavailable"))
-                        .font(.subheadline)
-                        .foregroundStyle(PBTheme.secondary)
-                }
-                Spacer()
+    private func monthlyPlan(price: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "checkmark.circle.fill")
+                .symbolRenderingMode(.monochrome)
+                .font(.title3)
+                .foregroundStyle(PBTheme.operatorAccent)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(t("upgrade.monthly"))
+                    .font(.headline)
+                Text(monthlyPriceText(price))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
-            .padding(14)
-            .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
-            .background(selected ? PBTheme.primarySoft : PBTheme.paper,
-                        in: RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous)
-                    .stroke(selected ? PBTheme.primaryStrong : PBTheme.line, lineWidth: selected ? 2 : 1)
-            }
-            .contentShape(Rectangle())
+            Spacer()
         }
-        .buttonStyle(PBTactileButtonStyle())
-        .disabled(price == nil)
-        .opacity(price == nil ? 0.55 : 1)
-        .accessibilityIdentifier("pb.upgrade.\(plan == .monthly ? "monthly" : "annual")")
+        .padding(16)
+        .frame(maxWidth: .infinity, minHeight: 72, alignment: .leading)
+        .background(PBTheme.operatorAccent.opacity(0.10),
+                    in: RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous)
+                .stroke(PBTheme.operatorAccent, lineWidth: 2)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isSelected)
+        .accessibilityIdentifier("pb.upgrade.monthly")
     }
 
-    private var selectedPrice: String? {
-        store.subscriptionDisplayPrice(for: selectedPlan)
+    private var unavailableMessage: some View {
+        Label(t("purchase.unavailable"), systemImage: "exclamationmark.triangle.fill")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(PBTheme.warningInk)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity, minHeight: 88)
+            .padding(.horizontal)
     }
 
-    private func selectAvailablePlanIfNeeded() {
-        guard selectedPrice == nil else { return }
-        if store.subscriptionDisplayPrice(for: .annual) != nil { selectedPlan = .annual }
-        else if store.subscriptionDisplayPrice(for: .monthly) != nil { selectedPlan = .monthly }
+    @ViewBuilder private var purchaseBar: some View {
+        if let price = monthlyPrice {
+            PBPrimaryButton(
+                title: "\(t("upgrade.unlock")) · \(monthlyPriceText(price))",
+                icon: "creditcard.fill",
+                isLoading: store.purchaseOperationInProgress
+            ) { purchase() }
+            .accessibilityIdentifier("pb.upgrade.purchase")
+            .disabled(store.purchaseOperationInProgress || store.purchaseState == .pending)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(.ultraThinMaterial)
+        } else if !store.purchaseOperationInProgress && store.purchaseState != .loading {
+            PBPrimaryButton(title: t("common.retry"), icon: "arrow.clockwise") { retryProduct() }
+                .accessibilityIdentifier("pb.upgrade.retry")
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(.ultraThinMaterial)
+        }
     }
 
-    private var subscribeTitle: String {
-        guard let price = selectedPrice else { return t("upgrade.unlock") }
-        return "\(t("upgrade.unlock")) · \(price)"
+    private var monthlyPrice: String? {
+        store.subscriptionDisplayPrice(for: .monthly)
+    }
+
+    private func monthlyPriceText(_ price: String) -> String {
+        PBL10n.format("upgrade.pricePerMonthFormat", language: language, locale: locale, price as NSString)
     }
 
     private func purchase() {
         restoreFoundNothing = false
         failureMessageKey = "purchase.failed"
         Task { @MainActor in
-            await store.purchasePro(selectedPlan)
+            await store.purchasePro(.monthly)
             if store.isPro { dismiss(); return }
             switch store.purchaseState {
             case .pending, .free: break
@@ -1297,7 +1323,7 @@ struct ProUpgradeView: View {
     private func retryProduct() {
         Task { @MainActor in
             await store.reloadPurchases()
-            if !store.hasAvailableSubscription { showingFailure = true }
+            if monthlyPrice == nil { showingFailure = true }
         }
     }
 }
