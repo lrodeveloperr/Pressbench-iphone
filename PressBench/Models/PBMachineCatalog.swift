@@ -15,8 +15,24 @@ enum PBMachineCatalog {
         rows.map { Entry(brand: brand, model: $0.0, platen: $0.1, type: $0.2) }
     }
 
+    /// Brand-neutral fallbacks keep the app useful for every unlisted press
+    /// without guessing a manufacturer, model, working area, or capability.
+    static let genericFallbackEntries: [Entry] = make("Other / custom", [
+        ("Manual clamshell press", "", "Clamshell"),
+        ("Automatic clamshell press", "", "Automatic"),
+        ("Swing-away press", "", "Swing-away"),
+        ("Pneumatic single-platen press", "", "Pneumatic"),
+        ("Pneumatic dual-platen press", "", "Dual platen"),
+        ("Cap or headwear press", "", "Cap"),
+        ("Mug or tumbler press", "", "Mug"),
+        ("Portable hand press", "", "Portable"),
+        ("Large-format press", "", "Large format"),
+        ("Calender or roll press", "", "Calender"),
+        ("Multipurpose press", "", "Multipurpose")
+    ])
+
     static let entries: [Entry] =
-        make("Geo Knight", [
+        genericFallbackEntries + make("Geo Knight", [
             ("DK7", "Cap platen", "Cap"), ("DK7T", "Cap platen", "Cap"),
             ("DC7", "Cap platen", "Multipurpose"), ("DC7AP", "Cap platen", "Automatic"),
             ("DK3", "Mug element", "Mug"), ("DK3D", "Mug element", "Mug"),

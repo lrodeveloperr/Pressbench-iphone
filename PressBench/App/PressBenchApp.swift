@@ -17,7 +17,7 @@ struct PressBenchApp: App {
             let language = AppLanguageStorage.resolved(rawValue: languageRaw)
             let locale = Locale(identifier: language.localeIdentifier(deviceLocale: .current))
 
-            RootTabView()
+            PressBenchOperatorFocusRootView()
             .environmentObject(store)
             .environment(\.pbLanguage, language)
             .environment(\.locale, locale)

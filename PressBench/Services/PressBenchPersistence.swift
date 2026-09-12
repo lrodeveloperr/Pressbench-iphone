@@ -190,6 +190,10 @@ final class PressBenchPersistence {
 
         var coreState = state
         coreState.removeValue(forKey: "batches")
+        // Purchase authority is reconstructed from the native store on launch.
+        // Keeping it out of editable operational JSON prevents forged cached
+        // fields from being treated as a paid entitlement.
+        coreState.removeValue(forKey: "entitlement")
         let body: [String: Any] = [
             "data": coreState,
             "batchIndex": batchIndex.dictionary

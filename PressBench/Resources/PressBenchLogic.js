@@ -1,6 +1,6 @@
 /*
  * PressBench application logic core
- * Version: 0.21.4
+ * Version: 0.22.0
  * Logic baseline: PressBench v0.20.0 (2026-08-12)
  *
  * This artifact intentionally excludes the presentation and device wrappers:
@@ -17,7 +17,7 @@
   "use strict";
   root.PressBenchLogicMeta = Object.freeze({
     name: "PressBench",
-    version: "0.21.4",
+    version: "0.22.0",
     appId: "APP-018",
     dataSchema: "press-bench-log",
     dataSchemaVersion: 4,
@@ -25,6 +25,458 @@
     sourceDate: "2026-08-12",
     logicOnly: true
   });
+})(typeof globalThis !== "undefined" ? globalThis : this);
+
+/* Press-floor commercial and quality logic. These records remain device-only
+ * and deliberately stop short of invoicing, payment processing, inventory,
+ * customer accounts, cloud collaboration, or equipment control. */
+(function (root) {
+  "use strict";
+
+  root.__registerPressBenchOperations = function () {
+
+  const D = root.PressBenchDomain;
+  const B = root.PressBenchBusiness;
+  if (!D || !B) throw new Error("pressbench_operations_dependencies_missing");
+
+  const OPERATIONS_SCHEMA_VERSION = 1;
+  const JOB_STATUSES = new Set(["ordered", "pressing", "done", "delivered", "cancelled"]);
+  const DURABILITY_STATUSES = new Set(["pending", "pass", "fail", "not_required"]);
+  const DURABILITY_METHODS = new Set(["wash", "adhesion", "stretch", "other"]);
+  const CALIBRATION_STATUSES = new Set(["current", "failed", "overdue", "incomplete"]);
+  const TEMPERATURE_UNITS = new Set(["F", "C"]);
+  const MAX_JOB_BATCHES = 5000;
+  const MAX_LAYERS = 20;
+  const MAX_CALIBRATION_ZONES = 100;
+  const MAX_CSV_BYTES = 25_000_000;
+  const MAX_CSV_ROWS = 100_000;
+  const MAX_OPERATION_RECORDS = 100_000;
+  const JOB_TRANSITIONS = Object.freeze({
+    ordered: new Set(["pressing", "cancelled"]),
+    pressing: new Set(["ordered", "done", "cancelled"]),
+    done: new Set(["pressing", "delivered"]),
+    delivered: new Set(["done"]),
+    cancelled: new Set(["ordered"])
+  });
+  const JOB_CSV_COLUMNS = Object.freeze([
+    "id", "title", "customerReference", "item", "quantity", "dueAt", "status", "currency", "currencyExponent",
+    "saleAmountMinor", "depositAmountMinor", "blankCostMinor", "transferCostMinor",
+    "laborMinutes", "laborCostMinor", "overheadCostMinor", "remakeOfJobId", "remakeReason",
+    "linkedBatchIds", "createdAt", "updatedAt"
+  ]);
+
+  function clone(value) {
+    if (!D.isBoundedJsonValue(value, 50, 1000000)) throw new Error("operations_shape");
+    return JSON.parse(JSON.stringify(value));
+  }
+
+  function iso(value, required, code) {
+    if (value === undefined || value === null || value === "") {
+      if (required) throw new Error(code);
+      return "";
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) throw new Error(code);
+    return date.toISOString();
+  }
+
+  function integer(value, min, max, code, fallback) {
+    const candidate = value === undefined || value === null || value === "" ? fallback : Number(value);
+    if (!Number.isSafeInteger(candidate) || candidate < min || candidate > max) throw new Error(code);
+    return candidate;
+  }
+
+  function uniqueIds(value, maximum, code) {
+    if (value === undefined || value === null || value === "") return [];
+    const source = Array.isArray(value) ? value : String(value).split("|");
+    if (source.length > maximum) throw new Error(code);
+    const result = [];
+    const seen = new Set();
+    source.forEach(function (item) {
+      const id = D.text(item, 100);
+      if (!id || seen.has(id)) return;
+      seen.add(id); result.push(id);
+    });
+    return result;
+  }
+
+  function currencyCode(value, monetaryValuePresent) {
+    const currency = D.text(value, 3).toUpperCase();
+    if (!currency && !monetaryValuePresent) return "";
+    if (!/^[A-Z]{3}$/.test(currency)) throw new Error("job_currency");
+    return currency;
+  }
+
+  function normalizeJob(value, preserveId) {
+    const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+    const amounts = ["saleAmountMinor", "depositAmountMinor", "blankCostMinor", "transferCostMinor", "laborCostMinor", "overheadCostMinor"]
+      .reduce(function (result, field) {
+        result[field] = integer(source[field], 0, Number.MAX_SAFE_INTEGER, `job_${field}`, 0);
+        return result;
+      }, {});
+    const monetaryValuePresent = Object.keys(amounts).some(function (field) { return amounts[field] > 0; });
+    const now = new Date().toISOString();
+    const job = {
+      operationsSchemaVersion: OPERATIONS_SCHEMA_VERSION,
+      id: preserveId && D.text(source.id, 100) ? D.text(source.id, 100) : D.uuid(),
+      title: D.text(source.title, 180),
+      customerReference: D.text(source.customerReference, 180),
+      item: D.text(source.item, 180),
+      quantity: integer(source.quantity, 1, 999999, "job_quantity", 1),
+      dueAt: iso(source.dueAt, false, "job_dueAt"),
+      status: JOB_STATUSES.has(source.status) ? source.status : "ordered",
+      currency: currencyCode(source.currency, monetaryValuePresent),
+      currencyExponent: integer(source.currencyExponent, 0, 3, "job_currencyExponent", 2),
+      saleAmountMinor: amounts.saleAmountMinor,
+      depositAmountMinor: amounts.depositAmountMinor,
+      blankCostMinor: amounts.blankCostMinor,
+      transferCostMinor: amounts.transferCostMinor,
+      laborMinutes: integer(source.laborMinutes, 0, 1000000, "job_laborMinutes", 0),
+      laborCostMinor: amounts.laborCostMinor,
+      overheadCostMinor: amounts.overheadCostMinor,
+      linkedBatchIds: uniqueIds(source.linkedBatchIds, MAX_JOB_BATCHES, "job_batch_ids"),
+      remakeOfJobId: D.text(source.remakeOfJobId, 100),
+      remakeReason: D.text(source.remakeReason, 500),
+      createdAt: iso(source.createdAt || now, true, "job_createdAt"),
+      updatedAt: iso(source.updatedAt || source.createdAt || now, true, "job_updatedAt")
+    };
+    if (!job.title && !job.item) throw new Error("job_identity");
+    if (job.depositAmountMinor > job.saleAmountMinor) throw new Error("job_deposit_exceeds_sale");
+    if (new Date(job.updatedAt).getTime() < new Date(job.createdAt).getTime()) throw new Error("job_time_order");
+    if (job.remakeOfJobId === job.id) throw new Error("job_remake_cycle");
+    return Object.freeze(job);
+  }
+
+  function jobFinancials(value) {
+    const job = normalizeJob(value, true);
+    const totalCostMinor = job.blankCostMinor + job.transferCostMinor + job.laborCostMinor + job.overheadCostMinor;
+    if (!Number.isSafeInteger(totalCostMinor)) throw new Error("job_cost_overflow");
+    const profitMinor = job.saleAmountMinor - totalCostMinor;
+    const marginBasisPoints = job.saleAmountMinor ? Math.round(profitMinor * 10000 / job.saleAmountMinor) : null;
+    return Object.freeze({ currency: job.currency, currencyExponent: job.currencyExponent,
+      saleAmountMinor: job.saleAmountMinor, totalCostMinor: totalCostMinor, profitMinor: profitMinor,
+      marginBasisPoints: marginBasisPoints, depositAmountMinor: job.depositAmountMinor,
+      balanceDueMinor: Math.max(0, job.saleAmountMinor - job.depositAmountMinor), profitable: profitMinor > 0 });
+  }
+
+  function transitionJob(value, nextStatus, at) {
+    const job = normalizeJob(value, true);
+    if (!JOB_STATUSES.has(nextStatus)) throw new Error("job_status");
+    if (job.status !== nextStatus && !JOB_TRANSITIONS[job.status].has(nextStatus)) throw new Error("job_transition");
+    if (["done", "delivered"].includes(nextStatus) && !job.linkedBatchIds.length) throw new Error("job_completion_batch");
+    const changedAt = iso(at === undefined ? Date.now() : at, true, "job_updatedAt");
+    if (new Date(changedAt).getTime() < new Date(job.updatedAt).getTime()) throw new Error("job_event_stale");
+    return normalizeJob(Object.assign({}, job, { status: nextStatus, updatedAt: changedAt }), true);
+  }
+
+  function makeRemake(originalValue, value) {
+    const original = normalizeJob(originalValue, true);
+    if (original.status === "cancelled") throw new Error("job_remake_cancelled");
+    const input = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+    const source = Object.assign({}, input, {
+      remakeOfJobId: original.id,
+      currency: input.currency || original.currency,
+      currencyExponent: input.currencyExponent === undefined ? original.currencyExponent : input.currencyExponent
+    });
+    const remake = normalizeJob(source, false);
+    if (!remake.remakeReason) throw new Error("job_remake_reason");
+    return remake;
+  }
+
+  function summarizeJobs(values, currency) {
+    const sourceValues = values === undefined || values === null ? [] : values;
+    if (!Array.isArray(sourceValues) || sourceValues.length > MAX_OPERATION_RECORDS) throw new Error("job_records");
+    const jobs = sourceValues.map(function (job) { return normalizeJob(job, true); })
+      .filter(function (job) { return job.status !== "cancelled" && (!currency || job.currency === currency); });
+    const currencies = new Set(jobs.map(function (job) { return job.currency; }).filter(Boolean));
+    if (!currency && currencies.size > 1) throw new Error("mixed_currency_summary");
+    const totals = jobs.reduce(function (result, job) {
+      const finance = jobFinancials(job);
+      result.revenueMinor += finance.saleAmountMinor;
+      result.costMinor += finance.totalCostMinor;
+      result.profitMinor += finance.profitMinor;
+      result.balanceDueMinor += finance.balanceDueMinor;
+      result.quantity += job.quantity;
+      if (job.remakeOfJobId) result.remakes += 1;
+      return result;
+    }, { revenueMinor: 0, costMinor: 0, profitMinor: 0, balanceDueMinor: 0, quantity: 0, remakes: 0 });
+    Object.keys(totals).forEach(function (key) { if (!Number.isSafeInteger(totals[key])) throw new Error("job_summary_overflow"); });
+    return Object.freeze(Object.assign({ jobs: jobs.length, currency: currency || Array.from(currencies)[0] || "",
+      remakeRate: jobs.length ? totals.remakes / jobs.length : null }, totals));
+  }
+
+  function validateJobGraph(values) {
+    if (!Array.isArray(values) || values.length > MAX_OPERATION_RECORDS) throw new Error("job_records");
+    const jobs = values.map(function (job) { return normalizeJob(job, true); });
+    const byId = new Map();
+    jobs.forEach(function (job) {
+      if (byId.has(job.id)) throw new Error("job_id_duplicate");
+      byId.set(job.id, job);
+    });
+    jobs.forEach(function (job) {
+      if (job.remakeOfJobId && !byId.has(job.remakeOfJobId)) throw new Error("job_remake_reference");
+      const visited = new Set(); let current = job;
+      while (current && current.remakeOfJobId) {
+        if (visited.has(current.id)) throw new Error("job_remake_cycle");
+        visited.add(current.id); current = byId.get(current.remakeOfJobId);
+      }
+    });
+    return Object.freeze(jobs);
+  }
+
+  function normalizeDurabilityReview(value, preserveId) {
+    const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+    const status = DURABILITY_STATUSES.has(source.status) ? source.status : "pending";
+    const method = DURABILITY_METHODS.has(source.method) ? source.method : "wash";
+    const testedAt = iso(source.testedAt, false, "durability_testedAt");
+    const review = {
+      operationsSchemaVersion: OPERATIONS_SCHEMA_VERSION,
+      id: preserveId && D.text(source.id, 100) ? D.text(source.id, 100) : D.uuid(),
+      batchId: D.text(source.batchId, 100), setupId: D.text(source.setupId, 100),
+      status: status, method: method,
+      recommendedAt: iso(source.recommendedAt, false, "durability_recommendedAt"),
+      testedAt: testedAt,
+      washCycles: integer(source.washCycles, 0, 10000, "durability_washCycles", 0),
+      failureMode: D.text(source.failureMode, 180), notes: D.text(source.notes, 2000)
+    };
+    if (!review.batchId || !review.setupId) throw new Error("durability_reference");
+    if (["pass", "fail"].includes(status) && !testedAt) throw new Error("durability_testedAt");
+    if (method === "wash" && ["pass", "fail"].includes(status) && review.washCycles < 1) throw new Error("durability_washCycles");
+    if (status === "fail" && !review.failureMode) throw new Error("durability_failureMode");
+    return Object.freeze(review);
+  }
+
+  function durabilityEvidence(batchValue, reviews) {
+    const reviewValues = reviews === undefined || reviews === null ? [] : reviews;
+    if (!Array.isArray(reviewValues) || reviewValues.length > MAX_OPERATION_RECORDS) throw new Error("durability_records");
+    const batchId = D.text(batchValue && batchValue.id, 100);
+    const immediateSuccess = Boolean(batchValue && batchValue.outcome === "success" && Number(batchValue.quantityWaste || 0) === 0);
+    const related = reviewValues.map(function (review) { return normalizeDurabilityReview(review, true); })
+      .filter(function (review) { return review.batchId === batchId; });
+    if (related.some(function (review) { return review.status === "fail"; })) {
+      return Object.freeze({ level: "durability_failed", pressProven: immediateSuccess, washProven: false, requiresFollowUp: false });
+    }
+    const washPassed = related.some(function (review) { return review.status === "pass" && review.method === "wash"; });
+    if (washPassed) return Object.freeze({ level: "wash_proven", pressProven: immediateSuccess, washProven: true, requiresFollowUp: false });
+    const otherPassed = related.some(function (review) { return review.status === "pass"; });
+    if (otherPassed) return Object.freeze({ level: "durability_proven", pressProven: immediateSuccess,
+      washProven: false, requiresFollowUp: immediateSuccess });
+    return Object.freeze({ level: immediateSuccess ? "press_proven" : "unproven", pressProven: immediateSuccess,
+      washProven: false, requiresFollowUp: immediateSuccess && !related.some(function (review) { return review.status === "not_required"; }) });
+  }
+
+  function normalizeLayerPlan(value) {
+    const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+    if (!Array.isArray(source.layers) || source.layers.length < 1 || source.layers.length > MAX_LAYERS) throw new Error("layer_count");
+    const defaultUnit = TEMPERATURE_UNITS.has(source.temperatureUnit) ? source.temperatureUnit : "F";
+    const layers = source.layers.map(function (layer, index) {
+      const item = layer && typeof layer === "object" && !Array.isArray(layer) ? layer : {};
+      const unit = TEMPERATURE_UNITS.has(item.temperatureUnit) ? item.temperatureUnit : defaultUnit;
+      const temperature = Number(item.temperature);
+      if (!Number.isFinite(temperature) || temperature < (unit === "F" ? 32 : 0) || temperature > (unit === "F" ? 500 : 260)) throw new Error("layer_temperature");
+      return Object.freeze({ id: D.text(item.id, 100) || D.uuid(), order: index + 1,
+        name: D.text(item.name, 120), material: D.text(item.material, 180), temperature: temperature,
+        temperatureUnit: unit, tackSeconds: integer(item.tackSeconds, 0, 9999, "layer_tackSeconds", 0),
+        finalPressSeconds: integer(item.finalPressSeconds, 0, 9999, "layer_finalPressSeconds", 0),
+        pressure: D.text(item.pressure, 120), peelMethod: D.text(item.peelMethod, 120),
+        carrierAction: D.text(item.carrierAction, 500), coverAction: D.text(item.coverAction, 500), notes: D.text(item.notes, 1000) });
+    });
+    if (new Set(layers.map(function (layer) { return layer.id; })).size !== layers.length) throw new Error("layer_id_duplicate");
+    if (!layers.some(function (layer) { return layer.tackSeconds > 0 || layer.finalPressSeconds > 0; })) throw new Error("layer_duration");
+    const plan = { operationsSchemaVersion: OPERATIONS_SCHEMA_VERSION, id: D.text(source.id, 100) || D.uuid(),
+      setupId: D.text(source.setupId, 100), sourceConfirmed: source.sourceConfirmed === true,
+      testFirstAcknowledged: source.testFirstAcknowledged === true, layers: layers };
+    return Object.freeze(plan);
+  }
+
+  function layerPlanAssessment(value) {
+    const plan = normalizeLayerPlan(value);
+    const warnings = [];
+    if (!plan.sourceConfirmed) warnings.push("manufacturer_or_supplier_source_not_confirmed");
+    if (!plan.testFirstAcknowledged) warnings.push("test_first_not_acknowledged");
+    const temperaturesC = plan.layers.map(function (layer) { return B.temperatureToC(layer.temperature, layer.temperatureUnit); });
+    if (Math.max.apply(null, temperaturesC) - Math.min.apply(null, temperaturesC) > 15) warnings.push("layer_temperature_range_conflict");
+    const peelMethods = new Set(plan.layers.map(function (layer) { return D.normalizeSearch(layer.peelMethod); }).filter(Boolean));
+    if (peelMethods.size > 1) warnings.push("mixed_peel_requirements");
+    plan.layers.forEach(function (layer) {
+      if (!layer.name || !layer.material || !layer.pressure || !layer.peelMethod) warnings.push(`layer_${layer.order}_incomplete`);
+    });
+    return Object.freeze({ plan: plan, ready: warnings.length === 0, warnings: Object.freeze(Array.from(new Set(warnings))) });
+  }
+
+  function buildLayerTimerStages(value) {
+    const assessment = layerPlanAssessment(value);
+    if (!assessment.ready) throw Object.assign(new Error("layer_plan_not_ready"), { warnings: assessment.warnings });
+    const stages = [];
+    assessment.plan.layers.forEach(function (layer, index) {
+      if (layer.tackSeconds > 0) stages.push(Object.freeze({ key: `${layer.id}:tack`, layerId: layer.id,
+        order: index + 1, kind: "layer_tack", seconds: layer.tackSeconds }));
+      if (layer.finalPressSeconds > 0) stages.push(Object.freeze({ key: `${layer.id}:final`, layerId: layer.id,
+        order: index + 1, kind: "layer_final", seconds: layer.finalPressSeconds }));
+    });
+    return Object.freeze(stages);
+  }
+
+  function normalizeCalibration(value, preserveId) {
+    const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+    const unit = TEMPERATURE_UNITS.has(source.temperatureUnit) ? source.temperatureUnit : "F";
+    const target = Number(source.targetTemperature);
+    const tolerance = Number(source.tolerance);
+    if (!Number.isFinite(target) || target < (unit === "F" ? 32 : 0) || target > (unit === "F" ? 500 : 260)) throw new Error("calibration_target");
+    if (!Number.isFinite(tolerance) || tolerance < 0 || tolerance > (unit === "F" ? 100 : 56)) throw new Error("calibration_tolerance");
+    if (!Array.isArray(source.zoneReadings) || source.zoneReadings.length < 1 || source.zoneReadings.length > MAX_CALIBRATION_ZONES) throw new Error("calibration_zones");
+    const zones = source.zoneReadings.map(function (reading) {
+      const zone = D.text(reading && reading.zone, 120);
+      const measured = Number(reading && reading.measuredTemperature);
+      if (!zone || !Number.isFinite(measured) || measured < (unit === "F" ? 0 : -18) || measured > (unit === "F" ? 600 : 316)) throw new Error("calibration_reading");
+      return Object.freeze({ zone: zone, measuredTemperature: measured });
+    });
+    if (new Set(zones.map(function (zone) { return D.normalizeSearch(zone.zone); })).size !== zones.length) throw new Error("calibration_zone_duplicate");
+    const checkedAt = iso(source.checkedAt, true, "calibration_checkedAt");
+    const dueAt = iso(source.dueAt, false, "calibration_dueAt");
+    if (dueAt && new Date(dueAt).getTime() <= new Date(checkedAt).getTime()) throw new Error("calibration_due_order");
+    return Object.freeze({ operationsSchemaVersion: OPERATIONS_SCHEMA_VERSION,
+      id: preserveId && D.text(source.id, 100) ? D.text(source.id, 100) : D.uuid(),
+      machineId: D.text(source.machineId, 100), checkedAt: checkedAt,
+      dueAt: dueAt, temperatureUnit: unit,
+      targetTemperature: target, tolerance: tolerance, zoneReadings: Object.freeze(zones),
+      pressureMethod: D.text(source.pressureMethod, 120), pressureReading: D.text(source.pressureReading, 120),
+      pressureUnit: D.text(source.pressureUnit, 40), notes: D.text(source.notes, 2000) });
+  }
+
+  function calibrationAssessment(value, at) {
+    const record = normalizeCalibration(value, true);
+    if (!record.machineId) throw new Error("calibration_machine");
+    const now = new Date(at === undefined ? Date.now() : at);
+    if (Number.isNaN(now.getTime())) throw new Error("calibration_now");
+    if (new Date(record.checkedAt).getTime() > now.getTime()) throw new Error("calibration_future");
+    const deviations = record.zoneReadings.map(function (zone) {
+      return Object.freeze({ zone: zone.zone, deviation: zone.measuredTemperature - record.targetTemperature,
+        withinTolerance: Math.abs(zone.measuredTemperature - record.targetTemperature) <= record.tolerance });
+    });
+    const failed = deviations.filter(function (zone) { return !zone.withinTolerance; });
+    const overdue = Boolean(record.dueAt && new Date(record.dueAt).getTime() < now.getTime());
+    let status = failed.length ? "failed" : overdue ? "overdue" : "current";
+    if (!record.pressureMethod) status = "incomplete";
+    if (!CALIBRATION_STATUSES.has(status)) throw new Error("calibration_status");
+    return Object.freeze({ record: record, status: status, maximumAbsoluteDeviation: Math.max.apply(null,
+      deviations.map(function (zone) { return Math.abs(zone.deviation); })), failingZones: Object.freeze(failed), overdue: overdue });
+  }
+
+  function normalizeFavoriteIds(values, validSetupIds) {
+    if (validSetupIds !== undefined && validSetupIds !== null && !Array.isArray(validSetupIds)) throw new Error("favorite_setup_ids");
+    const valid = validSetupIds ? new Set(validSetupIds) : null;
+    return Object.freeze(uniqueIds(values || [], MAX_OPERATION_RECORDS, "favorite_ids")
+      .filter(function (id) { return !valid || valid.has(id); }).sort());
+  }
+
+  function toggleFavorite(values, setupId, validSetupIds) {
+    const id = D.text(setupId, 100);
+    if (!id || validSetupIds && !new Set(validSetupIds).has(id)) throw new Error("favorite_setup");
+    const current = new Set(normalizeFavoriteIds(values, validSetupIds));
+    if (current.has(id)) current.delete(id); else current.add(id);
+    return normalizeFavoriteIds(Array.from(current), validSetupIds);
+  }
+
+  function csvCell(value) {
+    let text = String(value === undefined || value === null ? "" : value);
+    if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+    return `"${text.replace(/"/g, '""')}"`;
+  }
+
+  function exportJobsCsv(values) {
+    const jobs = (values || []).map(function (job) { return normalizeJob(job, true); });
+    const rows = [JOB_CSV_COLUMNS.map(csvCell).join(",")];
+    jobs.forEach(function (job) {
+      rows.push(JOB_CSV_COLUMNS.map(function (column) {
+        const value = column === "linkedBatchIds" ? job.linkedBatchIds.join("|") : job[column];
+        return csvCell(value);
+      }).join(","));
+    });
+    const output = `\uFEFF${rows.join("\r\n")}`;
+    if (D.utf8ByteLength(output) > MAX_CSV_BYTES) throw new Error("csv_size");
+    return output;
+  }
+
+  function parseCsvRows(raw) {
+    if (typeof raw !== "string" || D.utf8ByteLength(raw) > MAX_CSV_BYTES) throw new Error("csv_size");
+    const text = raw.replace(/^\uFEFF/, "");
+    const rows = []; let row = []; let field = ""; let quoted = false; let afterQuote = false;
+    for (let index = 0; index < text.length; index += 1) {
+      const char = text[index];
+      if (quoted) {
+        if (char === '"' && text[index + 1] === '"') { field += '"'; index += 1; }
+        else if (char === '"') { quoted = false; afterQuote = true; }
+        else field += char;
+      } else if (afterQuote) {
+        if (char === ",") { row.push(field); field = ""; afterQuote = false; }
+        else if (char === "\n" || char === "\r") {
+          if (char === "\r" && text[index + 1] === "\n") index += 1;
+          row.push(field); field = ""; afterQuote = false;
+          if (row.some(function (value) { return value !== ""; })) rows.push(row);
+          row = [];
+          if (rows.length > MAX_CSV_ROWS + 1) throw new Error("csv_rows");
+        } else throw new Error("csv_quote");
+      } else if (char === '"') {
+        if (field !== "") throw new Error("csv_quote");
+        quoted = true;
+      } else if (char === ",") { row.push(field); field = ""; }
+      else if (char === "\n" || char === "\r") {
+        if (char === "\r" && text[index + 1] === "\n") index += 1;
+        row.push(field); field = "";
+        if (row.some(function (value) { return value !== ""; })) rows.push(row);
+        row = [];
+        if (rows.length > MAX_CSV_ROWS + 1) throw new Error("csv_rows");
+      } else field += char;
+    }
+    if (quoted) throw new Error("csv_quote");
+    row.push(field);
+    if (row.some(function (value) { return value !== ""; })) rows.push(row);
+    return rows;
+  }
+
+  function importJobsCsv(raw) {
+    const rows = parseCsvRows(raw);
+    if (!rows.length) return Object.freeze([]);
+    const headers = rows[0];
+    if (headers.length !== JOB_CSV_COLUMNS.length || headers.some(function (header, index) { return header !== JOB_CSV_COLUMNS[index]; })) throw new Error("csv_headers");
+    const ids = new Set();
+    const jobs = rows.slice(1).map(function (row) {
+      if (row.length !== headers.length) throw new Error("csv_columns");
+      const source = headers.reduce(function (result, header, index) {
+        let value = row[index];
+        if (/^'[=+\-@\t\r]/.test(value)) value = value.slice(1);
+        result[header] = value;
+        return result;
+      }, {});
+      ["quantity", "currencyExponent", "saleAmountMinor", "depositAmountMinor", "blankCostMinor",
+        "transferCostMinor", "laborMinutes", "laborCostMinor", "overheadCostMinor"].forEach(function (field) {
+        if (source[field] !== "") source[field] = Number(source[field]);
+      });
+      const job = normalizeJob(source, Boolean(source.id));
+      if (ids.has(job.id)) throw new Error("csv_duplicate_id");
+      ids.add(job.id);
+      return job;
+    });
+    return Object.freeze(jobs);
+  }
+
+  root.PressBenchOperations = Object.freeze({
+    OPERATIONS_SCHEMA_VERSION: OPERATIONS_SCHEMA_VERSION, JOB_STATUSES: JOB_STATUSES,
+    DURABILITY_STATUSES: DURABILITY_STATUSES, DURABILITY_METHODS: DURABILITY_METHODS,
+    JOB_CSV_COLUMNS: JOB_CSV_COLUMNS, normalizeJob: normalizeJob, jobFinancials: jobFinancials,
+    transitionJob: transitionJob, makeRemake: makeRemake, summarizeJobs: summarizeJobs, validateJobGraph: validateJobGraph,
+    normalizeDurabilityReview: normalizeDurabilityReview, durabilityEvidence: durabilityEvidence,
+    normalizeLayerPlan: normalizeLayerPlan, layerPlanAssessment: layerPlanAssessment,
+    buildLayerTimerStages: buildLayerTimerStages, normalizeCalibration: normalizeCalibration,
+    calibrationAssessment: calibrationAssessment, normalizeFavoriteIds: normalizeFavoriteIds,
+    toggleFavorite: toggleFavorite, exportJobsCsv: exportJobsCsv, importJobsCsv: importJobsCsv
+  });
+
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = Object.freeze(Object.assign({}, module.exports, { operations: root.PressBenchOperations }));
+  }
+  };
 })(typeof globalThis !== "undefined" ? globalThis : this);
 
 (function (root) {
@@ -140,6 +592,9 @@
   const SYSTEM_STARTER_IDS = new Set([
     "starter-template-standard-htv", "starter-template-polyester-dtf", "starter-template-sublimation",
     "starter-template-multi-stage", "starter-template-puff-vinyl", "starter-template-screen-printed-transfer",
+    "starter-template-cap-headwear", "starter-template-mug-tumbler", "starter-template-hard-goods-sublimation",
+    "starter-template-patch-emblem", "starter-template-white-toner", "starter-template-low-temperature",
+    "starter-template-dye-blocking",
     "starter-template-other", "starter-template-blank"
   ]);
   const STARTER_TEMPLATE_NOTE = "Structural starter only. It contains no operating values. Enter and check every value against the current equipment, transfer, substrate, and safety instructions before use.";
@@ -150,6 +605,13 @@
     "starter-template-multi-stage": ["Multi-stage setup", "multi_stage", "", "Stage 1"],
     "starter-template-puff-vinyl": ["Puff vinyl setup", "htv", "Puff heat transfer vinyl", "Press"],
     "starter-template-screen-printed-transfer": ["Screen-printed transfer setup", "screen_printed_transfer", "Screen-printed transfer", "Press"],
+    "starter-template-cap-headwear": ["Cap or headwear setup", "other", "", "Press"],
+    "starter-template-mug-tumbler": ["Mug or tumbler setup", "other", "", "Press"],
+    "starter-template-hard-goods-sublimation": ["Hard-goods sublimation setup", "sublimation", "Sublimation transfer", "Press"],
+    "starter-template-patch-emblem": ["Patch or emblem setup", "other", "", "Press"],
+    "starter-template-white-toner": ["White-toner transfer setup", "other", "White-toner transfer", "Press"],
+    "starter-template-low-temperature": ["Low-temperature setup", "other", "", "Press"],
+    "starter-template-dye-blocking": ["Dye-blocking setup", "other", "", "Press"],
     "starter-template-other": ["Other process setup", "other", "", "Press"],
     "starter-template-blank": ["Blank setup", "blank", "", "Press"]
   });
@@ -324,11 +786,13 @@
   function number(value, fallback, min, max) {
     if (value === "" || value === null || value === undefined) return fallback;
     const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : text(value, 40);
+    return Number.isFinite(parsed) && parsed >= min && parsed <= max ? parsed : text(value, 40);
   }
 
   function integer(value, fallback, min, max) {
-    return number(value, fallback, min, max);
+    if (value === "" || value === null || value === undefined) return fallback;
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed >= min && parsed <= max ? parsed : text(value, 40);
   }
 
   function invalidNumber(value, min, max, requireInteger) {
@@ -2473,7 +2937,7 @@
   const FREE_RECIPE_LIMIT = D.MAX_RECORDS;
   const FREE_BATCH_LIMIT = 2;
   const MAX_DETAILED_REPORT_ROWS = 12000;
-  const STARTER_TEMPLATE_VERSION = "APP-018-STRUCTURES-v5";
+  const STARTER_TEMPLATE_VERSION = "APP-018-STRUCTURES-v6";
   const STARTER_PREFIX = "starter-template-";
   const MONETIZATION_MODEL = Object.freeze({
     free: { savedSetups: FREE_RECIPE_LIMIT, completedPresses: FREE_BATCH_LIMIT, timedTrial: false },
@@ -2481,7 +2945,8 @@
       productId: "pressbench_unlimited_monthly_ios",
       productIds: Object.freeze(["pressbench_unlimited_monthly_ios", "pressbench_unlimited_annual_ios"]),
       productType: "auto_renewable_subscription", recurring: true, restoreAction: true,
-      benefits: Object.freeze(["unlimited_presses", "pdf_xlsx_reports"]),
+      benefits: Object.freeze(["unlimited_presses", "pdf_xlsx_csv_reports", "job_margin_remake_tracking",
+        "durability_proof", "layer_planning", "calibration_maintenance"]),
       pricing: Object.freeze({
         baseStorefront: "US", baseCurrency: "USD", monthlyBaseAmountMinor: 1299,
         annualBaseAmountMinor: 11999, geoPriced: true
@@ -2584,6 +3049,62 @@
         processStructure: "screen_printed_transfer",
         blankMaterial: "",
         transferMedium: "Screen-printed transfer",
+        name: "Press"
+      },
+      {
+        id: STARTER_PREFIX + "cap-headwear",
+        title: "Cap or headwear setup",
+        processStructure: "other",
+        blankMaterial: "",
+        transferMedium: "",
+        name: "Press"
+      },
+      {
+        id: STARTER_PREFIX + "mug-tumbler",
+        title: "Mug or tumbler setup",
+        processStructure: "other",
+        blankMaterial: "",
+        transferMedium: "",
+        name: "Press"
+      },
+      {
+        id: STARTER_PREFIX + "hard-goods-sublimation",
+        title: "Hard-goods sublimation setup",
+        processStructure: "sublimation",
+        blankMaterial: "",
+        transferMedium: "Sublimation transfer",
+        name: "Press"
+      },
+      {
+        id: STARTER_PREFIX + "patch-emblem",
+        title: "Patch or emblem setup",
+        processStructure: "other",
+        blankMaterial: "",
+        transferMedium: "",
+        name: "Press"
+      },
+      {
+        id: STARTER_PREFIX + "white-toner",
+        title: "White-toner transfer setup",
+        processStructure: "other",
+        blankMaterial: "",
+        transferMedium: "White-toner transfer",
+        name: "Press"
+      },
+      {
+        id: STARTER_PREFIX + "low-temperature",
+        title: "Low-temperature setup",
+        processStructure: "other",
+        blankMaterial: "",
+        transferMedium: "",
+        name: "Press"
+      },
+      {
+        id: STARTER_PREFIX + "dye-blocking",
+        title: "Dye-blocking setup",
+        processStructure: "other",
+        blankMaterial: "",
+        transferMedium: "",
         name: "Press"
       },
       {
@@ -2820,6 +3341,11 @@
   const NEGATIVE = new Set(["expired", "refunded", "revoked", "pending", "free", "unverified"]);
   const VERIFICATION_SOURCES = new Set(["none", "storekit2", "play_billing"]);
   const STORE_EVENT_ACTIONS = new Set(["automatic_refresh", "explicit_restore", "purchase"]);
+  // A seal is valid only for this engine instance. Persisted entitlement JSON
+  // therefore cannot grant access after relaunch; a native store refresh must
+  // mint a new sealed state. This protects the offline cache without exporting
+  // a reusable signing secret into the application data files.
+  const RUNTIME_ENTITLEMENT_SECRET = D.sha256(`${D.uuid()}|${D.uuid()}|${Date.now()}|${Math.random()}`);
   const ENTITLEMENT_TRUST_BOUNDARY = Object.freeze({
     authority: "native_store_adapter_only",
     ios: "StoreKit2_verified_current_entitlements_or_user_initiated_sync",
@@ -2877,8 +3403,34 @@
       storeEventAt: instant(source.storeEventAt),
       expiresAt: expiresAt,
       continuityUntil: continuityUntil,
-      clockFloor: clockFloor
+      clockFloor: clockFloor,
+      runtimeSeal: D.text(source.runtimeSeal, 100)
     });
+  }
+
+  function sealPayload(entitlement) {
+    return JSON.stringify([
+      entitlement.schemaVersion, entitlement.platform, entitlement.productType, entitlement.status,
+      entitlement.purchaseState, entitlement.sourceStore, entitlement.productId, entitlement.verificationSource,
+      entitlement.storeVerified, entitlement.verifiedAt, entitlement.acknowledged, entitlement.acknowledgedAt,
+      entitlement.storeTransactionIdHash, entitlement.terminalTransactionIdHash,
+      entitlement.nativeVerificationIdHash, entitlement.storeEventAt, entitlement.expiresAt,
+      entitlement.continuityUntil, entitlement.clockFloor
+    ]);
+  }
+
+  function sealEntitlement(value) {
+    const normalized = normalizeEntitlement(value);
+    return normalizeEntitlement(Object.assign({}, normalized, {
+      runtimeSeal: `sha256:${D.sha256(`${RUNTIME_ENTITLEMENT_SECRET}|${sealPayload(normalized)}`)}`
+    }));
+  }
+
+  function runtimeSealValid(value) {
+    const entitlement = normalizeEntitlement(value);
+    if (!entitlement.runtimeSeal) return false;
+    const expected = `sha256:${D.sha256(`${RUNTIME_ENTITLEMENT_SECRET}|${sealPayload(entitlement)}`)}`;
+    return entitlement.runtimeSeal === expected;
   }
 
   function matchesCurrentProduct(entitlement) {
@@ -2892,12 +3444,16 @@
   }
 
   function evaluateEntitlement(value, at) {
-    const entitlement = normalizeEntitlement(value);
+    const suppliedEntitlement = normalizeEntitlement(value);
+    const sealedRuntimeState = runtimeSealValid(suppliedEntitlement);
+    // Never turn an invalid caller/persisted object into a newly trusted one.
+    // Invalid state is collapsed to free before the next runtime seal is made.
+    const entitlement = sealedRuntimeState ? suppliedEntitlement : normalizeEntitlement({});
     const requestedNow = new Date(at === undefined ? Date.now() : at);
     if (Number.isNaN(requestedNow.getTime())) throw new Error("entitlement_now");
     const floorMs = entitlement.clockFloor ? new Date(entitlement.clockFloor).getTime() : -Infinity;
     const now = new Date(Math.max(requestedNow.getTime(), floorMs));
-    const evaluatedEntitlement = Object.freeze(Object.assign({}, entitlement, { clockFloor: now.toISOString() }));
+    const evaluatedEntitlement = sealEntitlement(Object.assign({}, entitlement, { clockFloor: now.toISOString() }));
     const verifiedMs = entitlement.verifiedAt ? new Date(entitlement.verifiedAt).getTime() : NaN;
     const trustedVerification = Number.isFinite(verifiedMs) && verifiedMs <= now.getTime();
     let paidAccess = false;
@@ -2909,10 +3465,10 @@
       Boolean(entitlement.expiresAt && new Date(entitlement.expiresAt).getTime() > now.getTime());
     const adapterProvenance = Boolean(entitlement.storeTransactionIdHash && entitlement.nativeVerificationIdHash && entitlement.storeEventAt);
     const androidAcknowledged = entitlement.platform !== "android" || entitlement.acknowledged === true;
-    if (trustedVerification && adapterProvenance && exactProduct && subscriptionCurrent && androidAcknowledged && entitlement.storeVerified === true &&
+    if (sealedRuntimeState && trustedVerification && adapterProvenance && exactProduct && subscriptionCurrent && androidAcknowledged && entitlement.storeVerified === true &&
         entitlement.status === "active" && !NEGATIVE.has(entitlement.status)) {
       paidAccess = true; basis = entitlement.platform === "ios" ? "ios_paid" : "android_paid";
-    } else if (trustedVerification && adapterProvenance && exactProduct && subscriptionCurrent && androidAcknowledged && entitlement.storeVerified === true &&
+    } else if (sealedRuntimeState && trustedVerification && adapterProvenance && exactProduct && subscriptionCurrent && androidAcknowledged && entitlement.storeVerified === true &&
         entitlement.status === "unverified" && entitlement.continuityUntil &&
         new Date(entitlement.continuityUntil).getTime() >= now.getTime()) {
       paidAccess = true; basis = entitlement.platform === "ios" ? "ios_cached_paid" : "android_cached_paid";
@@ -2929,11 +3485,14 @@
         entitlement.acknowledged !== true && entitlement.verifiedAt ?
           new Date(new Date(entitlement.verifiedAt).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString() : "",
       requestedAt: requestedNow.toISOString(), evaluatedAt: now.toISOString(),
-      clockRollbackDetected: requestedNow.getTime() < now.getTime() });
+      clockRollbackDetected: requestedNow.getTime() < now.getTime(), runtimeSealValid: sealedRuntimeState });
   }
 
   function applyStoreEvent(currentValue, eventValue, at) {
-    const current = normalizeEntitlement(currentValue);
+    // Unsealed state may be retained for display/migration, but must not
+    // influence transaction replay or authorization decisions.
+    const suppliedCurrent = normalizeEntitlement(currentValue);
+    const current = runtimeSealValid(suppliedCurrent) ? suppliedCurrent : normalizeEntitlement({});
     const event = eventValue && typeof eventValue === "object" && !Array.isArray(eventValue) ? eventValue : {};
     const action = STORE_EVENT_ACTIONS.has(event.action) ? event.action : "automatic_refresh";
     const platform = PLATFORMS.has(event.platform) ? event.platform : current.platform;
@@ -3023,8 +3582,9 @@
         terminalTransactionIdHash: current.terminalTransactionIdHash,
         nativeVerificationIdHash: nativeVerificationIdHash, storeEventAt: storeEventAt, clockFloor: now });
     }
+    next = sealEntitlement(next);
     const evaluation = evaluateEntitlement(next, now);
-    return Object.freeze({ action: action, outcome: purchaseState, entitlement: next,
+    return Object.freeze({ action: action, outcome: purchaseState, entitlement: evaluation.entitlement,
       paidAccess: evaluation.paidAccess, requiresAcknowledgement: evaluation.requiresAcknowledgement,
       requiresVerification: evaluation.requiresVerification, operationalRecordsRestored: false,
       consumptionAllowed: false,
@@ -3048,7 +3608,7 @@
       canSearch: true,
       canCorrect: true,
       canDelete: true,
-      canCsv: false,
+      canCsv: evaluation.paidAccess,
       canJsonBackup: false,
       canJsonRestore: false,
       existingRecordAccess: true,
@@ -3068,6 +3628,7 @@
     STORES: STORES,
     VERIFICATION_SOURCES: VERIFICATION_SOURCES,
     normalizeEntitlement: normalizeEntitlement,
+    runtimeSealValid: runtimeSealValid,
     evaluateEntitlement: evaluateEntitlement,
     applyStoreEvent: applyStoreEvent,
     advanceClock: advanceClock,
@@ -4342,6 +4903,10 @@
   });
 
   function clone(value) {
+    // Validate and clone collections record-by-record. A single malformed
+    // record remains bounded, while a legitimate long history no longer hits
+    // an unrelated aggregate node ceiling before device storage is exhausted.
+    if (Array.isArray(value)) return value.map(function (item) { return clone(item); });
     if (!D.isBoundedJsonValue(value, 50, 1000000)) throw new Error("storage_corrupt");
     return JSON.parse(JSON.stringify(value));
   }
@@ -4449,6 +5014,9 @@
 
   function markBackupCompleted(settings, batchCount, now) {
     if (!Number.isInteger(batchCount) && now === undefined) { now = batchCount; batchCount = undefined; }
+    if (batchCount !== undefined && (!Number.isInteger(batchCount) || batchCount < 0 || batchCount > D.MAX_RECORDS)) {
+      throw new Error("batchCount");
+    }
     const count = Number.isInteger(batchCount) ? batchCount : D.normalizeSettings(settings).lastBackupBatchCount;
     return D.normalizeSettings(Object.assign({}, settings, { lastBackupAt: atIso(now),
       lastBackupBatchCount: count }));
@@ -4497,7 +5065,17 @@
 
   function processStructure(key, defaultUnit) {
     const templates = B.starterTemplates(defaultUnit);
-    const match = templates.find(function (item) { return item.processStructure === key; }) ||
+    const canonicalIds = Object.freeze({
+      htv: "starter-template-standard-htv",
+      dtf: "starter-template-polyester-dtf",
+      sublimation: "starter-template-sublimation",
+      screen_printed_transfer: "starter-template-screen-printed-transfer",
+      multi_stage: "starter-template-multi-stage",
+      other: "starter-template-other",
+      blank: "starter-template-blank"
+    });
+    const match = templates.find(function (item) { return item.id === canonicalIds[key]; }) ||
+      templates.find(function (item) { return item.processStructure === key; }) ||
       templates.find(function (item) { return item.processStructure === "blank"; });
     if (!match) throw new Error("process_structure");
     const setup = D.normalizeRecipe(Object.assign({}, match, { id: undefined, title: key === "blank" ? "" : match.title,
@@ -4678,16 +5256,25 @@
     // as processed item 1. Do not stop the operator for a duplicate QC check on
     // that same item; the next check is one full interval later.
     const firstPieceAlreadyChecked = unproven && run.firstPiece.outcome === "pass";
-    return Object.freeze({ enabled: true, firstAt: firstPieceAlreadyChecked ? 11 : 1, every: unproven ? 10 : 25 });
+    const firstAt = firstPieceAlreadyChecked ? 11 : 1;
+    const baseInterval = unproven ? 10 : 25;
+    // At most 100 checks can be persisted in a batch. Spread checkpoints for
+    // unusually large runs so every authorized quantity remains completable.
+    const every = Math.max(baseInterval, Math.ceil(Math.max(0, quantity - firstAt) / 99));
+    return Object.freeze({ enabled: true, firstAt: firstAt, every: every });
+  }
+
+  function nextQcAt(run) {
+    const policy = qcPolicy(run);
+    if (!policy.enabled) return null;
+    const checks = Array.isArray(run.qcChecks) ? run.qcChecks : [];
+    const lastProcessed = checks.length ? Number(checks[checks.length - 1].processedCount) || 0 : 0;
+    return lastProcessed === 0 ? policy.firstAt : lastProcessed + policy.every;
   }
 
   function qcDueForRun(run) {
-    const policy = qcPolicy(run);
-    if (!policy.enabled) return false;
-    const checks = Array.isArray(run.qcChecks) ? run.qcChecks : [];
-    const lastProcessed = checks.length ? Number(checks[checks.length - 1].processedCount) || 0 : 0;
-    const nextAt = lastProcessed === 0 ? policy.firstAt : lastProcessed + policy.every;
-    return Number(run.processedCount || 0) >= nextAt;
+    const nextAt = nextQcAt(run);
+    return nextAt !== null && Number(run.processedCount || 0) >= nextAt;
   }
 
   function recommendedSaveChoice(run, liveSetup) {
@@ -4950,7 +5537,7 @@
 
   function transitionRun(runValue, eventValue) {
     const run = clone(runValue); const event = eventValue || {}; const type = D.text(event.type, 80);
-    if (!permitValid(run) && !["COMMIT_SUCCEEDED", "RELEASE_PERMIT"].includes(type)) throw new Error("run_permit_invalid");
+    if (!permitValid(run)) throw new Error("run_permit_invalid");
     if (["completed", "aborted_before_start"].includes(run.phase)) throw new Error("run_terminal");
     const requestedTimestamp = atIso(event.at);
     const floorTime = Math.max(new Date(run.reservedAt).getTime(), run.lastEventAt ? new Date(run.lastEventAt).getTime() : -Infinity);
@@ -4966,6 +5553,23 @@
       run.interruptions = (run.interruptions || []).map(function (item) {
         return item.endedAt ? item : Object.assign({}, item, { endedAt: timestamp });
       });
+    }
+
+    function appendInterruption(entry) {
+      const entries = Array.isArray(run.interruptions) ? run.interruptions : [];
+      if (entries.length >= 100) {
+        const oldestClosed = entries.findIndex(function (item) { return Boolean(item.endedAt); });
+        entries.splice(oldestClosed >= 0 ? oldestClosed : 0, 1);
+      }
+      entries.push(entry); run.interruptions = entries;
+    }
+
+    function appendCycleEvent(entry) {
+      const entries = Array.isArray(run.cycleEvents) ? run.cycleEvents : [];
+      // Gross/undone totals are authoritative. Keep a bounded recent window so
+      // long runs remain resumable while the latest cycle can still be undone.
+      if (entries.length >= 200) entries.splice(0, entries.length - 199);
+      entries.push(entry); run.cycleEvents = entries;
     }
 
     if (["CONFIRM_INSTRUCTIONS", "ACKNOWLEDGE_LEGACY_RESUME"].includes(type)) {
@@ -5098,8 +5702,10 @@
       if (!completedTimerPlan(run.timer)) throw new Error("timer_plan_incomplete");
       const items = integer(event.items === undefined ? 1 : event.items, 1, run.quantity, "cycle_items");
       if (run.processedCount + items > run.quantity) throw new Error("processedCount");
+      const checkpoint = nextQcAt(run);
+      if (checkpoint !== null && run.processedCount + items > checkpoint) throw new Error("qc_checkpoint_crossed");
       const cycle = { id: D.uuid(), type: "complete", items: items, at: timestamp, targetEventId: "" };
-      run.cycleEvents = (run.cycleEvents || []).concat(cycle); run.grossCompletedItems = Number(run.grossCompletedItems || 0) + items;
+      appendCycleEvent(cycle); run.grossCompletedItems = Number(run.grossCompletedItems || 0) + items;
       run.processedCount += items; markPressedSetup(run, timestamp);
       run.timer = restartTimerPlan(run.timer); run.stageIndex = 0;
       return run;
@@ -5113,14 +5719,13 @@
       const floor = Math.max(Number(run.firstPieceProcessedCredit || 0),
         ...(run.qcChecks || []).map(function (check) { return Number(check.processedCount) || 0; }));
       if (run.processedCount - target.items < floor) throw new Error("undo_cycle");
-      run.cycleEvents = events.concat({ id: D.uuid(), type: "undo", items: target.items, at: timestamp, targetEventId: target.id });
+      appendCycleEvent({ id: D.uuid(), type: "undo", items: target.items, at: timestamp, targetEventId: target.id });
       run.undoneItems = Number(run.undoneItems || 0) + target.items; run.processedCount -= target.items; return run;
     }
     if (type === "PAUSE") {
       if (run.phase !== "running") throw new Error("run_transition");
-      if (run.interruptions.length >= 100) throw new Error("interruption_limit");
       if (run.timer && run.timer.running) run.timer = pauseTimer(run.timer, new Date(timestamp).getTime());
-      run.phase = "paused"; run.interruptions.push({ startedAt: timestamp, endedAt: "", reason: D.text(event.reason, 500), productionBegan: true }); return run;
+      run.phase = "paused"; appendInterruption({ startedAt: timestamp, endedAt: "", reason: D.text(event.reason, 500), productionBegan: true }); return run;
     }
     if (type === "RESUME") {
       if (run.phase !== "paused") throw new Error("run_transition");
@@ -5129,16 +5734,13 @@
     }
     if (type === "RECORD_QC") {
       if (!run.productionStarted || !["running", "paused"].includes(run.phase) || !["pass", "adjust", "end_early"].includes(event.result)) throw new Error("run_transition");
-      if (run.qcChecks.length >= 100) throw new Error("qc_limit");
+      if (run.qcChecks.length >= 100) run.qcChecks.splice(0, run.qcChecks.length - 99);
       run.qcChecks.push({ checkedAt: timestamp, processedCount: run.processedCount, result: event.result, note: D.text(event.note, 1000) });
       if (event.result === "adjust") {
         if (run.timer && run.timer.running) run.timer = pauseTimer(run.timer, new Date(timestamp).getTime());
         const open = run.interruptions.slice().reverse().find(function (item) { return !item.endedAt; });
         if (open) open.reason = open.reason || "qc_adjustment";
-        else {
-          if (run.interruptions.length >= 100) throw new Error("interruption_limit");
-          run.interruptions.push({ startedAt: timestamp, endedAt: "", reason: "qc_adjustment", productionBegan: true });
-        }
+        else appendInterruption({ startedAt: timestamp, endedAt: "", reason: "qc_adjustment", productionBegan: true });
         run.phase = "paused";
       }
       if (event.result === "end_early") {
@@ -5161,12 +5763,11 @@
       run.exactSetupFingerprint = D.exactSetupFingerprint(run.setup); run.instructionCheckedAt = run.lastPressedInstructionCheckedAt;
       run.instructionCheckFingerprint = run.lastPressedInstructionCheckFingerprint;
       if (run.lastPressedFirstPiece) run.firstPiece = clone(run.lastPressedFirstPiece);
+      if (run.timer && run.timer.running) run.timer = pauseTimer(run.timer, new Date(timestamp).getTime());
       run.stagePlanFingerprint = timerPlanFingerprint(run.setup); run.stageIndex = 0; run.timer = null;
       closeOpenInterruptions();
-      if (run.timer && run.timer.running) run.timer = pauseTimer(run.timer, new Date(timestamp).getTime());
       if (event.reason) {
-        if (run.interruptions.length >= 100) throw new Error("interruption_limit");
-        run.interruptions.push({ startedAt: timestamp, endedAt: timestamp, reason: D.text(event.reason, 500), productionBegan: true });
+        appendInterruption({ startedAt: timestamp, endedAt: timestamp, reason: D.text(event.reason, 500), productionBegan: true });
       }
       if (run.firstPiece && run.firstPiece.outcome === "pending") {
         run.firstPiece.outcome = "stop"; run.firstPiece.attempts = Math.max(1, Number(run.firstPiece.attempts) || 0);
@@ -5199,10 +5800,6 @@
     if (type === "COMMIT_FAILED") {
       if (run.phase !== "committing") throw new Error("run_transition");
       run.phase = "result_pending"; run.lastCommitError = D.text(event.code, 120); return run;
-    }
-    if (type === "COMMIT_SUCCEEDED") {
-      if (run.phase !== "committing" && run.phase !== "result_pending") throw new Error("run_transition");
-      run.permit.state = "consumed"; run.permit.consumedAt = timestamp; run.phase = "completed"; return run;
     }
     throw new Error("run_event");
   }
@@ -5340,8 +5937,10 @@
       mutation: { releasePermitId: run.permit.id, clearSession: true } };
   }
 
-  function isQualifyingEvidence(batch, setup, allBatches) {
-    const batchById = new Map((allBatches || []).map(function (item) { return [item.id, item]; }));
+  function isQualifyingEvidence(batch, setup, allBatches, preparedSetupFingerprint) {
+    const batchById = allBatches instanceof Map ? allBatches :
+      new Map((allBatches || []).map(function (item) { return [item.id, item]; }));
+    const setupFingerprint = preparedSetupFingerprint || D.exactSetupFingerprint(setup);
     return Boolean(batch && setup && D.evidenceAfterProofReset(setup, batch) && batch.processSchemaVersion === 4 && batch.recipeId === setup.id && D.validateBatch(batch).length === 0 && batch.reviewStatus === "complete" &&
       batch.outcome === "success" && batch.quantityProcessed === batch.quantityPlanned && batch.quantityGood === batch.quantityPlanned &&
       batch.quantityWaste === 0 && batch.quantityReworked === 0 && Array.isArray(batch.issues) && batch.issues.length === 0 &&
@@ -5350,19 +5949,21 @@
       D.instructionSourceChecked(setup.instructionSource) &&
       (!batch.firstPiece || batch.firstPiece.outcome === "not_required" || batch.firstPiece.outcome === "pass") &&
       D.instructionReferenceValid(setup, batchById, batch.startedAt || batch.completedAt, batch.id) &&
-      batch.instructionCheckedAt && batch.instructionCheckFingerprint === D.exactSetupFingerprint(batch.recipe) &&
-      D.exactSetupFingerprint(setup) === D.exactSetupFingerprint(batch.recipe));
+      batch.instructionCheckedAt && batch.instructionCheckFingerprint === batch.exactSetupFingerprint &&
+      setupFingerprint === batch.exactSetupFingerprint);
   }
 
   function recomputeProvenSetups(recipesValue, batchesValue, now) {
     let batches = D.canonicalizeBatchVerifications((batchesValue || []).map(function (batch) { return D.normalizeBatch(batch, true); }));
+    const batchById = new Map(batches.map(function (batch) { return [batch.id, batch]; }));
     const timestamp = atIso(now);
     const recipes = (recipesValue || []).map(function (recipeValue) {
       const recipe = D.normalizeRecipe(recipeValue, recipeValue && recipeValue.temperatureUnit, true);
+      const recipeFingerprint = D.exactSetupFingerprint(recipe);
       const before = [recipe.status, recipe.verifiedAt, recipe.verifiedBatchId, recipe.provenEvidenceCount,
         recipe.persistedOperationalFingerprintV4].join("|");
       const evidence = batches.filter(function (batch) {
-        return batch.recipeId === recipe.id && isQualifyingEvidence(batch, recipe, batches);
+        return batch.recipeId === recipe.id && isQualifyingEvidence(batch, recipe, batchById, recipeFingerprint);
       }).sort(function (left, right) { return new Date(right.completedAt) - new Date(left.completedAt); });
       if (evidence.length && !recipe.archived) {
         recipe.status = "verified"; recipe.verifiedAt = evidence[0].completedAt; recipe.verifiedBatchId = evidence[0].id;
@@ -5384,7 +5985,7 @@
       const historicalEvidence = batches.filter(function (item) {
         const completed = new Date(item.completedAt).getTime();
         return item.recipeId === batch.recipeId && Number.isFinite(completed) && (item.id === batch.id || completed <= ownerBoundary) &&
-          isQualifyingEvidence(item, ownerRecipe, batches);
+          isQualifyingEvidence(item, ownerRecipe, batchById);
       }).sort(function (left, right) { return new Date(right.completedAt) - new Date(left.completedAt); });
       if (historicalEvidence.length) {
         const evidence = historicalEvidence[0];
@@ -5402,7 +6003,11 @@
 
   function proofSummary(setup, batches) {
     const value = D.normalizeRecipe(setup, setup && setup.temperatureUnit, true);
-    const matches = (batches || []).filter(function (batch) { return batch.recipeId === value.id && isQualifyingEvidence(batch, value, batches || []); });
+    const setupFingerprint = D.exactSetupFingerprint(value);
+    const batchById = new Map((batches || []).map(function (batch) { return [batch.id, batch]; }));
+    const matches = (batches || []).filter(function (batch) {
+      return batch.recipeId === value.id && isQualifyingEvidence(batch, value, batchById, setupFingerprint);
+    });
     return Object.freeze({ sourceChecked: D.instructionSourceChecked(value.instructionSource), sourceCheckedDate: value.instructionSource.checkedDate,
       proven: matches.length > 0, cleanMatchingBatches: matches.length, publicStatus: value.archived ? "archived" : matches.length ? "proven" : D.publicSetupStatus(value) });
   }
@@ -5989,8 +6594,8 @@
 
   function reportCapability(context, format, recordsOrFilter, now) {
     const kind = String(format || "").toLowerCase();
-    if (["csv", "json"].includes(kind)) return { allowed: false, reason: "unsupported_format" };
-    if (!["xlsx", "pdf"].includes(kind)) return { allowed: false, reason: "unsupported_format" };
+    if (kind === "json") return { allowed: false, reason: "unsupported_format" };
+    if (!["xlsx", "pdf", "csv"].includes(kind)) return { allowed: false, reason: "unsupported_format" };
     if (!E.capabilities(context && context.entitlement, usageOf(context || {}), now).canPremiumReports) return { allowed: false, reason: "paid_access_required" };
     if (typeof recordsOrFilter === "number") return { allowed: false, reason: "dataset_required" };
     const records = Array.isArray(recordsOrFilter) ? recordsOrFilter :
@@ -6076,3 +6681,10 @@
       runtime: root.PressBenchProcess, process: root.PressBenchProcess, storage: root.PressBenchStorage });
   }
 })(typeof globalThis !== "undefined" ? globalThis : this);
+
+// Install the optional operations namespace only after all core dependencies
+// and CommonJS exports have been initialized.
+if (typeof globalThis !== "undefined" && typeof globalThis.__registerPressBenchOperations === "function") {
+  globalThis.__registerPressBenchOperations();
+  try { delete globalThis.__registerPressBenchOperations; } catch (_) {}
+}

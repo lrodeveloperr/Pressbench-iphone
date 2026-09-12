@@ -1,7 +1,7 @@
 import Foundation
 import JavaScriptCore
 
-/// Native boundary around the deterministic PressBench v0.21.4 JavaScript engine.
+/// Native boundary around the deterministic PressBench v0.22.0 JavaScript engine.
 /// All domain/process/entitlement decisions flow through this bridge. SwiftUI owns
 /// presentation only; it never re-implements capacity, proof, run, report or purchase rules.
 @MainActor
@@ -41,7 +41,7 @@ final class PressBenchLogicBridge {
         context.evaluateScript(source)
         try throwIfException()
 
-        let requiredNamespaces = ["PressBenchDomain", "PressBenchBusiness", "PressBenchEntitlement", "PressBenchProcess"]
+        let requiredNamespaces = ["PressBenchDomain", "PressBenchBusiness", "PressBenchEntitlement", "PressBenchOperations", "PressBenchProcess"]
         for namespace in requiredNamespaces {
             guard context.objectForKeyedSubscript(namespace) != nil,
                   !context.objectForKeyedSubscript(namespace).isUndefined else {
@@ -60,6 +60,10 @@ final class PressBenchLogicBridge {
 
     func entitlement(_ function: String, _ arguments: [Any] = []) throws -> Any {
         try call(namespace: "PressBenchEntitlement", function: function, arguments: arguments)
+    }
+
+    func operations(_ function: String, _ arguments: [Any] = []) throws -> Any {
+        try call(namespace: "PressBenchOperations", function: function, arguments: arguments)
     }
 
     func process(_ function: String, _ arguments: [Any] = []) throws -> Any {

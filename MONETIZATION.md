@@ -30,8 +30,8 @@ For each product, configure the approved geopriced storefront schedule, localize
 
 There is no reviewer password, hidden unlock, or production entitlement bypass. App Review can reach the real StoreKit purchase sheet through either route:
 
-1. Open **More → Settings → Unlock PressBench Pro**.
-2. Or open **More → Production Report**, choose **PDF** or **XLSX**, and continue from the subscription screen.
+1. Tap the **gear** from Today, Run, or Library, then choose **Unlock PressBench Pro**.
+2. Or open **Library → Production Report**, choose **PDF** or **XLSX**, and continue from the subscription screen.
 3. Use **Restore purchase** on the same screen to verify an existing subscription.
 
 The subscription screen displays StoreKit's localized price for each available plan, keeps unavailable products disabled, provides a visible retry state if no plan loads, and serializes purchase, restore, and retry operations.
@@ -40,7 +40,7 @@ The subscription screen displays StoreKit's localized price for each available p
 
 Use this wording in App Review Notes:
 
-> No login or demo account is required. PressBench allows two successfully saved runs at no charge so App Review can exercise the complete production workflow. To review PressBench Pro, open More → Settings → Unlock PressBench Pro, or open More → Production Report and choose PDF/XLSX. Pro provides ongoing access to unlimited production runs and PDF/XLSX report generation during the subscription period. The app offers the auto-renewable `pressbench_unlimited_monthly_ios` and `pressbench_unlimited_annual_ios` subscriptions; Restore purchase, Terms of Use, and Privacy Policy are on the same purchase screen. Existing local records remain readable regardless of subscription status. Backups are optional, user-initiated exports and imports through Apple's Files picker. PressBench has no account, cloud service, advertising, analytics, or tracking.
+> No login or demo account is required. PressBench allows two successfully saved runs at no charge so App Review can exercise the complete production workflow. To review PressBench Pro, tap the gear from Today, Run, or Library and choose Unlock PressBench Pro, or open Library → Production Report and choose PDF/XLSX. Pro provides ongoing access to unlimited production runs and PDF/XLSX report generation during the subscription period. The app offers the auto-renewable `pressbench_unlimited_monthly_ios` and `pressbench_unlimited_annual_ios` subscriptions; Restore purchase, Terms of Use, and Privacy Policy are on the same purchase screen. Existing local records remain readable regardless of subscription status. Backups are optional, user-initiated exports and imports through Apple's Files picker. PressBench has no account, cloud service, advertising, analytics, or tracking.
 
 ## Renewal and entitlement behavior
 

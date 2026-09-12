@@ -1,0 +1,8 @@
+{
+  "nav.today": {
+    "en": "Today", "es": "Hoy", "pt": "Hoje", "fr": "Aujourd’hui", "de": "Heute", "it": "Oggi", "nl": "Vandaag", "pl": "Dzisiaj", "tr": "Bugün", "ro": "Astăzi", "cs": "Dnes", "uk": "Сьогодні", "ru": "Сегодня", "ar": "اليوم", "zh": "今天", "ja": "今日", "ko": "오늘", "hi": "आज", "ur": "آج", "bn": "আজ", "vi": "Hôm nay", "id": "Hari ini", "th": "วันนี้", "fil": "Ngayon", "ms": "Hari ini", "fi": "Tänään", "sv": "I dag", "da": "I dag", "nb": "I dag", "el": "Σήμερα", "he": "היום", "zh-Hant": "今天"
+  },
+  "nav.library": {
+    "en": "Library", "es": "Biblioteca", "pt": "Biblioteca", "fr": "Bibliothèque", "de": "Bibliothek", "it": "Libreria", "nl": "Bibliotheek", "pl": "Biblioteka", "tr": "Kitaplık", "ro": "Bibliotecă", "cs": "Knihovna", "uk": "Бібліотека", "ru": "Библиотека", "ar": "المكتبة", "zh": "资料库", "ja": "ライブラリ", "ko": "보관함", "hi": "लाइब्रेरी", "ur": "لائبریری", "bn": "লাইব্রেরি", "vi": "Thư viện", "id": "Pustaka", "th": "คลัง", "fil": "Aklatan", "ms": "Pustaka", "fi": "Kirjasto", "sv": "Bibliotek", "da": "Bibliotek", "nb": "Bibliotek", "el": "Βιβλιοθήκη", "he": "ספרייה", "zh-Hant": "資料庫"
+  }
+}

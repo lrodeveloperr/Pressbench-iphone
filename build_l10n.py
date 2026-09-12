@@ -37,6 +37,8 @@ KEYS = {
 'tab.runs': ('Navigation', 'Runs'),
 'tab.machines': ('Navigation', 'Machines'),
 'tab.more': ('Navigation', 'More'),
+'nav.today': ('Primary navigation destination', 'Today'),
+'nav.library': ('Primary navigation destination', 'Library'),
 'status.proven': ('Status', 'Shop-proven'),
 'status.trial': ('Status', 'Trial'),
 'status.draft': ('Status', 'Draft'),

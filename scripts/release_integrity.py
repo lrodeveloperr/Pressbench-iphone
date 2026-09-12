@@ -10,7 +10,7 @@ def require(condition, message):
 
 logic = root/'PressBench/Resources/PressBenchLogic.js'
 logic_hash = hashlib.sha256(logic.read_bytes()).hexdigest()
-require(logic_hash == '81519217635217f24dead0478a5e422d8a7f6de7308bfd82ef2ee55190adf49f', f'logic hash changed: {logic_hash}')
+require(logic_hash == '061122fbc9478dc04a611ad0cbcb8dffb636aa85b73b1c8744bd640525bf4386', f'logic hash changed: {logic_hash}')
 text = logic.read_text(encoding='utf-8')
 require(all(marker in text for marker in ['pressbench_unlimited_monthly_ios',
         'pressbench_unlimited_annual_ios',
@@ -44,6 +44,8 @@ require('path: PressBench/Resources\n        buildPhase: resources' in project,
         'production resources are not explicitly assigned to the Xcode resources build phase')
 require('PressBenchUITests:' in project and 'type: bundle.ui-testing' in project,
         'first-use UI regression target is missing')
+require('TARGETED_DEVICE_FAMILY: "1,2"' in project,
+        'production target must support both iPhone and iPad')
 require('CODE_SIGN_ENTITLEMENTS' not in project and not (root/'PressBench/PressBench.entitlements').exists(),
         'account or iCloud entitlements remain assigned to the app target')
 require(all(marker in testflight_workflow for marker in [
@@ -86,12 +88,15 @@ for token in [
 ]:
     require(token in theme, f'GoodUse Ocean Pearl token missing: {token}')
 
-root_tabs=(root/'PressBench/Views/RootTabView.swift').read_text(encoding='utf-8')
-require(root_tabs.count('.tabItem') == 4, 'GoodUse navigation must expose four stable thumb destinations')
-require('.tag(0)' in root_tabs and '.tag(1)' in root_tabs and '.tag(2)' in root_tabs and '.tag(3)' in root_tabs,
-        'root tab identifiers are not the reviewed 0...3 sequence')
-require('store.persistenceWarning != nil' in root_tabs and 'NavigationStack { SettingsView() }' in root_tabs,
-        'persistence recovery no longer gates the operational tab surface')
+root_tabs=(root/'PressBench/UI/OperatorFocus/PressBenchOperatorFocusRootView.swift').read_text(encoding='utf-8')
+require(root_tabs.count('.tabItem') == 3,
+        'Operator Focus navigation must expose exactly three stable destinations')
+require(all(marker in root_tabs for marker in [
+            '.tag(OFDestination.today)', '.tag(OFDestination.run)', '.tag(OFDestination.library)',
+            'NavigationSplitView', 'store.persistenceWarning != nil',
+            'NavigationStack { SettingsView() }', 'ProUpgradeView()', 'ReportsView()',
+            'ActiveRunView(runID: run.id)', 'CompletedRunDetailView(run: run)']),
+        'Operator Focus navigation, recovery, subscription, reports, or QC gate is incomplete')
 
 app=(root/'PressBench/App/PressBenchApp.swift').read_text(encoding='utf-8')
 settings_view=(root/'PressBench/Views/SettingsView.swift').read_text(encoding='utf-8')
@@ -470,7 +475,7 @@ require('testZeroPatienceFirstUseReturnsHomeThenOffersSetupStartChoices' in ui_t
                                               'choose("pb.choice.material"',
                                               'choose("pb.choice.transfer"', 'choose("pb.choice.pressure"',
                                               'choose("pb.choice.source"']) and
-        'pb.onboarding.accept' not in ui_test and 'RootTabView()' in app_source and
+        'pb.onboarding.accept' not in ui_test and 'PressBenchOperatorFocusRootView()' in app_source and
         'app.navigationBars["Settings"]' in ui_test and
         'pb.settings.plan' in ui_test and 'pb.settings.backup' in ui_test and
         'Backup must remain in the first Settings viewport' in ui_test and
@@ -555,12 +560,12 @@ require(all(marker not in settings_view for marker in [
 
 catalog=json.loads((root/'PressBench/Resources/Localizations.json').read_text(encoding='utf-8'))
 require(len(catalog.get('languages',[])) == 31, 'language choice count is not 31')
-require(len(catalog.get('strings',{})) == 366, 'reviewed localization catalog must contain 366 keys')
+require(len(catalog.get('strings',{})) == 368, 'reviewed localization catalog must contain 368 keys')
 require(all(key not in catalog.get('strings',{}) for key in [
             'home.greeting', 'home.startRun.body', 'report.sourceChecked']),
         'retired customer copy remains in the runtime localization catalog')
 language_tests=(root/'PressBenchTests/LanguageSupportTests.swift').read_text(encoding='utf-8')
-require('XCTAssertEqual(PBL10n.catalog.strings.count, 366)' in language_tests,
+require('XCTAssertEqual(PBL10n.catalog.strings.count, 368)' in language_tests,
         'unit-test localization count is stale')
 boundary = catalog.get('strings',{}).get('setup.provenBoundary',{})
 require(bool(boundary), 'localized Proven evidence boundary is missing')
@@ -579,7 +584,7 @@ for key, item in metadata.items():
 build_l10n=(root/'build_l10n.py').read_text(encoding='utf-8')
 assemble=(root/'assemble_catalog.py').read_text(encoding='utf-8')
 require('setup.provenBoundary' in build_l10n and 'raise SystemExit(\'Legacy' not in build_l10n,
-        'build_l10n.py is not the live 366-key canonical generator')
+        'build_l10n.py is not the live 368-key canonical generator')
 purchase_manager=(root/'PressBench/Services/PurchaseManager.swift').read_text(encoding='utf-8')
 require(purchase_manager.count('let productsLoaded = await loadProducts()') == 2 and
         purchase_manager.count('if !productsLoaded, state == .free { state = productLoadState }') == 2 and
@@ -602,7 +607,6 @@ require(all(marker in ui_test for marker in [
             'assertControlSurface', 'tapEdge']) and
         'app.staticTexts["Settings"].firstMatch' not in ui_test,
         'UI tests must exercise identified parent controls and their full hit surfaces')
-root_tabs=(root/'PressBench/Views/RootTabView.swift').read_text(encoding='utf-8')
 require('entitlementsResolved' not in purchase_manager and 'adEligibilityResolved' not in store_source and
         '.pbBanner' not in root_tabs,
         'obsolete ad-era entitlement or banner state remains')
@@ -643,7 +647,7 @@ for key in ['report.sheet.summary', 'report.sheet.runs', 'report.sheet.setups', 
 # cannot silently drift from the approved subscription model.
 with tempfile.TemporaryDirectory(prefix='pressbench-l10n-') as temp_name:
     temp = Path(temp_name)
-    for filename in ['build_l10n.py', 'assemble_catalog.py', 'phrases.tsv', 'monetization_translations.json', 'operational_translations.json']:
+    for filename in ['build_l10n.py', 'assemble_catalog.py', 'phrases.tsv', 'monetization_translations.json', 'operational_translations.json', 'operator_focus_translations.json']:
         shutil.copy2(root/filename, temp/filename)
     shutil.copytree(root/'translations', temp/'translations')
     (temp/'PressBench/Resources').mkdir(parents=True)

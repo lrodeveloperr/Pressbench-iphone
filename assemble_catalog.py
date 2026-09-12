@@ -23,6 +23,8 @@ MONETIZATION_TRANSLATIONS = json.loads((root/'monetization_translations.json').r
 MONETIZATION_KEYS = set(MONETIZATION_TRANSLATIONS)
 OPERATIONAL_TRANSLATIONS = json.loads((root/'operational_translations.json').read_text(encoding='utf-8'))
 OPERATIONAL_KEYS = set(OPERATIONAL_TRANSLATIONS)
+OPERATOR_FOCUS_TRANSLATIONS = json.loads((root/'operator_focus_translations.json').read_text(encoding='utf-8'))
+OPERATOR_FOCUS_KEYS = set(OPERATOR_FOCUS_TRANSLATIONS)
 DIRECT_NEW_KEYS = {
   'run.finishRun', 'run.nextItem', 'error.freeLimit', 'backup.signInFailed',
   'run.mode.test.help', 'run.mode.production.help',
@@ -31,6 +33,7 @@ DIRECT_NEW_KEYS = {
   'run.reuse.materiallyDifferent.help'
 } | set(ADDITIONAL_KEYS) | set(RESIDUAL_KEYS) | set(RECOVERY_KEYS) | MONETIZATION_KEYS
 DIRECT_NEW_KEYS |= OPERATIONAL_KEYS
+DIRECT_NEW_KEYS |= OPERATOR_FOCUS_KEYS
 DIRECT_NEW_KEYS |= set(ICLOUD_DELETE_KEYS)
 APPLE_SIGNIN_STATUS_TRANSLATIONS = {
   'en': 'Signed in with Apple', 'es': 'Sesión iniciada con Apple',
@@ -464,6 +467,8 @@ for key in keys:
             text = MONETIZATION_TRANSLATIONS[key][lang]
         elif key in OPERATIONAL_KEYS:
             text = OPERATIONAL_TRANSLATIONS[key][lang]
+        elif key in OPERATOR_FOCUS_KEYS:
+            text = OPERATOR_FOCUS_TRANSLATIONS[key][lang]
         elif key in OPERATOR_KEYS:
             text = OPERATOR_TRANSLATIONS[lang][key]
         elif key in ADDITIONAL_KEYS:
@@ -485,6 +490,8 @@ for key in keys:
         zhh_text = MONETIZATION_TRANSLATIONS[key]['zh-Hant']
     elif key in OPERATIONAL_KEYS:
         zhh_text = OPERATIONAL_TRANSLATIONS[key]['zh-Hant']
+    elif key in OPERATOR_FOCUS_KEYS:
+        zhh_text = OPERATOR_FOCUS_TRANSLATIONS[key]['zh-Hant']
     elif key in OPERATOR_KEYS:
         zhh_text = OPERATOR_TRANSLATIONS['zh-Hant'][key]
     elif key in ADDITIONAL_KEYS:

@@ -77,7 +77,6 @@ final class PressBenchStore: ObservableObject {
         }
 
         if let loaded {
-            let storedEntitlement = (loaded["entitlement"] as? [String: Any]) ?? defaultEntitlement
             let migrated = try self.bridge.dictionary(
                 self.bridge.process("migrateLoadedData", [loaded, Self.isoNow()]), context: "migrated state"
             )
@@ -93,9 +92,9 @@ final class PressBenchStore: ObservableObject {
                 "batches": migrated["batches"] as? [[String: Any]] ?? [],
                 "settings": migrated["settings"] as? [String: Any] ?? defaultSettings,
                 "session": migrated["session"] ?? NSNull(),
-                "entitlement": try self.bridge.dictionary(
-                    self.bridge.entitlement("normalizeEntitlement", [storedEntitlement]), context: "stored entitlement"
-                ),
+                // Persisted operational files are never an entitlement authority.
+                // StoreKit refreshes and re-seals access for each engine launch.
+                "entitlement": defaultEntitlement,
                 "preRestoreRecovery": NSNull(),
                 "operatorIssueDrafts": loaded["operatorIssueDrafts"] as? [String: Any] ?? [:],
                 "rejectedSession": rejectedSession ?? NSNull()

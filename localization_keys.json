@@ -135,6 +135,14 @@
     "context": "Navigation",
     "source": "More"
   },
+  "nav.today": {
+    "context": "Primary navigation destination",
+    "source": "Today"
+  },
+  "nav.library": {
+    "context": "Primary navigation destination",
+    "source": "Library"
+  },
   "status.proven": {
     "context": "Status",
     "source": "Shop-proven"

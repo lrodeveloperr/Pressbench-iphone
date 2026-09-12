@@ -65,7 +65,7 @@ ui_literal_re=re.compile(
     r'\(\s*"([^"\\]*(?:\\.[^"\\]*)*)"'
 )
 fixed_ui_allowlist={'PressBench','°F','°C'}
-for path in (ROOT/'PressBench/Views').rglob('*.swift'):
+for path in list((ROOT/'PressBench/Views').rglob('*.swift')) + list((ROOT/'PressBench/UI').rglob('*.swift')):
     text=path.read_text(encoding='utf-8')
     for value in ui_literal_re.findall(text):
         if r'\(' not in value and re.search(r'[A-Za-z]',value) and value not in fixed_ui_allowlist:

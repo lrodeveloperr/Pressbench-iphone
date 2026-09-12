@@ -42,6 +42,12 @@ enum PBSetupPresetCatalog {
             return URL(string: "https://www.siserna.com/files/heat-transfer-vinyl-instructions.pdf")!
         }
         var sourceCheckedDate: String { "2026-09-11" }
+        /// Bundled manufacturer values are editable published guidance only.
+        /// They never bypass the current-instruction confirmation or enter the
+        /// app as an operator-proven setup.
+        var requiresCurrentInstructionConfirmation: Bool { true }
+        var bundledStatus: String { "draft" }
+        var isOperatorProven: Bool { false }
         var temperatureLabel: String {
             guard let range = temperatureRangeF else { return "\(temperatureF)°F" }
             return "\(range.lowerBound)–\(range.upperBound)°F"

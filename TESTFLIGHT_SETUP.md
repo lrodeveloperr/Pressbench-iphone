@@ -4,11 +4,13 @@ The repository is wired so normal TestFlight operation is a manual GitHub Action
 
 ## 1. Canonical production source
 
-The workflows accept either the unpacked source tree at repository root or one ZIP at repository root named exactly:
+The canonical production source is the unpacked tree at repository root. The workflows prefer it automatically and require `project.yml`, the deterministic `PressBenchLogic.js` engine, and the release/localization/engine scripts before compiling.
+
+For legacy recovery only, they can also accept one ZIP at repository root named exactly:
 
 `PressBench-TestFlight-Source-v0.21.4.zip`
 
-The ZIP path is the simplest handoff. GitHub Actions extracts it into an isolated runner directory and refuses to continue unless it contains `project.yml`, the deterministic `PressBenchLogic.js` engine, and the release/localization/engine test scripts.
+GitHub Actions extracts the fallback ZIP into an isolated runner directory and applies the same gates.
 
 ## 2. App Store Connect
 

@@ -254,7 +254,7 @@ function runsReportsAndBackups(base) {
   assert.equal(P.reportCapability(live, 'pdf', live.batches, now).allowed, true);
   assert.equal(P.planReport(live, 'xlsx', live.batches, now).recordIds[0], batch.id);
   assert.equal(P.planReport(live, 'xlsx', live.batches, now).detailedRows, 2);
-  assert.equal(P.reportCapability(live, 'csv', live.batches, now).reason, 'unsupported_format');
+  assert.equal(P.reportCapability(live, 'csv', live.batches, now).reason, 'paid_report');
   assert.equal(P.reportCapability({ ...live, entitlement: E.normalizeEntitlement({}) }, 'pdf', live.batches, now).reason, 'paid_access_required');
   const oversizedReport = Array.from({ length: B.MAX_DETAILED_REPORT_ROWS + 1 }, () => batch);
   assert.equal(P.reportCapability(live, 'xlsx', oversizedReport, now).reason, 'detailed_row_limit');

@@ -1,4 +1,4 @@
-# PressBench iPhone
+# PressBench iOS
 
 Production iPhone release repository for PressBench.
 
@@ -11,19 +11,18 @@ The release target is locked to:
 
 ## Source contract
 
-Both GitHub Actions workflows accept any of:
+The canonical release source is the unpacked production tree at repository root (`project.yml`, `PressBench/`, `PressBenchTests/`, `scripts/`). For recovery, both GitHub Actions workflows can also accept either of the legacy reviewed v0.21.4 package forms:
 
-1. the unpacked production source tree at repository root (`project.yml`, `PressBench/`, `PressBenchTests/`, `scripts/`), or
-2. the reviewed split Base64 package at `.source/PressBench-iOS-Approved-UI-v0.21.4.zip.b64.part-*`, or
-3. the canonical production package at repository root named exactly:
+1. the split Base64 package at `.source/PressBench-iOS-Approved-UI-v0.21.4.zip.b64.part-*`, or
+2. the package at repository root named exactly:
 
    `PressBench-TestFlight-Source-v0.21.4.zip`
 
-The packaged-source path exists specifically so the binary ZIP can be uploaded once without manually unpacking dozens of files. The workflow extracts it into an isolated runner directory and then requires the full deterministic engine and release gates before compiling.
+The workflows always prefer the current unpacked source. Package fallbacks are used only when that source is absent.
 
 ## Approved interface
 
-The reviewed production source uses the GoodUse Studios Ocean Pearl system: a fixed light presentation, 28-point page headers, 24-point cards, 62-point primary controls, four stable thumb destinations, RTL/Dynamic Type reflow, and Reduce Motion-aware interaction. First launch opens Home and shows only the next required action. Adding a machine first offers catalog or manual entry; catalog entry asks only for brand and model, derives the remaining profile, and returns Home after save. Setup creation then begins with preset-base, saved-base, or manual entry. The workflow includes strict runnable-setup validation, direct run configuration, guided first-piece/timer/QC gates, quantity and issue capture, Apple Files backup/recovery, and auditable completed-run correction. The deterministic engine enforces timer, QC, capacity, recovery, and commit integrity. The durable catalog contains 366 keys across 32 runtime locale codes; the compact-layout audit covers all supported text slots with zero failures.
+The reviewed production source uses the Operator Focus SwiftUI interface on the GoodUse Studios Ocean Pearl base: a fixed light presentation, three stable destinations (Today, Run, Library), native iPad split navigation, RTL/Dynamic Type reflow, and Reduce Motion-aware interaction. Today exposes the next action, Run guides first-piece, timer, counting, and QC gates, and Library holds setups, history, machines, and one-tap PDF/XLSX reports. Settings remains available from the gear on every destination and preserves subscription, backup/recovery, accessibility, legal, and data-safety controls. The deterministic engine enforces timer, QC, capacity, recovery, and commit integrity. The durable catalog contains 368 keys across 32 runtime locale codes with 31 selectable languages plus Traditional Chinese locale support.
 
 ## CI
 
