@@ -168,7 +168,7 @@ Use only these three screenshots, in this order. The localizations preserve Pres
 | Hebrew (`he`) | אתרו בעיות לפני הרצת הייצור המלאה | חזרו על הגדרת התהליך שהצליחה | ראו את הפסילות. הוכיחו איכות עקבית. |
 | Chinese, Traditional (`zh-Hant`) | 整批生產前發現問題 | 重複使用已驗證的製程設定 | 看清報廢。驗證穩定性。 |
 
-The first screenshot shows the first-piece decision and run controls. The second shows a shop-proven, machine-specific setup. The third shows first-pass yield, rework, waste, and the PDF/XLSX export controls. Add `Offline · Any press brand · No account` as a small footer on screenshot three; do not allocate a separate screenshot to it.
+The first screenshot shows the first-piece decision and run controls. The second shows a shop-proven, machine-specific setup. The third shows the Home page with first-pass yield and waste metrics, supported by recent production activity. Reporting remains a supporting feature and is not the third screenshot. Add `Offline · Any press brand · No account` as a small footer on screenshot three; do not allocate a separate screenshot to it.
 
 ## Locked iPhone screenshot shell
 
