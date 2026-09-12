@@ -42,6 +42,55 @@ enum PBL10n {
         guard let value = catalog.strings[key]?.translations[code] else { return false }
         return !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
+
+    /// Localizes bundled operational values that can already be present in
+    /// on-device setups. Operator-entered text and proper names are preserved.
+    static func operationalText(_ value: String, language: AppLanguage, locale: Locale) -> String {
+        let code = language.localizationCode(for: locale)
+        return rtlOperationalTranslations[code]?[value] ?? value
+    }
+
+    private static let rtlOperationalTranslations: [String: [String: String]] = [
+        "ar": [
+            "N/A": "غير متاح",
+            "EasyWeed": "إيزي ويد",
+            "EasyWeed EcoStretch": "إيزي ويد إيكو ستريتش",
+            "Confirm the current instructions for the exact blank before production.":
+                "تأكّد من تعليمات الاستخدام الحالية للخامة المحددة قبل بدء الإنتاج.",
+            "Remove moisture and wrinkles before placement.":
+                "أزل الرطوبة والتجاعيد قبل وضع الخامة.",
+            "Use one heat application only. Confirm the current instructions for layering and the exact blank.":
+                "استخدم تطبيقًا حراريًا واحدًا فقط. تأكّد من التعليمات الحالية للطبقات والخامة المحددة.",
+            "Wait 24 hours before the first wash and follow the current product care instructions.":
+                "انتظر 24 ساعة قبل الغسلة الأولى واتبع تعليمات العناية الحالية بالمنتج."
+        ],
+        "he": [
+            "N/A": "לא זמין",
+            "EasyWeed": "איזי ויד",
+            "EasyWeed EcoStretch": "איזי ויד אקו סטרץ׳",
+            "Confirm the current instructions for the exact blank before production.":
+                "יש לאמת את הוראות השימוש העדכניות עבור חומר הגלם המדויק לפני הייצור.",
+            "Remove moisture and wrinkles before placement.":
+                "יש להסיר לחות וקמטים לפני ההנחה.",
+            "Use one heat application only. Confirm the current instructions for layering and the exact blank.":
+                "יש לבצע חימום אחד בלבד. יש לאמת את ההוראות העדכניות לשכבות ולחומר הגלם המדויק.",
+            "Wait 24 hours before the first wash and follow the current product care instructions.":
+                "יש להמתין 24 שעות לפני הכביסה הראשונה ולפעול לפי הוראות הטיפול העדכניות של המוצר."
+        ],
+        "ur": [
+            "N/A": "دستیاب نہیں",
+            "EasyWeed": "ایزی ویڈ",
+            "EasyWeed EcoStretch": "ایزی ویڈ ایکو اسٹریچ",
+            "Confirm the current instructions for the exact blank before production.":
+                "پیداوار سے پہلے متعلقہ خام شے کے لیے تازہ ترین ہدایات کی تصدیق کریں۔",
+            "Remove moisture and wrinkles before placement.":
+                "جگہ پر رکھنے سے پہلے نمی اور سلوٹیں دور کریں۔",
+            "Use one heat application only. Confirm the current instructions for layering and the exact blank.":
+                "صرف ایک بار حرارت لگائیں۔ تہہ بندی اور مخصوص خام مٹیریل کے لیے موجودہ ہدایات کی تصدیق کریں۔",
+            "Wait 24 hours before the first wash and follow the current product care instructions.":
+                "پہلی دھلائی سے پہلے 24 گھنٹے انتظار کریں اور مصنوعات کی موجودہ نگہداشت کی ہدایات پر عمل کریں۔"
+        ]
+    ]
 }
 
 private struct PBAppLanguageEnvironmentKey: EnvironmentKey {

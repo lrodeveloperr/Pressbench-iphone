@@ -374,7 +374,7 @@ require('.interactiveDismissDisabled(hasChanges)' in runs_view and 'editor.disca
         'completed-run corrections can still be lost through accidental dismissal')
 require('run.processStages.enumerated()' in runs_view and 'completedStageDetail' in runs_view and
         'stage.canonicalLocalizationKey.map(t) ?? stage.name' in runs_view and
-        'instruction: string(stage["instruction"])' in store_source,
+        'instruction: localizedOperationalValue(string(stage["instruction"]))' in store_source,
         'completed history no longer exposes the stored multi-stage process definition')
 require('run.deleteRecordConfirm' in runs_view,
         'completed-record deletion lacks an identified irreversible warning')

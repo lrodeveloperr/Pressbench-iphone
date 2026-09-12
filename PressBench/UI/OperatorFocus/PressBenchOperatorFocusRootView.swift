@@ -920,20 +920,22 @@ private struct OFSetupEditor: View {
 
     private func apply(_ entry: PBSetupPresetCatalog.Entry) {
         var stages = [SetupStageDraft(
-            stageType: "press", name: "", instruction: entry.applicationNote,
+            stageType: "press", name: "", instruction: operational(entry.applicationNote),
             temperature: String(entry.temperatureF), temperatureUnit: "F",
-            durationSeconds: String(entry.durationSeconds), pressure: entry.pressure
+            durationSeconds: String(entry.durationSeconds),
+            pressure: PBPrefillCatalog.localizedValue(entry.pressure, for: .pressureDescriptions, language: language, locale: locale)
         )]
         if let second = entry.secondPress {
             stages.append(SetupStageDraft(
-                stageType: "postpress", name: "", instruction: entry.aftercare,
+                stageType: "postpress", name: "", instruction: operational(entry.aftercare),
                 temperature: String(second.temperatureF), temperatureUnit: "F",
-                durationSeconds: String(second.durationSeconds), pressure: second.pressure
+                durationSeconds: String(second.durationSeconds),
+                pressure: PBPrefillCatalog.localizedValue(second.pressure, for: .pressureDescriptions, language: language, locale: locale)
             ))
         }
-        draft.title = entry.name
+        draft.title = operational(entry.name)
         draft.material = PBPrefillCatalog.localizedValue(entry.material, for: .materials, language: language, locale: locale)
-        draft.transferMedium = entry.name
+        draft.transferMedium = operational(entry.name)
         draft.sourceName = entry.brand
         draft.sourceReference = entry.sourceURL.absoluteString
         draft.sourceCheckedDate = entry.sourceCheckedDate
@@ -972,6 +974,9 @@ private struct OFSetupEditor: View {
     }
 
     private func text(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
+    private func operational(_ value: String) -> String {
+        PBL10n.operationalText(value, language: language, locale: locale)
+    }
 }
 
 private struct OFPresetPicker: View {
@@ -988,8 +993,8 @@ private struct OFPresetPicker: View {
             }) { entry in
                 Button { select(entry) } label: {
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(entry.name).font(.headline)
-                        Text("\(entry.brand) · \(entry.temperatureLabel) · \(entry.durationLabel) · \(entry.pressure)")
+                        Text(operational(entry.name)).font(.headline)
+                        Text("\(entry.brand) · \(entry.temperatureLabel) · \(entry.durationLabel) · \(localizedPressure(entry.pressure))")
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
@@ -1002,6 +1007,12 @@ private struct OFPresetPicker: View {
     }
 
     private func text(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
+    private func operational(_ value: String) -> String {
+        PBL10n.operationalText(value, language: language, locale: locale)
+    }
+    private func localizedPressure(_ value: String) -> String {
+        PBPrefillCatalog.localizedValue(value, for: .pressureDescriptions, language: language, locale: locale)
+    }
 }
 
 private struct OFMachineEditor: View {

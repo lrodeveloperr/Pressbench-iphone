@@ -410,7 +410,7 @@ final class PressBenchStore: ObservableObject {
             id: string(raw["id"]),
             title: localizedSetupTitle(raw),
             material: localizedPreset(string(raw["blankMaterial"]), group: .materials),
-            transferMedium: localizedPreset(string(raw["transferMedium"]), group: .transferMedia),
+            transferMedium: localizedOperationalValue(localizedPreset(string(raw["transferMedium"]), group: .transferMedia)),
             machineID: string(raw["machineProfileId"]),
             temperature: numberText(raw["temperature"]),
             durationSeconds: numberText(raw["pressTimeSeconds"]),
@@ -438,7 +438,7 @@ final class PressBenchStore: ObservableObject {
                     id: string(step["id"]).isEmpty ? UUID().uuidString : string(step["id"]),
                     stageType: stageType,
                     name: isCanonicalStageName(storedName, for: stageType) ? "" : storedName,
-                    instruction: string(step["instruction"]),
+                    instruction: localizedOperationalValue(string(step["instruction"])),
                     temperature: numberText(step["temperature"]),
                     temperatureUnit: string(step["temperatureUnit"]).isEmpty ? string(raw["temperatureUnit"]) : string(step["temperatureUnit"]),
                     durationSeconds: numberText(step["durationSeconds"]),
@@ -1323,7 +1323,7 @@ final class PressBenchStore: ObservableObject {
                 id: string(step["id"]).isEmpty ? "\(id)-\(index)" : string(step["id"]),
                 name: name,
                 value: facts.joined(separator: " · "),
-                instruction: string(step["instruction"]),
+                instruction: localizedOperationalValue(string(step["instruction"])),
                 repeatCount: max(1, int(step["repeatCount"])),
                 placementAction: localizedPreset(string(step["placementAction"]), group: .placementActions),
                 finishAction: localizedPreset(string(step["finishAction"]), group: .finishActions),
@@ -1334,7 +1334,7 @@ final class PressBenchStore: ObservableObject {
             id: id,
             title: localizedSetupTitle(raw),
             material: localizedPreset(string(raw["blankMaterial"]), group: .materials),
-            transferMedium: localizedPreset(string(raw["transferMedium"]), group: .transferMedia),
+            transferMedium: localizedOperationalValue(localizedPreset(string(raw["transferMedium"]), group: .transferMedia)),
             status: status,
             cleanRuns: int(raw["provenEvidenceCount"]),
             firstPassYield: yield,
@@ -1412,7 +1412,7 @@ final class PressBenchStore: ObservableObject {
             jobReference: string(raw["jobReference"]),
             duration: durationText(recipe),
             material: localizedPreset(string(recipe?["blankMaterial"]), group: .materials),
-            transferMedium: localizedPreset(string(recipe?["transferMedium"]), group: .transferMedia),
+            transferMedium: localizedOperationalValue(localizedPreset(string(recipe?["transferMedium"]), group: .transferMedia)),
             machineName: localizedMachineNickname(recipe),
             instructionSource: [
                 localizedPreset(string((recipe?["instructionSource"] as? [String: Any])?["name"]), group: .instructionSources),
@@ -1424,7 +1424,7 @@ final class PressBenchStore: ObservableObject {
                 let storedName = string(stage["name"])
                 return ProcessStage(id: string(stage["id"]).isEmpty ? "stage-\(index)" : string(stage["id"]),
                              name: isCanonicalStageName(storedName, for: stageType) ? "" : storedName,
-                             value: stageValue(stage), instruction: string(stage["instruction"]),
+                             value: stageValue(stage), instruction: localizedOperationalValue(string(stage["instruction"])),
                              repeatCount: max(1, int(stage["repeatCount"])),
                              placementAction: localizedPreset(string(stage["placementAction"]), group: .placementActions),
                              finishAction: localizedPreset(string(stage["finishAction"]), group: .finishActions), stageType: stageType)
@@ -1481,7 +1481,7 @@ final class PressBenchStore: ObservableObject {
             timerRunning: timer?["running"] as? Bool == true,
             timerCompleted: timer?["completed"] as? Bool == true,
             material: localizedPreset(string(setup?["blankMaterial"]), group: .materials),
-            transferMedium: localizedPreset(string(setup?["transferMedium"]), group: .transferMedia),
+            transferMedium: localizedOperationalValue(localizedPreset(string(setup?["transferMedium"]), group: .transferMedia)),
             machineName: localizedMachineNickname(setup),
             instructionSource: [
                 localizedPreset(string(source?["name"]), group: .instructionSources),
@@ -1494,7 +1494,7 @@ final class PressBenchStore: ObservableObject {
                 return ProcessStage(id: string(stage["id"]).isEmpty ? "stage-\(index)" : string(stage["id"]),
                              name: isCanonicalStageName(storedName, for: stageType) ? "" : storedName,
                              value: stageValue(stage),
-                             instruction: string(stage["instruction"]),
+                             instruction: localizedOperationalValue(string(stage["instruction"])),
                              repeatCount: max(1, int(stage["repeatCount"])),
                              placementAction: localizedPreset(string(stage["placementAction"]), group: .placementActions),
                              finishAction: localizedPreset(string(stage["finishAction"]), group: .finishActions),
@@ -1506,7 +1506,11 @@ final class PressBenchStore: ObservableObject {
             qcEnabled: qcPolicy["enabled"] as? Bool == true,
             qcFirstAt: int(qcPolicy["firstAt"]),
             qcEvery: int(qcPolicy["every"]),
-            currentStageInstruction: string(currentTimerStage?["instruction"]).isEmpty ? string(sourceStep?["instruction"]) : string(currentTimerStage?["instruction"]),
+            currentStageInstruction: localizedOperationalValue(
+                string(currentTimerStage?["instruction"]).isEmpty
+                    ? string(sourceStep?["instruction"])
+                    : string(currentTimerStage?["instruction"])
+            ),
             currentStageRepeatIndex: max(1, int(currentTimerStage?["repeat"])),
             currentStageRepeatCount: string(currentTimerStage?["stageType"]) == string(sourceStep?["stageType"])
                 ? max(1, int(sourceStep?["repeatCount"])) : 1,
@@ -1569,12 +1573,19 @@ final class PressBenchStore: ObservableObject {
         let transfer = string(raw["transferMedium"])
         let machine = string(raw["machineNickname"])
         let generated = [material, transfer, machine].filter { !$0.isEmpty }.joined(separator: " · ")
-        guard !title.isEmpty, title == generated else { return title }
+        guard !title.isEmpty, title == generated else { return localizedOperationalValue(title) }
         return [
             localizedPreset(material, group: .materials),
             localizedPreset(transfer, group: .transferMedia),
             localizedMachineNickname(raw)
         ].filter { !$0.isEmpty }.joined(separator: " · ")
+    }
+
+    /// Localizes the small set of bundled preset values that may already be
+    /// stored in an operator's on-device setup. Custom operator text is always
+    /// returned unchanged.
+    private func localizedOperationalValue(_ value: String) -> String {
+        PBL10n.operationalText(value, language: presentationLanguage, locale: presentationLocale)
     }
 
     private func localizedMachineNickname(_ raw: [String: Any]?) -> String {

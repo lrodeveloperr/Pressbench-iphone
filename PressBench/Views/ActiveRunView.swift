@@ -45,6 +45,9 @@ struct ActiveRunView: View {
     }
 
     private func t(_ key: String) -> String { PBL10n.text(key, language: language, locale: locale) }
+    private var notAvailable: String {
+        PBL10n.operationalText("N/A", language: language, locale: locale)
+    }
     private var run: BatchRun? {
         if store.activeRun?.id == runID { return store.activeRun }
         if let exact = store.runs.first(where: { $0.id == runID }) { return exact }
@@ -188,10 +191,10 @@ struct ActiveRunView: View {
 
     private func runFacts(_ run: BatchRun) -> some View {
         LazyVGrid(columns: dynamicTypeSize.isAccessibilitySize ? [GridItem(.flexible())] : [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-            RunFact(value: run.temperature.isEmpty ? "N/A" : run.temperature, labelKey: "common.temperature")
-            RunFact(value: run.duration.isEmpty ? "N/A" : run.duration, labelKey: "common.durationSeconds")
-            RunFact(value: run.pressure.isEmpty ? "N/A" : run.pressure, labelKey: "common.pressure")
-            RunFact(value: run.platen.isEmpty ? "N/A" : run.platen, labelKey: "common.platen")
+            RunFact(value: run.temperature.isEmpty ? notAvailable : run.temperature, labelKey: "common.temperature")
+            RunFact(value: run.duration.isEmpty ? notAvailable : run.duration, labelKey: "common.durationSeconds")
+            RunFact(value: run.pressure.isEmpty ? notAvailable : run.pressure, labelKey: "common.pressure")
+            RunFact(value: run.platen.isEmpty ? notAvailable : run.platen, labelKey: "common.platen")
         }
     }
 
@@ -297,12 +300,12 @@ struct ActiveRunView: View {
             VStack(alignment: .leading, spacing: 12) {
                 Label(t("run.confirmInstructions"), systemImage: "checkmark.shield.fill")
                     .font(.title3.bold()).foregroundStyle(PBTheme.navy)
-                LabeledContent(t("common.material"), value: run.material.isEmpty ? "N/A" : run.material)
-                LabeledContent(t("common.transferMedium"), value: run.transferMedium.isEmpty ? "N/A" : run.transferMedium)
-                LabeledContent(t("run.machine"), value: run.machineName.isEmpty ? "N/A" : run.machineName)
+                LabeledContent(t("common.material"), value: run.material.isEmpty ? notAvailable : run.material)
+                LabeledContent(t("common.transferMedium"), value: run.transferMedium.isEmpty ? notAvailable : run.transferMedium)
+                LabeledContent(t("run.machine"), value: run.machineName.isEmpty ? notAvailable : run.machineName)
                 Divider()
                 Text(t("report.instructionSource")).font(.caption.weight(.bold)).foregroundStyle(PBTheme.secondary)
-                Text(run.instructionSource.isEmpty ? "N/A" : run.instructionSource).font(.subheadline.weight(.semibold))
+                Text(run.instructionSource.isEmpty ? notAvailable : run.instructionSource).font(.subheadline.weight(.semibold))
                 if let url = sourceURL(run.instructionSource) {
                     Link(destination: url) {
                         Label(t("common.reference"), systemImage: "arrow.up.right.square")
