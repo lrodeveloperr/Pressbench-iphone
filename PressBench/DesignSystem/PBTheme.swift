@@ -64,6 +64,9 @@ struct PBTheme {
     static let warningInk = adaptive(oceanWarningInkLight, UIColor(red: 239 / 255, green: 190 / 255, blue: 94 / 255, alpha: 1))
     static let errorInk = adaptive(oceanErrorInkLight, UIColor(red: 1, green: 139 / 255, blue: 148 / 255, alpha: 1))
     static let selectionFill = adaptive(oceanPrimaryStrongLight, oceanPrimaryStrongLight)
+    /// Approved Operator Focus cobalt. Primary actions use this fixed color so
+    /// their labels and symbols have predictable contrast in every appearance.
+    static let operatorAccent = Color(red: 0.14, green: 0.38, blue: 0.88)
     // Fixed dark action fills retain white-label contrast in both appearances.
     // Adaptive semantic inks remain available for copy on dark surfaces.
     static let primaryActionFill = Color(uiColor: oceanPrimaryStrongLight)
@@ -243,23 +246,42 @@ enum PBTimerSound {
 struct PBPrimaryButton: View {
     let title: String
     var icon: String? = nil
+    var isLoading = false
     let action: () -> Void
     @ScaledMetric(relativeTo: .headline) private var labelSize: CGFloat = 19
 
+    private var validIcon: String? {
+        guard !isLoading, let icon, UIImage(systemName: icon) != nil else { return nil }
+        return icon
+    }
+
     var body: some View {
         Button(action: action) {
-            Group {
-                if let icon { Label(title, systemImage: icon) }
-                else { Text(title) }
+            HStack(spacing: 10) {
+                if isLoading {
+                    ProgressView()
+                        .tint(.white)
+                        .accessibilityHidden(true)
+                } else if let validIcon {
+                    Image(systemName: validIcon)
+                        .symbolRenderingMode(.monochrome)
+                        .foregroundStyle(.white)
+                        .accessibilityHidden(true)
+                }
+                Text(title)
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
             }
             .font(.system(size: max(19, labelSize), weight: .bold))
+            .padding(.horizontal, 18)
             .frame(maxWidth: .infinity, minHeight: PBTheme.primaryHeight)
             .contentShape(Rectangle())
-            .foregroundStyle(.white)
-            .background(PBTheme.primaryGradient, in: RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous))
+            .background(PBTheme.operatorAccent, in: RoundedRectangle(cornerRadius: PBTheme.controlRadius, style: .continuous))
             .shadow(color: PBTheme.controlShadow, radius: 12, x: 0, y: 6)
         }
         .buttonStyle(PBTactileButtonStyle())
+        .accessibilityLabel(title)
     }
 }
 
