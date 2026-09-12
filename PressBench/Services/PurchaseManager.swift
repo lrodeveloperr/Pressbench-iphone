@@ -14,6 +14,7 @@ final class PurchaseManager: ObservableObject {
     static let annualProductID = Plan.annual.rawValue
     static let subscriptionProductIDs = Set(Plan.allCases.map(\.rawValue))
     static let recognizedProductIDs = subscriptionProductIDs
+    static let offeredPlans: [Plan] = [.monthly]
 
     enum PurchaseState: Equatable {
         case loading, free, purchased, pending, unavailable, failed(String)
@@ -156,9 +157,9 @@ final class PurchaseManager: ObservableObject {
         }
         #endif
         do {
-            let loaded = try await Product.products(for: Plan.allCases.map(\.rawValue))
+            let loaded = try await Product.products(for: Self.offeredPlans.map(\.rawValue))
                 .filter { $0.type == .autoRenewable }
-            products = Plan.allCases.compactMap { plan in loaded.first { $0.id == plan.rawValue } }
+            products = Self.offeredPlans.compactMap { plan in loaded.first { $0.id == plan.rawValue } }
             guard !products.isEmpty else {
                 state = .unavailable
                 return false
